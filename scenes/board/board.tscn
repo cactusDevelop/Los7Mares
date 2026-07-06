@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://bbqu86vf8lfka"]
+
+[ext_resource type="Script" uid="uid://ce67b0el0ibc3" path="res://scripts/board/board.gd" id="1_jnyf0"]
+[ext_resource type="Texture2D" uid="uid://dp5v7sc6ibm6" path="res://assets/art/board/board.png" id="2_knosr"]
+
+[node name="Board" type="Node2D" unique_id=1813206220]
+script = ExtResource("1_jnyf0")
+
+[node name="CenterPiece" type="Sprite2D" parent="." unique_id=1635265673]
+rotation = 2.3038347
+texture = ExtResource("2_knosr")
