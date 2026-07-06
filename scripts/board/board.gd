@@ -1,47 +1,31 @@
 extends Node2D
 
-const SEA_COUNT = 7
-const RADIUS = 400.0          # distance du centre à chaque mer — à ajuster visuellement
-const DEAL_DELAY = 0.15       # délai entre chaque carte distribuée
+const DEAL_DELAY = 0.15
 const FLIP_DELAY_AFTER_DEAL = 0.5
 
-var sea_tile_scene: PackedScene = preload("res://scenes/board/sea_tile.tscn")
+@onready var seas_container: Node2D = $Seas
 
-var sea_front_textures: Array[Texture2D] = [
-	preload("res://assets/art/board/mer-d-abondance.png"),
-	preload("res://assets/art/board/mer-d-azur.png"),
-	preload("res://assets/art/board/mer-de-feu.png"),
-	preload("res://assets/art/board/mer-de-glace.png"),
-	preload("res://assets/art/board/mer-de-jade.png"),
-	preload("res://assets/art/board/mer-maudite.png"),
-	preload("res://assets/art/board/mer-sauvage.png"),
-]
-var sea_back_texture: Texture2D = preload("res://assets/art/board/dos-de-mer.png")
-
-var sea_tiles: Array = []
 var _dealt_count: int = 0
+var _total_seas: int = 0
 
 
 func _ready() -> void:
-	_deal_seas()
+	var sea_tiles: Array = seas_container.get_children()
+	_total_seas = sea_tiles.size()
 
+	for i in range(sea_tiles.size()):
+		var tile = sea_tiles[i]
+		var angle_degrees = -90 + i * (360.0 / sea_tiles.size())
+		tile.rotation_degrees = angle_degrees + 90  # ajuste ce +90 si l'orientation ne colle pas, teste
 
-func _deal_seas() -> void:
-	var shuffled_textures = sea_front_textures.duplicate()
-	shuffled_textures.shuffle()
-
-	for i in range(SEA_COUNT):
-		var tile = sea_tile_scene.instantiate()
-		add_child(tile)
-		tile.setup(shuffled_textures[i], sea_back_texture)
-
-		# La carte part du centre (comme une pioche) vers sa position finale
+		var target_pos = tile.position
+		tile.set_meta("target_position", target_pos)
 		tile.position = Vector2.ZERO
-		tile.rotation = _get_sea_rotation(i)
 
-		sea_tiles.append(tile)
+	for i in range(sea_tiles.size()):
+		var tile = sea_tiles[i]
+		var target_pos = tile.get_meta("target_position")
 
-		var target_pos = _get_sea_position(i)
 		var tween = create_tween()
 		tween.tween_interval(i * DEAL_DELAY)
 		tween.tween_property(tile, "position", target_pos, 0.4)\
@@ -49,20 +33,9 @@ func _deal_seas() -> void:
 		tween.tween_callback(_on_one_card_dealt)
 
 
-func _get_sea_position(index: int) -> Vector2:
-	var angle = deg_to_rad(-90 + index * (360.0 / SEA_COUNT))
-	return Vector2(cos(angle), sin(angle)) * RADIUS
-
-
-func _get_sea_rotation(index: int) -> float:
-	# Oriente chaque mer pour qu'elle "pointe" vers l'extérieur de l'heptagone
-	# À ajuster selon le rendu visuel réel de tes hexagones
-	return deg_to_rad(-90 + index * (360.0 / SEA_COUNT)) + PI / 2.0
-
-
 func _on_one_card_dealt() -> void:
 	_dealt_count += 1
-	if _dealt_count == SEA_COUNT:
+	if _dealt_count == _total_seas:
 		await get_tree().create_timer(FLIP_DELAY_AFTER_DEAL).timeout
-		for tile in sea_tiles:
+		for tile in seas_container.get_children():
 			tile.flip_to_front()

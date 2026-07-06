@@ -1,8 +1,13 @@
 [gd_scene format=3 uid="uid://cihhe3gi0rmb2"]
 
 [ext_resource type="Script" uid="uid://d4e77srndujlm" path="res://scripts/board/sea_tile.gd" id="1_p33m1"]
+[ext_resource type="Texture2D" uid="uid://ncwlu7v4mv3d" path="res://assets/art/board/dos-de-mer.png" id="2_2aeuf"]
 
 [node name="SeaTile" type="Node2D" unique_id=95056078]
 script = ExtResource("1_p33m1")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=666561839]
+[node name="BackSprite" type="Sprite2D" parent="." unique_id=666561839]
+rotation = 2.6179938
+texture = ExtResource("2_2aeuf")
+
+[node name="FrontSprite" type="Sprite2D" parent="." unique_id=1665497797]

@@ -1,19 +1,23 @@
 extends Node2D
 
-@onready var sprite: Sprite2D = $Sprite2D
+@onready var back_sprite: Sprite2D = $BackSprite
+@onready var front_sprite: Sprite2D = $FrontSprite
 
-var front_texture: Texture2D
-var back_texture: Texture2D
+var _front_original_scale_x: float
 
 
-func setup(front: Texture2D, back: Texture2D) -> void:
-	front_texture = front
-	back_texture = back
-	sprite.texture = back_texture  # la carte commence face cachée (verso visible)
+func _ready() -> void:
+	_front_original_scale_x = front_sprite.scale.x
+	front_sprite.visible = false
+	back_sprite.visible = true
 
 
 func flip_to_front(duration: float = 0.3) -> void:
 	var tween = create_tween()
-	tween.tween_property(sprite, "scale:x", 0.0, duration / 2.0)
-	tween.tween_callback(func(): sprite.texture = front_texture)
-	tween.tween_property(sprite, "scale:x", 1.0, duration / 2.0)
+	tween.tween_property(back_sprite, "scale:x", 0.0, duration / 2.0)
+	tween.tween_callback(func():
+		back_sprite.visible = false
+		front_sprite.visible = true
+		front_sprite.scale.x = 0.0
+	)
+	tween.tween_property(front_sprite, "scale:x", _front_original_scale_x, duration / 2.0)
