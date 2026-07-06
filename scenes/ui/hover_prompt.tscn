@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://dh58c08cwg1j5"]
+
+[ext_resource type="Script" uid="uid://cjrc0ch504uf7" path="res://scripts/ui/hover_prompt.gd" id="1_josdi"]
+[ext_resource type="Script" uid="uid://dsbdfi05fegbb" path="res://scripts/ui/hover_outline.gd" id="2_ew48t"]
+
+[node name="HoverPrompt" type="Node2D" unique_id=1205484487]
+script = ExtResource("1_josdi")
+
+[node name="Outline" type="Node2D" parent="." unique_id=994440003]
+script = ExtResource("2_ew48t")
+
+[node name="HintLabel" type="Label" parent="." unique_id=1840138358]
+offset_right = 40.0
+offset_bottom = 23.0

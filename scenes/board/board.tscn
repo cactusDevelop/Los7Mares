@@ -10,40 +10,60 @@
 [ext_resource type="Texture2D" uid="uid://mk67swpdh8l" path="res://assets/art/board/mer-de-jade.png" id="9_bo4hw"]
 [ext_resource type="Texture2D" uid="uid://du5srs4xqwtyt" path="res://assets/art/board/mer-maudite.png" id="10_ctilb"]
 [ext_resource type="Texture2D" uid="uid://ctmsy4ky0fuqx" path="res://assets/art/board/mer-sauvage.png" id="11_vq54c"]
+[ext_resource type="Script" uid="uid://b6padkcw6pmeu" path="res://scripts/board/deck_area.gd" id="12_hxlvt"]
 [ext_resource type="Script" uid="uid://oki283iwv6dx" path="res://scripts/board/camera_2d.gd" id="12_jngt6"]
+[ext_resource type="PackedScene" uid="uid://dh58c08cwg1j5" path="res://scenes/ui/hover_prompt.tscn" id="12_w0prs"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_3l2uh"]
+radius = 426.16077
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
 
 [node name="CenterPiece" type="Sprite2D" parent="." unique_id=1635265673]
-rotation = 2.3038347
+rotation = 2.3125613
 texture = ExtResource("2_knosr")
+offset = Vector2(-10, 40)
 
 [node name="Seas" type="Node2D" parent="." unique_id=1282946842]
+position = Vector2(2156, -624)
+
+[node name="DeckArea" type="Area2D" parent="Seas" unique_id=596513295]
+position = Vector2(-2263, -8)
+script = ExtResource("12_hxlvt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Seas/DeckArea" unique_id=236293227]
+position = Vector2(2273, -6)
+shape = SubResource("CircleShape2D_3l2uh")
+
+[node name="HoverPrompt" parent="Seas/DeckArea" unique_id=1205484487 instance=ExtResource("12_w0prs")]
+position = Vector2(2300, 12)
+box_size = Vector2(1300, 1300)
+label_text = "Distribuer les mers"
 
 [node name="SeaAbondance" parent="Seas" unique_id=95056078 instance=ExtResource("3_w0prs")]
-position = Vector2(1943, -734)
+position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaAbondance" index="1" unique_id=1665497797]
 rotation = 1.5707964
 texture = ExtResource("4_hxlvt")
 
 [node name="SeaAzur" parent="Seas" unique_id=1408654157 instance=ExtResource("3_w0prs")]
-position = Vector2(1943, -734)
+position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaAzur" index="1" unique_id=1665497797]
 rotation = -1.5707964
 texture = ExtResource("6_kug5n")
 
 [node name="SeaDeFeu" parent="Seas" unique_id=665890194 instance=ExtResource("3_w0prs")]
-position = Vector2(1943, -734)
+position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaDeFeu" index="1" unique_id=1665497797]
 rotation = 0.5235988
 texture = ExtResource("7_55xd5")
 
 [node name="SeaDeGlace" parent="Seas" unique_id=1261301022 instance=ExtResource("3_w0prs")]
-position = Vector2(1943, -734)
+position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaDeGlace" index="1" unique_id=1665497797]
 position = Vector2(14.000002, 18.000002)
@@ -51,28 +71,31 @@ rotation = -1.8675023
 texture = ExtResource("8_xu7li")
 
 [node name="SeaDeJade" parent="Seas" unique_id=43703439 instance=ExtResource("3_w0prs")]
-position = Vector2(1943, -734)
+position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaDeJade" index="1" unique_id=1665497797]
 rotation = 1.5707964
 texture = ExtResource("9_bo4hw")
 
 [node name="SeaMaudite" parent="Seas" unique_id=1061362078 instance=ExtResource("3_w0prs")]
-position = Vector2(1943, -734)
+position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaMaudite" index="1" unique_id=1665497797]
 rotation = -0.38397244
 texture = ExtResource("10_ctilb")
 
 [node name="SeaSauvage" parent="Seas" unique_id=340423769 instance=ExtResource("3_w0prs")]
-position = Vector2(1943, -734)
+position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaSauvage" index="1" unique_id=1665497797]
 rotation = 0.5235988
 texture = ExtResource("11_vq54c")
 
+[node name="DeckMarker" type="Marker2D" parent="Seas" unique_id=518963446]
+position = Vector2(21, -3)
+
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1789765166]
-zoom = Vector2(0.2, 0.2)
+zoom = Vector2(0.15, 0.15)
 script = ExtResource("12_jngt6")
 
 [editable path="Seas/SeaAbondance"]
