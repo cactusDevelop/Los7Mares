@@ -14,8 +14,8 @@
 [ext_resource type="Script" uid="uid://oki283iwv6dx" path="res://scripts/board/camera_2d.gd" id="12_jngt6"]
 [ext_resource type="PackedScene" uid="uid://dh58c08cwg1j5" path="res://scenes/ui/hover_prompt.tscn" id="12_w0prs"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_3l2uh"]
-radius = 426.16077
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_55xd5"]
+points = PackedVector2Array(718, -23, 604, 467, -516, 641, -687, -111, -467, -600, 499, -631)
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
@@ -32,14 +32,14 @@ position = Vector2(2156, -624)
 script = ExtResource("12_hxlvt")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Seas/DeckArea" unique_id=236293227]
-shape = SubResource("CircleShape2D_3l2uh")
+shape = SubResource("ConvexPolygonShape2D_55xd5")
 
 [node name="HoverPrompt" parent="Seas/DeckArea" unique_id=1205484487 instance=ExtResource("12_w0prs")]
 box_size = Vector2(1300, 1300)
 outline_width = 30.0
 label_text = "Distribuer les mers"
-font_size = 64
-label_offset = Vector2(0, 0)
+font_size = 100
+bold = true
 
 [node name="SeaAbondance" parent="Seas" unique_id=95056078 groups=["sea_tile"] instance=ExtResource("3_w0prs")]
 position = Vector2(14, -10)
