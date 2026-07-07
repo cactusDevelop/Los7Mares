@@ -14,6 +14,13 @@ extends Node2D
 			outline.line_width = value
 			outline.queue_redraw()
 
+@export var corner_radius: float = 40.0:
+	set(value):
+		corner_radius = value
+		if outline:
+			outline.corner_radius = value
+			outline.queue_redraw()
+
 @export var label_text: String = "":
 	set(value):
 		label_text = value
@@ -42,6 +49,15 @@ extends Node2D
 		if hint_label:
 			_center_label()
 
+## Si assigné, le contour épouse exactement le polygone de ce CollisionPolygon2D
+## au lieu de l'hexagone par défaut.
+@export var card_shape: CollisionPolygon2D:
+	set(value):
+		card_shape = value
+		if outline:
+			outline.card_shape = value
+			outline.queue_redraw()
+
 @export var fade_duration: float = 0.15
 
 @onready var outline: Node2D = $Outline
@@ -53,6 +69,8 @@ var _fade_tween: Tween
 func _ready() -> void:
 	outline.box_size = box_size
 	outline.line_width = outline_width
+	outline.corner_radius = corner_radius
+	outline.card_shape = card_shape
 	hint_label.text = label_text
 	hint_label.add_theme_font_size_override("font_size", font_size)
 	_apply_bold()

@@ -14,9 +14,6 @@
 [ext_resource type="Script" uid="uid://oki283iwv6dx" path="res://scripts/board/camera_2d.gd" id="12_jngt6"]
 [ext_resource type="PackedScene" uid="uid://dh58c08cwg1j5" path="res://scenes/ui/hover_prompt.tscn" id="12_w0prs"]
 
-[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_55xd5"]
-points = PackedVector2Array(718, -23, 604, 467, -516, 641, -687, -111, -467, -600, 499, -631)
-
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
 
@@ -31,15 +28,15 @@ position = Vector2(2156, -624)
 [node name="DeckArea" type="Area2D" parent="Seas" unique_id=596513295]
 script = ExtResource("12_hxlvt")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Seas/DeckArea" unique_id=236293227]
-shape = SubResource("ConvexPolygonShape2D_55xd5")
-
-[node name="HoverPrompt" parent="Seas/DeckArea" unique_id=1205484487 instance=ExtResource("12_w0prs")]
+[node name="HoverPrompt" parent="Seas/DeckArea" unique_id=1205484487 node_paths=PackedStringArray("card_shape") instance=ExtResource("12_w0prs")]
 box_size = Vector2(1300, 1300)
 outline_width = 30.0
-label_text = "Distribuer les mers"
+label_text = "Distribuer Les Mers"
 font_size = 100
-bold = true
+card_shape = NodePath("../CollisionPolygon2D")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Seas/DeckArea" unique_id=949264285]
+polygon = PackedVector2Array(606, -27, 319, 499, -281, 499, -580, -28, -286, -527, 312, -532)
 
 [node name="SeaAbondance" parent="Seas" unique_id=95056078 groups=["sea_tile"] instance=ExtResource("3_w0prs")]
 position = Vector2(14, -10)
