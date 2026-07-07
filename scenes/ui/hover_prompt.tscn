@@ -4,7 +4,10 @@
 [ext_resource type="Script" uid="uid://dsbdfi05fegbb" path="res://scripts/ui/hover_outline.gd" id="2_ew48t"]
 
 [node name="HoverPrompt" type="Node2D" unique_id=1205484487]
+z_index = 20
 script = ExtResource("1_josdi")
+label_text = "LABEL NOT DEFINED"
+label_offset = Vector2(0, 0)
 
 [node name="Outline" type="Node2D" parent="." unique_id=994440003]
 script = ExtResource("2_ew48t")
@@ -12,3 +15,7 @@ script = ExtResource("2_ew48t")
 [node name="HintLabel" type="Label" parent="." unique_id=1840138358]
 offset_right = 40.0
 offset_bottom = 23.0
+theme_override_font_sizes/font_size = 32
+text = "TEST LABEL"
+horizontal_alignment = 1
+vertical_alignment = 1

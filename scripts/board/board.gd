@@ -10,49 +10,50 @@ const FLIP_WAVE_DELAY = 0.12
 
 @onready var seas_container: Node2D = $Seas
 @onready var deck_area: Area2D = $Seas/DeckArea
-@onready var deck_marker: Marker2D = $Seas/DeckMarker
-@onready var center_piece: Node2D = $CenterPiece
 
 var _sea_tiles: Array = []
+var _slot_order: Array = []
 var _dealt_count: int = 0
 var _total_seas: int = 0
 var _has_started: bool = false
 
 
 func _ready() -> void:
-	# On récupère les mers uniquement (on exclut DeckArea et DeckMarker,
-	# qui sont aussi enfants de Seas mais ne sont pas des tuiles)
 	_sea_tiles = []
 	for child in seas_container.get_children():
-		if child != deck_area and child != deck_marker:
+		if child.is_in_group("sea_tile"):
 			_sea_tiles.append(child)
 
 	_total_seas = _sea_tiles.size()
 
-	# Centre du cercle ancré sur CenterPiece, converti dans l'espace local de Seas
-	var board_center_local: Vector2 = seas_container.to_local(center_piece.global_position)
-
+	# 1. Empiler visuellement au niveau du deck — position GLOBALE, pas locale
 	for i in range(_sea_tiles.size()):
 		var tile = _sea_tiles[i]
-		var angle_degrees = 90.0 + i * (360.0 / _sea_tiles.size())
-		var angle_rad = deg_to_rad(angle_degrees)
-		var target_pos = board_center_local + radius * Vector2(cos(angle_rad), sin(angle_rad))
-		var target_rot = angle_degrees + 90.0
-
-		tile.set_meta("target_position", target_pos)
-		tile.set_meta("target_rotation", target_rot)
-
-	var deal_order: Array = _sea_tiles.duplicate()
-	deal_order.shuffle()
-
-	for i in range(deal_order.size()):
-		var tile = deal_order[i]
-		tile.position = deck_marker.position + deck_stack_offset * i
+		tile.global_position = deck_area.global_position + deck_stack_offset * i
 		tile.rotation_degrees = 0.0
+		tile.z_index = i
 		tile.back_sprite.visible = true
 		tile.front_sprite.visible = false
 
-	set_meta("deal_order", deal_order)
+	# 2. Calculer les 7 emplacements finaux, centrés sur BOARD (self), en GLOBAL
+	var board_center: Vector2 = global_position
+	var slots: Array = []
+	for i in range(_total_seas):
+		var angle_degrees = 90.0 + i * (360.0 / _total_seas)
+		var angle_rad = deg_to_rad(angle_degrees)
+		slots.append({
+			"global_position": board_center + radius * Vector2(cos(angle_rad), sin(angle_rad)),
+			"rotation": angle_degrees + 90.0,
+		})
+
+	# 3. Attribution aléatoire des emplacements
+	_slot_order = _sea_tiles.duplicate()
+	_slot_order.shuffle()
+	for i in range(_slot_order.size()):
+		var tile = _slot_order[i]
+		tile.set_meta("target_global_position", slots[i].global_position)
+		tile.set_meta("target_rotation", slots[i].rotation)
+
 	deck_area.deck_clicked.connect(_on_deck_clicked)
 
 
@@ -66,22 +67,24 @@ func _on_deck_clicked() -> void:
 		return
 	_has_started = true
 	deck_area.get_node("HoverPrompt").hide_prompt()
-	_deal_seas(get_meta("deal_order"))
+	_deal_seas()
 
 
-func _deal_seas(deal_order: Array) -> void:
-	for i in range(deal_order.size()):
-		var tile = deal_order[i]
-		var target_pos = tile.get_meta("target_position")
+func _deal_seas() -> void:
+	var deal_count = 0
+	for i in range(_sea_tiles.size() - 1, -1, -1):
+		var tile = _sea_tiles[i]
+		var target_pos = tile.get_meta("target_global_position")
 		var target_rot = tile.get_meta("target_rotation")
 
 		var tween = create_tween()
-		tween.tween_interval(i * DEAL_DELAY)
-		tween.tween_property(tile, "position", target_pos, DEAL_DURATION)\
+		tween.tween_interval(deal_count * DEAL_DELAY)
+		tween.tween_property(tile, "global_position", target_pos, DEAL_DURATION)\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		tween.parallel().tween_property(tile, "rotation_degrees", target_rot, DEAL_DURATION)\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		tween.tween_callback(_on_one_card_dealt)
+		deal_count += 1
 
 
 func _on_one_card_dealt() -> void:
@@ -91,10 +94,8 @@ func _on_one_card_dealt() -> void:
 		_flip_all_as_wave()
 
 
-# Retourne les cartes en vague, dans l'ordre horaire (ordre de _sea_tiles,
-# puisque leur index correspond déjà à l'angle croissant autour de l'heptagone)
 func _flip_all_as_wave() -> void:
-	for i in range(_sea_tiles.size()):
-		var tile = _sea_tiles[i]
+	for i in range(_slot_order.size()):
+		var tile = _slot_order[i]
 		var t = get_tree().create_timer(i * FLIP_WAVE_DELAY)
 		t.timeout.connect(tile.flip_to_front)

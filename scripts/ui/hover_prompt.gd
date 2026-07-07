@@ -7,6 +7,13 @@ extends Node2D
 			outline.box_size = value
 			outline.queue_redraw()
 
+@export var outline_width: float = 6.0:
+	set(value):
+		outline_width = value
+		if outline:
+			outline.line_width = value
+			outline.queue_redraw()
+
 @export var label_text: String = "":
 	set(value):
 		label_text = value
@@ -19,7 +26,7 @@ extends Node2D
 
 func _ready() -> void:
 	outline.box_size = box_size
-	outline.queue_redraw()
+	outline.line_width = outline_width
 	hint_label.text = label_text
 	hide_prompt()
 

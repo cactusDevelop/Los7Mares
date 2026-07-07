@@ -29,40 +29,40 @@ offset = Vector2(-10, 40)
 position = Vector2(2156, -624)
 
 [node name="DeckArea" type="Area2D" parent="Seas" unique_id=596513295]
-position = Vector2(-2263, -8)
 script = ExtResource("12_hxlvt")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Seas/DeckArea" unique_id=236293227]
-position = Vector2(2273, -6)
 shape = SubResource("CircleShape2D_3l2uh")
 
 [node name="HoverPrompt" parent="Seas/DeckArea" unique_id=1205484487 instance=ExtResource("12_w0prs")]
-position = Vector2(2300, 12)
 box_size = Vector2(1300, 1300)
+outline_width = 30.0
 label_text = "Distribuer les mers"
+font_size = 64
+label_offset = Vector2(0, 0)
 
-[node name="SeaAbondance" parent="Seas" unique_id=95056078 instance=ExtResource("3_w0prs")]
+[node name="SeaAbondance" parent="Seas" unique_id=95056078 groups=["sea_tile"] instance=ExtResource("3_w0prs")]
 position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaAbondance" index="1" unique_id=1665497797]
 rotation = 1.5707964
 texture = ExtResource("4_hxlvt")
 
-[node name="SeaAzur" parent="Seas" unique_id=1408654157 instance=ExtResource("3_w0prs")]
+[node name="SeaAzur" parent="Seas" unique_id=1408654157 groups=["sea_tile"] instance=ExtResource("3_w0prs")]
 position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaAzur" index="1" unique_id=1665497797]
 rotation = -1.5707964
 texture = ExtResource("6_kug5n")
 
-[node name="SeaDeFeu" parent="Seas" unique_id=665890194 instance=ExtResource("3_w0prs")]
+[node name="SeaDeFeu" parent="Seas" unique_id=665890194 groups=["sea_tile"] instance=ExtResource("3_w0prs")]
 position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaDeFeu" index="1" unique_id=1665497797]
 rotation = 0.5235988
 texture = ExtResource("7_55xd5")
 
-[node name="SeaDeGlace" parent="Seas" unique_id=1261301022 instance=ExtResource("3_w0prs")]
+[node name="SeaDeGlace" parent="Seas" unique_id=1261301022 groups=["sea_tile"] instance=ExtResource("3_w0prs")]
 position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaDeGlace" index="1" unique_id=1665497797]
@@ -70,29 +70,26 @@ position = Vector2(14.000002, 18.000002)
 rotation = -1.8675023
 texture = ExtResource("8_xu7li")
 
-[node name="SeaDeJade" parent="Seas" unique_id=43703439 instance=ExtResource("3_w0prs")]
+[node name="SeaDeJade" parent="Seas" unique_id=43703439 groups=["sea_tile"] instance=ExtResource("3_w0prs")]
 position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaDeJade" index="1" unique_id=1665497797]
 rotation = 1.5707964
 texture = ExtResource("9_bo4hw")
 
-[node name="SeaMaudite" parent="Seas" unique_id=1061362078 instance=ExtResource("3_w0prs")]
+[node name="SeaMaudite" parent="Seas" unique_id=1061362078 groups=["sea_tile"] instance=ExtResource("3_w0prs")]
 position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaMaudite" index="1" unique_id=1665497797]
 rotation = -0.38397244
 texture = ExtResource("10_ctilb")
 
-[node name="SeaSauvage" parent="Seas" unique_id=340423769 instance=ExtResource("3_w0prs")]
+[node name="SeaSauvage" parent="Seas" unique_id=340423769 groups=["sea_tile"] instance=ExtResource("3_w0prs")]
 position = Vector2(14, -10)
 
 [node name="FrontSprite" parent="Seas/SeaSauvage" index="1" unique_id=1665497797]
 rotation = 0.5235988
 texture = ExtResource("11_vq54c")
-
-[node name="DeckMarker" type="Marker2D" parent="Seas" unique_id=518963446]
-position = Vector2(21, -3)
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1789765166]
 zoom = Vector2(0.15, 0.15)
