@@ -66,14 +66,17 @@ func _ready() -> void:
 
 	if GameFlow.pending_setup_mode != "":
 		deck_area.input_pickable = false
-		player_setup_popup.player_confirmed.connect(_on_player_confirmed)
-		player_setup_popup.open_for_new_player()
+		player_setup_popup.player_confirmed.connect(_on_setup_player_confirmed)
+		player_setup_popup.open_for_new_player(GameFlow.players.size() + 1, GameFlow.pending_setup_target_count)
 
 
-func _on_player_confirmed(player_name: String, color: String) -> void:
+func _on_setup_player_confirmed(player_name: String, color: String) -> void:
 	GameFlow.add_player(player_name, color)
-	GameFlow.pending_setup_mode = ""
-	deck_area.input_pickable = true
+	if GameFlow.players.size() < GameFlow.pending_setup_target_count:
+		player_setup_popup.open_for_new_player(GameFlow.players.size() + 1, GameFlow.pending_setup_target_count)
+	else:
+		GameFlow.pending_setup_mode = ""
+		deck_area.input_pickable = true
 
 
 func _refresh_player_list() -> void:

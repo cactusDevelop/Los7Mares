@@ -19,6 +19,7 @@ const BOARD_SCENE_PATH := "res://scenes/board/board.tscn"
 ## "host" ou "join" = le joueur local doit passer par le popup nom/couleur
 ## en arrivant sur le board (stub en attendant le vrai réseau).
 var pending_setup_mode: String = ""
+var pending_setup_target_count: int = 1
 var is_debug_mode: bool = false
 
 var players: Array[Dictionary] = []

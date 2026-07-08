@@ -8,6 +8,7 @@ signal player_confirmed(player_name: String, color: String)
 @onready var color_row: HBoxContainer = $Content/ColorRow
 @onready var confirm_button: Button = $Content/ConfirmButton
 @onready var error_label: Label = $Content/ErrorLabel
+@onready var title_label: Label = $Content/TitleLabel
 
 var _selected_color: String = ""
 var _color_buttons: Dictionary = {}
@@ -38,7 +39,7 @@ func _ready() -> void:
 	error_label.visible = false
 
 
-func open_for_new_player() -> void:
+func open_for_new_player(player_number: int = 0, total_players: int = 0) -> void:
 	name_input.text = ""
 	_selected_color = ""
 	for color_name in _color_buttons:
@@ -46,6 +47,12 @@ func open_for_new_player() -> void:
 		btn.button_pressed = false
 		btn.modulate.a = 0.4
 	error_label.visible = false
+
+	if total_players > 0:
+		title_label.text = "JOUEUR %d / %d — CHOISIS UN NOM ET UNE COULEUR" % [player_number, total_players]
+	else:
+		title_label.text = "CHOISIS LE NOM DE TON EQUIPAGE ET LA COULEUR DE TA VOILE"
+
 	_layout_popup()
 	visible = true
 	name_input.grab_focus()
