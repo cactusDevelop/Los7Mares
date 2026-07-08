@@ -1,5 +1,47 @@
 [gd_scene format=3 uid="uid://bg437po33iydc"]
 
+[ext_resource type="Script" uid="uid://itineld551kt" path="res://scripts/ui/player_setup_popup.gd" id="1_rmrkr"]
+
 [node name="PlayerSetupPopup" type="PopupPanel" unique_id=1537230509]
 oversampling_override = 1.0
-visible = true
+size = Vector2i(505, 140)
+script = ExtResource("1_rmrkr")
+
+[node name="Content" type="VBoxContainer" parent="." unique_id=1131425273]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 501.0
+offset_bottom = 136.0
+
+[node name="TitleLabel" type="Label" parent="Content" unique_id=1108403878]
+layout_mode = 2
+text = "CHOISIS LE NOM DE TON EQUIPAGE ET LA COULEUR DE TA VOILE"
+
+[node name="NameInput" type="LineEdit" parent="Content" unique_id=280089217]
+layout_mode = 2
+placeholder_text = "NOM"
+
+[node name="ColorRow" type="HBoxContainer" parent="Content" unique_id=1683898500]
+layout_mode = 2
+
+[node name="ColorButtonRouge" type="Button" parent="Content/ColorRow" unique_id=2125937830]
+layout_mode = 2
+
+[node name="ColorButtonJaune" type="Button" parent="Content/ColorRow" unique_id=2107038454]
+layout_mode = 2
+
+[node name="ColorButtonBleu" type="Button" parent="Content/ColorRow" unique_id=870246225]
+layout_mode = 2
+
+[node name="ColorButtonVert" type="Button" parent="Content/ColorRow" unique_id=1426675487]
+layout_mode = 2
+
+[node name="ColorButtonViolet" type="Button" parent="Content/ColorRow" unique_id=1788693090]
+layout_mode = 2
+
+[node name="ErrorLabel" type="Label" parent="Content" unique_id=1023787558]
+layout_mode = 2
+
+[node name="ConfirmButton" type="Button" parent="Content" unique_id=2072079617]
+layout_mode = 2
+text = "VALIDER"

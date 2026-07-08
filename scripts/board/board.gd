@@ -23,6 +23,7 @@ var _has_started: bool = false
 func _ready() -> void:
 	_sea_tiles = []
 	player_list.position = Vector2(20, 20)
+
 	for child in seas_container.get_children():
 		if child.is_in_group("sea_tile"):
 			_sea_tiles.append(child)
@@ -58,6 +59,40 @@ func _ready() -> void:
 		tile.set_meta("target_rotation", slots[i].rotation)
 
 	deck_area.deck_clicked.connect(_on_deck_clicked)
+
+	# --- Joueurs ---
+	GameFlow.players_changed.connect(_refresh_player_list)
+	_refresh_player_list()
+
+	if GameFlow.pending_setup_mode != "":
+		deck_area.input_pickable = false
+		player_setup_popup.player_confirmed.connect(_on_player_confirmed)
+		player_setup_popup.open_for_new_player()
+
+
+func _on_player_confirmed(player_name: String, color: String) -> void:
+	GameFlow.add_player(player_name, color)
+	GameFlow.pending_setup_mode = ""
+	deck_area.input_pickable = true
+
+
+func _refresh_player_list() -> void:
+	for child in player_list.get_children():
+		child.queue_free()
+	for player in GameFlow.players:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+
+		var swatch := ColorRect.new()
+		swatch.custom_minimum_size = Vector2(20, 20)
+		swatch.color = GameFlow.COLOR_VALUES[player["color"]]
+		row.add_child(swatch)
+
+		var label := Label.new()
+		label.text = player["name"]
+		row.add_child(label)
+
+		player_list.add_child(row)
 
 
 func _unhandled_input(event: InputEvent) -> void:
