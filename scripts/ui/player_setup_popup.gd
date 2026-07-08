@@ -92,7 +92,6 @@ func _on_confirm_pressed() -> void:
 		return
 	error_label.visible = false
 	player_confirmed.emit(player_name, _selected_color)
-	visible = false
 
 
 func _show_error(message: String) -> void:

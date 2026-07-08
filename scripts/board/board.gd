@@ -77,6 +77,7 @@ func _on_setup_player_confirmed(player_name: String, color: String) -> void:
 	else:
 		GameFlow.pending_setup_mode = ""
 		deck_area.input_pickable = true
+		player_setup_popup.visible = false
 
 
 func _refresh_player_list() -> void:
