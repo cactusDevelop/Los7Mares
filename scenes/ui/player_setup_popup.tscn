@@ -2,12 +2,21 @@
 
 [ext_resource type="Script" uid="uid://itineld551kt" path="res://scripts/ui/player_setup_popup.gd" id="1_rmrkr"]
 
-[node name="PlayerSetupPopup" type="PopupPanel" unique_id=1537230509]
-oversampling_override = 1.0
-size = Vector2i(505, 140)
+[node name="PlayerSetupPopup" type="Control" unique_id=748628013]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 505.0
+offset_bottom = 140.0
 script = ExtResource("1_rmrkr")
 
+[node name="Blocker" type="ColorRect" parent="." unique_id=2146769324]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0, 0, 0, 0.5)
+
 [node name="Content" type="VBoxContainer" parent="." unique_id=1131425273]
+layout_mode = 0
 offset_left = 4.0
 offset_top = 4.0
 offset_right = 501.0

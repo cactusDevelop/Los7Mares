@@ -1,7 +1,8 @@
-extends PopupPanel
+extends Control
 
 signal player_confirmed(player_name: String, color: String)
 
+@onready var blocker: ColorRect = $Blocker
 @onready var content: VBoxContainer = $Content
 @onready var name_input: LineEdit = $Content/NameInput
 @onready var color_row: HBoxContainer = $Content/ColorRow
@@ -15,7 +16,9 @@ var _color_group := ButtonGroup.new()
 
 func _ready() -> void:
 	visible = false
-	exclusive = true
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	blocker.mouse_filter = Control.MOUSE_FILTER_STOP
+	blocker.color = Color(0, 0, 0, 0.5)
 
 	var color_buttons := color_row.get_children()
 	for i in range(GameFlow.COLORS.size()):
@@ -26,14 +29,13 @@ func _ready() -> void:
 		btn.button_group = _color_group
 		btn.button_pressed = false
 		btn.self_modulate = GameFlow.COLOR_VALUES[color_name]
-		btn.modulate.a = 0.4  # non sélectionné = estompé
+		btn.modulate.a = 0.4
 		btn.toggled.connect(_on_color_button_toggled.bind(color_name, btn))
 		btn.pressed.connect(_on_color_button_pressed.bind(color_name))
 		_color_buttons[color_name] = btn
 
 	confirm_button.pressed.connect(_on_confirm_pressed)
 	error_label.visible = false
-	_layout_popup()
 
 
 func open_for_new_player() -> void:
@@ -45,18 +47,21 @@ func open_for_new_player() -> void:
 		btn.modulate.a = 0.4
 	error_label.visible = false
 	_layout_popup()
-	popup_centered()
+	visible = true
+	name_input.grab_focus()
 
 
 func _layout_popup() -> void:
-	# Un PopupPanel (Window) ne s'ajuste pas tout seul à son contenu :
-	# on force sa taille et celle du container interne.
-	content.position = Vector2.ZERO
+	var viewport_size := get_viewport_rect().size
+
+	blocker.position = Vector2.ZERO
+	blocker.size = viewport_size
+
 	var min_size: Vector2 = content.get_combined_minimum_size()
 	min_size.x = max(min_size.x, 360)
 	min_size.y = max(min_size.y, 300)
 	content.size = min_size
-	size = min_size
+	content.position = (viewport_size - min_size) / 2.0
 
 
 func _on_color_button_toggled(is_pressed: bool, color_name: String, btn: Button) -> void:
@@ -80,7 +85,7 @@ func _on_confirm_pressed() -> void:
 		return
 	error_label.visible = false
 	player_confirmed.emit(player_name, _selected_color)
-	hide()
+	visible = false
 
 
 func _show_error(message: String) -> void:

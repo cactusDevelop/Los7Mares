@@ -11,7 +11,7 @@ const FLIP_WAVE_DELAY = 0.12
 @onready var seas_container: Node2D = $Seas
 @onready var deck_area: Area2D = $Seas/DeckArea
 @onready var player_list: VBoxContainer = $UI/PlayerList
-@onready var player_setup_popup: PopupPanel = $UI/PlayerSetupPopup
+@onready var player_setup_popup: Control = $UI/PlayerSetupPopup
 
 var _sea_tiles: Array = []
 var _slot_order: Array = []
