@@ -1,0 +1,65 @@
+[gd_scene format=3 uid="uid://buak45c3014j0"]
+
+[ext_resource type="Script" uid="uid://cutqga2dm2kqx" path="res://scripts/ui/title_screen.gd" id="1_aqpy5"]
+[ext_resource type="Texture2D" uid="uid://b7yjamv551scs" path="res://assets/art/title.png" id="2_w8uqo"]
+
+[node name="TitleScreen" type="Control" unique_id=998463451]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_aqpy5")
+
+[node name="Background" type="TextureRect" parent="." unique_id=801742591]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("2_w8uqo")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="SettingsButton" type="Button" parent="." unique_id=1306401427]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Paramètres"
+
+[node name="CenterButtons" type="VBoxContainer" parent="." unique_id=616410231]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="DebugButton" type="Button" parent="CenterButtons" unique_id=1554320652]
+layout_mode = 2
+
+[node name="JoinButton" type="Button" parent="CenterButtons" unique_id=1709295050]
+layout_mode = 2
+
+[node name="HostButton" type="Button" parent="CenterButtons" unique_id=1351551993]
+layout_mode = 2
+
+[node name="SettingsPopup" type="PopupPanel" parent="." unique_id=1867333443]
+
+[node name="Label" type="Label" parent="SettingsPopup" unique_id=364271415]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="DebugPopup" type="PopupPanel" parent="." unique_id=380088268]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DebugPopup" unique_id=1619311083]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="DebugPopup/VBoxContainer" unique_id=1437157968]
+layout_mode = 2
+
+[node name="PlayerCountSpinBox" type="SpinBox" parent="DebugPopup/VBoxContainer" unique_id=806387983]
+layout_mode = 2
+min_value = 2.0
+max_value = 5.0
+value = 4.0
+
+[node name="ConfirmButton" type="Button" parent="DebugPopup/VBoxContainer" unique_id=1367342983]
+layout_mode = 2

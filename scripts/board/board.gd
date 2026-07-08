@@ -10,6 +10,8 @@ const FLIP_WAVE_DELAY = 0.12
 
 @onready var seas_container: Node2D = $Seas
 @onready var deck_area: Area2D = $Seas/DeckArea
+@onready var player_list: VBoxContainer = $UI/PlayerList
+@onready var player_setup_popup: PopupPanel = $UI/PlayerSetupPopup
 
 var _sea_tiles: Array = []
 var _slot_order: Array = []
@@ -20,6 +22,7 @@ var _has_started: bool = false
 
 func _ready() -> void:
 	_sea_tiles = []
+	player_list.position = Vector2(20, 20)
 	for child in seas_container.get_children():
 		if child.is_in_group("sea_tile"):
 			_sea_tiles.append(child)
@@ -67,6 +70,8 @@ func _on_deck_clicked() -> void:
 		return
 	_has_started = true
 	deck_area.get_node("HoverPrompt").hide_prompt()
+	deck_area.input_pickable = false
+	deck_area.visible = false
 	_deal_seas()
 
 
