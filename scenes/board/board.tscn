@@ -101,6 +101,8 @@ offset_bottom = 40.0
 
 [node name="PlayerSetupPopup" parent="UI" unique_id=1537230509 instance=ExtResource("14_dj4mb")]
 
+[node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
+
 [editable path="Seas/SeaAbondance"]
 [editable path="Seas/SeaAzur"]
 [editable path="Seas/SeaDeFeu"]

@@ -2,6 +2,9 @@ extends Control
 
 signal player_confirmed(player_name: String, color: String)
 
+const TAKEN_COLOR := Color(0.45, 0.45, 0.45)
+const SELECTED_BORDER := Color(1.0, 1.0, 1.0)
+
 @onready var blocker: ColorRect = $Blocker
 @onready var content: VBoxContainer = $Content
 @onready var name_input: LineEdit = $Content/NameInput
@@ -28,10 +31,8 @@ func _ready() -> void:
 		btn.custom_minimum_size = Vector2(48, 48)
 		btn.toggle_mode = true
 		btn.button_group = _color_group
-		btn.button_pressed = false
-		btn.self_modulate = GameFlow.COLOR_VALUES[color_name]
-		btn.modulate.a = 0.4
-		btn.toggled.connect(_on_color_button_toggled.bind(color_name, btn))
+		btn.text = ""
+		btn.toggled.connect(_on_color_button_toggled.bind(color_name))
 		btn.pressed.connect(_on_color_button_pressed.bind(color_name))
 		_color_buttons[color_name] = btn
 
@@ -45,7 +46,8 @@ func open_for_new_player(player_number: int = 0, total_players: int = 0) -> void
 	for color_name in _color_buttons:
 		var btn: Button = _color_buttons[color_name]
 		btn.button_pressed = false
-		btn.modulate.a = 0.4
+		btn.disabled = GameFlow.is_color_taken(color_name)
+		_apply_button_style(btn, color_name, false)
 	error_label.visible = false
 
 	if total_players > 0:
@@ -71,8 +73,32 @@ func _layout_popup() -> void:
 	content.position = (viewport_size - min_size) / 2.0
 
 
-func _on_color_button_toggled(is_pressed: bool, color_name: String, btn: Button) -> void:
-	btn.modulate.a = 1.0 if is_pressed else 0.4
+## Construit un StyleBox à couleur pleine (grisé si la couleur est prise,
+## bordure blanche si sélectionnée par le joueur en cours de saisie).
+func _apply_button_style(btn: Button, color_name: String, is_selected: bool) -> void:
+	var base_color: Color = TAKEN_COLOR if GameFlow.is_color_taken(color_name) else GameFlow.COLOR_VALUES[color_name]
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = base_color
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_left = 8
+	style.corner_radius_bottom_right = 8
+	if is_selected:
+		style.border_width_left = 4
+		style.border_width_top = 4
+		style.border_width_right = 4
+		style.border_width_bottom = 4
+		style.border_color = SELECTED_BORDER
+
+	btn.add_theme_stylebox_override("normal", style)
+	btn.add_theme_stylebox_override("hover", style)
+	btn.add_theme_stylebox_override("pressed", style)
+	btn.add_theme_stylebox_override("disabled", style)
+
+
+func _on_color_button_toggled(is_pressed: bool, color_name: String) -> void:
+	_apply_button_style(_color_buttons[color_name], color_name, is_pressed)
 
 
 func _on_color_button_pressed(color_name: String) -> void:
@@ -83,6 +109,9 @@ func _on_confirm_pressed() -> void:
 	var player_name := name_input.text.strip_edges()
 	if player_name.is_empty():
 		_show_error("Entre un nom.")
+		return
+	if GameFlow.is_name_taken(player_name):
+		_show_error("Ce nom est déjà pris.")
 		return
 	if _selected_color.is_empty():
 		_show_error("Choisis une couleur.")

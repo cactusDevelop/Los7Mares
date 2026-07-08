@@ -45,6 +45,14 @@ func add_player(player_name: String, color: String) -> Dictionary:
 	return player
 
 
+func is_name_taken(player_name: String) -> bool:
+	var normalized := player_name.strip_edges().to_lower()
+	for p in players:
+		if p["name"].to_lower() == normalized:
+			return true
+	return false
+
+
 func is_color_taken(color: String) -> bool:
 	for p in players:
 		if p["color"] == color:
