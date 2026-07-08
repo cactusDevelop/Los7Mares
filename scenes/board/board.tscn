@@ -103,6 +103,20 @@ offset_bottom = 40.0
 
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
 
+[node name="Spot1" type="Marker2D" parent="ActionSpots" unique_id=500455286]
+position = Vector2(296, -281)
+
+[node name="Spot2" type="Marker2D" parent="ActionSpots" unique_id=1338752346]
+position = Vector2(311, 348)
+
+[node name="Spot3" type="Marker2D" parent="ActionSpots" unique_id=243396411]
+position = Vector2(-326, 340)
+
+[node name="Spot4" type="Marker2D" parent="ActionSpots" unique_id=46236850]
+position = Vector2(-340, -296)
+
+[node name="Spot5" type="Marker2D" parent="ActionSpots" unique_id=1897940624]
+
 [editable path="Seas/SeaAbondance"]
 [editable path="Seas/SeaAzur"]
 [editable path="Seas/SeaDeFeu"]
