@@ -51,7 +51,15 @@ func _layout_ui() -> void:
 
 
 func _on_settings_pressed() -> void:
-	settings_popup.popup_centered()
+	settings_popup.popup_centered_auto()
+
+
+func _popup_player_count_centered() -> void:
+	var padding: MarginContainer = $PlayerCountPopup/Padding
+	var min_size: Vector2 = padding.get_combined_minimum_size()
+	min_size.x = max(min_size.x, 320)
+	player_count_popup.size = min_size
+	player_count_popup.popup_centered()
 
 
 func _on_host_pressed() -> void:
@@ -72,12 +80,12 @@ func _on_join_pressed() -> void:
 
 func _on_local_pressed() -> void:
 	_pending_popup_action = "local"
-	player_count_popup.popup_centered()
+	_popup_player_count_centered()
 
 
 func _on_debug_pressed() -> void:
 	_pending_popup_action = "debug"
-	player_count_popup.popup_centered()
+	_popup_player_count_centered()
 
 
 func _on_player_count_confirmed() -> void:

@@ -93,3 +93,20 @@ func compute_case_color(pieces: Array) -> Color:
 	var top_pieces := pieces.filter(func(p): return p["rank"] == max_rank)
 	top_pieces.sort_custom(func(a, b): return a["order"] < b["order"])
 	return COLOR_VALUES[top_pieces[0]["color"]]
+
+
+## Retourne les positions relatives (centrées sur la case) pour "count" pièces.
+func layout_positions_for_case(count: int, spacing: float = 22.0) -> Array[Vector2]:
+	match count:
+		0:
+			return []
+		1:
+			return [Vector2.ZERO]
+		2:
+			return [Vector2(-spacing, 0), Vector2(spacing, 0)]
+		_:
+			var positions: Array[Vector2] = []
+			for i in range(count):
+				var angle := -PI / 2.0 + i * (TAU / count)
+				positions.append(Vector2(cos(angle), sin(angle)) * spacing)
+			return positions

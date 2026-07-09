@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://dt0ffi66gqwvd"]
+
+[ext_resource type="Script" uid="uid://0mea6xa6i2mq" path="res://scripts/board/action_spot.gd" id="1_2a1xx"]
+[ext_resource type="Texture2D" uid="uid://yhg7v188qkcc" path="res://assets/art/board/plateau-case.png" id="2_lpcs2"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_j3le6"]
+radius = 170.0
+
+[node name="ActionSpot" type="Node2D" unique_id=1764597111]
+script = ExtResource("1_2a1xx")
+
+[node name="CaseSprite" type="Sprite2D" parent="." unique_id=1859020373]
+texture = ExtResource("2_lpcs2")
+
+[node name="ClickArea" type="Area2D" parent="." unique_id=2108421627]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ClickArea" unique_id=1754423302]
+shape = SubResource("CircleShape2D_j3le6")

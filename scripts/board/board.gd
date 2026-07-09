@@ -12,11 +12,16 @@ const FLIP_WAVE_DELAY = 0.12
 @onready var deck_area: Area2D = $Seas/DeckArea
 @onready var player_list: VBoxContainer = $UI/PlayerList
 @onready var player_setup_popup: Control = $UI/PlayerSetupPopup
+@onready var current_player_label: Label = $UI/CurrentPlayerLabel
+@onready var action_spots_container: Node2D = $ActionSpots
+
+const CAPTAIN_SCENE := preload("res://scenes/board/pieces/captain_piece.tscn")
 
 var _sea_tiles: Array = []
 var _slot_order: Array = []
 var _dealt_count: int = 0
 var _total_seas: int = 0
+var _current_player_turn_index: int = 0
 var _has_started: bool = false
 
 
@@ -69,6 +74,9 @@ func _ready() -> void:
 		player_setup_popup.player_confirmed.connect(_on_setup_player_confirmed)
 		player_setup_popup.open_for_new_player(GameFlow.players.size() + 1, GameFlow.pending_setup_target_count)
 
+	if GameFlow.pending_setup_mode == "":
+		_start_captain_placement_phase()
+
 
 func _on_setup_player_confirmed(player_name: String, color: String) -> void:
 	GameFlow.add_player(player_name, color)
@@ -78,6 +86,7 @@ func _on_setup_player_confirmed(player_name: String, color: String) -> void:
 		GameFlow.pending_setup_mode = ""
 		deck_area.input_pickable = true
 		player_setup_popup.visible = false
+		_start_captain_placement_phase()
 
 
 func _refresh_player_list() -> void:
@@ -143,3 +152,36 @@ func _flip_all_as_wave() -> void:
 		var tile = _slot_order[i]
 		var t = get_tree().create_timer(i * FLIP_WAVE_DELAY)
 		t.timeout.connect(tile.flip_to_front)
+
+
+func _start_captain_placement_phase() -> void:
+	_current_player_turn_index = 0
+	for spot in action_spots_container.get_children():
+		spot.spot_clicked.connect(_on_action_spot_clicked)
+	_update_current_player_label()
+
+
+func _update_current_player_label() -> void:
+	if _current_player_turn_index < GameFlow.players.size():
+		var player: Dictionary = GameFlow.players[_current_player_turn_index]
+		current_player_label.text = "Tour de %s — place ton capitaine" % player["name"]
+		current_player_label.modulate = GameFlow.COLOR_VALUES[player["color"]]
+	else:
+		current_player_label.text = "Placement des capitaines terminé"
+
+	current_player_label.position = Vector2(
+		(get_viewport().get_visible_rect().size.x - current_player_label.size.x) / 2.0,
+		20
+	)
+
+
+func _on_action_spot_clicked(spot: Node2D) -> void:
+	if _current_player_turn_index >= GameFlow.players.size():
+		return
+	var player: Dictionary = GameFlow.players[_current_player_turn_index]
+	var captain: Node2D = CAPTAIN_SCENE.instantiate()
+	captain.modulate = GameFlow.COLOR_VALUES[player["color"]]
+	spot.add_piece(captain, player["color"], GameFlow.PieceRank.CAPTAIN)
+	_current_player_turn_index += 1
+	_update_current_player_label()
+	

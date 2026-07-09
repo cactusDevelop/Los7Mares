@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cutqga2dm2kqx" path="res://scripts/ui/title_screen.gd" id="1_aqpy5"]
 [ext_resource type="Texture2D" uid="uid://b7yjamv551scs" path="res://assets/art/title.png" id="2_w8uqo"]
+[ext_resource type="Script" uid="uid://bqajivy6eqopk" path="res://scripts/ui/settings_popup.gd" id="3_w8uqo"]
 
 [node name="TitleScreen" type="Control" unique_id=998463451]
 layout_mode = 3
@@ -47,31 +48,63 @@ layout_mode = 2
 text = "HEBERGER"
 
 [node name="SettingsPopup" type="PopupPanel" parent="." unique_id=1867333443]
+script = ExtResource("3_w8uqo")
 
-[node name="Label" type="Label" parent="SettingsPopup" unique_id=364271415]
+[node name="Padding" type="MarginContainer" parent="SettingsPopup" unique_id=1957897484]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 96.0
-offset_bottom = 96.0
+offset_right = 323.0
+offset_bottom = 114.0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="Content" type="VBoxContainer" parent="SettingsPopup/Padding" unique_id=1895094490]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="SettingsPopup/Padding/Content" unique_id=875828511]
+layout_mode = 2
+text = "PARAMETRES"
+
+[node name="VolumeRow" type="HBoxContainer" parent="SettingsPopup/Padding/Content" unique_id=1723676511]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Label" type="Label" parent="SettingsPopup/Padding/Content/VolumeRow" unique_id=206598330]
+layout_mode = 2
+text = "Volume"
+
+[node name="VolumeSlider" type="HSlider" parent="SettingsPopup/Padding/Content/VolumeRow" unique_id=1791929607]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+value = 1.0
 
 [node name="PlayerCountPopup" type="PopupPanel" parent="." unique_id=380088268]
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PlayerCountPopup" unique_id=1619311083]
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 96.0
-offset_bottom = 96.0
+[node name="Padding" type="MarginContainer" parent="PlayerCountPopup" unique_id=2065299801]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
 
-[node name="Label" type="Label" parent="PlayerCountPopup/VBoxContainer" unique_id=1437157968]
+[node name="VBoxContainer" type="VBoxContainer" parent="PlayerCountPopup/Padding" unique_id=1619311083]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="PlayerCountPopup/Padding/VBoxContainer" unique_id=1437157968]
 layout_mode = 2
 text = "CHOISIR LE NOMBRE DE JOUEURS IMAGINAIRES"
 
-[node name="PlayerCountSpinBox" type="SpinBox" parent="PlayerCountPopup/VBoxContainer" unique_id=806387983]
+[node name="PlayerCountSpinBox" type="SpinBox" parent="PlayerCountPopup/Padding/VBoxContainer" unique_id=806387983]
 layout_mode = 2
 min_value = 2.0
 max_value = 5.0
 value = 4.0
 
-[node name="ConfirmButton" type="Button" parent="PlayerCountPopup/VBoxContainer" unique_id=1367342983]
+[node name="ConfirmButton" type="Button" parent="PlayerCountPopup/Padding/VBoxContainer" unique_id=1367342983]
 layout_mode = 2
 text = "VALIDER"

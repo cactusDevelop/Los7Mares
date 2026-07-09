@@ -26,6 +26,7 @@ theme_override_constants/margin_bottom = 24
 
 [node name="Content" type="VBoxContainer" parent="Padding" unique_id=1131425273]
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="TitleLabel" type="Label" parent="Padding/Content" unique_id=1108403878]
 layout_mode = 2

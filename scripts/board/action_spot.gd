@@ -1,0 +1,69 @@
+extends Node2D
+
+signal spot_clicked(spot: Node2D)
+
+const IDLE_AMPLITUDE := 4.0
+const IDLE_SPEED := 1.2
+const HOVER_SCALE := 1.12
+const HOVER_DURATION := 0.15
+
+@onready var case_sprite: Sprite2D = $CaseSprite
+@onready var click_area: Area2D = $ClickArea
+
+var _base_position: Vector2
+var _idle_time_offset: float = 0.0
+var _hover_tween: Tween
+var _pieces: Array = []  # {color, rank, order, node}
+
+
+func _ready() -> void:
+	_base_position = case_sprite.position
+	_idle_time_offset = randf() * TAU
+	click_area.mouse_entered.connect(_on_mouse_entered)
+	click_area.mouse_exited.connect(_on_mouse_exited)
+	click_area.input_event.connect(_on_input_event)
+
+
+func _process(_delta: float) -> void:
+	var t := Time.get_ticks_msec() / 1000.0 + _idle_time_offset
+	case_sprite.position = _base_position + Vector2(0, sin(t * IDLE_SPEED) * IDLE_AMPLITUDE)
+
+
+func _on_mouse_entered() -> void:
+	_tween_scale(HOVER_SCALE)
+
+
+func _on_mouse_exited() -> void:
+	_tween_scale(1.0)
+
+
+func _tween_scale(target: float) -> void:
+	if _hover_tween:
+		_hover_tween.kill()
+	_hover_tween = create_tween()
+	_hover_tween.tween_property(case_sprite, "scale", Vector2.ONE * target, HOVER_DURATION)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+
+func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		spot_clicked.emit(self)
+
+
+func add_piece(piece_node: Node2D, color: String, rank: int) -> void:
+	var order := _pieces.size()
+	_pieces.append({"color": color, "rank": rank, "order": order, "node": piece_node})
+	add_child(piece_node)
+	_relayout_pieces()
+	_update_case_color()
+
+
+func _relayout_pieces() -> void:
+	var positions := GameFlow.layout_positions_for_case(_pieces.size())
+	for i in range(_pieces.size()):
+		_pieces[i]["node"].position = positions[i]
+
+
+func _update_case_color() -> void:
+	var color := GameFlow.compute_case_color(_pieces)
+	case_sprite.modulate = color if color.a > 0.0 else Color.WHITE

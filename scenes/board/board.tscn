@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://oki283iwv6dx" path="res://scripts/board/camera_2d.gd" id="12_jngt6"]
 [ext_resource type="PackedScene" uid="uid://dh58c08cwg1j5" path="res://scenes/ui/hover_prompt.tscn" id="12_w0prs"]
 [ext_resource type="PackedScene" uid="uid://bg437po33iydc" path="res://scenes/ui/player_setup_popup.tscn" id="14_dj4mb"]
+[ext_resource type="PackedScene" uid="uid://dt0ffi66gqwvd" path="res://scenes/board/action_spot.tscn" id="15_kug5n"]
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
@@ -101,21 +102,26 @@ offset_bottom = 40.0
 
 [node name="PlayerSetupPopup" parent="UI" unique_id=1537230509 instance=ExtResource("14_dj4mb")]
 
+[node name="CurrentPlayerLabel" type="Label" parent="UI" unique_id=2057771219]
+offset_right = 40.0
+offset_bottom = 23.0
+
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
 
-[node name="Spot1" type="Marker2D" parent="ActionSpots" unique_id=500455286]
-position = Vector2(296, -281)
+[node name="Spot1" parent="ActionSpots" unique_id=1764597111 instance=ExtResource("15_kug5n")]
+position = Vector2(-8, 16)
 
-[node name="Spot2" type="Marker2D" parent="ActionSpots" unique_id=1338752346]
-position = Vector2(311, 348)
+[node name="Spot2" parent="ActionSpots" unique_id=1737948124 instance=ExtResource("15_kug5n")]
+position = Vector2(302, -297)
 
-[node name="Spot3" type="Marker2D" parent="ActionSpots" unique_id=243396411]
-position = Vector2(-326, 340)
+[node name="Spot3" parent="ActionSpots" unique_id=839672251 instance=ExtResource("15_kug5n")]
+position = Vector2(302, 339)
 
-[node name="Spot4" type="Marker2D" parent="ActionSpots" unique_id=46236850]
-position = Vector2(-340, -296)
+[node name="Spot4" parent="ActionSpots" unique_id=190707171 instance=ExtResource("15_kug5n")]
+position = Vector2(-317, 335)
 
-[node name="Spot5" type="Marker2D" parent="ActionSpots" unique_id=1897940624]
+[node name="Spot5" parent="ActionSpots" unique_id=53161306 instance=ExtResource("15_kug5n")]
+position = Vector2(-323, -293)
 
 [editable path="Seas/SeaAbondance"]
 [editable path="Seas/SeaAzur"]
