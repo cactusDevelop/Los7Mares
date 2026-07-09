@@ -2,11 +2,12 @@ extends Control
 
 signal piece_selected(rank: int)
 
-const ICON_SIZE := Vector2(140, 200)
+const ICON_SIZE := Vector2(100, 150)
 const HOVER_SCALE := 1.1
 const SELECTED_SCALE := 1.2
 const TWEEN_DURATION := 0.15
 const PANEL_WIDTH := 240.0
+const UNSELECTED_TINT := Color(0.55, 0.55, 0.55)
 
 @onready var background: ColorRect = $Background
 @onready var icons_box: VBoxContainer = $IconsBox
@@ -18,9 +19,11 @@ const PANEL_WIDTH := 240.0
 var _button_group := ButtonGroup.new()
 var _current_color: Color = Color.WHITE
 var _tweens: Dictionary = {}
+var _hovering: Dictionary = {}
 
 
 func _ready() -> void:
+	visible = false
 	for btn in [captain_button, second_button]:
 		btn.custom_minimum_size = ICON_SIZE
 		btn.ignore_texture_size = true
@@ -28,6 +31,7 @@ func _ready() -> void:
 		btn.toggle_mode = true
 		btn.button_group = _button_group
 		btn.pivot_offset = ICON_SIZE / 2.0
+		_hovering[btn] = false
 		btn.mouse_entered.connect(_on_button_hover.bind(btn, true))
 		btn.mouse_exited.connect(_on_button_hover.bind(btn, false))
 		btn.toggled.connect(_on_button_toggled.bind(btn))
@@ -51,7 +55,16 @@ func _layout() -> void:
 	icons_box.size = size
 
 
-## only_rank == -1 -> les deux pièces proposées.
+func show_for_placement_phase() -> void:
+	_layout()
+	visible = true
+
+
+func hide_panel() -> void:
+	visible = false
+
+
+## only_rank == -1 -> les deux pièces proposées (aucune sélectionnée au départ).
 ## only_rank == CAPTAIN/SECOND -> une seule affichée, forcée/sélectionnée.
 func setup_for_player(color: Color, only_rank: int = -1) -> void:
 	_current_color = color
@@ -61,22 +74,34 @@ func setup_for_player(color: Color, only_rank: int = -1) -> void:
 	for btn in [captain_button, second_button]:
 		btn.button_pressed = false
 		btn.scale = Vector2.ONE
-		btn.modulate = _current_color
+		_hovering[btn] = false
 
 	if only_rank != -1:
 		var forced_btn: TextureButton = captain_button if only_rank == GameFlow.PieceRank.CAPTAIN else second_button
 		forced_btn.button_pressed = true
 		piece_selected.emit(only_rank)
 
+	_refresh_colors()
+
 
 func _on_button_hover(btn: TextureButton, hovering: bool) -> void:
+	_hovering[btn] = hovering
 	var target_scale := (SELECTED_SCALE if btn.button_pressed else 1.0) * (HOVER_SCALE if hovering else 1.0)
 	_tween_scale(btn, target_scale)
-	btn.modulate = _current_color * GameFlow.HOVER_TINT if hovering else _current_color
+	_refresh_colors()
 
 
 func _on_button_toggled(is_pressed: bool, btn: TextureButton) -> void:
 	_tween_scale(btn, SELECTED_SCALE if is_pressed else 1.0)
+	_refresh_colors()
+
+
+func _refresh_colors() -> void:
+	for btn in [captain_button, second_button]:
+		var base: Color = _current_color if btn.button_pressed else _current_color * UNSELECTED_TINT
+		if _hovering.get(btn, false):
+			base *= GameFlow.HOVER_TINT
+		btn.modulate = base
 
 
 func _tween_scale(btn: TextureButton, target_scale: float) -> void:

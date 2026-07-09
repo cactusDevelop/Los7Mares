@@ -14,7 +14,7 @@ const RANDOM_NAMES: Array[String] = ["Thomas", "Adrien", "Martino", "Raphael", "
 
 ## Facteur d'échelle unique pour toutes les pièces en jeu — modifiez cette
 ## valeur pour agrandir/rétrécir capitaines et seconds partout à la fois.
-const PIECE_SCALE := 1.8
+const PIECE_SCALE := 0.6
 
 ## Assombrissement standard au survol, à réutiliser pour tout élément
 ## cliquable qui n'a pas d'état hover natif géré par Godot (Button, HSlider

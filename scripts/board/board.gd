@@ -29,10 +29,10 @@ var _has_started: bool = false
 
 var _camera_base_position: Vector2
 
+var _current_round: int = 0  # 0 = premier choix pour tous, 1 = pièce restante forcée pour tous
 var _current_player_index: int = 0
-var _current_sub_turn: int = 0  # 0 = premier choix, 1 = pièce restante forcée
 var _selected_rank: int = -1
-var _last_placed_rank: int = -1
+var _placed_rank_by_player: Dictionary = {}  # index joueur -> rang posé au tour 1
 
 
 func _ready() -> void:
@@ -180,32 +180,40 @@ func _flip_all_as_wave() -> void:
 	_start_piece_placement_phase()
 
 
-# --- Phase de placement des pièces ---
+# --- Phase de placement des pièces : 2 manches globales ---
 
 func _start_piece_placement_phase() -> void:
+	_current_round = 0
 	_current_player_index = 0
-	_current_sub_turn = 0
+	_placed_rank_by_player.clear()
+
 	for spot in action_spots_container.get_children():
 		spot.spot_clicked.connect(_on_action_spot_clicked)
 	piece_selection_panel.piece_selected.connect(_on_piece_selected)
+
+	piece_selection_panel.show_for_placement_phase()
 	_shift_camera_for_selection(true)
 	_begin_player_piece_turn()
 
 
 func _begin_player_piece_turn() -> void:
 	if _current_player_index >= GameFlow.players.size():
-		_end_piece_placement_phase()
-		return
+		_current_player_index = 0
+		_current_round += 1
+		if _current_round > 1:
+			_end_piece_placement_phase()
+			return
 
 	var player: Dictionary = GameFlow.players[_current_player_index]
 	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
 	_selected_rank = -1
 
-	if _current_sub_turn == 0:
+	if _current_round == 0:
 		narration_box.say("Tour de %s : choisis la pièce à jouer (capitaine ou second)." % player["name"])
 		piece_selection_panel.setup_for_player(color, -1)
 	else:
-		var forced_rank: int = GameFlow.PieceRank.SECOND if _last_placed_rank == GameFlow.PieceRank.CAPTAIN else GameFlow.PieceRank.CAPTAIN
+		var placed_rank: int = _placed_rank_by_player[_current_player_index]
+		var forced_rank: int = GameFlow.PieceRank.SECOND if placed_rank == GameFlow.PieceRank.CAPTAIN else GameFlow.PieceRank.CAPTAIN
 		narration_box.say("Tour de %s : place ta dernière pièce." % player["name"])
 		piece_selection_panel.setup_for_player(color, forced_rank)
 
@@ -219,25 +227,28 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 		return
 
 	var player: Dictionary = GameFlow.players[_current_player_index]
+
+	# Interdit de poser ses deux pièces sur la même case.
+	if spot.has_player_piece(player["color"]):
+		narration_box.say("Tu ne peux pas poser tes deux pièces sur la même case.")
+		return
+
 	var piece_scene: PackedScene = CAPTAIN_SCENE if _selected_rank == GameFlow.PieceRank.CAPTAIN else SECOND_SCENE
 	var piece: Node2D = piece_scene.instantiate()
 	piece.modulate = GameFlow.COLOR_VALUES[player["color"]]
 	piece.scale = Vector2.ONE * GameFlow.PIECE_SCALE
 	spot.add_piece(piece, player["color"], _selected_rank)
 
-	_last_placed_rank = _selected_rank
+	if _current_round == 0:
+		_placed_rank_by_player[_current_player_index] = _selected_rank
 	_selected_rank = -1
-
-	if _current_sub_turn == 0:
-		_current_sub_turn = 1
-	else:
-		_current_sub_turn = 0
-		_current_player_index += 1
+	_current_player_index += 1
 	_begin_player_piece_turn()
 
 
 func _end_piece_placement_phase() -> void:
 	narration_box.say("Placement terminé — la suite arrive bientôt.")
+	piece_selection_panel.hide_panel()
 	_shift_camera_for_selection(false)
 
 
