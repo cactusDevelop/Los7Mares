@@ -13,6 +13,7 @@ const HOVER_DURATION := 0.15
 var _base_position: Vector2
 var _idle_time_offset: float = 0.0
 var _hover_tween: Tween
+var _is_hovering: bool = false
 var _pieces: Array = []  # {color, rank, order, node}
 
 
@@ -30,11 +31,15 @@ func _process(_delta: float) -> void:
 
 
 func _on_mouse_entered() -> void:
+	_is_hovering = true
 	_tween_scale(HOVER_SCALE)
+	_update_case_color()
 
 
 func _on_mouse_exited() -> void:
+	_is_hovering = false
 	_tween_scale(1.0)
+	_update_case_color()
 
 
 func _tween_scale(target: float) -> void:
@@ -66,4 +71,5 @@ func _relayout_pieces() -> void:
 
 func _update_case_color() -> void:
 	var color := GameFlow.compute_case_color(_pieces)
-	case_sprite.modulate = color if color.a > 0.0 else Color.WHITE
+	var base := color if color.a > 0.0 else Color.WHITE
+	case_sprite.modulate = base * GameFlow.HOVER_TINT if _is_hovering else base

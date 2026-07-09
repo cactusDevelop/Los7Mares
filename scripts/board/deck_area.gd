@@ -1,6 +1,8 @@
 extends Area2D
 
 signal deck_clicked
+signal hover_entered
+signal hover_exited
 
 @onready var hover_prompt: Node2D = $HoverPrompt
 
@@ -13,10 +15,12 @@ func _ready() -> void:
 
 func _on_mouse_entered() -> void:
 	hover_prompt.show_prompt()
+	hover_entered.emit()
 
 
 func _on_mouse_exited() -> void:
 	hover_prompt.hide_prompt()
+	hover_exited.emit()
 
 
 func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:

@@ -14,10 +14,10 @@ extends Control
 @onready var player_count_spinbox: SpinBox = $PlayerCountPopup/Padding/VBoxContainer/PlayerCountSpinBox
 @onready var player_count_confirm_button: Button = $PlayerCountPopup/Padding/VBoxContainer/ConfirmButton
 
-var _pending_popup_action: String = ""  # "local" ou "debug"
-
 
 func _ready() -> void:
+	_style_popup_background(player_count_popup)
+
 	_layout_ui()
 	get_viewport().size_changed.connect(_layout_ui)
 
@@ -32,10 +32,16 @@ func _ready() -> void:
 func _layout_ui() -> void:
 	var viewport_size := get_viewport_rect().size
 
-	background.position = Vector2.ZERO
-	background.size = viewport_size
-	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	# Image de fond : couvre toute la largeur, ancrée en HAUT (pas de crop centré).
+	clip_contents = true
+	var tex := background.texture
+	if tex:
+		var tex_size := tex.get_size()
+		var scale_factor := viewport_size.x / tex_size.x
+		background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		background.stretch_mode = TextureRect.STRETCH_SCALE
+		background.position = Vector2.ZERO
+		background.size = Vector2(viewport_size.x, tex_size.y * scale_factor)
 
 	var settings_size := Vector2(50, 50)
 	settings_button.size = settings_size
@@ -43,23 +49,26 @@ func _layout_ui() -> void:
 	settings_button.texture_normal = preload("res://assets/art/ui/gear.svg")
 	settings_button.ignore_texture_size = true
 	settings_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
-	
+
 	for btn in [host_button, join_button, local_button, debug_button]:
-		btn.custom_minimum_size = Vector2(320, 60)
+		btn.custom_minimum_size = Vector2(420, 84)
+		btn.add_theme_font_size_override("font_size", 24)
 	center_buttons.size = center_buttons.get_combined_minimum_size()
 	center_buttons.position = (viewport_size - center_buttons.size) / 2.0
 
 
+func _style_popup_background(popup: PopupPanel) -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.12, 0.16, 1.0)
+	style.corner_radius_top_left = 12
+	style.corner_radius_top_right = 12
+	style.corner_radius_bottom_left = 12
+	style.corner_radius_bottom_right = 12
+	popup.add_theme_stylebox_override("panel", style)
+
+
 func _on_settings_pressed() -> void:
 	settings_popup.popup_centered_auto()
-
-
-func _popup_player_count_centered() -> void:
-	var padding: MarginContainer = $PlayerCountPopup/Padding
-	var min_size: Vector2 = padding.get_combined_minimum_size()
-	min_size.x = max(min_size.x, 320)
-	player_count_popup.size = min_size
-	player_count_popup.popup_centered()
 
 
 func _on_host_pressed() -> void:
@@ -79,27 +88,30 @@ func _on_join_pressed() -> void:
 
 
 func _on_local_pressed() -> void:
-	_pending_popup_action = "local"
 	_popup_player_count_centered()
 
 
+## Le bouton Debug ne demande plus rien : 5 joueurs générés directement.
 func _on_debug_pressed() -> void:
-	_pending_popup_action = "debug"
-	_popup_player_count_centered()
+	GameFlow.is_debug_mode = true
+	GameFlow.pending_setup_mode = ""
+	GameFlow.generate_debug_players(5)
+	GameFlow.go_to_board()
+
+
+func _popup_player_count_centered() -> void:
+	var padding: MarginContainer = $PlayerCountPopup/Padding
+	var min_size: Vector2 = padding.get_combined_minimum_size()
+	min_size.x = max(min_size.x, 320)
+	player_count_popup.size = min_size
+	player_count_popup.popup_centered()
 
 
 func _on_player_count_confirmed() -> void:
 	player_count_popup.hide()
 	var count := int(player_count_spinbox.value)
-
-	if _pending_popup_action == "debug":
-		GameFlow.is_debug_mode = true
-		GameFlow.pending_setup_mode = ""
-		GameFlow.generate_debug_players(count)
-	else:
-		GameFlow.is_debug_mode = false
-		GameFlow.reset_players()
-		GameFlow.pending_setup_mode = "local"
-		GameFlow.pending_setup_target_count = count
-
+	GameFlow.is_debug_mode = false
+	GameFlow.reset_players()
+	GameFlow.pending_setup_mode = "local"
+	GameFlow.pending_setup_target_count = count
 	GameFlow.go_to_board()

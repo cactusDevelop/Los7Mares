@@ -5,6 +5,14 @@ extends PopupPanel
 
 
 func _ready() -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.12, 0.16, 1.0)
+	style.corner_radius_top_left = 12
+	style.corner_radius_top_right = 12
+	style.corner_radius_bottom_left = 12
+	style.corner_radius_bottom_right = 12
+	add_theme_stylebox_override("panel", style)
+
 	volume_slider.value_changed.connect(_on_volume_changed)
 
 

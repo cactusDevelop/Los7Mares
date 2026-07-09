@@ -4,7 +4,6 @@ signal player_confirmed(player_name: String, color: String)
 
 const TAKEN_COLOR := Color(0.45, 0.45, 0.45)
 const SELECTED_BORDER := Color(1.0, 1.0, 1.0)
-const PADDING := 24.0
 
 @onready var blocker: ColorRect = $Blocker
 @onready var padding_container: MarginContainer = $Padding
@@ -70,17 +69,28 @@ func _layout_popup() -> void:
 	blocker.size = viewport_size
 
 	var min_size: Vector2 = padding_container.get_combined_minimum_size()
-	min_size.x = max(min_size.x, 360 + PADDING * 2)
-	min_size.y = max(min_size.y, 300 + PADDING * 2)
+	min_size.x = max(min_size.x, 360)
+	min_size.y = max(min_size.y, 300)
 	padding_container.size = min_size
 	padding_container.position = (viewport_size - min_size) / 2.0
 
 
 func _apply_button_style(btn: Button, color_name: String, is_selected: bool) -> void:
-	var base_color: Color = TAKEN_COLOR if GameFlow.is_color_taken(color_name) else GameFlow.COLOR_VALUES[color_name]
+	var taken := GameFlow.is_color_taken(color_name)
+	var base_color: Color = TAKEN_COLOR if taken else GameFlow.COLOR_VALUES[color_name]
 
+	var normal_style := _build_color_stylebox(base_color, is_selected)
+	var hover_style := _build_color_stylebox(base_color * GameFlow.HOVER_TINT, is_selected)
+
+	btn.add_theme_stylebox_override("normal", normal_style)
+	btn.add_theme_stylebox_override("hover", hover_style)
+	btn.add_theme_stylebox_override("pressed", normal_style)
+	btn.add_theme_stylebox_override("disabled", normal_style)
+
+
+func _build_color_stylebox(color: Color, is_selected: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = base_color
+	style.bg_color = color
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_left = 8
@@ -91,11 +101,7 @@ func _apply_button_style(btn: Button, color_name: String, is_selected: bool) -> 
 		style.border_width_right = 4
 		style.border_width_bottom = 4
 		style.border_color = SELECTED_BORDER
-
-	btn.add_theme_stylebox_override("normal", style)
-	btn.add_theme_stylebox_override("hover", style)
-	btn.add_theme_stylebox_override("pressed", style)
-	btn.add_theme_stylebox_override("disabled", style)
+	return style
 
 
 func _on_color_button_toggled(is_pressed: bool, color_name: String) -> void:

@@ -15,8 +15,6 @@ script = ExtResource("1_aqpy5")
 
 [node name="Background" type="TextureRect" parent="." unique_id=801742591]
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
 texture = ExtResource("2_w8uqo")
 expand_mode = 1
 stretch_mode = 6
@@ -79,13 +77,15 @@ text = "Volume"
 [node name="VolumeSlider" type="HSlider" parent="SettingsPopup/Padding/Content/VolumeRow" unique_id=1791929607]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-value = 1.0
+value = 100.0
 
 [node name="PlayerCountPopup" type="PopupPanel" parent="." unique_id=380088268]
 
 [node name="Padding" type="MarginContainer" parent="PlayerCountPopup" unique_id=2065299801]
-offset_right = 40.0
-offset_bottom = 40.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 417.0
+offset_bottom = 169.0
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
