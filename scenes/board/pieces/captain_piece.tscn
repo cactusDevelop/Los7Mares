@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://b6oi3dmwjn7pf"]
+
+[ext_resource type="Texture2D" uid="uid://bgv5vlynaxpi" path="res://assets/art/capitaine.png" id="1_usv78"]
+
+[node name="CaptainPiece" type="Sprite2D" unique_id=1290564754]
+texture = ExtResource("1_usv78")
+offset = Vector2(0, -150)
