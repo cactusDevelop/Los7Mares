@@ -1,7 +1,9 @@
 [gd_scene format=3 uid="uid://6pcl5yd2jb1q"]
 
 [ext_resource type="Texture2D" uid="uid://bqgogkq2x27de" path="res://assets/art/second.png" id="1_twy8u"]
+[ext_resource type="Script" uid="uid://bfspy5ogtssx0" path="res://scripts/board/pieces/second_piece.gd" id="2_1rmjk"]
 
 [node name="SecondPiece" type="Sprite2D" unique_id=1545191181]
 texture = ExtResource("1_twy8u")
 offset = Vector2(0, -133)
+script = ExtResource("2_1rmjk")

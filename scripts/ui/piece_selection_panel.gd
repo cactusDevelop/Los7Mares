@@ -2,55 +2,84 @@ extends Control
 
 signal piece_selected(rank: int)
 
-const ICON_SIZE := Vector2(100, 150)
 const HOVER_SCALE := 1.1
 const SELECTED_SCALE := 1.2
 const TWEEN_DURATION := 0.15
-const PANEL_WIDTH := 240.0
 const UNSELECTED_TINT := Color(0.55, 0.55, 0.55)
 
-@onready var background: ColorRect = $Background
-@onready var icons_box: VBoxContainer = $IconsBox
-@onready var captain_option: VBoxContainer = $IconsBox/CaptainOption
-@onready var captain_button: TextureButton = $IconsBox/CaptainOption/CaptainButton
-@onready var second_option: VBoxContainer = $IconsBox/SecondOption
-@onready var second_button: TextureButton = $IconsBox/SecondOption/SecondButton
+var background: ColorRect
+var icons_box: VBoxContainer
+var captain_button: TextureButton
+var second_button: TextureButton
 
 var _button_group := ButtonGroup.new()
 var _current_color: Color = Color.WHITE
 var _tweens: Dictionary = {}
-var _hovering: Dictionary = {}
 
 
 func _ready() -> void:
 	visible = false
-	for btn in [captain_button, second_button]:
-		btn.custom_minimum_size = ICON_SIZE
-		btn.ignore_texture_size = true
-		btn.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
-		btn.toggle_mode = true
-		btn.button_group = _button_group
-		btn.pivot_offset = ICON_SIZE / 2.0
-		_hovering[btn] = false
-		btn.mouse_entered.connect(_on_button_hover.bind(btn, true))
-		btn.mouse_exited.connect(_on_button_hover.bind(btn, false))
-		btn.toggled.connect(_on_button_toggled.bind(btn))
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	background = ColorRect.new()
+	background.color = Color(0, 0, 0, 1)
+	background.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(background)
+
+	icons_box = VBoxContainer.new()
+	icons_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	icons_box.add_theme_constant_override("separation", 60)
+	add_child(icons_box)
+
+	captain_button = _build_piece_option("Capitaine", preload("res://assets/art/capitaine.png"))
+	second_button = _build_piece_option("Second", preload("res://assets/art/second.png"))
 
 	captain_button.pressed.connect(func(): piece_selected.emit(GameFlow.PieceRank.CAPTAIN))
 	second_button.pressed.connect(func(): piece_selected.emit(GameFlow.PieceRank.SECOND))
 
-	icons_box.add_theme_constant_override("separation", 60)
+	get_viewport().size_changed.connect(_layout)
 	_layout()
+
+
+func _build_piece_option(label_text: String, texture: Texture2D) -> TextureButton:
+	var option := VBoxContainer.new()
+	option.alignment = BoxContainer.ALIGNMENT_CENTER
+	option.add_theme_constant_override("separation", 8)
+	icons_box.add_child(option)
+
+	var btn := TextureButton.new()
+	btn.texture_normal = texture
+	btn.ignore_texture_size = true
+	btn.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+	btn.toggle_mode = true
+	btn.button_group = _button_group
+	btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+
+	# Taille calée EXACTEMENT sur le ratio de la texture : aucune marge
+	# verticale ajoutée, donc les pieds tombent pile en bas du bouton.
+	var aspect := texture.get_width() / float(texture.get_height())
+	btn.custom_minimum_size = Vector2(GameFlow.SELECTION_ICON_HEIGHT * aspect, GameFlow.SELECTION_ICON_HEIGHT)
+	btn.pivot_offset = btn.custom_minimum_size / 2.0
+
+	btn.mouse_entered.connect(_on_button_hover.bind(btn, true))
+	btn.mouse_exited.connect(_on_button_hover.bind(btn, false))
+	btn.toggled.connect(_on_button_toggled.bind(btn))
+	option.add_child(btn)
+
+	var label := Label.new()
+	label.text = label_text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	option.add_child(label)
+
+	return btn
 
 
 func _layout() -> void:
 	var viewport_size := get_viewport_rect().size
-	background.position = Vector2(viewport_size.x - PANEL_WIDTH, 0)
-	background.size = Vector2(PANEL_WIDTH, viewport_size.y)
-	background.color = Color(0, 0, 0, 1)
-
-	position = background.position
-	size = background.size
+	position = Vector2(viewport_size.x - GameFlow.SELECTION_PANEL_WIDTH, 0)
+	size = Vector2(GameFlow.SELECTION_PANEL_WIDTH, viewport_size.y)
+	background.position = Vector2.ZERO
+	background.size = size
 	icons_box.position = Vector2.ZERO
 	icons_box.size = size
 
@@ -68,13 +97,12 @@ func hide_panel() -> void:
 ## only_rank == CAPTAIN/SECOND -> une seule affichée, forcée/sélectionnée.
 func setup_for_player(color: Color, only_rank: int = -1) -> void:
 	_current_color = color
-	captain_option.visible = only_rank == -1 or only_rank == GameFlow.PieceRank.CAPTAIN
-	second_option.visible = only_rank == -1 or only_rank == GameFlow.PieceRank.SECOND
+	captain_button.get_parent().visible = only_rank == -1 or only_rank == GameFlow.PieceRank.CAPTAIN
+	second_button.get_parent().visible = only_rank == -1 or only_rank == GameFlow.PieceRank.SECOND
 
 	for btn in [captain_button, second_button]:
 		btn.button_pressed = false
 		btn.scale = Vector2.ONE
-		_hovering[btn] = false
 
 	if only_rank != -1:
 		var forced_btn: TextureButton = captain_button if only_rank == GameFlow.PieceRank.CAPTAIN else second_button
@@ -85,10 +113,8 @@ func setup_for_player(color: Color, only_rank: int = -1) -> void:
 
 
 func _on_button_hover(btn: TextureButton, hovering: bool) -> void:
-	_hovering[btn] = hovering
 	var target_scale := (SELECTED_SCALE if btn.button_pressed else 1.0) * (HOVER_SCALE if hovering else 1.0)
 	_tween_scale(btn, target_scale)
-	_refresh_colors()
 
 
 func _on_button_toggled(is_pressed: bool, btn: TextureButton) -> void:
@@ -96,12 +122,11 @@ func _on_button_toggled(is_pressed: bool, btn: TextureButton) -> void:
 	_refresh_colors()
 
 
+## Sélectionnée = couleur pleine. Non sélectionnée = couleur grisée.
+## Plus de filtre noir supplémentaire au survol (le gris suffit déjà).
 func _refresh_colors() -> void:
 	for btn in [captain_button, second_button]:
-		var base: Color = _current_color if btn.button_pressed else _current_color * UNSELECTED_TINT
-		if _hovering.get(btn, false):
-			base *= GameFlow.HOVER_TINT
-		btn.modulate = base
+		btn.modulate = _current_color if btn.button_pressed else _current_color * UNSELECTED_TINT
 
 
 func _tween_scale(btn: TextureButton, target_scale: float) -> void:

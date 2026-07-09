@@ -12,14 +12,9 @@ const COLOR_VALUES: Dictionary = {
 }
 const RANDOM_NAMES: Array[String] = ["Thomas", "Adrien", "Martino", "Raphael", "Alex"]
 
-## Facteur d'échelle unique pour toutes les pièces en jeu — modifiez cette
-## valeur pour agrandir/rétrécir capitaines et seconds partout à la fois.
 const PIECE_SCALE := 0.6
-
-## Assombrissement standard au survol, à réutiliser pour tout élément
-## cliquable qui n'a pas d'état hover natif géré par Godot (Button, HSlider
-## l'ont déjà automatiquement — ceci sert pour nos Sprite2D/TextureButton
-## personnalisés : cases, pièces, deck, boutons de couleur, etc.)
+const SELECTION_PANEL_WIDTH := 240.0
+const SELECTION_ICON_HEIGHT := 110.0
 const HOVER_TINT := Color(0.82, 0.82, 0.82)
 
 enum PieceRank { SECOND = 0, CAPTAIN = 1 }

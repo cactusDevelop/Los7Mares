@@ -4,7 +4,6 @@ const DEAL_DELAY = 0.35
 const DEAL_DURATION = 0.7
 const FLIP_DELAY_AFTER_DEAL = 0.6
 const FLIP_WAVE_DELAY = 0.12
-const SELECTION_PANEL_WIDTH := 240.0
 
 const CAPTAIN_SCENE := preload("res://scenes/board/pieces/captain_piece.tscn")
 const SECOND_SCENE := preload("res://scenes/board/pieces/second_piece.tscn")
@@ -39,6 +38,7 @@ func _ready() -> void:
 	_sea_tiles = []
 	player_list.position = Vector2(20, 20)
 	_camera_base_position = camera.position
+	action_spots_container.z_index = 1
 
 	for child in seas_container.get_children():
 		if child.is_in_group("sea_tile"):
@@ -149,6 +149,7 @@ func _deal_seas() -> void:
 	var deal_count = 0
 	for i in range(_sea_tiles.size() - 1, -1, -1):
 		var tile = _sea_tiles[i]
+		tile.z_index = 0
 		var target_pos = tile.get_meta("target_global_position")
 		var target_rot = tile.get_meta("target_rotation")
 
@@ -189,6 +190,7 @@ func _start_piece_placement_phase() -> void:
 
 	for spot in action_spots_container.get_children():
 		spot.spot_clicked.connect(_on_action_spot_clicked)
+		spot.set_hover_enabled(true)
 	piece_selection_panel.piece_selected.connect(_on_piece_selected)
 
 	piece_selection_panel.show_for_placement_phase()
@@ -247,13 +249,15 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 
 
 func _end_piece_placement_phase() -> void:
+	for spot in action_spots_container.get_children():
+		spot.set_hover_enabled(false)
 	narration_box.say("Placement terminé — la suite arrive bientôt.")
 	piece_selection_panel.hide_panel()
 	_shift_camera_for_selection(false)
 
 
 func _shift_camera_for_selection(active: bool) -> void:
-	var shift_world := Vector2((SELECTION_PANEL_WIDTH / 2.0) / camera.zoom.x, 0)
+	var shift_world := Vector2(GameFlow.SELECTION_PANEL_WIDTH / camera.zoom.x, 0)
 	var target := _camera_base_position + shift_world if active else _camera_base_position
 	var tween := create_tween()
 	tween.tween_property(camera, "position", target, 0.5)\

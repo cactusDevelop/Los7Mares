@@ -42,5 +42,5 @@ texture_normal = ExtResource("2_j16g3")
 
 [node name="SecondLabel" type="Label" parent="IconsBox/SecondOption" unique_id=2068684674]
 layout_mode = 2
-text = "Capitaine"
+text = "Second"
 horizontal_alignment = 1
