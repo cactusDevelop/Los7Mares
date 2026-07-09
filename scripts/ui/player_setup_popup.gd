@@ -4,14 +4,16 @@ signal player_confirmed(player_name: String, color: String)
 
 const TAKEN_COLOR := Color(0.45, 0.45, 0.45)
 const SELECTED_BORDER := Color(1.0, 1.0, 1.0)
+const PADDING := 24.0
 
 @onready var blocker: ColorRect = $Blocker
-@onready var content: VBoxContainer = $Content
-@onready var name_input: LineEdit = $Content/NameInput
-@onready var color_row: HBoxContainer = $Content/ColorRow
-@onready var confirm_button: Button = $Content/ConfirmButton
-@onready var error_label: Label = $Content/ErrorLabel
-@onready var title_label: Label = $Content/TitleLabel
+@onready var padding_container: MarginContainer = $Padding
+@onready var content: VBoxContainer = $Padding/Content
+@onready var name_input: LineEdit = $Padding/Content/NameInput
+@onready var color_row: HBoxContainer = $Padding/Content/ColorRow
+@onready var confirm_button: Button = $Padding/Content/ConfirmButton
+@onready var error_label: Label = $Padding/Content/ErrorLabel
+@onready var title_label: Label = $Padding/Content/TitleLabel
 
 var _selected_color: String = ""
 var _color_buttons: Dictionary = {}
@@ -37,6 +39,7 @@ func _ready() -> void:
 		_color_buttons[color_name] = btn
 
 	confirm_button.pressed.connect(_on_confirm_pressed)
+	name_input.text_submitted.connect(_on_name_submitted)
 	error_label.visible = false
 
 
@@ -66,15 +69,13 @@ func _layout_popup() -> void:
 	blocker.position = Vector2.ZERO
 	blocker.size = viewport_size
 
-	var min_size: Vector2 = content.get_combined_minimum_size()
-	min_size.x = max(min_size.x, 360)
-	min_size.y = max(min_size.y, 300)
-	content.size = min_size
-	content.position = (viewport_size - min_size) / 2.0
+	var min_size: Vector2 = padding_container.get_combined_minimum_size()
+	min_size.x = max(min_size.x, 360 + PADDING * 2)
+	min_size.y = max(min_size.y, 300 + PADDING * 2)
+	padding_container.size = min_size
+	padding_container.position = (viewport_size - min_size) / 2.0
 
 
-## Construit un StyleBox à couleur pleine (grisé si la couleur est prise,
-## bordure blanche si sélectionnée par le joueur en cours de saisie).
 func _apply_button_style(btn: Button, color_name: String, is_selected: bool) -> void:
 	var base_color: Color = TAKEN_COLOR if GameFlow.is_color_taken(color_name) else GameFlow.COLOR_VALUES[color_name]
 
@@ -103,6 +104,10 @@ func _on_color_button_toggled(is_pressed: bool, color_name: String) -> void:
 
 func _on_color_button_pressed(color_name: String) -> void:
 	_selected_color = color_name
+
+
+func _on_name_submitted(_text: String) -> void:
+	_on_confirm_pressed()
 
 
 func _on_confirm_pressed() -> void:

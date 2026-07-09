@@ -37,10 +37,14 @@ func _layout_ui() -> void:
 	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 
-	var settings_size := Vector2(180, 50)
+	var settings_size := Vector2(50, 50)
 	settings_button.size = settings_size
 	settings_button.position = viewport_size - settings_size - Vector2(20, 20)
-
+	settings_button.text = ""
+	settings_button.icon = preload("res://assets/art/ui/gear.svg")
+	settings_button.expand_icon = true
+	settings_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	
 	for btn in [host_button, join_button, local_button, debug_button]:
 		btn.custom_minimum_size = Vector2(320, 60)
 	center_buttons.size = center_buttons.get_combined_minimum_size()

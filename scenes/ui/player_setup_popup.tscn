@@ -15,42 +15,49 @@ offset_right = 40.0
 offset_bottom = 40.0
 color = Color(0, 0, 0, 0.5)
 
-[node name="Content" type="VBoxContainer" parent="." unique_id=1131425273]
+[node name="Padding" type="MarginContainer" parent="." unique_id=341161695]
 layout_mode = 0
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 501.0
-offset_bottom = 136.0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
 
-[node name="TitleLabel" type="Label" parent="Content" unique_id=1108403878]
+[node name="Content" type="VBoxContainer" parent="Padding" unique_id=1131425273]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Padding/Content" unique_id=1108403878]
 layout_mode = 2
 text = "CHOISIS LE NOM DE TON EQUIPAGE ET LA COULEUR DE TA VOILE"
 
-[node name="NameInput" type="LineEdit" parent="Content" unique_id=280089217]
+[node name="NameInput" type="LineEdit" parent="Padding/Content" unique_id=280089217]
 layout_mode = 2
 placeholder_text = "NOM"
 
-[node name="ColorRow" type="HBoxContainer" parent="Content" unique_id=1683898500]
+[node name="ColorRow" type="HBoxContainer" parent="Padding/Content" unique_id=1683898500]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="ColorButtonRouge" type="Button" parent="Padding/Content/ColorRow" unique_id=2125937830]
 layout_mode = 2
 
-[node name="ColorButtonRouge" type="Button" parent="Content/ColorRow" unique_id=2125937830]
+[node name="ColorButtonJaune" type="Button" parent="Padding/Content/ColorRow" unique_id=2107038454]
 layout_mode = 2
 
-[node name="ColorButtonJaune" type="Button" parent="Content/ColorRow" unique_id=2107038454]
+[node name="ColorButtonBleu" type="Button" parent="Padding/Content/ColorRow" unique_id=870246225]
 layout_mode = 2
 
-[node name="ColorButtonBleu" type="Button" parent="Content/ColorRow" unique_id=870246225]
+[node name="ColorButtonVert" type="Button" parent="Padding/Content/ColorRow" unique_id=1426675487]
 layout_mode = 2
 
-[node name="ColorButtonVert" type="Button" parent="Content/ColorRow" unique_id=1426675487]
+[node name="ColorButtonViolet" type="Button" parent="Padding/Content/ColorRow" unique_id=1788693090]
 layout_mode = 2
 
-[node name="ColorButtonViolet" type="Button" parent="Content/ColorRow" unique_id=1788693090]
+[node name="ErrorLabel" type="Label" parent="Padding/Content" unique_id=1023787558]
 layout_mode = 2
 
-[node name="ErrorLabel" type="Label" parent="Content" unique_id=1023787558]
-layout_mode = 2
-
-[node name="ConfirmButton" type="Button" parent="Content" unique_id=2072079617]
+[node name="ConfirmButton" type="Button" parent="Padding/Content" unique_id=2072079617]
 layout_mode = 2
 text = "VALIDER"
