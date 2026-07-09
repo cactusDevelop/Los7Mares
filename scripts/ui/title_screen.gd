@@ -1,7 +1,7 @@
 extends Control
 
 @onready var background: TextureRect = $Background
-@onready var settings_button: Button = $SettingsButton
+@onready var settings_button: TextureButton = $SettingsButton
 @onready var settings_popup: PopupPanel = $SettingsPopup
 
 @onready var center_buttons: VBoxContainer = $CenterButtons
@@ -40,10 +40,9 @@ func _layout_ui() -> void:
 	var settings_size := Vector2(50, 50)
 	settings_button.size = settings_size
 	settings_button.position = viewport_size - settings_size - Vector2(20, 20)
-	settings_button.text = ""
-	settings_button.icon = preload("res://assets/art/ui/gear.svg")
-	settings_button.expand_icon = true
-	settings_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	settings_button.texture_normal = preload("res://assets/art/ui/gear.svg")
+	settings_button.ignore_texture_size = true
+	settings_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	
 	for btn in [host_button, join_button, local_button, debug_button]:
 		btn.custom_minimum_size = Vector2(320, 60)

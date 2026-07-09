@@ -20,11 +20,10 @@ texture = ExtResource("2_w8uqo")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="SettingsButton" type="Button" parent="." unique_id=1306401427]
+[node name="SettingsButton" type="TextureButton" parent="." unique_id=1292348401]
 layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
-text = "Paramètres"
+offset_right = 99.0
+offset_bottom = 31.0
 
 [node name="CenterButtons" type="VBoxContainer" parent="." unique_id=616410231]
 layout_mode = 0
@@ -54,8 +53,6 @@ offset_left = 4.0
 offset_top = 4.0
 offset_right = 96.0
 offset_bottom = 96.0
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="PlayerCountPopup" type="PopupPanel" parent="." unique_id=380088268]
 

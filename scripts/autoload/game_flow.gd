@@ -12,6 +12,8 @@ const COLOR_VALUES: Dictionary = {
 }
 const RANDOM_NAMES: Array[String] = ["Thomas", "Adrien", "Martino", "Raphael", "Alex"]
 
+enum PieceRank { SECOND = 0, CAPTAIN = 1 }
+
 const TITLE_SCENE_PATH := "res://scenes/ui/title_screen.tscn"
 const BOARD_SCENE_PATH := "res://scenes/board/board.tscn"
 
@@ -76,3 +78,18 @@ func go_to_title() -> void:
 
 func go_to_board() -> void:
 	get_tree().change_scene_to_file(BOARD_SCENE_PATH)
+
+## pieces: Array de Dictionaries {color: String, rank: PieceRank, order: int}
+## "order" = ordre chronologique de pose (le plus petit = posé en premier).
+## Retourne la couleur que doit prendre la case selon la règle :
+## priorité au rang le plus élevé (capitaine > second), puis à la pièce
+## posée en premier parmi celles du rang le plus élevé.
+func compute_case_color(pieces: Array) -> Color:
+	if pieces.is_empty():
+		return Color(0, 0, 0, 0)
+	var max_rank: int = -1
+	for p in pieces:
+		max_rank = max(max_rank, p["rank"])
+	var top_pieces := pieces.filter(func(p): return p["rank"] == max_rank)
+	top_pieces.sort_custom(func(a, b): return a["order"] < b["order"])
+	return COLOR_VALUES[top_pieces[0]["color"]]
