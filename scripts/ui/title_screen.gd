@@ -11,8 +11,8 @@ extends Control
 @onready var debug_button: Button = $CenterButtons/DebugButton
 
 @onready var player_count_popup: PopupPanel = $PlayerCountPopup
-@onready var player_count_spinbox: SpinBox = $PlayerCountPopup/VBoxContainer/PlayerCountSpinBox
-@onready var player_count_confirm_button: Button = $PlayerCountPopup/VBoxContainer/ConfirmButton
+@onready var player_count_spinbox: SpinBox = $PlayerCountPopup/Padding/VBoxContainer/PlayerCountSpinBox
+@onready var player_count_confirm_button: Button = $PlayerCountPopup/Padding/VBoxContainer/ConfirmButton
 
 var _pending_popup_action: String = ""  # "local" ou "debug"
 
