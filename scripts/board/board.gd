@@ -27,6 +27,7 @@ var _total_seas: int = 0
 var _has_started: bool = false
 
 var _camera_base_position: Vector2
+var _camera_base_zoom: Vector2
 
 var _current_round: int = 0  # 0 = premier choix pour tous, 1 = pièce restante forcée pour tous
 var _current_player_index: int = 0
@@ -38,6 +39,7 @@ func _ready() -> void:
 	_sea_tiles = []
 	player_list.position = Vector2(20, 20)
 	_camera_base_position = camera.position
+	_camera_base_zoom = camera.zoom
 	action_spots_container.z_index = 1
 
 	for child in seas_container.get_children():
@@ -257,8 +259,9 @@ func _end_piece_placement_phase() -> void:
 
 
 func _shift_camera_for_selection(active: bool) -> void:
-	var shift_world := Vector2(GameFlow.SELECTION_PANEL_WIDTH / camera.zoom.x, 0)
-	var target := _camera_base_position + shift_world if active else _camera_base_position
+	var target_pos := _camera_base_position + Vector2(GameFlow.CAMERA_SELECTION_SHIFT, 0) if active else _camera_base_position
+	var target_zoom := GameFlow.CAMERA_SELECTION_ZOOM if active else _camera_base_zoom
 	var tween := create_tween()
-	tween.tween_property(camera, "position", target, 0.5)\
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.set_parallel(true)
+	tween.tween_property(camera, "position", target_pos, 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(camera, "zoom", target_zoom, 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)

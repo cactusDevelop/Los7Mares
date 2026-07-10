@@ -20,6 +20,8 @@
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
+radius = null
+deck_stack_offset = null
 
 [node name="CenterPiece" type="Sprite2D" parent="." unique_id=1635265673]
 rotation = 2.3125613
@@ -35,7 +37,7 @@ script = ExtResource("12_hxlvt")
 [node name="HoverPrompt" parent="Seas/DeckArea" unique_id=1205484487 node_paths=PackedStringArray("card_shape") instance=ExtResource("12_w0prs")]
 box_size = Vector2(1300, 1300)
 outline_width = 30.0
-label_text = "Distribuer Les Mers"
+label_text = "MERS"
 font_size = 100
 card_shape = NodePath("../CollisionPolygon2D")
 

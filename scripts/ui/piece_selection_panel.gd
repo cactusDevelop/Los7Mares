@@ -11,6 +11,7 @@ var background: ColorRect
 var icons_box: VBoxContainer
 var captain_button: TextureButton
 var second_button: TextureButton
+var splatter: TextureRect
 
 var _button_group := ButtonGroup.new()
 var _current_color: Color = Color.WHITE
@@ -22,9 +23,16 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	background = ColorRect.new()
-	background.color = Color(0, 0, 0, 1)
+	background.color = Color(0.102, 0.102, 0.117, 1.0)
 	background.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(background)
+	
+	splatter = TextureRect.new()
+	splatter.texture = preload("res://assets/art/ui/splatter-black-paint.png")
+	splatter.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	splatter.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	splatter.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(splatter)
 
 	icons_box = VBoxContainer.new()
 	icons_box.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -80,6 +88,8 @@ func _layout() -> void:
 	size = Vector2(GameFlow.SELECTION_PANEL_WIDTH, viewport_size.y)
 	background.position = Vector2.ZERO
 	background.size = size
+	splatter.position = Vector2.ZERO
+	splatter.size = size
 	icons_box.position = Vector2.ZERO
 	icons_box.size = size
 

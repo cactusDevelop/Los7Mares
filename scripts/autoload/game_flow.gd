@@ -16,6 +16,9 @@ const PIECE_SCALE := 0.6
 const SELECTION_PANEL_WIDTH := 240.0
 const SELECTION_ICON_HEIGHT := 110.0
 const HOVER_TINT := Color(0.82, 0.82, 0.82)
+const CAMERA_SELECTION_SHIFT := 400.0   # décalage horizontal caméra (unités monde)
+const CAMERA_SELECTION_ZOOM := Vector2(0.22, 0.22)
+const CASE_PIECE_RADIUS := 22.0         # rayon de répartition des pièces sur une case
 
 enum PieceRank { SECOND = 0, CAPTAIN = 1 }
 
@@ -101,14 +104,12 @@ func compute_case_color(pieces: Array) -> Color:
 
 
 ## Retourne les positions relatives (centrées sur la case) pour "count" pièces.
-func layout_positions_for_case(count: int, spacing: float = 22.0) -> Array[Vector2]:
+func layout_positions_for_case(count: int) -> Array[Vector2]:
+	var spacing := CASE_PIECE_RADIUS
 	match count:
-		0:
-			return []
-		1:
-			return [Vector2.ZERO]
-		2:
-			return [Vector2(-spacing, 0), Vector2(spacing, 0)]
+		0: return []
+		1: return [Vector2.ZERO]
+		2: return [Vector2(-spacing, 0), Vector2(spacing, 0)]
 		_:
 			var positions: Array[Vector2] = []
 			for i in range(count):
