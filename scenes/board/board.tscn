@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bbqu86vf8lfka"]
 
 [ext_resource type="Script" uid="uid://ce67b0el0ibc3" path="res://scripts/board/board.gd" id="1_jnyf0"]
-[ext_resource type="Texture2D" uid="uid://dp5v7sc6ibm6" path="res://assets/art/board/board.png" id="2_knosr"]
+[ext_resource type="Texture2D" uid="uid://dp5v7sc6ibm6" path="res://assets/art/board/plateau.png" id="2_knosr"]
 [ext_resource type="PackedScene" uid="uid://cihhe3gi0rmb2" path="res://scenes/board/sea_tile.tscn" id="3_w0prs"]
 [ext_resource type="Texture2D" uid="uid://kf5ejodhaooo" path="res://assets/art/board/mer-d-abondance.png" id="4_hxlvt"]
 [ext_resource type="Texture2D" uid="uid://bu8t21xxdo52n" path="res://assets/art/board/mer-d-azur.png" id="6_kug5n"]

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://caj2qix4jjw1"
-path="res://.godot/imported/perro-violet-prison.png-02a84995bb5d07c90aab6a2d4ed9a48f.ctex"
+uid="uid://clmln04nxtwn5"
+path="res://.godot/imported/jeton-abondance-dos.png-62e83e0f02f270274d4b73697513fdc3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/perro-violet-prison.png"
-dest_files=["res://.godot/imported/perro-violet-prison.png-02a84995bb5d07c90aab6a2d4ed9a48f.ctex"]
+source_file="res://assets/art/board/jeton-abondance-dos.png"
+dest_files=["res://.godot/imported/jeton-abondance-dos.png-62e83e0f02f270274d4b73697513fdc3.ctex"]
 
 [params]
 

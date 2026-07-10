@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2ywy1cpfoxqe"
-path="res://.godot/imported/perro-rouge-prison.png-20b1e4ad2af6bfd332e87e64962fe2fb.ctex"
+uid="uid://caj2qix4jjw1"
+path="res://.godot/imported/perro-violet-prison.png-7850a252d835b2b0a0cc9763006a4565.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/perro-rouge-prison.png"
-dest_files=["res://.godot/imported/perro-rouge-prison.png-20b1e4ad2af6bfd332e87e64962fe2fb.ctex"]
+source_file="res://assets/art/player-board/perro-violet-prison.png"
+dest_files=["res://.godot/imported/perro-violet-prison.png-7850a252d835b2b0a0cc9763006a4565.ctex"]
 
 [params]
 

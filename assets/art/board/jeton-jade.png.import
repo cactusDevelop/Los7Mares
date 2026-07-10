@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dxuv8ip6nw8nl"
-path="res://.godot/imported/perro-rouge.png-adb169bb7e32f36b6910769437b9be80.ctex"
+uid="uid://b8l35caguwmfj"
+path="res://.godot/imported/jeton-jade.png-04f7d28e53e29fa393ab84dd8b0ea341.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/perro-rouge.png"
-dest_files=["res://.godot/imported/perro-rouge.png-adb169bb7e32f36b6910769437b9be80.ctex"]
+source_file="res://assets/art/board/jeton-jade.png"
+dest_files=["res://.godot/imported/jeton-jade.png-04f7d28e53e29fa393ab84dd8b0ea341.ctex"]
 
 [params]
 

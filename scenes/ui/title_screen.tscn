@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://buak45c3014j0"]
 
 [ext_resource type="Script" uid="uid://cutqga2dm2kqx" path="res://scripts/ui/title_screen.gd" id="1_aqpy5"]
-[ext_resource type="Texture2D" uid="uid://b7yjamv551scs" path="res://assets/art/title.png" id="2_w8uqo"]
+[ext_resource type="Texture2D" uid="uid://b7yjamv551scs" path="res://assets/art/ui/title.png" id="2_w8uqo"]
 [ext_resource type="Script" uid="uid://bqajivy6eqopk" path="res://scripts/ui/settings_popup.gd" id="3_w8uqo"]
 
 [node name="TitleScreen" type="Control" unique_id=998463451]
