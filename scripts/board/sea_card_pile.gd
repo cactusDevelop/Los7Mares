@@ -1,0 +1,36 @@
+extends Node2D
+
+## Pioche de cartes affichée à côté d'une mer sur le plateau. Le joueur peut
+## piocher ici une fois que son bateau/pion est passé par cette mer.
+## (Pour l'instant : activée globalement après la phase de placement — sera
+## affinée plus tard pour suivre le déplacement réel des bateaux.)
+
+signal pile_clicked(pile: Node2D)
+
+@onready var click_area: Area2D = $ClickArea
+@onready var hover_prompt: Node2D = $HoverPrompt
+
+var sea_key: String = ""
+var draw_enabled: bool = false
+
+
+func _ready() -> void:
+	click_area.mouse_entered.connect(_on_mouse_entered)
+	click_area.mouse_exited.connect(_on_mouse_exited)
+	click_area.input_event.connect(_on_input_event)
+
+
+func _on_mouse_entered() -> void:
+	if draw_enabled:
+		hover_prompt.show_prompt()
+
+
+func _on_mouse_exited() -> void:
+	hover_prompt.hide_prompt()
+
+
+func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	if not draw_enabled:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		pile_clicked.emit(self)

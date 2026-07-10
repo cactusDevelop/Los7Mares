@@ -141,6 +141,8 @@ position = Vector2(-317, 335)
 [node name="Spot5" parent="ActionSpots" unique_id=53161306 instance=ExtResource("15_kug5n")]
 position = Vector2(-323, -293)
 
+[node name="CardPiles" type="Node2D" parent="." unique_id=2057199386]
+
 [editable path="Seas/SeaAbondance"]
 [editable path="Seas/SeaAzur"]
 [editable path="Seas/SeaDeFeu"]
