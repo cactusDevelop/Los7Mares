@@ -18,7 +18,21 @@ const SELECTION_ICON_HEIGHT := 110.0
 const HOVER_TINT := Color(0.82, 0.82, 0.82)
 const CAMERA_SELECTION_SHIFT := 400.0   # décalage horizontal caméra (unités monde)
 const CAMERA_SELECTION_ZOOM := Vector2(0.22, 0.22)
-const CASE_PIECE_RADIUS := 22.0         # rayon de répartition des pièces sur une case
+const CASE_PIECE_RADIUS := 100.0         # rayon de répartition des pièces sur une case (polygone)
+const CASE_PIECE_VERTICAL_OFFSET := 40.0  # décale tout le polygone vers le bas pour compenser l'ancrage des sprites
+
+# --- Constantes UI communes (tailles, couleurs, styles) ---
+# Regroupées ici pour n'avoir qu'un seul endroit à modifier si le design change.
+const TITLE_BUTTON_SIZE := Vector2(420, 84)
+const TITLE_BUTTON_FONT_SIZE := 24
+const TITLE_BUTTONS_Y_OFFSET := 100.0     # décalage vertical (vers le bas) des boutons du menu titre
+const POPUP_BG_COLOR := Color(0.12, 0.12, 0.16, 1.0)
+const POPUP_CORNER_RADIUS := 12.0
+
+# --- Localisation ---
+const SETTINGS_FILE_PATH := "user://settings.cfg"
+const DEFAULT_LOCALE := "fr"
+const AVAILABLE_LOCALES: Array[String] = ["fr", "en", "es"]
 
 enum PieceRank { SECOND = 0, CAPTAIN = 1 }
 
@@ -35,6 +49,28 @@ var is_debug_mode: bool = false
 var players: Array[Dictionary] = []
 
 var _next_player_id: int = 0
+
+
+func _ready() -> void:
+	_load_locale()
+
+
+func _load_locale() -> void:
+	var config := ConfigFile.new()
+	var err := config.load(SETTINGS_FILE_PATH)
+	var locale: String = DEFAULT_LOCALE
+	if err == OK:
+		locale = config.get_value("settings", "locale", DEFAULT_LOCALE)
+	TranslationServer.set_locale(locale)
+
+
+## Change la langue courante et la sauvegarde pour les prochains lancements.
+func set_locale(locale: String) -> void:
+	TranslationServer.set_locale(locale)
+	var config := ConfigFile.new()
+	config.load(SETTINGS_FILE_PATH)
+	config.set_value("settings", "locale", locale)
+	config.save(SETTINGS_FILE_PATH)
 
 
 func reset_players() -> void:
@@ -106,13 +142,14 @@ func compute_case_color(pieces: Array) -> Color:
 ## Retourne les positions relatives (centrées sur la case) pour "count" pièces.
 func layout_positions_for_case(count: int) -> Array[Vector2]:
 	var spacing := CASE_PIECE_RADIUS
+	var vertical_offset := Vector2(0, CASE_PIECE_VERTICAL_OFFSET)
 	match count:
 		0: return []
-		1: return [Vector2.ZERO]
-		2: return [Vector2(-spacing, 0), Vector2(spacing, 0)]
+		1: return [vertical_offset]
+		2: return [Vector2(-spacing, 0) + vertical_offset, Vector2(spacing, 0) + vertical_offset]
 		_:
 			var positions: Array[Vector2] = []
 			for i in range(count):
 				var angle := -PI / 2.0 + i * (TAU / count)
-				positions.append(Vector2(cos(angle), sin(angle)) * spacing)
+				positions.append(Vector2(cos(angle), sin(angle)) * spacing + vertical_offset)
 			return positions

@@ -53,9 +53,9 @@ func open_for_new_player(player_number: int = 0, total_players: int = 0) -> void
 	error_label.visible = false
 
 	if total_players > 0:
-		title_label.text = "JOUEUR %d / %d — CHOISIS UN NOM ET UNE COULEUR" % [player_number, total_players]
+		title_label.text = tr("JOUEUR %d / %d — CHOISIS UN NOM ET UNE COULEUR") % [player_number, total_players]
 	else:
-		title_label.text = "CHOISIS LE NOM DE TON EQUIPAGE ET LA COULEUR DE TA VOILE"
+		title_label.text = tr("CHOISIS LE NOM DE TON EQUIPAGE ET LA COULEUR DE TA VOILE")
 
 	_layout_popup()
 	visible = true
@@ -119,16 +119,16 @@ func _on_name_submitted(_text: String) -> void:
 func _on_confirm_pressed() -> void:
 	var player_name := name_input.text.strip_edges()
 	if player_name.is_empty():
-		_show_error("Entre un nom.")
+		_show_error(tr("Entre un nom."))
 		return
 	if GameFlow.is_name_taken(player_name):
-		_show_error("Ce nom est déjà pris.")
+		_show_error(tr("Ce nom est déjà pris."))
 		return
 	if _selected_color.is_empty():
-		_show_error("Choisis une couleur.")
+		_show_error(tr("Choisis une couleur."))
 		return
 	if GameFlow.is_color_taken(_selected_color):
-		_show_error("Cette couleur est déjà prise.")
+		_show_error(tr("Cette couleur est déjà prise."))
 		return
 	error_label.visible = false
 	player_confirmed.emit(player_name, _selected_color)

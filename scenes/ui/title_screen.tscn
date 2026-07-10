@@ -28,6 +28,7 @@ offset_bottom = 31.0
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+offset_transform_enabled = true
 
 [node name="DebugButton" type="Button" parent="CenterButtons" unique_id=1554320652]
 layout_mode = 2
@@ -78,6 +79,16 @@ text = "Volume"
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 value = 100.0
+
+[node name="LanguageRow" type="HBoxContainer" parent="SettingsPopup/Padding/Content" unique_id=819533001]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SettingsPopup/Padding/Content/LanguageRow" unique_id=1043642661]
+layout_mode = 2
+text = "Langue"
+
+[node name="LanguageOptionButton" type="OptionButton" parent="SettingsPopup/Padding/Content/LanguageRow" unique_id=729532401]
+layout_mode = 2
 
 [node name="PlayerCountPopup" type="PopupPanel" parent="." unique_id=380088268]
 

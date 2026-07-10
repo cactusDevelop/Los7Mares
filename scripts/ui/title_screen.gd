@@ -51,19 +51,20 @@ func _layout_ui() -> void:
 	settings_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 
 	for btn in [host_button, join_button, local_button, debug_button]:
-		btn.custom_minimum_size = Vector2(420, 84)
-		btn.add_theme_font_size_override("font_size", 24)
+		btn.custom_minimum_size = GameFlow.TITLE_BUTTON_SIZE
+		btn.add_theme_font_size_override("font_size", GameFlow.TITLE_BUTTON_FONT_SIZE)
 	center_buttons.size = center_buttons.get_combined_minimum_size()
-	center_buttons.position = (viewport_size - center_buttons.size) / 2.0
+	center_buttons.position = (viewport_size - center_buttons.size) / 2.0 \
+		+ Vector2(0, GameFlow.TITLE_BUTTONS_Y_OFFSET)
 
 
 func _style_popup_background(popup: PopupPanel) -> void:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.12, 0.12, 0.16, 1.0)
-	style.corner_radius_top_left = 12
-	style.corner_radius_top_right = 12
-	style.corner_radius_bottom_left = 12
-	style.corner_radius_bottom_right = 12
+	style.bg_color = GameFlow.POPUP_BG_COLOR
+	style.corner_radius_top_left = GameFlow.POPUP_CORNER_RADIUS
+	style.corner_radius_top_right = GameFlow.POPUP_CORNER_RADIUS
+	style.corner_radius_bottom_left = GameFlow.POPUP_CORNER_RADIUS
+	style.corner_radius_bottom_right = GameFlow.POPUP_CORNER_RADIUS
 	popup.add_theme_stylebox_override("panel", style)
 
 

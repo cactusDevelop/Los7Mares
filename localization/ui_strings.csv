@@ -1,0 +1,23 @@
+keys,en,fr,es
+DEBUG,DEBUG,DEBUG,DEBUG
+PARTIE LOCALE,LOCAL GAME,PARTIE LOCALE,PARTIDA LOCAL
+REJOINDRE,JOIN,REJOINDRE,UNIRSE
+HEBERGER,HOST,HEBERGER,ALOJAR
+PARAMETRES,SETTINGS,PARAMETRES,AJUSTES
+Volume,Volume,Volume,Volumen
+CHOISIR LE NOMBRE DE JOUEURS IMAGINAIRES,CHOOSE THE NUMBER OF IMAGINARY PLAYERS,CHOISIR LE NOMBRE DE JOUEURS IMAGINAIRES,ELEGIR EL NUMERO DE JUGADORES IMAGINARIOS
+VALIDER,CONFIRM,VALIDER,CONFIRMAR
+Capitaine,Captain,Capitaine,Capitan
+Second,Second Mate,Second,Segundo
+CHOISIS LE NOM DE TON EQUIPAGE ET LA COULEUR DE TA VOILE,CHOOSE YOUR CREW'S NAME AND YOUR SAIL COLOR,CHOISIS LE NOM DE TON EQUIPAGE ET LA COULEUR DE TA VOILE,ELIGE EL NOMBRE DE TU TRIPULACION Y EL COLOR DE TU VELA
+NOM,NAME,NOM,NOMBRE
+Entre un nom.,Enter a name.,Entre un nom.,Introduce un nombre.
+Ce nom est déjà pris.,This name is already taken.,Ce nom est déjà pris.,Este nombre ya está en uso.
+Choisis une couleur.,Choose a color.,Choisis une couleur.,Elige un color.
+Cette couleur est déjà prise.,This color is already taken.,Cette couleur est déjà prise.,Este color ya está en uso.
+JOUEUR %d / %d — CHOISIS UN NOM ET UNE COULEUR,PLAYER %d / %d — CHOOSE A NAME AND A COLOR,JOUEUR %d / %d — CHOISIS UN NOM ET UNE COULEUR,JUGADOR %d / %d — ELIGE UN NOMBRE Y UN COLOR
+Cliquez sur la pile pour distribuer les mers.,Click the deck to deal the seas.,Cliquez sur la pile pour distribuer les mers.,Haz clic en la pila para repartir los mares.
+Tour de %s : choisis la pièce à jouer (capitaine ou second).,%s's turn: choose the piece to play (captain or second).,Tour de %s : choisis la pièce à jouer (capitaine ou second).,Turno de %s: elige la pieza a jugar (capitán o segundo).
+Tour de %s : place ta dernière pièce.,%s's turn: place your last piece.,Tour de %s : place ta dernière pièce.,Turno de %s: coloca tu última pieza.
+Tu ne peux pas poser tes deux pièces sur la même case.,You cannot place both your pieces on the same tile.,Tu ne peux pas poser tes deux pièces sur la même case.,No puedes colocar tus dos piezas en la misma casilla.
+Placement terminé — la suite arrive bientôt.,Placement complete — more to come soon.,Placement terminé — la suite arrive bientôt.,Colocación terminada — la continuación llega pronto.
