@@ -24,6 +24,20 @@ const SPECIAL_ICON_SIZE := Vector2(110, 110)
 const SPECIAL_TOKEN_MIN_DISTANCE := 95.0
 const SPECIAL_TOKEN_MAX_ATTEMPTS := 40
 
+## --- Cohérence de la fausse perspective 3D ---
+## Convention unique pour tout le fichier : la "matière"/l'épaisseur des
+## objets s'étend vers le BAS-GAUCHE (comme une ombre portée), donc leur
+## face du dessus/avant visible est repoussée vers le HAUT-DROITE. Les
+## cubes de ressource DOIVENT utiliser la direction opposée à celle-ci.
+const DEPTH_DIRECTION := Vector2(-0.70710678, 0.70710678)
+## Épaisseur totale des jetons Fortune/Trésor, en pixels écran (~3px demandés).
+const TOKEN_THICKNESS_PX := 3.0
+const TOKEN_THICKNESS_LAYERS := 3
+const TOKEN_EDGE_DARKEN := 0.45
+## Hauteur du cube = fraction de son côté (edge), extrudée en sens opposé
+## à DEPTH_DIRECTION pour rester cohérente avec les jetons.
+const CUBE_EXTRUDE_RATIO := 0.28
+
 const RESOURCE_CUBE_COLORS := {
 	"wood": Color8(122, 74, 34),    # brun
 	"steel": Color8(58, 62, 68),    # gris foncé
@@ -107,14 +121,34 @@ func _place_special_tokens_random(player: Dictionary, key: String, texture: Text
 	for i in range(count):
 		var pixel_pos := _pick_spaced_position(rect_min, rect_max, placed_pixels)
 		placed_pixels.append(pixel_pos)
-		var icon := TextureRect.new()
-		icon.texture = texture
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.size = icon_size_local
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		resource_slots.add_child(icon)
-		icon.position = _texture_to_local(pixel_pos) - icon_size_local / 2.0
+		var anchor: Vector2 = _texture_to_local(pixel_pos) - icon_size_local / 2.0
+		_add_token_with_thickness(texture, anchor, icon_size_local)
+
+
+## Empile plusieurs copies assombries du jeton, décalées vers le bas-gauche
+## (DEPTH_DIRECTION), puis la copie en couleur normale au-dessus : donne une
+## petite épaisseur au jeton au lieu d'un sprite plat.
+func _add_token_with_thickness(texture: Texture2D, anchor: Vector2, icon_size: Vector2) -> void:
+	var step: Vector2 = DEPTH_DIRECTION * (TOKEN_THICKNESS_PX / float(TOKEN_THICKNESS_LAYERS))
+	for layer in range(TOKEN_THICKNESS_LAYERS, 0, -1):
+		var edge := TextureRect.new()
+		edge.texture = texture
+		edge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		edge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		edge.size = icon_size
+		edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		edge.modulate = Color(1, 1, 1).darkened(TOKEN_EDGE_DARKEN)
+		resource_slots.add_child(edge)
+		edge.position = anchor + step * layer
+
+	var top := TextureRect.new()
+	top.texture = texture
+	top.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	top.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	top.size = icon_size
+	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	resource_slots.add_child(top)
+	top.position = anchor
 
 
 ## Tire une position aléatoire dans le rectangle, en essayant de rester à au
@@ -138,38 +172,43 @@ func _pick_spaced_position(rect_min: Vector2, rect_max: Vector2, existing: Array
 	return best_pos
 
 
-## Construit un petit cube isométrique (3 faces ombrées) centré sur (0, 0),
-## pour donner un semblant de perspective 3D aux cubes de ressource.
+## Construit un cube en fausse perspective, dont la face avant (= la "base"
+## demandée) est un carré exact edge x edge centré sur (0, 0). Le cube
+## s'extrude vers le haut-droite : direction opposée à DEPTH_DIRECTION,
+## utilisée pour l'épaisseur des jetons Fortune/Trésor (cohérence 3D).
 func _build_cube_icon(base_color: Color, edge: float) -> Node2D:
-	var s := edge / 2.0
-	var top_point := Vector2(0, -s)
-	var right_point := Vector2(s, -s / 2.0)
-	var bottom_point := Vector2(0, s)
-	var left_point := Vector2(-s, -s / 2.0)
-	var bottom_right := Vector2(s, s / 2.0)
-	var bottom_left := Vector2(-s, s / 2.0)
-	var center := Vector2.ZERO
+	var half := edge / 2.0
+	var top_left := Vector2(-half, -half)
+	var top_right := Vector2(half, -half)
+	var bottom_right := Vector2(half, half)
+	var bottom_left := Vector2(-half, half)
 
+	var extrude: Vector2 = -DEPTH_DIRECTION * edge * CUBE_EXTRUDE_RATIO
+
+	var front_color: Color = base_color
 	var top_color: Color = base_color.lightened(0.35)
-	var right_color: Color = base_color
-	var left_color: Color = base_color.darkened(0.35)
+	var side_color: Color = base_color.darkened(0.3)
 
 	var cube := Node2D.new()
 
 	var top_face := Polygon2D.new()
-	top_face.polygon = PackedVector2Array([left_point, top_point, right_point, center])
+	top_face.polygon = PackedVector2Array([
+		top_left, top_right, top_right + extrude, top_left + extrude
+	])
 	top_face.color = top_color
 	cube.add_child(top_face)
 
-	var right_face := Polygon2D.new()
-	right_face.polygon = PackedVector2Array([center, right_point, bottom_right, bottom_point])
-	right_face.color = right_color
-	cube.add_child(right_face)
+	var side_face := Polygon2D.new()
+	side_face.polygon = PackedVector2Array([
+		top_right, bottom_right, bottom_right + extrude, top_right + extrude
+	])
+	side_face.color = side_color
+	cube.add_child(side_face)
 
-	var left_face := Polygon2D.new()
-	left_face.polygon = PackedVector2Array([left_point, center, bottom_point, bottom_left])
-	left_face.color = left_color
-	cube.add_child(left_face)
+	var front_face := Polygon2D.new()
+	front_face.polygon = PackedVector2Array([top_left, top_right, bottom_right, bottom_left])
+	front_face.color = front_color
+	cube.add_child(front_face)
 
 	return cube
 
