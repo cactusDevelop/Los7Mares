@@ -18,6 +18,7 @@ const GAME_TRACKS: Array[AudioStream] = [
 const FADE_DURATION := 1.2
 const NORMAL_VOLUME_DB := 0.0
 const SILENT_VOLUME_DB := -40.0
+const MENU_MUSIC_START_DELAY := 2.0
 
 var _player: AudioStreamPlayer
 
@@ -29,7 +30,12 @@ func _ready() -> void:
 
 
 func play_menu_music() -> void:
-	_play_track(MENU_TRACK)
+	_player.stream = MENU_TRACK
+	_player.volume_db = SILENT_VOLUME_DB
+	await get_tree().create_timer(MENU_MUSIC_START_DELAY).timeout
+	_player.play()
+	var fade_in := create_tween()
+	fade_in.tween_property(_player, "volume_db", NORMAL_VOLUME_DB, FADE_DURATION)
 
 
 func play_random_game_music() -> void:

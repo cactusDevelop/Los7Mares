@@ -8,8 +8,10 @@ const BOARD_THUMB_SIZE := Vector2(160, 107)
 const PIECE_DROP_HEIGHT := 220.0
 const PIECE_DROP_DURATION := 0.35
 const PILE_DROP_HEIGHT := 260.0
-const PILE_DROP_DURATION := 0.4
-const PILE_DROP_DELAY := 0.15
+const PILE_DROP_DURATION := 0.9
+const PILE_DROP_DELAY := 0.55
+const CARD_START_JITTER := 0.35
+const CARD_MIN_DROP_DURATION := 0.35
 const CARDS_PER_PILE := 10
 const CARD_STACK_OFFSET := Vector2(0, -2)
 const CARD_PILE_STAGGER := 0.05
@@ -306,14 +308,16 @@ func _drop_card_piles() -> void:
 			card.global_position = target_global_pos - Vector2(0, PILE_DROP_HEIGHT)
 			card.modulate.a = 0.0
 
-			var start_delay := round_i * PILE_DROP_DELAY + pile_i * CARD_PILE_STAGGER
+			var jitter := randf_range(0.0, CARD_START_JITTER)
+			var fall_duration: float = max(PILE_DROP_DURATION - jitter, CARD_MIN_DROP_DURATION)
+			var start_delay := round_i * PILE_DROP_DELAY + pile_i * CARD_PILE_STAGGER + jitter
 			var tween := create_tween()
 			tween.tween_interval(start_delay)
-			tween.tween_property(card, "global_position", target_global_pos, PILE_DROP_DURATION)\
+			tween.tween_property(card, "global_position", target_global_pos, fall_duration)\
 				.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-			tween.parallel().tween_property(card, "modulate:a", 1.0, PILE_DROP_DURATION * 0.7)
+			tween.parallel().tween_property(card, "modulate:a", 1.0, min(fall_duration * 0.7, fall_duration))
 
-			total_delay = max(total_delay, start_delay + PILE_DROP_DURATION)
+			total_delay = max(total_delay, start_delay + fall_duration)
 
 	await get_tree().create_timer(total_delay).timeout
 
