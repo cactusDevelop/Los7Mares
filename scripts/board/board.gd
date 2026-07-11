@@ -10,6 +10,10 @@ const PIECE_DROP_DURATION := 0.35
 const PILE_DROP_HEIGHT := 260.0
 const PILE_DROP_DURATION := 0.4
 const PILE_DROP_DELAY := 0.15
+const CARDS_PER_PILE := 10
+const CARD_STACK_OFFSET := Vector2(0, -2)
+const CARD_PILE_STAGGER := 0.05
+const CARD_BACK_TEXTURE := preload("res://assets/art/cards/carte-sauvage-dos.png")
 
 const CAPTAIN_SCENE := preload("res://scenes/board/pieces/captain_piece.tscn")
 const SECOND_SCENE := preload("res://scenes/board/pieces/second_piece.tscn")
@@ -75,6 +79,7 @@ func _ready() -> void:
 	_camera_base_position = camera.position
 	_camera_base_zoom = camera.zoom
 	action_spots_container.z_index = 1
+	seas_container.z_index = 2
 
 	for child in seas_container.get_children():
 		if child.is_in_group("sea_tile"):
@@ -86,7 +91,6 @@ func _ready() -> void:
 		var tile = _sea_tiles[i]
 		tile.global_position = deck_area.global_position + deck_stack_offset * i
 		tile.rotation_degrees = 0.0
-		tile.z_index = i
 		tile.back_sprite.visible = true
 		tile.front_sprite.visible = false
 
@@ -116,7 +120,7 @@ func _ready() -> void:
 		pile.sea_key = SEA_KEY_BY_NODE_NAME.get(tile.name, "")
 		pile.pile_clicked.connect(_on_card_pile_clicked)
 		pile.visible = false
-		pile.modulate.a = 0.0
+		pile.modulate.a = 1.0
 
 	sea_card_popup.card_resolved.connect(_on_sea_card_resolved)
 
@@ -289,20 +293,28 @@ func _flip_all_as_wave() -> void:
 
 func _drop_card_piles() -> void:
 	var piles := card_piles_container.get_children()
-	for i in range(piles.size()):
-		var pile: Node2D = piles[i]
-		var target_pos := pile.global_position
-		pile.global_position = target_pos - Vector2(0, PILE_DROP_HEIGHT)
+	for pile in piles:
 		pile.visible = true
 
-		var tween := create_tween()
-		tween.tween_interval(i * PILE_DROP_DELAY)
-		tween.tween_property(pile, "global_position", target_pos, PILE_DROP_DURATION)\
-			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		tween.parallel().tween_property(pile, "modulate:a", 1.0, PILE_DROP_DURATION * 0.7)
+	var total_delay := 0.0
+	for round_i in range(CARDS_PER_PILE):
+		for pile_i in range(piles.size()):
+			var pile: Node2D = piles[pile_i]
+			var stack_pos: Vector2 = CARD_STACK_OFFSET * round_i
+			var card: Sprite2D = pile.add_visual_card(CARD_BACK_TEXTURE, stack_pos)
+			card.position = stack_pos - Vector2(0, PILE_DROP_HEIGHT)
+			card.modulate.a = 0.0
 
-	var total_wait := (piles.size() - 1) * PILE_DROP_DELAY + PILE_DROP_DURATION
-	await get_tree().create_timer(total_wait).timeout
+			var start_delay := round_i * PILE_DROP_DELAY + pile_i * CARD_PILE_STAGGER
+			var tween := create_tween()
+			tween.tween_interval(start_delay)
+			tween.tween_property(card, "position", stack_pos, PILE_DROP_DURATION)\
+				.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			tween.parallel().tween_property(card, "modulate:a", 1.0, PILE_DROP_DURATION * 0.7)
+
+			total_delay = max(total_delay, start_delay + PILE_DROP_DURATION)
+
+	await get_tree().create_timer(total_delay).timeout
 
 
 # --- Phase de placement des pièces : 2 manches globales ---

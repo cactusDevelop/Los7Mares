@@ -13,8 +13,17 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	blocker.mouse_filter = Control.MOUSE_FILTER_STOP
 	blocker.color = Color(0, 0, 0, 0.7)
-	board_texture.custom_minimum_size = Vector2(640, 427)
+	board_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	board_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	board_texture.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	board_texture.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	padding.add_theme_constant_override("margin_left", 60)
+	padding.add_theme_constant_override("margin_right", 60)
+	padding.add_theme_constant_override("margin_top", 60)
+	padding.add_theme_constant_override("margin_bottom", 180)
+	if close_button.text == "":
+		close_button.text = tr("Retour")
+	close_button.custom_minimum_size = Vector2(0, 64)
 	close_button.pressed.connect(func(): visible = false)
 
 
@@ -36,8 +45,6 @@ func show_player(player: Dictionary) -> void:
 
 	var viewport_size := get_viewport_rect().size
 	blocker.size = viewport_size
-	var min_size: Vector2 = padding.get_combined_minimum_size()
-	min_size.x = max(min_size.x, 700)
-	padding.size = min_size
-	padding.position = (viewport_size - min_size) / 2.0
+	padding.position = Vector2.ZERO
+	padding.size = viewport_size
 	visible = true
