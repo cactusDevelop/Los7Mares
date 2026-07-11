@@ -54,8 +54,12 @@ var _placed_rank_by_player: Dictionary = {}  # index joueur -> rang posé au tou
 func _ready() -> void:
 	_sea_tiles = []
 	player_boards_panel.position = Vector2(20, 20)
+	player_boards_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	player_boards_panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	player_boards_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	player_boards_panel.position = Vector2(20, 20)
+	player_boards_panel.reset_size()
 	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = GameFlow.POPUP_BG_COLOR
 	panel_style.set_corner_radius_all(GameFlow.POPUP_CORNER_RADIUS)
 	panel_style.content_margin_left = 16
 	panel_style.content_margin_right = 16
@@ -143,6 +147,7 @@ func _refresh_player_boards() -> void:
 		child.queue_free()
 	for player in GameFlow.get_players_sorted_by_points():
 		player_rows.add_child(_build_player_board_row(player))
+	player_boards_panel.reset_size()
 
 
 func _build_player_board_row(player: Dictionary) -> Control:
@@ -164,6 +169,8 @@ func _build_player_board_row(player: Dictionary) -> Control:
 	board_button.ignore_texture_size = true
 	board_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	board_button.custom_minimum_size = Vector2(160, 107)
+	board_button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	board_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	board_button.pressed.connect(_on_player_board_pressed.bind(player["id"]))
 	row.add_child(board_button)
 
@@ -177,22 +184,16 @@ func _build_player_board_row(player: Dictionary) -> Control:
 	return entry
 
 
-func _build_parrot_token(base_color: Color, imprisoned: bool) -> Control:
-	var token := PanelContainer.new()
-	token.custom_minimum_size = Vector2(36, 36)
-	var style := StyleBoxFlat.new()
-	style.set_corner_radius_all(18)
-	style.bg_color = base_color.darkened(0.4) if imprisoned else base_color
-	if imprisoned:
-		style.border_color = Color.BLACK
-		style.set_border_width_all(3)
-	token.add_theme_stylebox_override("panel", style)
-	var label := Label.new()
-	label.text = "🦜"
-	label.horizontal_alignment = 1
-	label.vertical_alignment = 1
-	token.add_child(label)
-	return token
+func _build_parrot_token(color_name: String, imprisoned: bool) -> Control:
+	var texture_rect := TextureRect.new()
+	var path_template: String = GameFlow.PARROT_TEXTURE_PATH_PRISON if imprisoned else GameFlow.PARROT_TEXTURE_PATH
+	texture_rect.texture = load(path_template % color_name)
+	texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	texture_rect.custom_minimum_size = Vector2(40, 40)
+	texture_rect.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	texture_rect.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	return texture_rect
 
 
 func _on_player_board_pressed(player_id: int) -> void:
