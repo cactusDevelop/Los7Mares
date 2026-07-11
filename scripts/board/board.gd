@@ -8,14 +8,19 @@ const BOARD_THUMB_SIZE := Vector2(160, 107)
 const PIECE_DROP_HEIGHT := 220.0
 const PIECE_DROP_DURATION := 0.35
 const PILE_DROP_HEIGHT := 260.0
-const PILE_DROP_DURATION := 0.9
-const PILE_DROP_DELAY := 0.55
+const PILE_DROP_DURATION := 0.6
+const PILE_DROP_DELAY := 0.18
 const CARD_START_JITTER := 0.35
 const CARD_MIN_DROP_DURATION := 0.35
 const CARDS_PER_PILE := 10
 const CARD_STACK_OFFSET := Vector2(0, -2)
 const CARD_PILE_STAGGER := 0.05
-const CARD_BACK_TEXTURE := preload("res://assets/art/cards/carte-sauvage-dos.png")
+const CARD_BACK_FALLBACK := preload("res://assets/art/cards/carte-sauvage-dos.png")
+# Les images de cards/ ne sont pas pré-calibrées à l'échelle du monde comme
+## celles de board/ : on les réduit avec ce facteur. Ajuste cette valeur
+## jusqu'à obtenir la taille de carte voulue.
+const CARD_VISUAL_SCALE := 0.5
+var _card_back_cache: Dictionary = {}
 
 const CAPTAIN_SCENE := preload("res://scenes/board/pieces/captain_piece.tscn")
 const SECOND_SCENE := preload("res://scenes/board/pieces/second_piece.tscn")
@@ -293,6 +298,15 @@ func _flip_all_as_wave() -> void:
 	_start_piece_placement_phase()
 
 
+func _get_card_back_texture(sea_key: String) -> Texture2D:
+		if _card_back_cache.has(sea_key):
+				return _card_back_cache[sea_key]
+		var path := "res://assets/art/cards/carte-%s-dos.png" % sea_key
+		var texture: Texture2D = load(path) if ResourceLoader.exists(path) else CARD_BACK_FALLBACK
+		_card_back_cache[sea_key] = texture
+		return texture
+
+
 func _drop_card_piles() -> void:
 	var piles := card_piles_container.get_children()
 	for pile in piles:
@@ -303,7 +317,8 @@ func _drop_card_piles() -> void:
 		for pile_i in range(piles.size()):
 			var pile: Node2D = piles[pile_i]
 			var stack_pos: Vector2 = CARD_STACK_OFFSET * round_i
-			var card: Sprite2D = pile.add_visual_card(CARD_BACK_TEXTURE, stack_pos)
+			var card: Sprite2D = pile.add_visual_card(_get_card_back_texture(pile.sea_key), stack_pos)
+			card.scale = Vector2.ONE * CARD_VISUAL_SCALE
 			var target_global_pos: Vector2 = card.global_position
 			card.global_position = target_global_pos - Vector2(0, PILE_DROP_HEIGHT)
 			card.modulate.a = 0.0

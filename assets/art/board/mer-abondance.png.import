@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bwoiycvp80ue3"
-path="res://.godot/imported/mer-de-glace.png-0537a36c75d1d5c2c057a90781f08717.ctex"
+uid="uid://kf5ejodhaooo"
+path="res://.godot/imported/mer-abondance.png-bea2d903f1813b2f83fcb402705f3d94.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/board/mer-de-glace.png"
-dest_files=["res://.godot/imported/mer-de-glace.png-0537a36c75d1d5c2c057a90781f08717.ctex"]
+source_file="res://assets/art/board/mer-abondance.png"
+dest_files=["res://.godot/imported/mer-abondance.png-bea2d903f1813b2f83fcb402705f3d94.ctex"]
 
 [params]
 

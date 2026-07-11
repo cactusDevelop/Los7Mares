@@ -19,6 +19,10 @@ const FORTUNE_RECT_MAX := Vector2(750, 1650)
 
 const RESOURCE_CUBE_EDGE := 120.0
 const SPECIAL_ICON_SIZE := Vector2(110, 110)
+## Distance minimale visée (en pixels image) entre deux jetons du même type,
+## pour limiter les superpositions sans les interdire totalement.
+const SPECIAL_TOKEN_MIN_DISTANCE := 95.0
+const SPECIAL_TOKEN_MAX_ATTEMPTS := 40
 
 const RESOURCE_CUBE_COLORS := {
 	"wood": Color8(122, 74, 34),    # brun
@@ -99,11 +103,10 @@ func _refresh_resource_display(player: Dictionary) -> void:
 func _place_special_tokens_random(player: Dictionary, key: String, texture: Texture2D, rect_min: Vector2, rect_max: Vector2) -> void:
 	var count: int = player["special_resources"].get(key, 0)
 	var icon_size_local: Vector2 = _texture_size_to_local(SPECIAL_ICON_SIZE)
+	var placed_pixels: Array[Vector2] = []
 	for i in range(count):
-		var pixel_pos := Vector2(
-			randf_range(rect_min.x, rect_max.x),
-			randf_range(rect_min.y, rect_max.y)
-		)
+		var pixel_pos := _pick_spaced_position(rect_min, rect_max, placed_pixels)
+		placed_pixels.append(pixel_pos)
 		var icon := TextureRect.new()
 		icon.texture = texture
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -112,6 +115,27 @@ func _place_special_tokens_random(player: Dictionary, key: String, texture: Text
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		resource_slots.add_child(icon)
 		icon.position = _texture_to_local(pixel_pos) - icon_size_local / 2.0
+
+
+## Tire une position aléatoire dans le rectangle, en essayant de rester à au
+## moins SPECIAL_TOKEN_MIN_DISTANCE des positions déjà choisies (échantillonnage
+## par rejet). Si aucun essai ne satisfait la distance, garde le meilleur essai.
+func _pick_spaced_position(rect_min: Vector2, rect_max: Vector2, existing: Array[Vector2]) -> Vector2:
+	var best_pos := Vector2(randf_range(rect_min.x, rect_max.x), randf_range(rect_min.y, rect_max.y))
+	var best_score := -1.0
+	for attempt in range(SPECIAL_TOKEN_MAX_ATTEMPTS):
+		var candidate := Vector2(randf_range(rect_min.x, rect_max.x), randf_range(rect_min.y, rect_max.y))
+		if existing.is_empty():
+			return candidate
+		var min_dist := INF
+		for p in existing:
+			min_dist = min(min_dist, candidate.distance_to(p))
+		if min_dist >= SPECIAL_TOKEN_MIN_DISTANCE:
+			return candidate
+		if min_dist > best_score:
+			best_score = min_dist
+			best_pos = candidate
+	return best_pos
 
 
 ## Construit un petit cube isométrique (3 faces ombrées) centré sur (0, 0),

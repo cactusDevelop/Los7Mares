@@ -25,12 +25,31 @@ layout_mode = 2
 [node name="TitleLabel" type="Label" parent="Padding/Content" unique_id=1765274473]
 layout_mode = 2
 
-[node name="BoardTexture" type="TextureRect" parent="Padding/Content" unique_id=1260864733]
+[node name="BoardArea" type="AspectRatioContainer" parent="Padding/Content" unique_id=1900000001]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+ratio = 1.498
+
+[node name="BoardStack" type="Control" parent="Padding/Content/BoardArea" unique_id=1900000002]
 layout_mode = 2
 
-[node name="ResourcesGrid" type="GridContainer" parent="Padding/Content" unique_id=113649401]
-layout_mode = 2
-columns = 2
+[node name="BoardTexture" type="TextureRect" parent="Padding/Content/BoardArea/BoardStack" unique_id=1260864733]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ResourceSlots" type="Control" parent="Padding/Content/BoardArea/BoardStack" unique_id=1900000003]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="CloseButton" type="Button" parent="Padding/Content" unique_id=163661712]
 layout_mode = 2

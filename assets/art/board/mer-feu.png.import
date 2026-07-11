@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://kf5ejodhaooo"
-path="res://.godot/imported/mer-d-abondance.png-1c9acd4b7e19245646c4f89643a188f6.ctex"
+uid="uid://buqasrwsjymkr"
+path="res://.godot/imported/mer-feu.png-d87e004fddf42380f8588dfa0fc76a5d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/board/mer-d-abondance.png"
-dest_files=["res://.godot/imported/mer-d-abondance.png-1c9acd4b7e19245646c4f89643a188f6.ctex"]
+source_file="res://assets/art/board/mer-feu.png"
+dest_files=["res://.godot/imported/mer-feu.png-d87e004fddf42380f8588dfa0fc76a5d.ctex"]
 
 [params]
 

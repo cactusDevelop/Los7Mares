@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://mk67swpdh8l"
-path="res://.godot/imported/mer-de-jade.png-f84618116ec01cbd18aa998f7a9fa5fc.ctex"
+uid="uid://cvmm3jxbq8tts"
+path="res://.godot/imported/carte-abondance-dos.png-072c2d2507ca4bf383951d1ffd031876.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/board/mer-de-jade.png"
-dest_files=["res://.godot/imported/mer-de-jade.png-f84618116ec01cbd18aa998f7a9fa5fc.ctex"]
+source_file="res://assets/art/cards/carte-abondance-dos.png"
+dest_files=["res://.godot/imported/carte-abondance-dos.png-072c2d2507ca4bf383951d1ffd031876.ctex"]
 
 [params]
 

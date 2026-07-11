@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bu8t21xxdo52n"
-path="res://.godot/imported/mer-d-azur.png-429ffa3421a4a23296573ad79edf7a3b.ctex"
+uid="uid://mk67swpdh8l"
+path="res://.godot/imported/mer-jade.png-c11ccf1b64b25255d30d8f64be79e4fd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/board/mer-d-azur.png"
-dest_files=["res://.godot/imported/mer-d-azur.png-429ffa3421a4a23296573ad79edf7a3b.ctex"]
+source_file="res://assets/art/board/mer-jade.png"
+dest_files=["res://.godot/imported/mer-jade.png-c11ccf1b64b25255d30d8f64be79e4fd.ctex"]
 
 [params]
 

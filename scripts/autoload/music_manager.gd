@@ -30,8 +30,14 @@ func _ready() -> void:
 
 
 func play_menu_music() -> void:
+	if _player.playing:
+		var fade_out := create_tween()
+		fade_out.tween_property(_player, "volume_db", SILENT_VOLUME_DB, FADE_DURATION)
+		await fade_out.finished
+	else:
+		_player.volume_db = SILENT_VOLUME_DB
+
 	_player.stream = MENU_TRACK
-	_player.volume_db = SILENT_VOLUME_DB
 	await get_tree().create_timer(MENU_MUSIC_START_DELAY).timeout
 	_player.play()
 	var fade_in := create_tween()

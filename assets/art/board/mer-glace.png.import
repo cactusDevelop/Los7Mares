@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://buqasrwsjymkr"
-path="res://.godot/imported/mer-de-feu.png-6633cf9329bf52f2f3cb8af917fa1301.ctex"
+uid="uid://bwoiycvp80ue3"
+path="res://.godot/imported/mer-glace.png-0fa9fe2b26f10f337ab0f8f52bb4dc75.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/board/mer-de-feu.png"
-dest_files=["res://.godot/imported/mer-de-feu.png-6633cf9329bf52f2f3cb8af917fa1301.ctex"]
+source_file="res://assets/art/board/mer-glace.png"
+dest_files=["res://.godot/imported/mer-glace.png-0fa9fe2b26f10f337ab0f8f52bb4dc75.ctex"]
 
 [params]
 
