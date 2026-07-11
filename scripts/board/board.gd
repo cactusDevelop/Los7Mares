@@ -15,8 +15,7 @@ const CARD_MIN_DROP_DURATION := 0.35
 const CARDS_PER_PILE := 10
 const CARD_STACK_OFFSET := Vector2(0, -2)
 const CARD_PILE_STAGGER := 0.05
-const PILE_THUMB_OFFSET := Vector2(14, 10)
-const PILE_THUMB_ROTATION_DEG := 3.0
+const PILE_THUMB_OFFSET := Vector2(0, 6)
 const PLAYER_BOARDS_PANEL_MAX_HEIGHT_RATIO := 0.75
 const CARD_BACK_FALLBACK := preload("res://assets/art/cards/carte-sauvage-dos.png")
 # Les images de cards/ ne sont pas pré-calibrées à l'échelle du monde comme
@@ -187,16 +186,16 @@ func _refresh_player_boards() -> void:
 	_clamp_player_boards_panel_height()
 
 
-## Construit la pile de plateaux joueur (vue par défaut) : les vignettes se
-## superposent avec un léger décalage/rotation pour donner un effet de pile
-## de cartes. Un clic n'importe où sur la pile ouvre le panneau détaillé.
+## Construit la pile de plateaux joueur (vue par défaut) : les vignettes sont
+## simplement empilées verticalement avec un léger décalage, comme une pile
+## de cartes vue de dessus. Un clic n'importe où sur la pile ouvre le
+## panneau détaillé.
 func _build_player_boards_pile(players: Array) -> void:
 	for child in player_boards_pile.get_children():
 		child.queue_free()
 
 	var count: int = players.size()
 	for i in range(count):
-		var player: Dictionary = players[i]
 		var thumb := TextureRect.new()
 		thumb.texture = load(GameFlow.PLAYER_BOARD_TEXTURE)
 		thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -204,9 +203,7 @@ func _build_player_boards_pile(players: Array) -> void:
 		thumb.custom_minimum_size = BOARD_THUMB_SIZE
 		thumb.size = BOARD_THUMB_SIZE
 		thumb.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		thumb.pivot_offset = BOARD_THUMB_SIZE / 2.0
 		thumb.position = PILE_THUMB_OFFSET * i
-		thumb.rotation_degrees = (i - float(count - 1) / 2.0) * PILE_THUMB_ROTATION_DEG
 		player_boards_pile.add_child(thumb)
 
 	var total_size: Vector2 = BOARD_THUMB_SIZE + PILE_THUMB_OFFSET * max(count - 1, 0)
