@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dxuv8ip6nw8nl"
-path="res://.godot/imported/perro-rouge.png-1d421d09ed395cd5059fff66453c74f4.ctex"
+uid="uid://egsyir7tkpcw"
+path="res://.godot/imported/carte-glace-dos.png-6f911ce3f649dda40ac458f59db070e1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/player-board/perro-rouge.png"
-dest_files=["res://.godot/imported/perro-rouge.png-1d421d09ed395cd5059fff66453c74f4.ctex"]
+source_file="res://assets/art/cards/carte-glace-dos.png"
+dest_files=["res://.godot/imported/carte-glace-dos.png-6f911ce3f649dda40ac458f59db070e1.ctex"]
 
 [params]
 

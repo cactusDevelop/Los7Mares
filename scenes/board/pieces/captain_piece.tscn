@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b6oi3dmwjn7pf"]
 
-[ext_resource type="Texture2D" uid="uid://bgv5vlynaxpi" path="res://assets/art/capitaine.png" id="1_usv78"]
+[ext_resource type="Texture2D" uid="uid://bgv5vlynaxpi" path="res://assets/art/pieces/capitaine.png" id="1_usv78"]
 [ext_resource type="Script" uid="uid://dsel5ru3snm3q" path="res://scripts/board/pieces/captain_piece.gd" id="2_rrd8q"]
 
 [node name="CaptainPiece" type="Sprite2D" unique_id=1290564754]

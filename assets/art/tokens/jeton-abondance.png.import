@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dnj5akth4wv"
-path="res://.godot/imported/jeton-azur-dos.png-38a6a90a84d04c87cf314fd38bcceae7.ctex"
+uid="uid://csywmj51hg7uy"
+path="res://.godot/imported/jeton-abondance.png-448902b5dd6545f6d6808b2800efcd06.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/board/jeton-azur-dos.png"
-dest_files=["res://.godot/imported/jeton-azur-dos.png-38a6a90a84d04c87cf314fd38bcceae7.ctex"]
+source_file="res://assets/art/tokens/jeton-abondance.png"
+dest_files=["res://.godot/imported/jeton-abondance.png-448902b5dd6545f6d6808b2800efcd06.ctex"]
 
 [params]
 

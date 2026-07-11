@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bqgogkq2x27de"
-path="res://.godot/imported/second.png-85715fc65cc95304705b22c65ae8fe0d.ctex"
+uid="uid://cir6e3dtws2p5"
+path="res://.godot/imported/perro-vert.png-6da4933546f2195837f985303106951b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/second.png"
-dest_files=["res://.godot/imported/second.png-85715fc65cc95304705b22c65ae8fe0d.ctex"]
+source_file="res://assets/art/pieces/perro-vert.png"
+dest_files=["res://.godot/imported/perro-vert.png-6da4933546f2195837f985303106951b.ctex"]
 
 [params]
 

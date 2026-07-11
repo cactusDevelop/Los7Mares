@@ -39,8 +39,8 @@ func _ready() -> void:
 	icons_box.add_theme_constant_override("separation", 60)
 	add_child(icons_box)
 
-	captain_button = _build_piece_option("Capitaine", preload("res://assets/art/capitaine.png"))
-	second_button = _build_piece_option("Second", preload("res://assets/art/second.png"))
+	captain_button = _build_piece_option("Capitaine", preload("res://assets/art/pieces/capitaine.png"))
+	second_button = _build_piece_option("Second", preload("res://assets/art/pieces/second.png"))
 
 	captain_button.pressed.connect(func(): piece_selected.emit(GameFlow.PieceRank.CAPTAIN))
 	second_button.pressed.connect(func(): piece_selected.emit(GameFlow.PieceRank.SECOND))

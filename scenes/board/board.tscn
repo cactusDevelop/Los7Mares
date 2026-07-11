@@ -17,11 +17,10 @@
 [ext_resource type="PackedScene" uid="uid://dt0ffi66gqwvd" path="res://scenes/board/action_spot.tscn" id="15_kug5n"]
 [ext_resource type="Script" uid="uid://b0a7tt2orhfwo" path="res://scripts/board/narration_box.gd" id="15_xu7li"]
 [ext_resource type="PackedScene" uid="uid://cawaiel7vey2f" path="res://scenes/ui/piece_selection_panel.tscn" id="16_bo4hw"]
+[ext_resource type="PackedScene" uid="uid://bn3g7mmfggktb" path="res://scenes/ui/sea_card_popup.tscn" id="17_bo4hw"]
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
-radius = null
-deck_stack_offset = null
 
 [node name="CenterPiece" type="Sprite2D" parent="." unique_id=1635265673]
 rotation = 2.3125613
@@ -123,6 +122,8 @@ layout_mode = 2
 horizontal_alignment = 1
 
 [node name="PieceSelectionPanel" parent="UI" unique_id=1299012961 instance=ExtResource("16_bo4hw")]
+
+[node name="SeaCardPopup" parent="UI" unique_id=1069071596 instance=ExtResource("17_bo4hw")]
 
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
 

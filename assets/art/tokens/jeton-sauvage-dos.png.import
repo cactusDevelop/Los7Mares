@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b8l35caguwmfj"
-path="res://.godot/imported/jeton-jade.png-04f7d28e53e29fa393ab84dd8b0ea341.ctex"
+uid="uid://c50n2h40ysr17"
+path="res://.godot/imported/jeton-sauvage-dos.png-ae5d8ed3f6ddefeda03c6bb5a99719b8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/board/jeton-jade.png"
-dest_files=["res://.godot/imported/jeton-jade.png-04f7d28e53e29fa393ab84dd8b0ea341.ctex"]
+source_file="res://assets/art/tokens/jeton-sauvage-dos.png"
+dest_files=["res://.godot/imported/jeton-sauvage-dos.png-ae5d8ed3f6ddefeda03c6bb5a99719b8.ctex"]
 
 [params]
 

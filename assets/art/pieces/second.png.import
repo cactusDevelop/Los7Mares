@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dp1xy2dcdfxac"
-path="res://.godot/imported/plateau-joueur-jaune.png-4caab675aa6fdd501d0ab6fbe83c6994.ctex"
+uid="uid://bqgogkq2x27de"
+path="res://.godot/imported/second.png-5ca57a2e420e191a80fbde3cb3ad20f0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/player-board/plateau-joueur-jaune.png"
-dest_files=["res://.godot/imported/plateau-joueur-jaune.png-4caab675aa6fdd501d0ab6fbe83c6994.ctex"]
+source_file="res://assets/art/pieces/second.png"
+dest_files=["res://.godot/imported/second.png-5ca57a2e420e191a80fbde3cb3ad20f0.ctex"]
 
 [params]
 

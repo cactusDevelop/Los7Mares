@@ -7,6 +7,17 @@ const FLIP_WAVE_DELAY = 0.12
 
 const CAPTAIN_SCENE := preload("res://scenes/board/pieces/captain_piece.tscn")
 const SECOND_SCENE := preload("res://scenes/board/pieces/second_piece.tscn")
+const SEA_CARD_PILE_SCENE := preload("res://scenes/board/sea_card_pile.tscn")
+
+const SEA_KEY_BY_NODE_NAME := {
+	"SeaAbondance": "abondance",
+	"SeaAzur": "azur",
+	"SeaDeFeu": "feu",
+	"SeaDeGlace": "glace",
+	"SeaDeJade": "jade",
+	"SeaMaudite": "maudite",
+	"SeaSauvage": "sauvage",
+}
 
 @export var radius: float = 1340.0
 @export var deck_stack_offset: Vector2 = Vector2(0, -2)
@@ -19,12 +30,15 @@ const SECOND_SCENE := preload("res://scenes/board/pieces/second_piece.tscn")
 @onready var piece_selection_panel: Control = $UI/PieceSelectionPanel
 @onready var action_spots_container: Node2D = $ActionSpots
 @onready var camera: Camera2D = $Camera2D
+@onready var sea_card_popup: Control = $UI/SeaCardPopup
+@onready var card_piles_container: Node2D = $CardPiles
 
 var _sea_tiles: Array = []
 var _slot_order: Array = []
 var _dealt_count: int = 0
 var _total_seas: int = 0
 var _has_started: bool = false
+var _cards_enabled: bool = false
 
 var _camera_base_position: Vector2
 var _camera_base_zoom: Vector2
@@ -61,9 +75,11 @@ func _ready() -> void:
 	for i in range(_total_seas):
 		var angle_degrees = 90.0 + i * (360.0 / _total_seas)
 		var angle_rad = deg_to_rad(angle_degrees)
+		var direction := Vector2(cos(angle_rad), sin(angle_rad))
 		slots.append({
-			"global_position": board_center + radius * Vector2(cos(angle_rad), sin(angle_rad)),
+			"global_position": board_center + radius * direction,
 			"rotation": angle_degrees + 90.0,
+			"pile_position": board_center + (radius + GameFlow.CARD_PILE_RADIUS_OFFSET) * direction,
 		})
 
 	_slot_order = _sea_tiles.duplicate()
@@ -72,6 +88,14 @@ func _ready() -> void:
 		var tile = _slot_order[i]
 		tile.set_meta("target_global_position", slots[i].global_position)
 		tile.set_meta("target_rotation", slots[i].rotation)
+
+		var pile: Node2D = SEA_CARD_PILE_SCENE.instantiate()
+		card_piles_container.add_child(pile)
+		pile.global_position = slots[i].pile_position
+		pile.sea_key = SEA_KEY_BY_NODE_NAME.get(tile.name, "")
+		pile.pile_clicked.connect(_on_card_pile_clicked)
+
+	sea_card_popup.card_resolved.connect(_on_sea_card_resolved)
 
 	deck_area.deck_clicked.connect(_on_deck_clicked)
 	deck_area.hover_entered.connect(_on_deck_hover_entered)
@@ -100,7 +124,7 @@ func _on_setup_player_confirmed(player_name: String, color: String) -> void:
 
 
 func _start_dealing_phase() -> void:
-	narration_box.say("Cliquez sur la pile pour distribuer les mers.")
+	narration_box.say(tr("Cliquez sur la pile pour distribuer les mers."))
 
 
 func _refresh_player_list() -> void:
@@ -213,12 +237,12 @@ func _begin_player_piece_turn() -> void:
 	_selected_rank = -1
 
 	if _current_round == 0:
-		narration_box.say("Tour de %s : choisis la pièce à jouer (capitaine ou second)." % player["name"])
+		narration_box.say(tr("Tour de %s : choisis la pièce à jouer (capitaine ou second).") % player["name"])
 		piece_selection_panel.setup_for_player(color, -1)
 	else:
 		var placed_rank: int = _placed_rank_by_player[_current_player_index]
 		var forced_rank: int = GameFlow.PieceRank.SECOND if placed_rank == GameFlow.PieceRank.CAPTAIN else GameFlow.PieceRank.CAPTAIN
-		narration_box.say("Tour de %s : place ta dernière pièce." % player["name"])
+		narration_box.say(tr("Tour de %s : place ta dernière pièce.") % player["name"])
 		piece_selection_panel.setup_for_player(color, forced_rank)
 
 
@@ -234,7 +258,7 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 
 	# Interdit de poser ses deux pièces sur la même case.
 	if spot.has_player_piece(player["color"]):
-		narration_box.say("Tu ne peux pas poser tes deux pièces sur la même case.")
+		narration_box.say(tr("Tu ne peux pas poser tes deux pièces sur la même case."))
 		return
 
 	var piece_scene: PackedScene = CAPTAIN_SCENE if _selected_rank == GameFlow.PieceRank.CAPTAIN else SECOND_SCENE
@@ -253,9 +277,24 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 func _end_piece_placement_phase() -> void:
 	for spot in action_spots_container.get_children():
 		spot.set_hover_enabled(false)
-	narration_box.say("Placement terminé — la suite arrive bientôt.")
+	narration_box.say(tr("Placement terminé — cliquez sur une pioche de mer pour y piocher une carte."))
 	piece_selection_panel.hide_panel()
 	_shift_camera_for_selection(false)
+	_cards_enabled = true
+	for pile in card_piles_container.get_children():
+		pile.draw_enabled = true
+
+
+func _on_card_pile_clicked(pile: Node2D) -> void:
+	if not _cards_enabled:
+		return
+	var card: SeaCard = SeaDecks.draw_card(pile.sea_key)
+	if card:
+		sea_card_popup.show_card(card)
+
+
+func _on_sea_card_resolved(card: SeaCard) -> void:
+	narration_box.say(tr(card.title) + " — " + tr(card.description))
 
 
 func _shift_camera_for_selection(active: bool) -> void:

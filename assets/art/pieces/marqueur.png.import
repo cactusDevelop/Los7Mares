@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cpxypf3ejw64b"
-path="res://.godot/imported/perro-bleu.png-f5e58faf7ba41bfd9aa8afe6287bf18b.ctex"
+uid="uid://doyyjco5ujj36"
+path="res://.godot/imported/marqueur.png-e1d20374898fa5afaaff27f86a775377.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/player-board/perro-bleu.png"
-dest_files=["res://.godot/imported/perro-bleu.png-f5e58faf7ba41bfd9aa8afe6287bf18b.ctex"]
+source_file="res://assets/art/pieces/marqueur.png"
+dest_files=["res://.godot/imported/marqueur.png-e1d20374898fa5afaaff27f86a775377.ctex"]
 
 [params]
 

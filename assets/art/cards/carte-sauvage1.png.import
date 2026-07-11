@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b5ev0c54m71iq"
-path="res://.godot/imported/dé-noir-canon.png-70bfc95f5a8216e9375151b9361873e0.ctex"
+uid="uid://deku5xuikn0q3"
+path="res://.godot/imported/carte-sauvage1.png-c38d48ff4fbba246df8e2f6d7bb976fe.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/dé-noir-canon.png"
-dest_files=["res://.godot/imported/dé-noir-canon.png-70bfc95f5a8216e9375151b9361873e0.ctex"]
+source_file="res://assets/art/cards/carte-sauvage1.png"
+dest_files=["res://.godot/imported/carte-sauvage1.png-c38d48ff4fbba246df8e2f6d7bb976fe.ctex"]
 
 [params]
 

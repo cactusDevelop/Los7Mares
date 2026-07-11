@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://br3hombl77xy0"
-path="res://.godot/imported/carte-sauvage-dos.png-72dfc1c60d0b2b026ff3bc62cb2a9393.ctex"
+uid="uid://qtviukwgye8s"
+path="res://.godot/imported/perro-prison-prison.png-3e72aff77efe16dd730aa888b201002e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/board/carte-sauvage-dos.png"
-dest_files=["res://.godot/imported/carte-sauvage-dos.png-72dfc1c60d0b2b026ff3bc62cb2a9393.ctex"]
+source_file="res://assets/art/pieces/perro-prison-prison.png"
+dest_files=["res://.godot/imported/perro-prison-prison.png-3e72aff77efe16dd730aa888b201002e.ctex"]
 
 [params]
 

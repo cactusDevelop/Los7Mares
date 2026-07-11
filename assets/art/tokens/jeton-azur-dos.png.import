@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bclsoiaorts6b"
-path="res://.godot/imported/perro-vert-prison.png-087a9780f5a1b6ff7fd7bd59577324a4.ctex"
+uid="uid://dnj5akth4wv"
+path="res://.godot/imported/jeton-azur-dos.png-551e05b23750bacd15f5e2fc1999303a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/player-board/perro-vert-prison.png"
-dest_files=["res://.godot/imported/perro-vert-prison.png-087a9780f5a1b6ff7fd7bd59577324a4.ctex"]
+source_file="res://assets/art/tokens/jeton-azur-dos.png"
+dest_files=["res://.godot/imported/jeton-azur-dos.png-551e05b23750bacd15f5e2fc1999303a.ctex"]
 
 [params]
 

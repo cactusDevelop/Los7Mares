@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d238gkr8l2t4x"
-path="res://.godot/imported/jeton-azur.png-5045727eed3e18b89006e6546c0c85ef.ctex"
+uid="uid://di1eru788ylpm"
+path="res://.godot/imported/fortune.png-121b299c6deb701fdc4bb9f6a49711b8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/board/jeton-azur.png"
-dest_files=["res://.godot/imported/jeton-azur.png-5045727eed3e18b89006e6546c0c85ef.ctex"]
+source_file="res://assets/art/tokens/fortune.png"
+dest_files=["res://.godot/imported/fortune.png-121b299c6deb701fdc4bb9f6a49711b8.ctex"]
 
 [params]
 

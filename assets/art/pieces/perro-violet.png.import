@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bgv5vlynaxpi"
-path="res://.godot/imported/capitaine.png-5c41e3f215f8ebb325030dca2d7b832a.ctex"
+uid="uid://cthwr8swl76ty"
+path="res://.godot/imported/perro-violet.png-dadcef771e2e99546150f9840b0166e8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/capitaine.png"
-dest_files=["res://.godot/imported/capitaine.png-5c41e3f215f8ebb325030dca2d7b832a.ctex"]
+source_file="res://assets/art/pieces/perro-violet.png"
+dest_files=["res://.godot/imported/perro-violet.png-dadcef771e2e99546150f9840b0166e8.ctex"]
 
 [params]
 

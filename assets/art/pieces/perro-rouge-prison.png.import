@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b3tftpnxkoatc"
-path="res://.godot/imported/dé-noir-abordage.png-8c45d80b4c89b171493bdee9cea03290.ctex"
+uid="uid://d2ywy1cpfoxqe"
+path="res://.godot/imported/perro-rouge-prison.png-2184111ffcbb349a6e995e83d799c75b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/dé-noir-abordage.png"
-dest_files=["res://.godot/imported/dé-noir-abordage.png-8c45d80b4c89b171493bdee9cea03290.ctex"]
+source_file="res://assets/art/pieces/perro-rouge-prison.png"
+dest_files=["res://.godot/imported/perro-rouge-prison.png-2184111ffcbb349a6e995e83d799c75b.ctex"]
 
 [params]
 

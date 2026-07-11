@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cthwr8swl76ty"
-path="res://.godot/imported/perro-violet.png-e007723e265c82cab76d46870862518a.ctex"
+uid="uid://clmln04nxtwn5"
+path="res://.godot/imported/jeton-abondance-dos.png-0e0b1a1251f9d13b0b03766d0894773b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/player-board/perro-violet.png"
-dest_files=["res://.godot/imported/perro-violet.png-e007723e265c82cab76d46870862518a.ctex"]
+source_file="res://assets/art/tokens/jeton-abondance-dos.png"
+dest_files=["res://.godot/imported/jeton-abondance-dos.png-0e0b1a1251f9d13b0b03766d0894773b.ctex"]
 
 [params]
 

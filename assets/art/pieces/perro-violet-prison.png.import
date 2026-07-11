@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://doyyjco5ujj36"
-path="res://.godot/imported/marqueur.png-70a483247519c0aa85b8f1ba2228e2e9.ctex"
+uid="uid://caj2qix4jjw1"
+path="res://.godot/imported/perro-violet-prison.png-990dffa021d7d605c19635124a4c8be1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/marqueur.png"
-dest_files=["res://.godot/imported/marqueur.png-70a483247519c0aa85b8f1ba2228e2e9.ctex"]
+source_file="res://assets/art/pieces/perro-violet-prison.png"
+dest_files=["res://.godot/imported/perro-violet-prison.png-990dffa021d7d605c19635124a4c8be1.ctex"]
 
 [params]
 
