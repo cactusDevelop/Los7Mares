@@ -17,10 +17,10 @@ func _ready() -> void:
 	board_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	board_texture.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	board_texture.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	padding.add_theme_constant_override("margin_left", 60)
-	padding.add_theme_constant_override("margin_right", 60)
-	padding.add_theme_constant_override("margin_top", 60)
-	padding.add_theme_constant_override("margin_bottom", 180)
+	padding.add_theme_constant_override("margin_left", 10)
+	padding.add_theme_constant_override("margin_right", 10)
+	padding.add_theme_constant_override("margin_top", 10)
+	padding.add_theme_constant_override("margin_bottom", 10)
 	if close_button.text == "":
 		close_button.text = tr("Retour")
 	close_button.custom_minimum_size = Vector2(0, 64)

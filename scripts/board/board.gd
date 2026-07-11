@@ -302,13 +302,14 @@ func _drop_card_piles() -> void:
 			var pile: Node2D = piles[pile_i]
 			var stack_pos: Vector2 = CARD_STACK_OFFSET * round_i
 			var card: Sprite2D = pile.add_visual_card(CARD_BACK_TEXTURE, stack_pos)
-			card.position = stack_pos - Vector2(0, PILE_DROP_HEIGHT)
+			var target_global_pos: Vector2 = card.global_position
+			card.global_position = target_global_pos - Vector2(0, PILE_DROP_HEIGHT)
 			card.modulate.a = 0.0
 
 			var start_delay := round_i * PILE_DROP_DELAY + pile_i * CARD_PILE_STAGGER
 			var tween := create_tween()
 			tween.tween_interval(start_delay)
-			tween.tween_property(card, "position", stack_pos, PILE_DROP_DURATION)\
+			tween.tween_property(card, "global_position", target_global_pos, PILE_DROP_DURATION)\
 				.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 			tween.parallel().tween_property(card, "modulate:a", 1.0, PILE_DROP_DURATION * 0.7)
 

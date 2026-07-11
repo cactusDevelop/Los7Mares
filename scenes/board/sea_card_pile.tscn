@@ -1,33 +1,20 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://bqxiruohxx60j"]
 
-[ext_resource type="Script" path="res://scripts/board/sea_card_pile.gd" id="1"]
+[ext_resource type="Script" uid="uid://dhoh6p2rhmkh4" path="res://scripts/board/sea_card_pile.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://dh58c08cwg1j5" path="res://scenes/ui/hover_prompt.tscn" id="2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(200, 280)
 
-[node name="SeaCardPile" type="Node2D"]
+[node name="SeaCardPile" type="Node2D" unique_id=14591121]
 script = ExtResource("1")
 
-[node name="Card3" type="Polygon2D" parent="."]
-position = Vector2(14, 14)
-color = Color(0.13, 0.11, 0.09, 1)
-polygon = PackedVector2Array(-100, -140, 100, -140, 100, 140, -100, 140)
+[node name="ClickArea" type="Area2D" parent="." unique_id=63649637]
 
-[node name="Card2" type="Polygon2D" parent="."]
-position = Vector2(7, 7)
-color = Color(0.2, 0.16, 0.12, 1)
-polygon = PackedVector2Array(-100, -140, 100, -140, 100, 140, -100, 140)
-
-[node name="Card1" type="Polygon2D" parent="."]
-color = Color(0.32, 0.25, 0.17, 1)
-polygon = PackedVector2Array(-100, -140, 100, -140, 100, 140, -100, 140)
-
-[node name="ClickArea" type="Area2D" parent="."]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ClickArea" unique_id=332565703]
 shape = SubResource("RectangleShape2D_1")
 
-[node name="HoverPrompt" parent="." instance=ExtResource("2")]
-box_size = Vector2(200, 280)
+[node name="HoverPrompt" parent="." unique_id=1963838687 instance=ExtResource("2")]
 label_text = "PIOCHER"
+
+[node name="Cards" type="Node2D" parent="." unique_id=1541042645]
