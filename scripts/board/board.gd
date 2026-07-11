@@ -182,8 +182,9 @@ func _refresh_player_boards() -> void:
 		player_rows.add_child(_build_player_board_row(player))
 	_build_player_boards_pile(players)
 	await get_tree().process_frame
-	player_boards_panel.reset_size()
-	_clamp_player_boards_panel_height()
+	if player_boards_panel.visible:
+		_clamp_player_boards_panel_height()
+		player_boards_panel.reset_size()
 
 
 ## Construit la pile de plateaux joueur (vue par défaut) : les vignettes sont
@@ -216,7 +217,7 @@ func _build_player_boards_pile(players: Array) -> void:
 ## au-delà, un scroll vertical apparaît.
 func _clamp_player_boards_panel_height() -> void:
 	var max_height: float = get_viewport_rect().size.y * PLAYER_BOARDS_PANEL_MAX_HEIGHT_RATIO
-	var content_height: float = player_rows.get_combined_minimum_size().y
+	var content_height: float = player_rows.get_minimum_size().y
 	player_boards_scroll.custom_minimum_size.y = min(content_height, max_height)
 
 
@@ -231,10 +232,12 @@ func _on_player_boards_catcher_gui_input(event: InputEvent) -> void:
 
 
 func _open_player_boards_panel() -> void:
-	_clamp_player_boards_panel_height()
 	player_boards_pile.visible = false
 	player_boards_panel.visible = true
 	player_boards_catcher.visible = true
+	await get_tree().process_frame
+	_clamp_player_boards_panel_height()
+	player_boards_panel.reset_size()
 
 
 func _close_player_boards_panel() -> void:
