@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://6m8p6b5lvucn"
+path="res://.godot/imported/Hidden in Havana.mp3-ef0837649fa4ec8a47aa22b343416d04.mp3str"
+
+[deps]
+
+source_file="res://assets/audio/in-game bgm/Hidden in Havana.mp3"
+dest_files=["res://.godot/imported/Hidden in Havana.mp3-ef0837649fa4ec8a47aa22b343416d04.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
