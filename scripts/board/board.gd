@@ -4,6 +4,12 @@ const DEAL_DELAY = 0.35
 const DEAL_DURATION = 0.7
 const FLIP_DELAY_AFTER_DEAL = 0.6
 const FLIP_WAVE_DELAY = 0.12
+const BOARD_THUMB_SIZE := Vector2(160, 107)
+const PIECE_DROP_HEIGHT := 220.0
+const PIECE_DROP_DURATION := 0.35
+const PILE_DROP_HEIGHT := 260.0
+const PILE_DROP_DURATION := 0.4
+const PILE_DROP_DELAY := 0.15
 
 const CAPTAIN_SCENE := preload("res://scenes/board/pieces/captain_piece.tscn")
 const SECOND_SCENE := preload("res://scenes/board/pieces/second_piece.tscn")
@@ -109,6 +115,8 @@ func _ready() -> void:
 		pile.rotation_degrees = slots[i].rotation
 		pile.sea_key = SEA_KEY_BY_NODE_NAME.get(tile.name, "")
 		pile.pile_clicked.connect(_on_card_pile_clicked)
+		pile.visible = false
+		pile.modulate.a = 0.0
 
 	sea_card_popup.card_resolved.connect(_on_sea_card_resolved)
 
@@ -164,21 +172,30 @@ func _build_player_board_row(player: Dictionary) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 
-	var board_button := TextureButton.new()
-	board_button.texture_normal = load(GameFlow.PLAYER_BOARD_TEXTURE)
-	board_button.ignore_texture_size = true
-	board_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
-	board_button.custom_minimum_size = Vector2(160, 107)
-	board_button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	board_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	board_button.pressed.connect(_on_player_board_pressed.bind(player["id"]))
-	row.add_child(board_button)
+	var board_wrap := Control.new()
+	board_wrap.custom_minimum_size = BOARD_THUMB_SIZE
+	board_wrap.size = BOARD_THUMB_SIZE
+	board_wrap.clip_contents = true
+	board_wrap.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	board_wrap.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	board_wrap.mouse_filter = Control.MOUSE_FILTER_STOP
+	board_wrap.gui_input.connect(_on_board_wrap_gui_input.bind(player["id"]))
+
+	var board_texture := TextureRect.new()
+	board_texture.texture = load(GameFlow.PLAYER_BOARD_TEXTURE)
+	board_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	board_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	board_texture.size = BOARD_THUMB_SIZE
+	board_texture.custom_minimum_size = BOARD_THUMB_SIZE
+	board_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_wrap.add_child(board_texture)
+	row.add_child(board_wrap)
 
 	if player.get("has_own_parrot", true):
-		row.add_child(_build_parrot_token(color, false))
+		row.add_child(_build_parrot_token(player["color"], false))
 	for other in GameFlow.players:
 		if other.get("parrot_captured_by", -1) == player["id"]:
-			row.add_child(_build_parrot_token(GameFlow.COLOR_VALUES[other["color"]], true))
+			row.add_child(_build_parrot_token(other["color"], true))
 
 	entry.add_child(row)
 	return entry
@@ -194,6 +211,11 @@ func _build_parrot_token(color_name: String, imprisoned: bool) -> Control:
 	texture_rect.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	texture_rect.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	return texture_rect
+
+
+func _on_board_wrap_gui_input(event: InputEvent, player_id: int) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_on_player_board_pressed(player_id)
 
 
 func _on_player_board_pressed(player_id: int) -> void:
@@ -261,7 +283,26 @@ func _flip_all_as_wave() -> void:
 
 	var total_delay := (_slot_order.size() - 1) * FLIP_WAVE_DELAY + 0.3
 	await get_tree().create_timer(total_delay).timeout
+	await _drop_card_piles()
 	_start_piece_placement_phase()
+
+
+func _drop_card_piles() -> void:
+	var piles := card_piles_container.get_children()
+	for i in range(piles.size()):
+		var pile: Node2D = piles[i]
+		var target_pos := pile.global_position
+		pile.global_position = target_pos - Vector2(0, PILE_DROP_HEIGHT)
+		pile.visible = true
+
+		var tween := create_tween()
+		tween.tween_interval(i * PILE_DROP_DELAY)
+		tween.tween_property(pile, "global_position", target_pos, PILE_DROP_DURATION)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tween.parallel().tween_property(pile, "modulate:a", 1.0, PILE_DROP_DURATION * 0.7)
+
+	var total_wait := (piles.size() - 1) * PILE_DROP_DELAY + PILE_DROP_DURATION
+	await get_tree().create_timer(total_wait).timeout
 
 
 # --- Phase de placement des pièces : 2 manches globales ---

@@ -6,6 +6,8 @@ const IDLE_AMPLITUDE := 4.0
 const IDLE_SPEED := 1.2
 const HOVER_SCALE := 1.12
 const HOVER_DURATION := 0.15
+const PIECE_DROP_HEIGHT := 220.0
+const PIECE_DROP_DURATION := 0.35
 
 @onready var case_sprite: Sprite2D = $CaseSprite
 @onready var click_area: Area2D = $ClickArea
@@ -66,6 +68,18 @@ func add_piece(piece_node: Node2D, color: String, rank: int) -> void:
 	add_child(piece_node)
 	_relayout_pieces()
 	_update_case_color()
+	_animate_piece_drop(piece_node)
+
+
+func _animate_piece_drop(piece_node: Node2D) -> void:
+	var target_position := piece_node.position
+	piece_node.position = target_position - Vector2(0, PIECE_DROP_HEIGHT)
+	piece_node.modulate.a = 0.0
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(piece_node, "position", target_position, PIECE_DROP_DURATION)\
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(piece_node, "modulate:a", 1.0, PIECE_DROP_DURATION * 0.7)
 
 
 func _relayout_pieces() -> void:
