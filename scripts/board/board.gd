@@ -217,8 +217,8 @@ func _build_player_boards_pile(players: Array) -> void:
 ## au-delà, un scroll vertical apparaît.
 func _clamp_player_boards_panel_height() -> void:
 	var max_height: float = get_viewport_rect().size.y * PLAYER_BOARDS_PANEL_MAX_HEIGHT_RATIO
-	var content_height: float = player_rows.get_minimum_size().y
-	player_boards_scroll.custom_minimum_size.y = min(content_height, max_height)
+	var content_min: Vector2 = player_rows.get_minimum_size()
+	player_boards_scroll.custom_minimum_size = Vector2(content_min.x, min(content_min.y, max_height))
 
 
 func _on_player_boards_pile_gui_input(event: InputEvent) -> void:
