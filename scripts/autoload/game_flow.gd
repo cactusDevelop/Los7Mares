@@ -20,6 +20,8 @@ const CAMERA_SELECTION_SHIFT := 400.0   # décalage horizontal caméra (unités 
 const CAMERA_SELECTION_ZOOM := Vector2(0.22, 0.22)
 const CASE_PIECE_RADIUS := 100.0         # rayon de répartition des pièces sur une case (polygone)
 const CASE_PIECE_VERTICAL_OFFSET := 40.0  # décale tout le polygone vers le bas pour compenser l'ancrage des sprites
+const CARD_POPUP_DURATION := 0.35       # durée de l'apparition (fondu + zoom) d'une carte de mer piochée
+const CARD_PILE_RADIUS_OFFSET := 620.0  # distance supplémentaire (au-delà du rayon des mers) pour placer la pioche de chaque mer
 
 # --- Constantes UI communes (tailles, couleurs, styles) ---
 # Regroupées ici pour n'avoir qu'un seul endroit à modifier si le design change.
