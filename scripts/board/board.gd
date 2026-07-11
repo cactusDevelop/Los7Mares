@@ -24,7 +24,9 @@ const SEA_KEY_BY_NODE_NAME := {
 
 @onready var seas_container: Node2D = $Seas
 @onready var deck_area: Area2D = $Seas/DeckArea
-@onready var player_list: VBoxContainer = $UI/PlayerList
+@onready var player_boards_panel: PanelContainer = $UI/PlayerBoardsPanel
+@onready var player_rows: VBoxContainer = $UI/PlayerBoardsPanel/Rows
+@onready var player_board_expanded: Control = $UI/PlayerBoardExpanded
 @onready var player_setup_popup: Control = $UI/PlayerSetupPopup
 @onready var narration_box: PanelContainer = $UI/NarrationBox
 @onready var piece_selection_panel: Control = $UI/PieceSelectionPanel
@@ -51,7 +53,15 @@ var _placed_rank_by_player: Dictionary = {}  # index joueur -> rang posé au tou
 
 func _ready() -> void:
 	_sea_tiles = []
-	player_list.position = Vector2(20, 20)
+	player_boards_panel.position = Vector2(20, 20)
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = GameFlow.POPUP_BG_COLOR
+	panel_style.set_corner_radius_all(GameFlow.POPUP_CORNER_RADIUS)
+	panel_style.content_margin_left = 16
+	panel_style.content_margin_right = 16
+	panel_style.content_margin_top = 16
+	panel_style.content_margin_bottom = 16
+	player_boards_panel.add_theme_stylebox_override("panel", panel_style)
 	_camera_base_position = camera.position
 	_camera_base_zoom = camera.zoom
 	action_spots_container.z_index = 1
@@ -92,6 +102,7 @@ func _ready() -> void:
 		var pile: Node2D = SEA_CARD_PILE_SCENE.instantiate()
 		card_piles_container.add_child(pile)
 		pile.global_position = slots[i].pile_position
+		pile.rotation_degrees = slots[i].rotation
 		pile.sea_key = SEA_KEY_BY_NODE_NAME.get(tile.name, "")
 		pile.pile_clicked.connect(_on_card_pile_clicked)
 
@@ -101,8 +112,8 @@ func _ready() -> void:
 	deck_area.hover_entered.connect(_on_deck_hover_entered)
 	deck_area.hover_exited.connect(_on_deck_hover_exited)
 
-	GameFlow.players_changed.connect(_refresh_player_list)
-	_refresh_player_list()
+	GameFlow.players_changed.connect(_refresh_player_boards)
+	_refresh_player_boards()
 
 	if GameFlow.pending_setup_mode != "":
 		deck_area.input_pickable = false
@@ -127,23 +138,68 @@ func _start_dealing_phase() -> void:
 	narration_box.say(tr("Cliquez sur la pile pour distribuer les mers."))
 
 
-func _refresh_player_list() -> void:
-	for child in player_list.get_children():
+func _refresh_player_boards() -> void:
+	for child in player_rows.get_children():
 		child.queue_free()
-	for player in GameFlow.players:
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
+	for player in GameFlow.get_players_sorted_by_points():
+		player_rows.add_child(_build_player_board_row(player))
 
-		var swatch := ColorRect.new()
-		swatch.custom_minimum_size = Vector2(20, 20)
-		swatch.color = GameFlow.COLOR_VALUES[player["color"]]
-		row.add_child(swatch)
 
-		var label := Label.new()
-		label.text = player["name"]
-		row.add_child(label)
+func _build_player_board_row(player: Dictionary) -> Control:
+	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
 
-		player_list.add_child(row)
+	var entry := VBoxContainer.new()
+	entry.add_theme_constant_override("separation", 4)
+
+	var name_label := Label.new()
+	name_label.text = "%s — %d pts" % [player["name"], player["points"]]
+	name_label.add_theme_color_override("font_color", color)
+	entry.add_child(name_label)
+
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+
+	var board_button := TextureButton.new()
+	board_button.texture_normal = load(GameFlow.PLAYER_BOARD_TEXTURE)
+	board_button.ignore_texture_size = true
+	board_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+	board_button.custom_minimum_size = Vector2(160, 107)
+	board_button.pressed.connect(_on_player_board_pressed.bind(player["id"]))
+	row.add_child(board_button)
+
+	if player.get("has_own_parrot", true):
+		row.add_child(_build_parrot_token(color, false))
+	for other in GameFlow.players:
+		if other.get("parrot_captured_by", -1) == player["id"]:
+			row.add_child(_build_parrot_token(GameFlow.COLOR_VALUES[other["color"]], true))
+
+	entry.add_child(row)
+	return entry
+
+
+func _build_parrot_token(base_color: Color, imprisoned: bool) -> Control:
+	var token := PanelContainer.new()
+	token.custom_minimum_size = Vector2(36, 36)
+	var style := StyleBoxFlat.new()
+	style.set_corner_radius_all(18)
+	style.bg_color = base_color.darkened(0.4) if imprisoned else base_color
+	if imprisoned:
+		style.border_color = Color.BLACK
+		style.set_border_width_all(3)
+	token.add_theme_stylebox_override("panel", style)
+	var label := Label.new()
+	label.text = "🦜"
+	label.horizontal_alignment = 1
+	label.vertical_alignment = 1
+	token.add_child(label)
+	return token
+
+
+func _on_player_board_pressed(player_id: int) -> void:
+	for p in GameFlow.players:
+		if p["id"] == player_id:
+			player_board_expanded.show_player(p)
+			return
 
 
 func _unhandled_input(event: InputEvent) -> void:

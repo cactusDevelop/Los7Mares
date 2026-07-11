@@ -14,6 +14,8 @@ config/name="Los 7 Mares"
 run/main_scene="uid://buak45c3014j0"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="uid://dp4s6lil2a811"
+config/macos_native_icon="res://assets/art/ui/7-squared-logo.icns"
+config/windows_native_icon="res://assets/art/ui/7-logo.ico"
 
 [autoload]
 

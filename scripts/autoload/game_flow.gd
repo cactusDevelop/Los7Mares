@@ -10,6 +10,13 @@ const COLOR_VALUES: Dictionary = {
 	"vert": Color(0.2, 0.7, 0.3),
 	"violet": Color(0.55, 0.25, 0.75),
 }
+const RESOURCE_TYPES: Array[String] = ["wood", "steel", "food", "wool", "rum"]
+const SPECIAL_RESOURCE_TYPES: Array[String] = ["fortune", "treasure"]
+const RESOURCE_LABELS: Dictionary = {
+	"wood": "Bois", "steel": "Acier", "food": "Nourriture",
+	"wool": "Laine", "rum": "Rhum", "fortune": "Fortune", "treasure": "Trésor",
+}
+const PLAYER_BOARD_TEXTURE := "res://assets/art/board/plateau-joueur-jaune.png" # provisoire pour tous
 const RANDOM_NAMES: Array[String] = ["Thomas", "Adrien", "Martino", "Raphael", "Alex"]
 
 const PIECE_SCALE := 0.6
@@ -82,10 +89,21 @@ func reset_players() -> void:
 
 
 func add_player(player_name: String, color: String) -> Dictionary:
+	var resources := {}
+	for r in RESOURCE_TYPES:
+		resources[r] = 0
+	var special := {}
+	for r in SPECIAL_RESOURCE_TYPES:
+		special[r] = 0
 	var player := {
 		"id": _next_player_id,
 		"name": player_name,
 		"color": color,
+		"points": 0,
+		"resources": resources,
+		"special_resources": special,
+		"has_own_parrot": true,
+		"parrot_captured_by": -1,  # id du voleur, -1 = personne
 	}
 	_next_player_id += 1
 	players.append(player)
@@ -155,3 +173,25 @@ func layout_positions_for_case(count: int) -> Array[Vector2]:
 				var angle := -PI / 2.0 + i * (TAU / count)
 				positions.append(Vector2(cos(angle), sin(angle)) * spacing + vertical_offset)
 			return positions
+
+
+func add_points(player_id: int, amount: int) -> void:
+	for p in players:
+		if p["id"] == player_id:
+			p["points"] += amount
+			break
+	players_changed.emit()
+
+
+func capture_parrot(capturer_id: int, victim_id: int) -> void:
+	for p in players:
+		if p["id"] == victim_id:
+			p["parrot_captured_by"] = capturer_id
+			break
+	players_changed.emit()
+
+
+func get_players_sorted_by_points() -> Array[Dictionary]:
+	var sorted := players.duplicate()
+	sorted.sort_custom(func(a, b): return a["points"] > b["points"])
+	return sorted

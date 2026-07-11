@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://b058e8m5tg4kt"]
+
+[ext_resource type="Script" uid="uid://bhmtfvqb1t2nl" path="res://scripts/ui/player_board_expanded.gd" id="1_rp1ej"]
+
+[node name="PlayerBoardExpanded" type="Control" unique_id=670737293]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_rp1ej")
+
+[node name="Blocker" type="ColorRect" parent="." unique_id=910938549]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Padding" type="MarginContainer" parent="." unique_id=1705483323]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Content" type="VBoxContainer" parent="Padding" unique_id=447323718]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Padding/Content" unique_id=1765274473]
+layout_mode = 2
+
+[node name="BoardTexture" type="TextureRect" parent="Padding/Content" unique_id=1260864733]
+layout_mode = 2
+
+[node name="ResourcesGrid" type="GridContainer" parent="Padding/Content" unique_id=113649401]
+layout_mode = 2
+columns = 2
+
+[node name="CloseButton" type="Button" parent="Padding/Content" unique_id=163661712]
+layout_mode = 2

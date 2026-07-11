@@ -18,6 +18,7 @@
 [ext_resource type="Script" uid="uid://b0a7tt2orhfwo" path="res://scripts/board/narration_box.gd" id="15_xu7li"]
 [ext_resource type="PackedScene" uid="uid://cawaiel7vey2f" path="res://scenes/ui/piece_selection_panel.tscn" id="16_bo4hw"]
 [ext_resource type="PackedScene" uid="uid://bn3g7mmfggktb" path="res://scenes/ui/sea_card_popup.tscn" id="17_bo4hw"]
+[ext_resource type="PackedScene" uid="uid://b058e8m5tg4kt" path="res://scenes/ui/player_board_expanded.tscn" id="18_ctilb"]
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
@@ -99,10 +100,6 @@ script = ExtResource("12_jngt6")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=833065195]
 
-[node name="PlayerList" type="VBoxContainer" parent="UI" unique_id=1712317560]
-offset_right = 40.0
-offset_bottom = 40.0
-
 [node name="PlayerSetupPopup" parent="UI" unique_id=1537230509 instance=ExtResource("14_dj4mb")]
 
 [node name="NarrationBox" type="PanelContainer" parent="UI" unique_id=1704438247]
@@ -124,6 +121,15 @@ horizontal_alignment = 1
 [node name="PieceSelectionPanel" parent="UI" unique_id=1299012961 instance=ExtResource("16_bo4hw")]
 
 [node name="SeaCardPopup" parent="UI" unique_id=1069071596 instance=ExtResource("17_bo4hw")]
+
+[node name="PlayerBoardsPanel" type="PanelContainer" parent="UI" unique_id=519038149]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Rows" type="VBoxContainer" parent="UI/PlayerBoardsPanel" unique_id=1001631831]
+layout_mode = 2
+
+[node name="PlayerBoardExpanded" parent="UI" unique_id=670737293 instance=ExtResource("18_ctilb")]
 
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
 
