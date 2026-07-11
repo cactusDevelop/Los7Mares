@@ -1,32 +1,26 @@
 extends Control
 
-## --- Position des cases sur l'image du plateau joueur ---
-## Toutes les coordonnées ci-dessous sont exprimées en PIXELS DE L'IMAGE
-## D'ORIGINE (assets/art/board/plateau-joueur-jaune.png, 2716x1813), PAS en
-## pixels écran : le script les convertit automatiquement quel que soit
-## l'agrandissement. Pour les régler :
-##   1. Dans Godot, ouvre l'onglet "FileSystem", clique sur l'image.
-##   2. En bas, l'aperçu affiche l'image ; survole chaque case d'inventaire
-##      avec la souris : Godot affiche le pixel (x, y) sous le curseur
-##      dans le panneau d'aperçu (ou utilise GIMP/Aperçu : la position du
-##      curseur est affichée en bas de la fenêtre).
-##   3. Remplace les valeurs ci-dessous, dans l'ordre que tu veux (l'ordre
-##      ne change que l'ordre de remplissage des ressources).
-const RESOURCE_SLOT_PIXELS: Array[Vector2] = [
-	Vector2(400, 400), Vector2(700, 400), Vector2(1000, 400),
-	Vector2(400, 700), Vector2(700, 700), Vector2(1000, 700),
-	Vector2(400, 1000), Vector2(700, 1000), Vector2(1000, 1000),
-]
-const FORTUNE_SLOT_PIXEL := Vector2(2000, 400)
-const TREASURE_SLOT_PIXEL := Vector2(2300, 400)
-## Décalage (en pixels image) appliqué à chaque jeton empilé au même endroit,
-## pour que plusieurs Fortune/Trésor ne se superposent pas parfaitement.
-const SPECIAL_STACK_OFFSET := Vector2(20, -20)
+## --- Position des éléments sur l'image du plateau joueur ---
+## Toutes les coordonnées ci-dessous sont en PIXELS DE L'IMAGE D'ORIGINE
+## (assets/art/board/plateau-joueur-jaune.png, 2716x1813), pas en pixels
+## écran : le script convertit automatiquement selon la taille affichée.
 
-const RESOURCE_SQUARE_SIZE := Vector2(90, 90)
+const RESOURCE_SLOT_PIXELS: Array[Vector2] = [
+	Vector2(2100, 1320), Vector2(2250, 1320), Vector2(2400, 1320),
+	Vector2(2100, 1470), Vector2(2250, 1470), Vector2(2400, 1470),
+	Vector2(2100, 1620), Vector2(2250, 1620), Vector2(2400, 1620),
+]
+## Zones (coin haut-gauche -> coin bas-droit) dans lesquelles les jetons
+## Trésor / Fortune apparaissent à une position aléatoire.
+const TREASURE_RECT_MIN := Vector2(150, 1000)
+const TREASURE_RECT_MAX := Vector2(750, 1250)
+const FORTUNE_RECT_MIN := Vector2(150, 1400)
+const FORTUNE_RECT_MAX := Vector2(750, 1650)
+
+const RESOURCE_CUBE_EDGE := 120.0
 const SPECIAL_ICON_SIZE := Vector2(110, 110)
 
-const RESOURCE_SQUARE_COLORS := {
+const RESOURCE_CUBE_COLORS := {
 	"wood": Color8(122, 74, 34),    # brun
 	"steel": Color8(58, 62, 68),    # gris foncé
 	"food": Color8(235, 140, 30),   # orange
@@ -79,8 +73,9 @@ func show_player(player: Dictionary) -> void:
 	_refresh_resource_display(player)
 
 
-## Place un carré coloré par unité de ressource simple (bois/acier/nourriture/
-## rhum/laine) sur les cases d'inventaire, et un jeton par Fortune/Trésor.
+## Place un cube coloré par unité de ressource simple (bois/acier/nourriture/
+## rhum/laine) sur les cases d'inventaire, et des jetons Fortune/Trésor
+## répartis aléatoirement dans leurs zones respectives.
 func _refresh_resource_display(player: Dictionary) -> void:
 	for child in resource_slots.get_children():
 		child.queue_free()
@@ -91,37 +86,90 @@ func _refresh_resource_display(player: Dictionary) -> void:
 			units.append(res_type)
 	units = units.slice(0, RESOURCE_SLOT_PIXELS.size())
 
+	var edge_local: float = _texture_length_to_local(RESOURCE_CUBE_EDGE)
 	for i in range(units.size()):
-		var square := ColorRect.new()
-		square.color = RESOURCE_SQUARE_COLORS.get(units[i], Color.MAGENTA)
-		square.size = RESOURCE_SQUARE_SIZE
-		square.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		resource_slots.add_child(square)
-		square.position = _texture_to_local(RESOURCE_SLOT_PIXELS[i]) - RESOURCE_SQUARE_SIZE / 2.0
+		var cube := _build_cube_icon(RESOURCE_CUBE_COLORS.get(units[i], Color.MAGENTA), edge_local)
+		resource_slots.add_child(cube)
+		cube.position = _texture_to_local(RESOURCE_SLOT_PIXELS[i])
 
-	_place_special_tokens(player, "fortune", FORTUNE_TEXTURE, FORTUNE_SLOT_PIXEL)
-	_place_special_tokens(player, "treasure", TREASURE_TEXTURE, TREASURE_SLOT_PIXEL)
+	_place_special_tokens_random(player, "treasure", TREASURE_TEXTURE, TREASURE_RECT_MIN, TREASURE_RECT_MAX)
+	_place_special_tokens_random(player, "fortune", FORTUNE_TEXTURE, FORTUNE_RECT_MIN, FORTUNE_RECT_MAX)
 
 
-func _place_special_tokens(player: Dictionary, key: String, texture: Texture2D, base_pixel: Vector2) -> void:
+func _place_special_tokens_random(player: Dictionary, key: String, texture: Texture2D, rect_min: Vector2, rect_max: Vector2) -> void:
 	var count: int = player["special_resources"].get(key, 0)
+	var icon_size_local: Vector2 = _texture_size_to_local(SPECIAL_ICON_SIZE)
 	for i in range(count):
+		var pixel_pos := Vector2(
+			randf_range(rect_min.x, rect_max.x),
+			randf_range(rect_min.y, rect_max.y)
+		)
 		var icon := TextureRect.new()
 		icon.texture = texture
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.size = SPECIAL_ICON_SIZE
+		icon.size = icon_size_local
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		resource_slots.add_child(icon)
-		icon.position = _texture_to_local(base_pixel) - SPECIAL_ICON_SIZE / 2.0 + SPECIAL_STACK_OFFSET * i
+		icon.position = _texture_to_local(pixel_pos) - icon_size_local / 2.0
+
+
+## Construit un petit cube isométrique (3 faces ombrées) centré sur (0, 0),
+## pour donner un semblant de perspective 3D aux cubes de ressource.
+func _build_cube_icon(base_color: Color, edge: float) -> Node2D:
+	var s := edge / 2.0
+	var top_point := Vector2(0, -s)
+	var right_point := Vector2(s, -s / 2.0)
+	var bottom_point := Vector2(0, s)
+	var left_point := Vector2(-s, -s / 2.0)
+	var bottom_right := Vector2(s, s / 2.0)
+	var bottom_left := Vector2(-s, s / 2.0)
+	var center := Vector2.ZERO
+
+	var top_color: Color = base_color.lightened(0.35)
+	var right_color: Color = base_color
+	var left_color: Color = base_color.darkened(0.35)
+
+	var cube := Node2D.new()
+
+	var top_face := Polygon2D.new()
+	top_face.polygon = PackedVector2Array([left_point, top_point, right_point, center])
+	top_face.color = top_color
+	cube.add_child(top_face)
+
+	var right_face := Polygon2D.new()
+	right_face.polygon = PackedVector2Array([center, right_point, bottom_right, bottom_point])
+	right_face.color = right_color
+	cube.add_child(right_face)
+
+	var left_face := Polygon2D.new()
+	left_face.polygon = PackedVector2Array([left_point, center, bottom_point, bottom_left])
+	left_face.color = left_color
+	cube.add_child(left_face)
+
+	return cube
 
 
 ## Convertit une position en pixels de l'image d'origine vers une position
-## locale dans BoardTexture (donc dans ResourceSlots, qui a le même rect),
-## quelle que soit la taille affichée à l'écran.
+## locale dans BoardTexture / ResourceSlots (même rect), quelle que soit la
+## taille affichée à l'écran.
 func _texture_to_local(pixel_pos: Vector2) -> Vector2:
 	if board_texture.texture == null:
 		return pixel_pos
-	var native_size: Vector2 = board_texture.texture.get_size()
-	var scale_factor: Vector2 = board_texture.size / native_size
-	return pixel_pos * scale_factor
+	return pixel_pos * (board_texture.size / board_texture.texture.get_size())
+
+
+## Convertit une longueur (ex: un côté de cube) en pixels image vers sa
+## longueur équivalente à l'écran.
+func _texture_length_to_local(length_px: float) -> float:
+	if board_texture.texture == null:
+		return length_px
+	var scale_factor: Vector2 = board_texture.size / board_texture.texture.get_size()
+	return length_px * (scale_factor.x + scale_factor.y) / 2.0
+
+
+## Convertit une taille (Vector2) en pixels image vers sa taille écran.
+func _texture_size_to_local(size_px: Vector2) -> Vector2:
+	if board_texture.texture == null:
+		return size_px
+	return size_px * (board_texture.size / board_texture.texture.get_size())
