@@ -15,10 +15,11 @@ const GAME_TRACKS: Array[AudioStream] = [
 	preload("res://assets/audio/in-game bgm/The Secret Spring.mp3"),
 ]
 
-const FADE_DURATION := 1.2
+const FADE_DURATION := 2.0
 const NORMAL_VOLUME_DB := 0.0
 const SILENT_VOLUME_DB := -40.0
 const MENU_MUSIC_START_DELAY := 2.0
+const GAME_MUSIC_SWITCH_GAP := 0.5
 
 var _player: AudioStreamPlayer
 
@@ -62,6 +63,7 @@ func fade_to_random_game_music() -> void:
 	var fade_out := create_tween()
 	fade_out.tween_property(_player, "volume_db", SILENT_VOLUME_DB, FADE_DURATION)
 	await fade_out.finished
+	await get_tree().create_timer(GAME_MUSIC_SWITCH_GAP).timeout
 
 	play_random_game_music()
 	_player.volume_db = SILENT_VOLUME_DB

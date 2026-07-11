@@ -36,7 +36,7 @@ const TOKEN_THICKNESS_LAYERS := 3
 const TOKEN_EDGE_DARKEN := 0.45
 ## Hauteur du cube = fraction de son côté (edge), extrudée en sens opposé
 ## à DEPTH_DIRECTION pour rester cohérente avec les jetons.
-const CUBE_EXTRUDE_RATIO := 0.28
+const CUBE_EXTRUDE_RATIO := 0.22
 
 const RESOURCE_CUBE_COLORS := {
 	"wood": Color8(122, 74, 34),    # brun
@@ -172,10 +172,12 @@ func _pick_spaced_position(rect_min: Vector2, rect_max: Vector2, existing: Array
 	return best_pos
 
 
-## Construit un cube en fausse perspective, dont la face avant (= la "base"
-## demandée) est un carré exact edge x edge centré sur (0, 0). Le cube
-## s'extrude vers le haut-droite : direction opposée à DEPTH_DIRECTION,
-## utilisée pour l'épaisseur des jetons Fortune/Trésor (cohérence 3D).
+## Construit un cube en fausse perspective. La base (120x120, centrée sur la
+## position donnée) N'EST PAS dessinée : elle touche le plateau, donc elle
+## est cachée entre le plateau et le cube. On ne dessine que ce qui est
+## réellement visible : le toit (translation exacte de la base, donc lui
+## aussi un carré 120x120 non déformé) et les deux parois qui comblent la
+## hauteur, dans le sens opposé à DEPTH_DIRECTION (cohérence avec les jetons).
 func _build_cube_icon(base_color: Color, edge: float) -> Node2D:
 	var half := edge / 2.0
 	var top_left := Vector2(-half, -half)
@@ -185,30 +187,38 @@ func _build_cube_icon(base_color: Color, edge: float) -> Node2D:
 
 	var extrude: Vector2 = -DEPTH_DIRECTION * edge * CUBE_EXTRUDE_RATIO
 
-	var front_color: Color = base_color
-	var top_color: Color = base_color.lightened(0.35)
-	var side_color: Color = base_color.darkened(0.3)
+	var roof_color: Color = base_color.lightened(0.35)
+	var left_wall_color: Color = base_color.darkened(0.15)
+	var bottom_wall_color: Color = base_color.darkened(0.4)
 
 	var cube := Node2D.new()
 
-	var top_face := Polygon2D.new()
-	top_face.polygon = PackedVector2Array([
-		top_left, top_right, top_right + extrude, top_left + extrude
+	# Paroi gauche : entre le bord gauche de la base (caché) et le bord
+	# gauche du toit.
+	var left_wall := Polygon2D.new()
+	left_wall.polygon = PackedVector2Array([
+		top_left, bottom_left, bottom_left + extrude, top_left + extrude
 	])
-	top_face.color = top_color
-	cube.add_child(top_face)
+	left_wall.color = left_wall_color
+	cube.add_child(left_wall)
 
-	var side_face := Polygon2D.new()
-	side_face.polygon = PackedVector2Array([
-		top_right, bottom_right, bottom_right + extrude, top_right + extrude
+	# Paroi basse : entre le bord bas de la base (caché) et le bord bas du
+	# toit. C'est la face la plus proche du joueur, donc la plus sombre.
+	var bottom_wall := Polygon2D.new()
+	bottom_wall.polygon = PackedVector2Array([
+		bottom_left, bottom_right, bottom_right + extrude, bottom_left + extrude
 	])
-	side_face.color = side_color
-	cube.add_child(side_face)
+	bottom_wall.color = bottom_wall_color
+	cube.add_child(bottom_wall)
 
-	var front_face := Polygon2D.new()
-	front_face.polygon = PackedVector2Array([top_left, top_right, bottom_right, bottom_left])
-	front_face.color = front_color
-	cube.add_child(front_face)
+	# Toit : simple translation de la base par l'extrusion, donc un carré
+	# 120x120 non déformé lui aussi (juste décalé), pas la base elle-même.
+	var roof := Polygon2D.new()
+	roof.polygon = PackedVector2Array([
+		top_left + extrude, top_right + extrude, bottom_right + extrude, bottom_left + extrude
+	])
+	roof.color = roof_color
+	cube.add_child(roof)
 
 	return cube
 
