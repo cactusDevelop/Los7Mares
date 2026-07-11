@@ -123,13 +123,31 @@ horizontal_alignment = 1
 [node name="SeaCardPopup" parent="UI" unique_id=1069071596 instance=ExtResource("17_bo4hw")]
 
 [node name="PlayerBoardsPanel" type="PanelContainer" parent="UI" unique_id=519038149]
+visible = false
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="Rows" type="VBoxContainer" parent="UI/PlayerBoardsPanel" unique_id=1001631831]
+[node name="Scroll" type="ScrollContainer" parent="UI/PlayerBoardsPanel" unique_id=90460750]
+layout_mode = 2
+
+[node name="Rows" type="VBoxContainer" parent="UI/PlayerBoardsPanel/Scroll" unique_id=1001631831]
 layout_mode = 2
 
 [node name="PlayerBoardExpanded" parent="UI" unique_id=670737293 instance=ExtResource("18_ctilb")]
+
+[node name="PlayerBoardsPile" type="Control" parent="UI" unique_id=1975439067]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="PlayerBoardsCatcher" type="Control" parent="UI" unique_id=1761668547]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
 

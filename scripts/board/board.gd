@@ -15,6 +15,9 @@ const CARD_MIN_DROP_DURATION := 0.35
 const CARDS_PER_PILE := 10
 const CARD_STACK_OFFSET := Vector2(0, -2)
 const CARD_PILE_STAGGER := 0.05
+const PILE_THUMB_OFFSET := Vector2(14, 10)
+const PILE_THUMB_ROTATION_DEG := 3.0
+const PLAYER_BOARDS_PANEL_MAX_HEIGHT_RATIO := 0.75
 const CARD_BACK_FALLBACK := preload("res://assets/art/cards/carte-sauvage-dos.png")
 # Les images de cards/ ne sont pas pré-calibrées à l'échelle du monde comme
 ## celles de board/ : on les réduit avec ce facteur. Ajuste cette valeur
@@ -42,7 +45,10 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var seas_container: Node2D = $Seas
 @onready var deck_area: Area2D = $Seas/DeckArea
 @onready var player_boards_panel: PanelContainer = $UI/PlayerBoardsPanel
-@onready var player_rows: VBoxContainer = $UI/PlayerBoardsPanel/Rows
+@onready var player_boards_scroll: ScrollContainer = $UI/PlayerBoardsPanel/Scroll
+@onready var player_rows: VBoxContainer = $UI/PlayerBoardsPanel/Scroll/Rows
+@onready var player_boards_pile: Control = $UI/PlayerBoardsPile
+@onready var player_boards_catcher: Control = $UI/PlayerBoardsCatcher
 @onready var player_board_expanded: Control = $UI/PlayerBoardExpanded
 @onready var player_setup_popup: Control = $UI/PlayerSetupPopup
 @onready var narration_box: PanelContainer = $UI/NarrationBox
@@ -83,6 +89,14 @@ func _ready() -> void:
 	panel_style.content_margin_top = 16
 	panel_style.content_margin_bottom = 16
 	player_boards_panel.add_theme_stylebox_override("panel", panel_style)
+
+	player_boards_pile.position = Vector2(20, 20)
+	player_boards_pile.gui_input.connect(_on_player_boards_pile_gui_input)
+	player_boards_catcher.gui_input.connect(_on_player_boards_catcher_gui_input)
+	player_boards_panel.visible = false
+	player_boards_catcher.visible = false
+	player_boards_pile.visible = true
+
 	_camera_base_position = camera.position
 	_camera_base_zoom = camera.zoom
 	action_spots_container.z_index = 1
@@ -164,9 +178,72 @@ func _start_dealing_phase() -> void:
 func _refresh_player_boards() -> void:
 	for child in player_rows.get_children():
 		child.queue_free()
-	for player in GameFlow.get_players_sorted_by_points():
+	var players := GameFlow.get_players_sorted_by_points()
+	for player in players:
 		player_rows.add_child(_build_player_board_row(player))
+	_build_player_boards_pile(players)
+	await get_tree().process_frame
 	player_boards_panel.reset_size()
+	_clamp_player_boards_panel_height()
+
+
+## Construit la pile de plateaux joueur (vue par défaut) : les vignettes se
+## superposent avec un léger décalage/rotation pour donner un effet de pile
+## de cartes. Un clic n'importe où sur la pile ouvre le panneau détaillé.
+func _build_player_boards_pile(players: Array) -> void:
+	for child in player_boards_pile.get_children():
+		child.queue_free()
+
+	var count: int = players.size()
+	for i in range(count):
+		var player: Dictionary = players[i]
+		var thumb := TextureRect.new()
+		thumb.texture = load(GameFlow.PLAYER_BOARD_TEXTURE)
+		thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		thumb.custom_minimum_size = BOARD_THUMB_SIZE
+		thumb.size = BOARD_THUMB_SIZE
+		thumb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		thumb.pivot_offset = BOARD_THUMB_SIZE / 2.0
+		thumb.position = PILE_THUMB_OFFSET * i
+		thumb.rotation_degrees = (i - float(count - 1) / 2.0) * PILE_THUMB_ROTATION_DEG
+		player_boards_pile.add_child(thumb)
+
+	var total_size: Vector2 = BOARD_THUMB_SIZE + PILE_THUMB_OFFSET * max(count - 1, 0)
+	player_boards_pile.custom_minimum_size = total_size
+	player_boards_pile.size = total_size
+
+
+## Limite la hauteur du panneau détaillé (via son ScrollContainer) pour
+## qu'il ne dépasse jamais l'écran, quel que soit le nombre de joueurs :
+## au-delà, un scroll vertical apparaît.
+func _clamp_player_boards_panel_height() -> void:
+	var max_height: float = get_viewport_rect().size.y * PLAYER_BOARDS_PANEL_MAX_HEIGHT_RATIO
+	var content_height: float = player_rows.get_combined_minimum_size().y
+	player_boards_scroll.custom_minimum_size.y = min(content_height, max_height)
+
+
+func _on_player_boards_pile_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_open_player_boards_panel()
+
+
+func _on_player_boards_catcher_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_close_player_boards_panel()
+
+
+func _open_player_boards_panel() -> void:
+	_clamp_player_boards_panel_height()
+	player_boards_pile.visible = false
+	player_boards_panel.visible = true
+	player_boards_catcher.visible = true
+
+
+func _close_player_boards_panel() -> void:
+	player_boards_panel.visible = false
+	player_boards_catcher.visible = false
+	player_boards_pile.visible = true
 
 
 func _build_player_board_row(player: Dictionary) -> Control:
