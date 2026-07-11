@@ -1,0 +1,58 @@
+extends Node
+
+## Gère la musique de fond globale (persiste entre les scènes puisque c'est
+## un autoload). Un seul AudioStreamPlayer : on baisse son volume jusqu'au
+## silence, on change de morceau, puis on remonte le volume — pas besoin de
+## deux lecteurs pour un simple fondu enchaîné séquentiel.
+##
+## IMPORTANT : pense à activer le bouclage (Loop) de chaque fichier .mp3
+## dans Godot : sélectionne le fichier dans FileSystem → onglet Import →
+## coche "Loop" → Reimport. Sans ça, la musique s'arrête au bout d'une lecture.
+
+const MENU_TRACK := preload("res://assets/audio/Bastille Unbound.mp3")
+const GAME_TRACKS: Array[AudioStream] = [
+	preload("res://assets/audio/in-game bgm/Hidden in Havana.mp3"),
+	preload("res://assets/audio/in-game bgm/The Secret Spring.mp3"),
+]
+
+const FADE_DURATION := 1.2
+const NORMAL_VOLUME_DB := 0.0
+const SILENT_VOLUME_DB := -40.0
+
+var _player: AudioStreamPlayer
+
+
+func _ready() -> void:
+	_player = AudioStreamPlayer.new()
+	_player.bus = "Master"
+	add_child(_player)
+
+
+func play_menu_music() -> void:
+	_play_track(MENU_TRACK)
+
+
+func play_random_game_music() -> void:
+	var track: AudioStream = GAME_TRACKS[randi() % GAME_TRACKS.size()]
+	_play_track(track)
+
+
+func _play_track(stream: AudioStream) -> void:
+	_player.volume_db = NORMAL_VOLUME_DB
+	_player.stream = stream
+	_player.play()
+
+
+## Baisse le morceau en cours jusqu'au silence, puis lance un morceau de jeu
+## aléatoire et remonte le volume. À appeler sans "await" : elle continue de
+## tourner sur cet autoload même après le changement de scène.
+func fade_to_random_game_music() -> void:
+	var fade_out := create_tween()
+	fade_out.tween_property(_player, "volume_db", SILENT_VOLUME_DB, FADE_DURATION)
+	await fade_out.finished
+
+	play_random_game_music()
+	_player.volume_db = SILENT_VOLUME_DB
+
+	var fade_in := create_tween()
+	fade_in.tween_property(_player, "volume_db", NORMAL_VOLUME_DB, FADE_DURATION)

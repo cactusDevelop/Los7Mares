@@ -16,6 +16,7 @@ func _ready() -> void:
 	style.corner_radius_bottom_right = GameFlow.POPUP_CORNER_RADIUS
 	add_theme_stylebox_override("panel", style)
 
+	volume_slider.value = GameFlow.get_volume()
 	volume_slider.value_changed.connect(_on_volume_changed)
 
 	language_option.clear()
@@ -39,5 +40,4 @@ func popup_centered_auto() -> void:
 
 
 func _on_volume_changed(value: float) -> void:
-	var bus_index := AudioServer.get_bus_index("Master")
-	AudioServer.set_bus_volume_db(bus_index, linear_to_db(value))
+	GameFlow.set_volume(value)

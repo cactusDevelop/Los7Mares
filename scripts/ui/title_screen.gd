@@ -21,6 +21,8 @@ func _ready() -> void:
 	_layout_ui()
 	get_viewport().size_changed.connect(_layout_ui)
 
+	MusicManager.play_menu_music()
+
 	settings_button.pressed.connect(_on_settings_pressed)
 	host_button.pressed.connect(_on_host_pressed)
 	join_button.pressed.connect(_on_join_pressed)
@@ -77,6 +79,7 @@ func _on_host_pressed() -> void:
 	GameFlow.is_debug_mode = false
 	GameFlow.pending_setup_mode = "host"
 	GameFlow.pending_setup_target_count = 1
+	MusicManager.fade_to_random_game_music()
 	GameFlow.go_to_board()
 
 
@@ -85,6 +88,7 @@ func _on_join_pressed() -> void:
 	GameFlow.is_debug_mode = false
 	GameFlow.pending_setup_mode = "join"
 	GameFlow.pending_setup_target_count = 1
+	MusicManager.fade_to_random_game_music()
 	GameFlow.go_to_board()
 
 
@@ -97,6 +101,7 @@ func _on_debug_pressed() -> void:
 	GameFlow.is_debug_mode = true
 	GameFlow.pending_setup_mode = ""
 	GameFlow.generate_debug_players(5)
+	MusicManager.fade_to_random_game_music()
 	GameFlow.go_to_board()
 
 
@@ -115,4 +120,5 @@ func _on_player_count_confirmed() -> void:
 	GameFlow.reset_players()
 	GameFlow.pending_setup_mode = "local"
 	GameFlow.pending_setup_target_count = count
+	MusicManager.fade_to_random_game_music()
 	GameFlow.go_to_board()

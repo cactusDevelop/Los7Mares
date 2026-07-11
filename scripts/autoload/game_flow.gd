@@ -44,6 +44,7 @@ const POPUP_CORNER_RADIUS := 12.0
 const SETTINGS_FILE_PATH := "user://settings.cfg"
 const DEFAULT_LOCALE := "fr"
 const AVAILABLE_LOCALES: Array[String] = ["fr", "en", "es"]
+const DEFAULT_VOLUME := 1.0
 
 enum PieceRank { SECOND = 0, CAPTAIN = 1 }
 
@@ -64,6 +65,7 @@ var _next_player_id: int = 0
 
 func _ready() -> void:
 	_load_locale()
+	_load_volume()
 
 
 func _load_locale() -> void:
@@ -82,6 +84,35 @@ func set_locale(locale: String) -> void:
 	config.load(SETTINGS_FILE_PATH)
 	config.set_value("settings", "locale", locale)
 	config.save(SETTINGS_FILE_PATH)
+
+
+func _load_volume() -> void:
+	var config := ConfigFile.new()
+	var err := config.load(SETTINGS_FILE_PATH)
+	var volume: float = DEFAULT_VOLUME
+	if err == OK:
+		volume = config.get_value("settings", "volume", DEFAULT_VOLUME)
+	_apply_volume(volume)
+
+
+## Change le volume du bus Master (ratio linéaire 0.0–1.0) et le sauvegarde
+## pour les prochains lancements.
+func set_volume(volume: float) -> void:
+	_apply_volume(volume)
+	var config := ConfigFile.new()
+	config.load(SETTINGS_FILE_PATH)
+	config.set_value("settings", "volume", volume)
+	config.save(SETTINGS_FILE_PATH)
+
+
+func get_volume() -> float:
+	var bus_index := AudioServer.get_bus_index("Master")
+	return db_to_linear(AudioServer.get_bus_volume_db(bus_index))
+
+
+func _apply_volume(volume: float) -> void:
+	var bus_index := AudioServer.get_bus_index("Master")
+	AudioServer.set_bus_volume_db(bus_index, linear_to_db(volume))
 
 
 func reset_players() -> void:

@@ -52,8 +52,8 @@ script = ExtResource("3_w8uqo")
 [node name="Padding" type="MarginContainer" parent="SettingsPopup" unique_id=1957897484]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 323.0
-offset_bottom = 114.0
+offset_right = 96.0
+offset_bottom = 96.0
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
@@ -78,7 +78,9 @@ text = "Volume"
 [node name="VolumeSlider" type="HSlider" parent="SettingsPopup/Padding/Content/VolumeRow" unique_id=1791929607]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-value = 100.0
+max_value = 1.0
+step = 0.01
+value = 1.0
 
 [node name="LanguageRow" type="HBoxContainer" parent="SettingsPopup/Padding/Content" unique_id=819533001]
 layout_mode = 2
@@ -95,8 +97,8 @@ layout_mode = 2
 [node name="Padding" type="MarginContainer" parent="PlayerCountPopup" unique_id=2065299801]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 417.0
-offset_bottom = 169.0
+offset_right = 96.0
+offset_bottom = 96.0
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
