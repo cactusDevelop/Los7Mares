@@ -18,21 +18,26 @@ offset_bottom = 40.0
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+mouse_filter = 2
 
 [node name="Content" type="VBoxContainer" parent="Padding" unique_id=447323718]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="TitleLabel" type="Label" parent="Padding/Content" unique_id=1765274473]
 layout_mode = 2
+horizontal_alignment = 1
 
 [node name="BoardArea" type="AspectRatioContainer" parent="Padding/Content" unique_id=1900000001]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+mouse_filter = 2
 ratio = 1.498
 
 [node name="BoardStack" type="Control" parent="Padding/Content/BoardArea" unique_id=1900000002]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="BoardTexture" type="TextureRect" parent="Padding/Content/BoardArea/BoardStack" unique_id=1260864733]
 layout_mode = 1
@@ -49,6 +54,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+
+[node name="Spacer" type="Control" parent="Padding/Content" unique_id=335370113]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
 mouse_filter = 2
 
 [node name="CloseButton" type="Button" parent="Padding/Content" unique_id=163661712]

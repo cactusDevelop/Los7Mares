@@ -64,14 +64,15 @@ func _ready() -> void:
 	blocker.color = Color(0, 0, 0, 0.7)
 	board_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	board_texture.stretch_mode = TextureRect.STRETCH_SCALE
-	padding.add_theme_constant_override("margin_left", 24)
-	padding.add_theme_constant_override("margin_right", 24)
-	padding.add_theme_constant_override("margin_top", 24)
-	padding.add_theme_constant_override("margin_bottom", 120)
+	padding.add_theme_constant_override("margin_left", 0)
+	padding.add_theme_constant_override("margin_right", 0)
+	padding.add_theme_constant_override("margin_top", 60)
+	padding.add_theme_constant_override("margin_bottom", 0)
 	if close_button.text == "":
 		close_button.text = tr("Retour")
 	close_button.custom_minimum_size = Vector2(0, 64)
 	close_button.pressed.connect(func(): visible = false)
+	blocker.gui_input.connect(_on_blocker_gui_input)
 
 
 func show_player(player: Dictionary) -> void:
@@ -246,3 +247,8 @@ func _texture_size_to_local(size_px: Vector2) -> Vector2:
 	if board_texture.texture == null:
 		return size_px
 	return size_px * (board_texture.size / board_texture.texture.get_size())
+
+
+func _on_blocker_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		visible = false
