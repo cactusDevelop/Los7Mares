@@ -16,7 +16,13 @@ const RESOURCE_LABELS: Dictionary = {
 	"wood": "Bois", "steel": "Acier", "food": "Nourriture",
 	"wool": "Laine", "rum": "Rhum", "fortune": "Fortune", "treasure": "Trésor",
 }
-const PLAYER_BOARD_TEXTURE := "res://assets/art/board/plateau-joueur-jaune.png" # provisoire pour tous
+const PLAYER_BOARD_TEXTURES: Dictionary = {
+	"rouge": "res://assets/art/board/plateau-joueur-rouge.png",
+	"jaune": "res://assets/art/board/plateau-joueur-jaune.png",
+	"bleu": "res://assets/art/board/plateau-joueur-bleu.png",
+	"vert": "res://assets/art/board/plateau-joueur-vert.png",
+	"violet": "res://assets/art/board/plateau-joueur-violet.png",
+}
 const RANDOM_NAMES: Array[String] = ["Thomas", "Adrien", "Martino", "Raphael", "Alex"]
 
 const PIECE_SCALE := 0.6

@@ -202,7 +202,10 @@ func _build_player_boards_pile(players: Array) -> void:
 	var count: int = players.size()
 	for i in range(count):
 		var thumb := TextureRect.new()
-		thumb.texture = load(GameFlow.PLAYER_BOARD_TEXTURE)
+		var pile_board_path: String = GameFlow.PLAYER_BOARD_TEXTURES.get(
+			players[i]["color"], GameFlow.PLAYER_BOARD_TEXTURES["jaune"]
+		)
+		thumb.texture = load(pile_board_path)
 		thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		thumb.custom_minimum_size = BOARD_THUMB_SIZE
@@ -274,7 +277,10 @@ func _build_player_board_row(player: Dictionary) -> Control:
 	board_wrap.gui_input.connect(_on_board_wrap_gui_input.bind(player["id"]))
 
 	var board_texture := TextureRect.new()
-	board_texture.texture = load(GameFlow.PLAYER_BOARD_TEXTURE)
+	var player_board_path: String = GameFlow.PLAYER_BOARD_TEXTURES.get(
+		player["color"], GameFlow.PLAYER_BOARD_TEXTURES["jaune"]
+	)
+	board_texture.texture = load(player_board_path)
 	board_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	board_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	board_texture.size = BOARD_THUMB_SIZE

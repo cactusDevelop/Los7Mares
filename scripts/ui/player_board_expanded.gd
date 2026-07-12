@@ -78,7 +78,10 @@ func _ready() -> void:
 func show_player(player: Dictionary) -> void:
 	title_label.text = player["name"]
 	title_label.add_theme_color_override("font_color", GameFlow.COLOR_VALUES[player["color"]])
-	board_texture.texture = load(GameFlow.PLAYER_BOARD_TEXTURE)
+	var texture_path: String = GameFlow.PLAYER_BOARD_TEXTURES.get(
+		player["color"], GameFlow.PLAYER_BOARD_TEXTURES["jaune"]
+	)
+	board_texture.texture = load(texture_path)
 
 	var viewport_size := get_viewport_rect().size
 	blocker.size = viewport_size
