@@ -21,6 +21,15 @@ extends Node2D
 			outline.corner_radius = value
 			outline.queue_redraw()
 
+## Couleur du contour. Blanc par défaut (aucun joueur concerné) ; peut être
+## réassignée dynamiquement (ex : couleur du joueur dont c'est le tour).
+@export var outline_color: Color = Color(1.0, 1.0, 1.0):
+	set(value):
+		outline_color = value
+		if outline:
+			outline.color = value
+			outline.queue_redraw()
+
 @export var label_text: String = "":
 	set(value):
 		label_text = value
@@ -71,6 +80,7 @@ func _ready() -> void:
 	outline.line_width = outline_width
 	outline.corner_radius = corner_radius
 	outline.card_shape = card_shape
+	outline.color = outline_color
 	hint_label.text = label_text
 	hint_label.add_theme_font_size_override("font_size", font_size)
 	_apply_bold()

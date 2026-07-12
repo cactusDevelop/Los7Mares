@@ -54,3 +54,9 @@ func set_hover_enabled(enabled: bool) -> void:
 	hover_enabled = enabled
 	if not enabled:
 		hover_prompt.hide_prompt()
+
+
+## Change la couleur du contour affiché au survol (ex : couleur du joueur
+## dont c'est le tour). Blanc par défaut tant que rien n'est précisé.
+func set_outline_color(color: Color) -> void:
+	hover_prompt.outline_color = color

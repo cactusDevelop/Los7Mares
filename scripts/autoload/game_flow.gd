@@ -44,7 +44,7 @@ const TITLE_BUTTON_SIZE := Vector2(420, 84)
 const TITLE_BUTTON_FONT_SIZE := 24
 const TITLE_BUTTONS_Y_OFFSET := 100.0     # décalage vertical (vers le bas) des boutons du menu titre
 const POPUP_BG_COLOR := Color(0.12, 0.12, 0.16, 1.0)
-const POPUP_CORNER_RADIUS := 12.0
+const POPUP_CORNER_RADIUS := 12
 
 # --- Localisation ---
 const SETTINGS_FILE_PATH := "user://settings.cfg"

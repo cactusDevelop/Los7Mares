@@ -9,14 +9,17 @@ script = ExtResource("1_jubmd")
 
 [node name="CaseSprite" type="Sprite2D" parent="." unique_id=2065329995]
 modulate = Color(1, 1, 1, 0.4)
-rotation = 0.30543262
+rotation = 0.27925268
 texture = ExtResource("2_p3rua")
 
 [node name="ClickArea" type="Area2D" parent="." unique_id=1607472926]
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ClickArea" unique_id=2026721051]
-polygon = PackedVector2Array(0, -290, 500, 0, -11, 292, -500, 0)
+polygon = PackedVector2Array(-42, -269, 1, -276, 37, -268, 435, -49, 453, 1, 434, 33, 46, 265, -1, 276, -39, 269, -440, 49, -451, 2, -436, -30)
 
-[node name="HoverPrompt" parent="." unique_id=1205484487 instance=ExtResource("3_p3rua")]
+[node name="HoverPrompt" parent="." unique_id=1205484487 node_paths=PackedStringArray("card_shape") instance=ExtResource("3_p3rua")]
 box_size = Vector2(440, 300)
+outline_width = 25.0
 label_text = "POSER"
+font_size = 100
+card_shape = NodePath("../ClickArea/CollisionPolygon2D")

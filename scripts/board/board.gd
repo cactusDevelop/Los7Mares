@@ -43,6 +43,7 @@ const SEA_KEY_BY_NODE_NAME := {
 }
 
 @export var radius: float = 1340.0
+@export var hideout_radius: float = 1800.0  # rayon des emplacements de cachette (à régler manuellement)
 @export var deck_stack_offset: Vector2 = Vector2(0, -2)
 
 @onready var seas_container: Node2D = $Seas
@@ -57,6 +58,7 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var narration_box: PanelContainer = $UI/NarrationBox
 @onready var piece_selection_panel: Control = $UI/PieceSelectionPanel
 @onready var action_spots_container: Node2D = $ActionSpots
+@onready var hideout_spots_container: Node2D = $HideoutSpots
 @onready var camera: Camera2D = $Camera2D
 @onready var sea_card_popup: Control = $UI/SeaCardPopup
 @onready var card_piles_container: Node2D = $CardPiles
@@ -75,6 +77,9 @@ var _current_round: int = 0  # 0 = premier choix pour tous, 1 = pièce restante 
 var _current_player_index: int = 0
 var _selected_rank: int = -1
 var _placed_rank_by_player: Dictionary = {}  # index joueur -> rang posé au tour 1
+
+var _hideout_turn_order: Array = []  # indices joueurs, ordre inverse du véritable ordre
+var _hideout_turn_index: int = 0
 
 
 func _ready() -> void:
@@ -145,6 +150,19 @@ func _ready() -> void:
 		pile.pile_clicked.connect(_on_card_pile_clicked)
 		pile.visible = false
 		pile.modulate.a = 1.0
+
+	# Emplacements de cachette : un entre chaque paire de mers, donc décalés
+	# d'un quatorzième de cercle (moitié de l'écart entre deux mers) par
+	# rapport aux angles des tuiles mer, avec un rayon plus grand.
+	var hideout_spots := hideout_spots_container.get_children()
+	var hideout_angle_offset := 180.0 / _total_seas  # = 360 / (2 * _total_seas) = 1/14e de cercle
+	for i in range(hideout_spots.size()):
+		var h_angle_degrees = 90.0 + hideout_angle_offset + i * (360.0 / _total_seas)
+		var h_angle_rad = deg_to_rad(h_angle_degrees)
+		var h_direction := Vector2(cos(h_angle_rad), sin(h_angle_rad))
+		hideout_spots[i].global_position = board_center + hideout_radius * h_direction
+		hideout_spots[i].rotation_degrees = h_angle_degrees + 90.0
+		hideout_spots[i].visible = false
 
 	sea_card_popup.card_resolved.connect(_on_sea_card_resolved)
 
@@ -382,7 +400,7 @@ func _flip_all_as_wave() -> void:
 	var total_delay := (_slot_order.size() - 1) * FLIP_WAVE_DELAY + 0.3
 	await get_tree().create_timer(total_delay).timeout
 	await _drop_card_piles()
-	_start_piece_placement_phase()
+	_start_hideout_phase()
 
 
 func _get_card_back_texture(sea_key: String) -> Texture2D:
@@ -444,6 +462,48 @@ func _drop_card_piles() -> void:
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 	await get_tree().create_timer(settle_start_time + CARD_SETTLE_DURATION).timeout
+
+
+# --- Phase de pose des cachettes : chaque joueur pose une fois, dans l'ordre
+# inverse du véritable ordre des joueurs ---
+
+func _start_hideout_phase() -> void:
+	_hideout_turn_order = range(GameFlow.players.size() - 1, -1, -1)
+	_hideout_turn_index = 0
+
+	for spot in hideout_spots_container.get_children():
+		spot.visible = true
+		spot.spot_clicked.connect(_on_hideout_spot_clicked)
+
+	_begin_hideout_turn()
+
+
+func _begin_hideout_turn() -> void:
+	if _hideout_turn_index >= _hideout_turn_order.size():
+		_end_hideout_phase()
+		return
+
+	var player_index: int = _hideout_turn_order[_hideout_turn_index]
+	var player: Dictionary = GameFlow.players[player_index]
+	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
+	narration_box.say(tr("Tour de %s : choisis l'emplacement de ta cachette.") % player["name"])
+	for spot in hideout_spots_container.get_children():
+		spot.set_hover_enabled(not spot.is_taken)
+		spot.set_outline_color(color)
+
+
+func _on_hideout_spot_clicked(spot: Node2D) -> void:
+	var player_index: int = _hideout_turn_order[_hideout_turn_index]
+	var player: Dictionary = GameFlow.players[player_index]
+	spot.claim(player["color"])
+	_hideout_turn_index += 1
+	_begin_hideout_turn()
+
+
+func _end_hideout_phase() -> void:
+	for spot in hideout_spots_container.get_children():
+		spot.set_hover_enabled(false)
+	_start_piece_placement_phase()
 
 
 # --- Phase de placement des pièces : 2 manches globales ---

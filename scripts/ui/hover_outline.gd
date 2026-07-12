@@ -1,7 +1,7 @@
 extends Node2D
 
 @export var box_size: Vector2 = Vector2(200, 280)
-@export var color: Color = Color(1.0, 0.84, 0.0)
+@export var color: Color = Color(1.0, 1.0, 1.0, 0.8)
 @export var line_width: float = 12.0
 @export var flat_top: bool = true  # true = hexagone à bord plat en haut/bas, false = pointe en haut/bas
 ## Rayon des coins arrondis (en pixels). Mettre à 0 pour des coins pointus.
