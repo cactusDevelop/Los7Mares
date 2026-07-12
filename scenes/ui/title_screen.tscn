@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://cutqga2dm2kqx" path="res://scripts/ui/title_screen.gd" id="1_aqpy5"]
 [ext_resource type="Texture2D" uid="uid://b7yjamv551scs" path="res://assets/art/ui/title.png" id="2_w8uqo"]
-[ext_resource type="Script" uid="uid://bqajivy6eqopk" path="res://scripts/ui/settings_popup.gd" id="3_w8uqo"]
 
 [node name="TitleScreen" type="Control" unique_id=998463451]
 layout_mode = 3
@@ -18,11 +17,6 @@ layout_mode = 0
 texture = ExtResource("2_w8uqo")
 expand_mode = 1
 stretch_mode = 6
-
-[node name="SettingsButton" type="TextureButton" parent="." unique_id=1292348401]
-layout_mode = 0
-offset_right = 99.0
-offset_bottom = 31.0
 
 [node name="CenterButtons" type="VBoxContainer" parent="." unique_id=616410231]
 layout_mode = 0
@@ -46,59 +40,13 @@ text = "REJOINDRE"
 layout_mode = 2
 text = "HEBERGER"
 
-[node name="SettingsPopup" type="PopupPanel" parent="." unique_id=1867333443]
-script = ExtResource("3_w8uqo")
-
-[node name="Padding" type="MarginContainer" parent="SettingsPopup" unique_id=1957897484]
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 96.0
-offset_bottom = 96.0
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
-
-[node name="Content" type="VBoxContainer" parent="SettingsPopup/Padding" unique_id=1895094490]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="TitleLabel" type="Label" parent="SettingsPopup/Padding/Content" unique_id=875828511]
-layout_mode = 2
-text = "PARAMETRES"
-
-[node name="VolumeRow" type="HBoxContainer" parent="SettingsPopup/Padding/Content" unique_id=1723676511]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="Label" type="Label" parent="SettingsPopup/Padding/Content/VolumeRow" unique_id=206598330]
-layout_mode = 2
-text = "Volume"
-
-[node name="VolumeSlider" type="HSlider" parent="SettingsPopup/Padding/Content/VolumeRow" unique_id=1791929607]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-max_value = 1.0
-step = 0.01
-value = 1.0
-
-[node name="LanguageRow" type="HBoxContainer" parent="SettingsPopup/Padding/Content" unique_id=819533001]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="SettingsPopup/Padding/Content/LanguageRow" unique_id=1043642661]
-layout_mode = 2
-text = "Langue"
-
-[node name="LanguageOptionButton" type="OptionButton" parent="SettingsPopup/Padding/Content/LanguageRow" unique_id=729532401]
-layout_mode = 2
-
 [node name="PlayerCountPopup" type="PopupPanel" parent="." unique_id=380088268]
 
 [node name="Padding" type="MarginContainer" parent="PlayerCountPopup" unique_id=2065299801]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 96.0
-offset_bottom = 96.0
+offset_right = 417.0
+offset_bottom = 169.0
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24

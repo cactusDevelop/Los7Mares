@@ -1,8 +1,6 @@
 extends Control
 
 @onready var background: TextureRect = $Background
-@onready var settings_button: TextureButton = $SettingsButton
-@onready var settings_popup: PopupPanel = $SettingsPopup
 
 @onready var center_buttons: VBoxContainer = $CenterButtons
 @onready var host_button: Button = $CenterButtons/HostButton
@@ -23,7 +21,6 @@ func _ready() -> void:
 
 	MusicManager.play_menu_music()
 
-	settings_button.pressed.connect(_on_settings_pressed)
 	host_button.pressed.connect(_on_host_pressed)
 	join_button.pressed.connect(_on_join_pressed)
 	local_button.pressed.connect(_on_local_pressed)
@@ -45,13 +42,6 @@ func _layout_ui() -> void:
 		background.position = Vector2.ZERO
 		background.size = Vector2(viewport_size.x, tex_size.y * scale_factor)
 
-	var settings_size := Vector2(50, 50)
-	settings_button.size = settings_size
-	settings_button.position = viewport_size - settings_size - Vector2(20, 20)
-	settings_button.texture_normal = preload("res://assets/art/ui/gear.svg")
-	settings_button.ignore_texture_size = true
-	settings_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
-
 	for btn in [host_button, join_button, local_button, debug_button]:
 		btn.custom_minimum_size = GameFlow.TITLE_BUTTON_SIZE
 		btn.add_theme_font_size_override("font_size", GameFlow.TITLE_BUTTON_FONT_SIZE)
@@ -68,10 +58,6 @@ func _style_popup_background(popup: PopupPanel) -> void:
 	style.corner_radius_bottom_left = GameFlow.POPUP_CORNER_RADIUS
 	style.corner_radius_bottom_right = GameFlow.POPUP_CORNER_RADIUS
 	popup.add_theme_stylebox_override("panel", style)
-
-
-func _on_settings_pressed() -> void:
-	settings_popup.popup_centered_auto()
 
 
 func _on_host_pressed() -> void:
