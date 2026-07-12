@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://cdx0n5rvtqx0w"]
+
+[ext_resource type="Script" uid="uid://bnbisghaiqftv" path="res://scripts/board/hideout_spot.gd" id="1_jubmd"]
+[ext_resource type="Texture2D" uid="uid://bh4ewyou4225b" path="res://assets/art/board/cachette-vide.png" id="2_p3rua"]
+[ext_resource type="PackedScene" uid="uid://dh58c08cwg1j5" path="res://scenes/ui/hover_prompt.tscn" id="3_p3rua"]
+
+[node name="HideoutSpot" type="Node2D" unique_id=1524301276]
+script = ExtResource("1_jubmd")
+
+[node name="CaseSprite" type="Sprite2D" parent="." unique_id=2065329995]
+modulate = Color(1, 1, 1, 0.4)
+rotation = 0.30543262
+texture = ExtResource("2_p3rua")
+
+[node name="ClickArea" type="Area2D" parent="." unique_id=1607472926]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ClickArea" unique_id=2026721051]
+polygon = PackedVector2Array(0, -290, 500, 0, -11, 292, -500, 0)
+
+[node name="HoverPrompt" parent="." unique_id=1205484487 instance=ExtResource("3_p3rua")]
+box_size = Vector2(440, 300)
+label_text = "POSER"

@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" uid="uid://cawaiel7vey2f" path="res://scenes/ui/piece_selection_panel.tscn" id="16_bo4hw"]
 [ext_resource type="PackedScene" uid="uid://bn3g7mmfggktb" path="res://scenes/ui/sea_card_popup.tscn" id="17_bo4hw"]
 [ext_resource type="PackedScene" uid="uid://b058e8m5tg4kt" path="res://scenes/ui/player_board_expanded.tscn" id="18_ctilb"]
+[ext_resource type="PackedScene" uid="uid://cdx0n5rvtqx0w" path="res://scenes/board/hideout_spot.tscn" id="20_vq54c"]
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
@@ -167,6 +168,22 @@ position = Vector2(-317, 335)
 position = Vector2(-323, -293)
 
 [node name="CardPiles" type="Node2D" parent="." unique_id=2057199386]
+
+[node name="HideoutSpots" type="Node2D" parent="." unique_id=1701089785]
+
+[node name="HideoutSpot1" parent="HideoutSpots" unique_id=1524301276 instance=ExtResource("20_vq54c")]
+
+[node name="HideoutSpot2" parent="HideoutSpots" unique_id=510762828 instance=ExtResource("20_vq54c")]
+
+[node name="HideoutSpot3" parent="HideoutSpots" unique_id=973376146 instance=ExtResource("20_vq54c")]
+
+[node name="HideoutSpot4" parent="HideoutSpots" unique_id=394553068 instance=ExtResource("20_vq54c")]
+
+[node name="HideoutSpot5" parent="HideoutSpots" unique_id=845467139 instance=ExtResource("20_vq54c")]
+
+[node name="HideoutSpot6" parent="HideoutSpots" unique_id=1479546548 instance=ExtResource("20_vq54c")]
+
+[node name="HideoutSpot7" parent="HideoutSpots" unique_id=1988959541 instance=ExtResource("20_vq54c")]
 
 [editable path="Seas/SeaAbondance"]
 [editable path="Seas/SeaAzur"]
