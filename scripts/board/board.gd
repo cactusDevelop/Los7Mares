@@ -15,6 +15,10 @@ const CARD_MIN_DROP_DURATION := 0.35
 const CARDS_PER_PILE := 10
 const CARD_STACK_OFFSET := Vector2(0, -2)
 const CARD_PILE_STAGGER := 0.05
+const CARD_LANDING_JITTER_PX := 10.0
+const CARD_LANDING_JITTER_DEG := 10.0
+const CARD_SETTLE_DELAY := 0.5
+const CARD_SETTLE_DURATION := 0.3
 const PILE_THUMB_OFFSET := Vector2(0, 6)
 const PLAYER_BOARDS_PANEL_MAX_HEIGHT_RATIO := 0.75
 const CARD_BACK_FALLBACK := preload("res://assets/art/cards/carte-sauvage-dos.png")
@@ -389,7 +393,9 @@ func _drop_card_piles() -> void:
 	for pile in piles:
 		pile.visible = true
 
-	var total_delay := 0.0
+	var cards_info: Array = []
+	var max_landing_time := 0.0
+
 	for round_i in range(CARDS_PER_PILE):
 		for pile_i in range(piles.size()):
 			var pile: Node2D = piles[pile_i]
@@ -403,15 +409,35 @@ func _drop_card_piles() -> void:
 			var jitter := randf_range(0.0, CARD_START_JITTER)
 			var fall_duration: float = max(PILE_DROP_DURATION - jitter, CARD_MIN_DROP_DURATION)
 			var start_delay := round_i * PILE_DROP_DELAY + pile_i * CARD_PILE_STAGGER + jitter
+
+			var landing_offset := Vector2(
+				randf_range(-CARD_LANDING_JITTER_PX, CARD_LANDING_JITTER_PX),
+				randf_range(-CARD_LANDING_JITTER_PX, CARD_LANDING_JITTER_PX)
+			)
+			var landing_rotation_deg := randf_range(-CARD_LANDING_JITTER_DEG, CARD_LANDING_JITTER_DEG)
+
 			var tween := create_tween()
 			tween.tween_interval(start_delay)
-			tween.tween_property(card, "global_position", target_global_pos, fall_duration)\
+			tween.tween_property(card, "global_position", target_global_pos + landing_offset, fall_duration)\
 				.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 			tween.parallel().tween_property(card, "modulate:a", 1.0, min(fall_duration * 0.7, fall_duration))
+			tween.parallel().tween_property(card, "rotation_degrees", landing_rotation_deg, fall_duration)\
+				.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
-			total_delay = max(total_delay, start_delay + fall_duration)
+			var landing_time := start_delay + fall_duration
+			max_landing_time = max(max_landing_time, landing_time)
+			cards_info.append({"card": card, "target_pos": target_global_pos, "landing_time": landing_time})
 
-	await get_tree().create_timer(total_delay).timeout
+	var settle_start_time := max_landing_time + CARD_SETTLE_DELAY
+	for info in cards_info:
+		var settle_tween := create_tween()
+		settle_tween.tween_interval(settle_start_time)
+		settle_tween.tween_property(info["card"], "global_position", info["target_pos"], CARD_SETTLE_DURATION)\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		settle_tween.parallel().tween_property(info["card"], "rotation_degrees", 0.0, CARD_SETTLE_DURATION)\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+	await get_tree().create_timer(settle_start_time + CARD_SETTLE_DURATION).timeout
 
 
 # --- Phase de placement des pièces : 2 manches globales ---
