@@ -44,6 +44,8 @@ const SEA_KEY_BY_NODE_NAME := {
 
 @export var radius: float = 1340.0
 @export var hideout_radius: float = 1800.0  # rayon des emplacements de cachette (à régler manuellement)
+@export var fortune_radius: float = 780.0  # rayon des jetons fortune (à régler manuellement dans l'Inspecteur)
+@export var fortune_angle_start_degrees: float = -90.0  # angle du premier jeton fortune ; -90° = nord
 @export var deck_stack_offset: Vector2 = Vector2(0, -2)
 
 @onready var seas_container: Node2D = $Seas
@@ -59,6 +61,7 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var piece_selection_panel: Control = $UI/PieceSelectionPanel
 @onready var action_spots_container: Node2D = $ActionSpots
 @onready var hideout_spots_container: Node2D = $HideoutSpots
+@onready var fortune_spots_container: Node2D = $FortuneSpots
 @onready var camera: Camera2D = $Camera2D
 @onready var sea_card_popup: Control = $UI/SeaCardPopup
 @onready var card_piles_container: Node2D = $CardPiles
@@ -163,6 +166,16 @@ func _ready() -> void:
 		hideout_spots[i].global_position = board_center + hideout_radius * h_direction
 		hideout_spots[i].rotation_degrees = h_angle_degrees + 90.0
 		hideout_spots[i].visible = false
+
+	# Jetons fortune : un par mer, disposés sur un cercle plus proche du centre
+	# que les mers elles-mêmes. Angle de départ décalé (nord par défaut) via
+	# fortune_angle_start_degrees, réglable dans l'Inspecteur.
+	var fortune_spots := fortune_spots_container.get_children()
+	for i in range(fortune_spots.size()):
+		var f_angle_degrees = fortune_angle_start_degrees + i * (360.0 / _total_seas)
+		var f_angle_rad = deg_to_rad(f_angle_degrees)
+		var f_direction := Vector2(cos(f_angle_rad), sin(f_angle_rad))
+		fortune_spots[i].global_position = board_center + fortune_radius * f_direction
 
 	sea_card_popup.card_resolved.connect(_on_sea_card_resolved)
 
@@ -360,6 +373,7 @@ func _on_deck_clicked() -> void:
 	if _has_started:
 		return
 	_has_started = true
+	narration_box.hide_box()
 	deck_area.get_node("HoverPrompt").hide_prompt()
 	deck_area.input_pickable = false
 	deck_area.visible = false
@@ -496,6 +510,7 @@ func _on_hideout_spot_clicked(spot: Node2D) -> void:
 	var player_index: int = _hideout_turn_order[_hideout_turn_index]
 	var player: Dictionary = GameFlow.players[player_index]
 	spot.claim(player["color"])
+	narration_box.hide_box()
 	_hideout_turn_index += 1
 	_begin_hideout_turn()
 
@@ -565,6 +580,7 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 	piece.modulate = GameFlow.COLOR_VALUES[player["color"]]
 	piece.scale = Vector2.ONE * GameFlow.PIECE_SCALE
 	spot.add_piece(piece, player["color"], _selected_rank)
+	narration_box.hide_box()
 
 	if _current_round == 0:
 		_placed_rank_by_player[_current_player_index] = _selected_rank
@@ -589,6 +605,7 @@ func _on_card_pile_clicked(pile: Node2D) -> void:
 		return
 	var card: SeaCard = SeaDecks.draw_card(pile.sea_key)
 	if card:
+		narration_box.hide_box()
 		sea_card_popup.show_card(card)
 
 

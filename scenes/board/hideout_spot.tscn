@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bnbisghaiqftv" path="res://scripts/board/hideout_spot.gd" id="1_jubmd"]
 [ext_resource type="Texture2D" uid="uid://bh4ewyou4225b" path="res://assets/art/board/cachette-vide.png" id="2_p3rua"]
 [ext_resource type="PackedScene" uid="uid://dh58c08cwg1j5" path="res://scenes/ui/hover_prompt.tscn" id="3_p3rua"]
+[ext_resource type="Texture2D" uid="uid://wrqea13ufk2d" path="res://assets/art/pieces/bateau.png" id="3_tttjx"]
 
 [node name="HideoutSpot" type="Node2D" unique_id=1524301276]
 script = ExtResource("1_jubmd")
@@ -11,6 +12,9 @@ script = ExtResource("1_jubmd")
 modulate = Color(1, 1, 1, 0.4)
 rotation = 0.27925268
 texture = ExtResource("2_p3rua")
+
+[node name="BoatSprite" type="Sprite2D" parent="." unique_id=1843166345]
+texture = ExtResource("3_tttjx")
 
 [node name="ClickArea" type="Area2D" parent="." unique_id=1607472926]
 

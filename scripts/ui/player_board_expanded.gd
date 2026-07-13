@@ -25,11 +25,12 @@ const SPECIAL_TOKEN_MIN_DISTANCE := 95.0
 const SPECIAL_TOKEN_MAX_ATTEMPTS := 40
 
 ## --- Cohérence de la fausse perspective 3D ---
-## Convention unique pour tout le fichier : la "matière"/l'épaisseur des
-## objets s'étend vers le BAS-GAUCHE (comme une ombre portée), donc leur
+## La direction (GameFlow.DEPTH_DIRECTION) est définie une seule fois dans
+## GameFlow pour rester identique partout dans le jeu (ressources, planches,
+## jetons, bateaux...). Convention : la "matière"/l'épaisseur des objets
+## s'étend vers le BAS-GAUCHE À L'ÉCRAN (comme une ombre portée), donc leur
 ## face du dessus/avant visible est repoussée vers le HAUT-DROITE. Les
 ## cubes de ressource DOIVENT utiliser la direction opposée à celle-ci.
-const DEPTH_DIRECTION := Vector2(-0.70710678, 0.70710678)
 ## Épaisseur totale des jetons Fortune/Trésor, en pixels écran (~3px demandés).
 const TOKEN_THICKNESS_PX := 3.0
 const TOKEN_THICKNESS_LAYERS := 3
@@ -48,6 +49,21 @@ const RESOURCE_CUBE_COLORS := {
 
 const FORTUNE_TEXTURE := preload("res://assets/art/tokens/fortune.png")
 const TREASURE_TEXTURE := preload("res://assets/art/tokens/tresor.png")
+
+## Planches de coque (= points de vie), affichées dans le rectangle
+## (900,1250)-(1950,1700) de l'image d'origine. Disposées en 2 rangées
+## (4 puis 3) façon planches empilées. Ajuste ces positions si elles ne
+## correspondent pas bien à la zone dessinée sur le plateau.
+const PLANK_SLOT_PIXELS: Array[Vector2] = [
+	Vector2(1030, 1360), Vector2(1310, 1360), Vector2(1590, 1360), Vector2(1870, 1360),
+	Vector2(1170, 1590), Vector2(1450, 1590), Vector2(1730, 1590),
+]
+const PLANK_SIZE := Vector2(240, 80)
+const PLANK_ROTATION_JITTER_DEG := 4.0  # légère inclinaison aléatoire pour un rendu moins rigide
+const PLANK_GRAIN_LINES := 3
+const PLANK_GRAIN_DARKEN := 0.3
+const PLANK_NAIL_RADIUS := 6.0
+const PLANK_NAIL_INSET := 0.14  # fraction de la largeur, distance du clou depuis chaque bord
 
 @onready var blocker: ColorRect = $Blocker
 @onready var padding: MarginContainer = $Padding
@@ -116,6 +132,7 @@ func _refresh_resource_display(player: Dictionary) -> void:
 
 	_place_special_tokens_random(player, "treasure", TREASURE_TEXTURE, TREASURE_RECT_MIN, TREASURE_RECT_MAX)
 	_place_special_tokens_random(player, "fortune", FORTUNE_TEXTURE, FORTUNE_RECT_MIN, FORTUNE_RECT_MAX)
+	_place_hull_planks(player)
 
 
 func _place_special_tokens_random(player: Dictionary, key: String, texture: Texture2D, rect_min: Vector2, rect_max: Vector2) -> void:
@@ -133,7 +150,7 @@ func _place_special_tokens_random(player: Dictionary, key: String, texture: Text
 ## (DEPTH_DIRECTION), puis la copie en couleur normale au-dessus : donne une
 ## petite épaisseur au jeton au lieu d'un sprite plat.
 func _add_token_with_thickness(texture: Texture2D, anchor: Vector2, icon_size: Vector2) -> void:
-	var step: Vector2 = DEPTH_DIRECTION * (TOKEN_THICKNESS_PX / float(TOKEN_THICKNESS_LAYERS))
+	var step: Vector2 = GameFlow.DEPTH_DIRECTION * (TOKEN_THICKNESS_PX / float(TOKEN_THICKNESS_LAYERS))
 	for layer in range(TOKEN_THICKNESS_LAYERS, 0, -1):
 		var edge := TextureRect.new()
 		edge.texture = texture
@@ -153,6 +170,114 @@ func _add_token_with_thickness(texture: Texture2D, anchor: Vector2, icon_size: V
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resource_slots.add_child(top)
 	top.position = anchor
+
+
+## Place les planches de coque du joueur (points de vie) sur des
+## emplacements fixes (contrairement aux jetons Fortune/Trésor qui sont
+## dispersés aléatoirement) : elles doivent rester lisibles pour compter les
+## points de vie restants d'un coup d'œil.
+func _place_hull_planks(player: Dictionary) -> void:
+	var count: int = min(player.get("hull_planks", 0), PLANK_SLOT_PIXELS.size())
+	var size_local: Vector2 = _texture_size_to_local(PLANK_SIZE)
+	for i in range(count):
+		var anchor: Vector2 = _texture_to_local(PLANK_SLOT_PIXELS[i])
+		var plank := _build_plank_icon(_wood_color_variant(), size_local)
+		resource_slots.add_child(plank)
+		plank.position = anchor
+		plank.rotation_degrees = randf_range(-PLANK_ROTATION_JITTER_DEG, PLANK_ROTATION_JITTER_DEG)
+
+
+## Légère variation de teinte autour du brun bois de base, pour que les 7
+## planches ne soient pas des clones parfaitement identiques (bois naturel).
+func _wood_color_variant() -> Color:
+	var base: Color = RESOURCE_CUBE_COLORS["wood"]
+	var shift := randf_range(-0.1, 0.1)
+	return base.lightened(shift) if shift > 0.0 else base.darkened(-shift)
+
+
+## Construit une planche en fausse perspective 3D (même technique que
+## _build_cube_icon : toit + 2 parois extrudées dans DEPTH_DIRECTION), avec
+## en plus des veines de bois et deux clous aux extrémités pour un rendu
+## plus réaliste qu'un simple rectangle plat.
+func _build_plank_icon(base_color: Color, size: Vector2) -> Node2D:
+	var half := size / 2.0
+	var top_left := Vector2(-half.x, -half.y)
+	var top_right := Vector2(half.x, -half.y)
+	var bottom_right := Vector2(half.x, half.y)
+	var bottom_left := Vector2(-half.x, half.y)
+
+	# Épaisseur proportionnelle à la petite dimension (planche fine), pas au
+	# côté comme pour les cubes de ressource.
+	var extrude: Vector2 = -GameFlow.DEPTH_DIRECTION * size.y * CUBE_EXTRUDE_RATIO
+
+	var top_color: Color = base_color.lightened(0.25)
+	var left_wall_color: Color = base_color.darkened(0.15)
+	var bottom_wall_color: Color = base_color.darkened(0.4)
+
+	var plank := Node2D.new()
+
+	var left_wall := Polygon2D.new()
+	left_wall.polygon = PackedVector2Array([
+		top_left, bottom_left, bottom_left + extrude, top_left + extrude
+	])
+	left_wall.color = left_wall_color
+	plank.add_child(left_wall)
+
+	var bottom_wall := Polygon2D.new()
+	bottom_wall.polygon = PackedVector2Array([
+		bottom_left, bottom_right, bottom_right + extrude, bottom_left + extrude
+	])
+	bottom_wall.color = bottom_wall_color
+	plank.add_child(bottom_wall)
+
+	var top_face := Polygon2D.new()
+	top_face.polygon = PackedVector2Array([
+		top_left + extrude, top_right + extrude, bottom_right + extrude, bottom_left + extrude
+	])
+	top_face.color = top_color
+	plank.add_child(top_face)
+
+	_add_wood_grain(plank, half, extrude, top_color)
+	_add_plank_nails(plank, half, extrude, top_color)
+
+	return plank
+
+
+## Trace quelques lignes horizontales légèrement irrégulières et assombries
+## sur le dessus de la planche pour évoquer des veines de bois.
+func _add_wood_grain(plank: Node2D, half: Vector2, extrude: Vector2, top_color: Color) -> void:
+	var grain_color: Color = top_color.darkened(PLANK_GRAIN_DARKEN)
+	for i in range(PLANK_GRAIN_LINES):
+		var y := lerp(-half.y * 0.6, half.y * 0.6, float(i) / max(PLANK_GRAIN_LINES - 1, 1))
+		var wobble := (half.y * 0.12)
+		var line := Line2D.new()
+		line.width = 3.0
+		line.default_color = grain_color
+		line.antialiased = true
+		line.points = PackedVector2Array([
+			Vector2(-half.x * 0.85, y - wobble) + extrude,
+			Vector2(0.0, y + wobble) + extrude,
+			Vector2(half.x * 0.85, y - wobble * 0.5) + extrude,
+		])
+		plank.add_child(line)
+
+
+## Deux petits clous (cercles sombres) près de chaque extrémité, comme une
+## planche fixée à la coque.
+func _add_plank_nails(plank: Node2D, half: Vector2, extrude: Vector2, top_color: Color) -> void:
+	var nail_color: Color = top_color.darkened(0.6)
+	var inset_x := half.x * (1.0 - PLANK_NAIL_INSET * 2.0)
+	for x_side in [-inset_x, inset_x]:
+		var nail := Polygon2D.new()
+		var points := PackedVector2Array()
+		var segments := 10
+		for s in range(segments):
+			var angle := s * TAU / segments
+			points.append(Vector2(cos(angle), sin(angle)) * PLANK_NAIL_RADIUS)
+		nail.polygon = points
+		nail.color = nail_color
+		nail.position = Vector2(x_side, 0.0) + extrude
+		plank.add_child(nail)
 
 
 ## Tire une position aléatoire dans le rectangle, en essayant de rester à au
@@ -189,7 +314,7 @@ func _build_cube_icon(base_color: Color, edge: float) -> Node2D:
 	var bottom_right := Vector2(half, half)
 	var bottom_left := Vector2(-half, half)
 
-	var extrude: Vector2 = -DEPTH_DIRECTION * edge * CUBE_EXTRUDE_RATIO
+	var extrude: Vector2 = -GameFlow.DEPTH_DIRECTION * edge * CUBE_EXTRUDE_RATIO
 
 	var roof_color: Color = base_color.lightened(0.35)
 	var left_wall_color: Color = base_color.darkened(0.15)

@@ -37,6 +37,16 @@ const CARD_POPUP_DURATION := 0.35       # durée de l'apparition (fondu + zoom) 
 const CARD_PILE_RADIUS_OFFSET := 900.0  # distance supplémentaire (au-delà du rayon des mers) pour placer la pioche de chaque mer
 const PARROT_TEXTURE_PATH := "res://assets/art/pieces/perro-%s.png"
 const PARROT_TEXTURE_PATH_PRISON := "res://assets/art/pieces/perro-%s-prison.png"
+const HULL_PLANKS_START := 7  # nombre de planches (points de vie de coque) au début de la partie
+
+## --- Cohérence de la fausse perspective 3D (partagée par tous les effets
+## d'épaisseur du jeu : cubes de ressource, planches, jetons, bateaux...) ---
+## Convention unique : la "matière"/l'épaisseur des objets s'étend vers le
+## BAS-GAUCHE À L'ÉCRAN (comme une ombre portée), quelle que soit la
+## rotation propre de l'objet affiché. Tout script qui construit un effet de
+## profondeur doit donc annuler sa propre rotation globale avant d'appliquer
+## ce vecteur, pour que l'axe de perspective reste parallèle partout.
+const DEPTH_DIRECTION := Vector2(-0.70710678, 0.70710678)
 
 # --- Constantes UI communes (tailles, couleurs, styles) ---
 # Regroupées ici pour n'avoir qu'un seul endroit à modifier si le design change.
@@ -143,6 +153,7 @@ func add_player(player_name: String, color: String) -> Dictionary:
 		"special_resources": special,
 		"has_own_parrot": true,
 		"parrot_captured_by": -1,  # id du voleur, -1 = personne
+		"hull_planks": HULL_PLANKS_START,
 	}
 	_next_player_id += 1
 	players.append(player)

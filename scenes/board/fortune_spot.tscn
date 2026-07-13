@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://ce1t4lmygf8iq"]
+
+[ext_resource type="Script" uid="uid://8oseotbv6tej" path="res://scripts/board/fortune_spot.gd" id="1_24fkw"]
+[ext_resource type="Texture2D" uid="uid://di1eru788ylpm" path="res://assets/art/tokens/fortune.png" id="2_6epm2"]
+
+[node name="FortuneSpot" type="Node2D" unique_id=833854528]
+script = ExtResource("1_24fkw")
+
+[node name="TokenSprite" type="Sprite2D" parent="." unique_id=2002888100]
+texture = ExtResource("2_6epm2")

@@ -9,7 +9,20 @@ signal spot_clicked(spot: Node2D)
 
 const CACHETTE_TEXTURE_PATH := "res://assets/art/board/cachette-%s.png"
 
+## Animation "tombé du ciel" du bateau à la sélection de la cachette (fondu +
+## chute), identique dans son principe à celle des pièces (action_spot.gd)
+## et des piles de cartes (board.gd).
+const BOAT_DROP_HEIGHT := 220.0
+const BOAT_DROP_DURATION := 0.35
+
+## Effet 3D (épaisseur) du bateau : mêmes constantes de style que les jetons
+## de player_board_expanded.gd (couches assombries décalées).
+const BOAT_THICKNESS_PX := 6.0
+const BOAT_THICKNESS_LAYERS := 3
+const BOAT_EDGE_DARKEN := 0.45
+
 @onready var case_sprite: Sprite2D = $CaseSprite
+@onready var boat_sprite: Sprite2D = $BoatSprite
 @onready var click_area: Area2D = $ClickArea
 @onready var hover_prompt: Node2D = $HoverPrompt
 
@@ -47,7 +60,58 @@ func claim(color: String) -> void:
 	owner_color = color
 	case_sprite.texture = load(CACHETTE_TEXTURE_PATH % color)
 	case_sprite.modulate = Color(1, 1, 1, 1)
+	_show_boat(color)
 	set_hover_enabled(false)
+
+
+## Fait apparaître le bateau du joueur avec le même effet "tombé du ciel"
+## (fondu + chute) que le reste du jeu, et lui donne une épaisseur 3D.
+## Comme chaque cachette a sa propre rotation (pour pointer vers l'extérieur
+## du plateau), l'épaisseur ne peut pas être un simple décalage local : elle
+## serait alors tournée différemment sur chaque cachette. On calcule donc le
+## décalage dans le repère GLOBAL (GameFlow.DEPTH_DIRECTION, fixe à l'écran)
+## puis on le convertit dans le repère local du bateau en annulant sa
+## rotation globale, pour que l'axe de perspective reste parallèle partout.
+func _show_boat(color: String) -> void:
+	var base_color: Color = GameFlow.COLOR_VALUES[color]
+	boat_sprite.modulate = base_color
+	boat_sprite.visible = true
+
+	var depth_local: Vector2 = GameFlow.DEPTH_DIRECTION.rotated(-boat_sprite.global_rotation)
+	var step: Vector2 = depth_local * (BOAT_THICKNESS_PX / float(BOAT_THICKNESS_LAYERS))
+	var boat_target_pos: Vector2 = boat_sprite.position
+
+	# Couches assombries formant l'épaisseur, sous le bateau (z_index inférieur).
+	var shadow_layers: Array = []
+	for layer in range(BOAT_THICKNESS_LAYERS, 0, -1):
+		var shadow := Sprite2D.new()
+		shadow.texture = boat_sprite.texture
+		shadow.centered = boat_sprite.centered
+		shadow.offset = boat_sprite.offset
+		shadow.scale = boat_sprite.scale
+		shadow.rotation = boat_sprite.rotation
+		shadow.z_index = boat_sprite.z_index - 1
+		shadow.modulate = base_color.darkened(BOAT_EDGE_DARKEN)
+		add_child(shadow)
+		shadow_layers.append({"node": shadow, "target": boat_target_pos + step * layer})
+
+	# Départ : tout le monde en l'air et transparent.
+	var start_offset := Vector2(0, -BOAT_DROP_HEIGHT)
+	boat_sprite.modulate.a = 0.0
+	boat_sprite.position = boat_target_pos + start_offset
+	for entry in shadow_layers:
+		entry["node"].modulate.a = 0.0
+		entry["node"].position = entry["target"] + start_offset
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(boat_sprite, "position", boat_target_pos, BOAT_DROP_DURATION)\
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(boat_sprite, "modulate:a", 1.0, BOAT_DROP_DURATION * 0.7)
+	for entry in shadow_layers:
+		tween.tween_property(entry["node"], "position", entry["target"], BOAT_DROP_DURATION)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tween.tween_property(entry["node"], "modulate:a", 1.0, BOAT_DROP_DURATION * 0.7)
 
 
 func set_hover_enabled(enabled: bool) -> void:
