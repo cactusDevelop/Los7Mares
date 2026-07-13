@@ -87,6 +87,15 @@ func _relayout_pieces() -> void:
 	for i in range(_pieces.size()):
 		_pieces[i]["node"].position = positions[i]
 
+	# Les pièces plus en avant du polygone doivent s'afficher devant celles plus
+	# en arrière, peu importe l'ordre d'ajout. On classe les indices par y croissant
+	# (arrière -> avant) et on attribue un z_index toujours >= 1, pour rester
+	# devant le sprite de la case (z_index 0).
+	var order := range(_pieces.size())
+	order.sort_custom(func(a, b): return positions[a].y < positions[b].y)
+	for rank in range(order.size()):
+		_pieces[order[rank]]["node"].z_index = rank + 1
+
 
 func _update_case_color() -> void:
 	var color := GameFlow.compute_case_color(_pieces)
