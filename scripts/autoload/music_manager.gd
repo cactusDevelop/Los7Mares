@@ -5,9 +5,10 @@ extends Node
 ## silence, on change de morceau, puis on remonte le volume — pas besoin de
 ## deux lecteurs pour un simple fondu enchaîné séquentiel.
 ##
-## IMPORTANT : pense à activer le bouclage (Loop) de chaque fichier .mp3
-## dans Godot : sélectionne le fichier dans FileSystem → onglet Import →
-## coche "Loop" → Reimport. Sans ça, la musique s'arrête au bout d'une lecture.
+## Les musiques de in-game bgm/ ont Loop désactivé (Import → décoché) :
+## quand une piste se termine, le signal "finished" du player déclenche
+## _on_player_finished() qui enchaîne automatiquement avec une autre piste
+## aléatoire du même dossier (voir plus bas).
 
 const MENU_TRACK := preload("res://assets/audio/Bastille Unbound.mp3")
 const GAME_TRACKS_DIR := "res://assets/audio/in-game bgm/"
@@ -26,6 +27,16 @@ func _ready() -> void:
 	_player = AudioStreamPlayer.new()
 	_player.bus = "Master"
 	add_child(_player)
+	_player.finished.connect(_on_player_finished)
+
+
+## Appelé quand le morceau en cours se termine (loop désactivé sur les
+## fichiers). Si c'était un morceau de jeu, on enchaîne avec un autre morceau
+## aléatoire du même dossier. La musique de menu ne boucle pas automatiquement
+## ici : elle est relancée explicitement via play_menu_music() si besoin.
+func _on_player_finished() -> void:
+	if _player.stream != MENU_TRACK:
+		play_random_game_music()
 
 
 func play_menu_music() -> void:

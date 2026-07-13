@@ -16,8 +16,9 @@ const BOAT_DROP_HEIGHT := 220.0
 const BOAT_DROP_DURATION := 0.35
 
 ## Effet 3D (épaisseur) du bateau : mêmes constantes de style que les jetons
-## de player_board_expanded.gd (couches assombries décalées).
-const BOAT_THICKNESS_PX := 6.0
+## de player_board_expanded.gd (couches assombries décalées). x5 par rapport
+## aux jetons pour rester visible sur un sprite de bateau plus grand.
+const BOAT_THICKNESS_PX := 30.0
 const BOAT_THICKNESS_LAYERS := 3
 const BOAT_EDGE_DARKEN := 0.45
 
@@ -32,6 +33,7 @@ var owner_color: String = ""
 
 
 func _ready() -> void:
+	boat_sprite.visible = false
 	click_area.mouse_entered.connect(_on_mouse_entered)
 	click_area.mouse_exited.connect(_on_mouse_exited)
 	click_area.input_event.connect(_on_input_event)
@@ -66,18 +68,30 @@ func claim(color: String) -> void:
 
 ## Fait apparaître le bateau du joueur avec le même effet "tombé du ciel"
 ## (fondu + chute) que le reste du jeu, et lui donne une épaisseur 3D.
-## Comme chaque cachette a sa propre rotation (pour pointer vers l'extérieur
-## du plateau), l'épaisseur ne peut pas être un simple décalage local : elle
-## serait alors tournée différemment sur chaque cachette. On calcule donc le
-## décalage dans le repère GLOBAL (GameFlow.DEPTH_DIRECTION, fixe à l'écran)
-## puis on le convertit dans le repère local du bateau en annulant sa
-## rotation globale, pour que l'axe de perspective reste parallèle partout.
+## Chaque cachette a sa propre rotation (pour pointer vers l'extérieur du
+## plateau, cf board.gd), mais le bateau doit toujours rester À L'ENDROIT à
+## l'écran : on annule donc la rotation héritée du parent en fixant la
+## rotation locale du bateau à l'opposé de la rotation globale de la
+## cachette. Cette annulation est indépendante de la valeur de cette
+## rotation : elle continuera de fonctionner si les cachettes changent
+## d'orientation, et surtout le jour où le bateau ne sera plus un enfant de
+## HideoutSpot (une fois qu'il pourra se déplacer sur le plateau) puisque le
+## calcul ne dépend que de la rotation globale au moment de l'appel.
+## L'épaisseur (GameFlow.DEPTH_DIRECTION) reste calculée en repère global
+## puis reconvertie en repère local du bateau, donc l'axe de perspective
+## reste parallèle à l'écran pour tous les bateaux quelle que soit leur
+## orientation ou celle de leur parent.
 func _show_boat(color: String) -> void:
 	var base_color: Color = GameFlow.COLOR_VALUES[color]
+	boat_sprite.rotation = -global_rotation
 	boat_sprite.modulate = base_color
 	boat_sprite.visible = true
 
-	var depth_local: Vector2 = GameFlow.DEPTH_DIRECTION.rotated(-boat_sprite.global_rotation)
+	# Les offsets (épaisseur, chute) sont ajoutés à boat_sprite.position, qui
+	# est dans le repère LOCAL de la cachette (self) : c'est donc la rotation
+	# de self (la cachette) qu'il faut annuler pour rester droit à l'écran,
+	# pas celle du bateau (qu'on vient déjà d'annuler ci-dessus à part).
+	var depth_local: Vector2 = GameFlow.DEPTH_DIRECTION.rotated(-global_rotation)
 	var step: Vector2 = depth_local * (BOAT_THICKNESS_PX / float(BOAT_THICKNESS_LAYERS))
 	var boat_target_pos: Vector2 = boat_sprite.position
 
@@ -95,8 +109,14 @@ func _show_boat(color: String) -> void:
 		add_child(shadow)
 		shadow_layers.append({"node": shadow, "target": boat_target_pos + step * layer})
 
-	# Départ : tout le monde en l'air et transparent.
-	var start_offset := Vector2(0, -BOAT_DROP_HEIGHT)
+	# Départ : tout le monde en l'air et transparent. Le décalage doit être
+	# vertical à L'ÉCRAN (comme pour la pile de cartes), pas dans le repère
+	# local de la cachette : on part donc du "haut" global (0,-1) qu'on
+	# reconvertit en repère local via la rotation de self, comme pour
+	# l'épaisseur ci-dessus, sinon la chute apparaît en diagonale sur les
+	# cachettes tournées.
+	var screen_up_local: Vector2 = Vector2(0, -1).rotated(-global_rotation)
+	var start_offset := screen_up_local * BOAT_DROP_HEIGHT
 	boat_sprite.modulate.a = 0.0
 	boat_sprite.position = boat_target_pos + start_offset
 	for entry in shadow_layers:

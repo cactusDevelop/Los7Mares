@@ -60,10 +60,10 @@ const PLANK_SLOT_PIXELS: Array[Vector2] = [
 ]
 const PLANK_SIZE := Vector2(240, 80)
 const PLANK_ROTATION_JITTER_DEG := 4.0  # légère inclinaison aléatoire pour un rendu moins rigide
-const PLANK_GRAIN_LINES := 3
-const PLANK_GRAIN_DARKEN := 0.3
-const PLANK_NAIL_RADIUS := 6.0
-const PLANK_NAIL_INSET := 0.14  # fraction de la largeur, distance du clou depuis chaque bord
+const PLANK_REFLECTION_COUNT := 3
+const PLANK_REFLECTION_LIGHTEN := 0.35
+const PLANK_REFLECTION_ALPHA_MIN := 0.15
+const PLANK_REFLECTION_ALPHA_MAX := 0.4
 
 @onready var blocker: ColorRect = $Blocker
 @onready var padding: MarginContainer = $Padding
@@ -237,47 +237,38 @@ func _build_plank_icon(base_color: Color, size: Vector2) -> Node2D:
 	top_face.color = top_color
 	plank.add_child(top_face)
 
-	_add_wood_grain(plank, half, extrude, top_color)
-	_add_plank_nails(plank, half, extrude, top_color)
+	_add_wood_reflections(plank, half, extrude, top_color)
 
 	return plank
 
 
-## Trace quelques lignes horizontales légèrement irrégulières et assombries
-## sur le dessus de la planche pour évoquer des veines de bois.
-func _add_wood_grain(plank: Node2D, half: Vector2, extrude: Vector2, top_color: Color) -> void:
-	var grain_color: Color = top_color.darkened(PLANK_GRAIN_DARKEN)
-	for i in range(PLANK_GRAIN_LINES):
-		var y: float = lerp(-half.y * 0.6, half.y * 0.6, float(i) / max(PLANK_GRAIN_LINES - 1, 1))
-		var wobble := (half.y * 0.12)
+## Trace quelques petits reflets clairs, semi-transparents, positionnés et
+## inclinés aléatoirement sur le dessus de la planche, pour évoquer la
+## lumière sur du bois verni plutôt que des veines dessinées à la main.
+func _add_wood_reflections(plank: Node2D, half: Vector2, extrude: Vector2, top_color: Color) -> void:
+	var reflection_color: Color = top_color.lightened(PLANK_REFLECTION_LIGHTEN)
+	for i in range(PLANK_REFLECTION_COUNT):
+		var center := Vector2(
+			randf_range(-half.x * 0.7, half.x * 0.7),
+			randf_range(-half.y * 0.6, half.y * 0.6)
+		)
+		var length := randf_range(half.x * 0.25, half.x * 0.55)
+		var thickness := randf_range(2.0, 4.5)
+		var angle := deg_to_rad(randf_range(-12.0, 12.0))
+		var dir := Vector2(1, 0).rotated(angle)
+
 		var line := Line2D.new()
-		line.width = 3.0
-		line.default_color = grain_color
+		line.width = thickness
 		line.antialiased = true
+		line.default_color = Color(
+			reflection_color.r, reflection_color.g, reflection_color.b,
+			randf_range(PLANK_REFLECTION_ALPHA_MIN, PLANK_REFLECTION_ALPHA_MAX)
+		)
 		line.points = PackedVector2Array([
-			Vector2(-half.x * 0.85, y - wobble) + extrude,
-			Vector2(0.0, y + wobble) + extrude,
-			Vector2(half.x * 0.85, y - wobble * 0.5) + extrude,
+			center - dir * length * 0.5 + extrude,
+			center + dir * length * 0.5 + extrude,
 		])
 		plank.add_child(line)
-
-
-## Deux petits clous (cercles sombres) près de chaque extrémité, comme une
-## planche fixée à la coque.
-func _add_plank_nails(plank: Node2D, half: Vector2, extrude: Vector2, top_color: Color) -> void:
-	var nail_color: Color = top_color.darkened(0.6)
-	var inset_x := half.x * (1.0 - PLANK_NAIL_INSET * 2.0)
-	for x_side in [-inset_x, inset_x]:
-		var nail := Polygon2D.new()
-		var points := PackedVector2Array()
-		var segments := 10
-		for s in range(segments):
-			var angle := s * TAU / segments
-			points.append(Vector2(cos(angle), sin(angle)) * PLANK_NAIL_RADIUS)
-		nail.polygon = points
-		nail.color = nail_color
-		nail.position = Vector2(x_side, 0.0) + extrude
-		plank.add_child(nail)
 
 
 ## Tire une position aléatoire dans le rectangle, en essayant de rester à au

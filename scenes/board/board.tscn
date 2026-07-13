@@ -21,14 +21,16 @@
 [ext_resource type="PackedScene" uid="uid://b058e8m5tg4kt" path="res://scenes/ui/player_board_expanded.tscn" id="18_ctilb"]
 [ext_resource type="PackedScene" uid="uid://cdx0n5rvtqx0w" path="res://scenes/board/hideout_spot.tscn" id="20_vq54c"]
 [ext_resource type="PackedScene" uid="uid://ce1t4lmygf8iq" path="res://scenes/board/fortune_spot.tscn" id="21_jngt6"]
+[ext_resource type="Script" uid="uid://cnxrqg83d7ymu" path="res://scripts/debug/debug_heptagon.gd" id="22_j2n54"]
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
+debug_skip_to_pieces = true
 
 [node name="CenterPiece" type="Sprite2D" parent="." unique_id=1635265673]
 rotation = 2.3125613
 texture = ExtResource("2_knosr")
-offset = Vector2(-10, 40)
+offset = Vector2(-25, 40)
 
 [node name="Seas" type="Node2D" parent="." unique_id=1282946842]
 position = Vector2(2156, -624)
@@ -105,6 +107,7 @@ script = ExtResource("12_jngt6")
 [node name="PlayerSetupPopup" parent="UI" unique_id=1537230509 instance=ExtResource("14_dj4mb")]
 
 [node name="NarrationBox" type="PanelContainer" parent="UI" unique_id=1704438247]
+visible = false
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("15_xu7li")
@@ -206,6 +209,12 @@ scale = Vector2(1.1, 1.1)
 [node name="FortuneSpot6" parent="FortuneSpots" unique_id=1144499616 instance=ExtResource("21_jngt6")]
 
 [node name="FortuneSpot7" parent="FortuneSpots" unique_id=468696202 instance=ExtResource("21_jngt6")]
+
+[node name="DebugHeptagon" type="Node2D" parent="." unique_id=6273675]
+script = ExtResource("22_j2n54")
+show_heptagon = false
+radius = 920.0
+line_width = 10.0
 
 [editable path="Seas/SeaAbondance"]
 [editable path="Seas/SeaAzur"]

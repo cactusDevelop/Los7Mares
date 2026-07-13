@@ -47,6 +47,11 @@ const SEA_KEY_BY_NODE_NAME := {
 @export var fortune_radius: float = 780.0  # rayon des jetons fortune (à régler manuellement dans l'Inspecteur)
 @export var fortune_angle_start_degrees: float = -90.0  # angle du premier jeton fortune ; -90° = nord
 @export var deck_stack_offset: Vector2 = Vector2(0, -2)
+## DEBUG : coche pour sauter la distribution des mers et la phase de
+## cachettes, et démarrer directement sur la pose de pièces, répétée
+## automatiquement pendant 7 tours (marqueur + jeton fortune à chaque tour).
+## Décoche une fois ces phases prêtes à être testées normalement.
+@export var debug_skip_to_pieces: bool = false
 
 @onready var seas_container: Node2D = $Seas
 @onready var deck_area: Area2D = $Seas/DeckArea
@@ -83,6 +88,9 @@ var _placed_rank_by_player: Dictionary = {}  # index joueur -> rang posé au tou
 
 var _hideout_turn_order: Array = []  # indices joueurs, ordre inverse du véritable ordre
 var _hideout_turn_index: int = 0
+
+const DEBUG_TOTAL_ROUNDS := 7  # nombre de tours du mode test (= nombre de jetons fortune)
+var _debug_round_index := 0
 
 
 func _ready() -> void:
@@ -186,7 +194,15 @@ func _ready() -> void:
 	GameFlow.players_changed.connect(_refresh_player_boards)
 	_refresh_player_boards()
 
-	if GameFlow.pending_setup_mode != "":
+	if debug_skip_to_pieces:
+		narration_box.hide_box()
+		deck_area.visible = false
+		deck_area.input_pickable = false
+		for spot in hideout_spots_container.get_children():
+			spot.visible = false
+		_start_round()
+		_start_piece_placement_phase()
+	elif GameFlow.pending_setup_mode != "":
 		deck_area.input_pickable = false
 		player_setup_popup.player_confirmed.connect(_on_setup_player_confirmed)
 		player_setup_popup.open_for_new_player(GameFlow.players.size() + 1, GameFlow.pending_setup_target_count)
@@ -325,6 +341,8 @@ func _build_player_board_row(player: Dictionary) -> Control:
 	for other in GameFlow.players:
 		if other.get("parrot_captured_by", -1) == player["id"]:
 			row.add_child(_build_parrot_token(other["color"], true))
+	if player.get("is_first_player", false):
+		row.add_child(_build_marker_token())
 
 	entry.add_child(row)
 	return entry
@@ -334,6 +352,19 @@ func _build_parrot_token(color_name: String, imprisoned: bool) -> Control:
 	var texture_rect := TextureRect.new()
 	var path_template: String = GameFlow.PARROT_TEXTURE_PATH_PRISON if imprisoned else GameFlow.PARROT_TEXTURE_PATH
 	texture_rect.texture = load(path_template % color_name)
+	texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	texture_rect.custom_minimum_size = Vector2(40, 40)
+	texture_rect.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	texture_rect.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	return texture_rect
+
+
+## Jeton "premier joueur", affiché à côté du plateau exactement comme les
+## perroquets (même gabarit) quand ce joueur détient le marqueur.
+func _build_marker_token() -> Control:
+	var texture_rect := TextureRect.new()
+	texture_rect.texture = load(GameFlow.MARKER_TEXTURE_PATH)
 	texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	texture_rect.custom_minimum_size = Vector2(40, 40)
@@ -518,7 +549,47 @@ func _on_hideout_spot_clicked(spot: Node2D) -> void:
 func _end_hideout_phase() -> void:
 	for spot in hideout_spots_container.get_children():
 		spot.set_hover_enabled(false)
+	_start_round()
 	_start_piece_placement_phase()
+
+
+# --- Début de tour : marqueur "premier joueur" + jeton fortune. Le
+# retournement des cartes de mer "vides" et la suite du tour seront ajoutés
+# plus tard (sprites manquants pour l'instant). ---
+
+## Amorce un nouveau tour : fait tourner (ou attribue pour la toute première
+## fois) le marqueur "premier joueur" (rotation fixe, cf
+## GameFlow.advance_first_player), puis fait prendre un jeton fortune au
+## dernier joueur du tour qui vient d'être déterminé. Il y a exactement 7
+## jetons sur le plateau, donc la partie dure exactement 7 tours.
+func _start_round() -> void:
+	if GameFlow.get_first_player_id() == -1:
+		GameFlow.set_first_player(GameFlow.players[0]["id"])
+	else:
+		GameFlow.advance_first_player()
+
+	var last_player_id: int = GameFlow.get_last_player_id()
+	if last_player_id != -1:
+		_take_fortune_token_for(last_player_id)
+
+
+## Retire visuellement le premier jeton fortune encore disponible sur le
+## plateau et l'ajoute aux ressources spéciales du joueur donné.
+func _take_fortune_token_for(player_id: int) -> void:
+	var spot: Node2D = null
+	for s in fortune_spots_container.get_children():
+		if not s.is_taken:
+			spot = s
+			break
+	if spot == null:
+		return  # plus aucun jeton disponible : fin de partie, gérée plus tard
+
+	spot.take()
+	for p in GameFlow.players:
+		if p["id"] == player_id:
+			p["special_resources"]["fortune"] += 1
+			break
+	GameFlow.players_changed.emit()
 
 
 # --- Phase de placement des pièces : 2 manches globales ---
@@ -592,9 +663,22 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 func _end_piece_placement_phase() -> void:
 	for spot in action_spots_container.get_children():
 		spot.set_hover_enabled(false)
-	narration_box.say(tr("Placement terminé — cliquez sur une pioche de mer pour y piocher une carte."))
 	piece_selection_panel.hide_panel()
 	_shift_camera_for_selection(false)
+
+	if debug_skip_to_pieces:
+		_debug_round_index += 1
+		if _debug_round_index < DEBUG_TOTAL_ROUNDS:
+			narration_box.say(tr("Tour %d/%d terminé.") % [_debug_round_index, DEBUG_TOTAL_ROUNDS])
+			await get_tree().create_timer(1.0).timeout
+			narration_box.hide_box()
+			_start_round()
+			_start_piece_placement_phase()
+		else:
+			narration_box.say(tr("Mode test : 7 tours de pose de pièces terminés."))
+		return
+
+	narration_box.say(tr("Placement terminé — cliquez sur une pioche de mer pour y piocher une carte."))
 	_cards_enabled = true
 	for pile in card_piles_container.get_children():
 		pile.draw_enabled = true

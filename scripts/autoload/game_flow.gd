@@ -37,6 +37,7 @@ const CARD_POPUP_DURATION := 0.35       # durée de l'apparition (fondu + zoom) 
 const CARD_PILE_RADIUS_OFFSET := 900.0  # distance supplémentaire (au-delà du rayon des mers) pour placer la pioche de chaque mer
 const PARROT_TEXTURE_PATH := "res://assets/art/pieces/perro-%s.png"
 const PARROT_TEXTURE_PATH_PRISON := "res://assets/art/pieces/perro-%s-prison.png"
+const MARKER_TEXTURE_PATH := "res://assets/art/pieces/marqueur.png"
 const HULL_PLANKS_START := 7  # nombre de planches (points de vie de coque) au début de la partie
 
 ## --- Cohérence de la fausse perspective 3D (partagée par tous les effets
@@ -154,6 +155,7 @@ func add_player(player_name: String, color: String) -> Dictionary:
 		"has_own_parrot": true,
 		"parrot_captured_by": -1,  # id du voleur, -1 = personne
 		"hull_planks": HULL_PLANKS_START,
+		"is_first_player": false,
 	}
 	_next_player_id += 1
 	players.append(player)
@@ -254,3 +256,54 @@ func get_players_sorted_by_points() -> Array[Dictionary]:
 	var sorted := players.duplicate()
 	sorted.sort_custom(func(a, b): return a["points"] > b["points"])
 	return sorted
+
+
+## --- Marqueur "premier joueur" : rotation fixe, indépendante de toute
+## autre mécanique (le jeton fortune, etc.) — il passe simplement au joueur
+## suivant dans l'ordre de "players" à chaque tour. ---
+
+## Attribue le marqueur à un joueur précis (et le retire des autres). À
+## utiliser pour la toute première attribution en début de partie ; ensuite
+## préférer advance_first_player() pour la rotation automatique.
+func set_first_player(player_id: int) -> void:
+	for p in players:
+		p["is_first_player"] = (p["id"] == player_id)
+	players_changed.emit()
+
+
+## Fait tourner le marqueur vers le joueur suivant (ordre de "players",
+## retour au début après le dernier). Si personne ne l'a encore, l'attribue
+## au premier joueur de la liste.
+func advance_first_player() -> void:
+	if players.is_empty():
+		return
+	var current_index := -1
+	for i in range(players.size()):
+		if players[i].get("is_first_player", false):
+			current_index = i
+			break
+	var next_index := 0 if current_index == -1 else (current_index + 1) % players.size()
+	set_first_player(players[next_index]["id"])
+
+
+## Id du joueur qui détient actuellement le marqueur, ou -1 si personne.
+func get_first_player_id() -> int:
+	for p in players:
+		if p.get("is_first_player", false):
+			return p["id"]
+	return -1
+
+
+## Id du "dernier joueur" du tour courant : celui qui précède immédiatement
+## le premier joueur dans l'ordre de "players" (donc le prochain à recevoir
+## le marqueur au tour suivant). -1 si personne n'a encore le marqueur.
+func get_last_player_id() -> int:
+	var first_index := -1
+	for i in range(players.size()):
+		if players[i].get("is_first_player", false):
+			first_index = i
+			break
+	if first_index == -1 or players.is_empty():
+		return -1
+	var last_index := (first_index - 1 + players.size()) % players.size()
+	return players[last_index]["id"]
