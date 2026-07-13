@@ -7,6 +7,7 @@
 radius = 170.0
 
 [node name="ActionSpot" type="Node2D" unique_id=1764597111]
+scale = Vector2(1.2, 1.2)
 script = ExtResource("1_2a1xx")
 
 [node name="CaseSprite" type="Sprite2D" parent="." unique_id=1859020373]

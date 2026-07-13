@@ -2,7 +2,7 @@ extends Node2D
 
 signal spot_clicked(spot: Node2D)
 
-const IDLE_AMPLITUDE := 4.0
+const IDLE_SCALE_AMPLITUDE := 0.04  # la case grossit jusqu'à +4%, jamais en dessous de sa taille de base
 const IDLE_SPEED := 1.2
 const HOVER_SCALE := 1.12
 const HOVER_DURATION := 0.15
@@ -12,16 +12,15 @@ const PIECE_DROP_DURATION := 0.35
 @onready var case_sprite: Sprite2D = $CaseSprite
 @onready var click_area: Area2D = $ClickArea
 
-var _base_position: Vector2
 var _idle_time_offset: float = 0.0
 var _hover_tween: Tween
+var _hover_scale_factor: float = 1.0  # multiplicateur animé séparément par le tween de survol
 var _is_hovering: bool = false
 var hover_enabled: bool = false
 var _pieces: Array = []  # {color, rank, order, node}
 
 
 func _ready() -> void:
-	_base_position = case_sprite.position
 	_idle_time_offset = randf() * TAU
 	click_area.mouse_entered.connect(_on_mouse_entered)
 	click_area.mouse_exited.connect(_on_mouse_exited)
@@ -29,8 +28,11 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	# Respiration = grossissement, jamais de déplacement ni de rétrécissement
+	# sous la taille de base : on ne veut jamais découvrir ce qu'il y a derrière la case.
 	var t := Time.get_ticks_msec() / 1000.0 + _idle_time_offset
-	case_sprite.position = _base_position + Vector2(0, sin(t * IDLE_SPEED) * IDLE_AMPLITUDE)
+	var idle_factor := 1.0 + (sin(t * IDLE_SPEED) * 0.5 + 0.5) * IDLE_SCALE_AMPLITUDE
+	case_sprite.scale = Vector2.ONE * idle_factor * _hover_scale_factor
 
 
 func _on_mouse_entered() -> void:
@@ -53,7 +55,7 @@ func _tween_scale(target: float) -> void:
 	if _hover_tween:
 		_hover_tween.kill()
 	_hover_tween = create_tween()
-	_hover_tween.tween_property(case_sprite, "scale", Vector2.ONE * target, HOVER_DURATION)\
+	_hover_tween.tween_property(self, "_hover_scale_factor", target, HOVER_DURATION)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
