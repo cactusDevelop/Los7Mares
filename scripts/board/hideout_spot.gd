@@ -123,15 +123,16 @@ func _show_boat(color: String) -> void:
 		entry["node"].modulate.a = 0.0
 		entry["node"].position = entry["target"] + start_offset
 
+	var duration := GameFlow.anim_duration(BOAT_DROP_DURATION)
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(boat_sprite, "position", boat_target_pos, BOAT_DROP_DURATION)\
+	tween.tween_property(boat_sprite, "position", boat_target_pos, duration)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(boat_sprite, "modulate:a", 1.0, BOAT_DROP_DURATION * 0.7)
+	tween.tween_property(boat_sprite, "modulate:a", 1.0, duration * 0.7)
 	for entry in shadow_layers:
-		tween.tween_property(entry["node"], "position", entry["target"], BOAT_DROP_DURATION)\
+		tween.tween_property(entry["node"], "position", entry["target"], duration)\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		tween.tween_property(entry["node"], "modulate:a", 1.0, BOAT_DROP_DURATION * 0.7)
+		tween.tween_property(entry["node"], "modulate:a", 1.0, duration * 0.7)
 
 
 func set_hover_enabled(enabled: bool) -> void:

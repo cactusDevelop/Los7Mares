@@ -77,11 +77,12 @@ func _animate_piece_drop(piece_node: Node2D) -> void:
 	var target_position := piece_node.position
 	piece_node.position = target_position - Vector2(0, PIECE_DROP_HEIGHT)
 	piece_node.modulate.a = 0.0
+	var duration := GameFlow.anim_duration(PIECE_DROP_DURATION)
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(piece_node, "position", target_position, PIECE_DROP_DURATION)\
+	tween.tween_property(piece_node, "position", target_position, duration)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(piece_node, "modulate:a", 1.0, PIECE_DROP_DURATION * 0.7)
+	tween.tween_property(piece_node, "modulate:a", 1.0, duration * 0.7)
 
 
 func _relayout_pieces() -> void:

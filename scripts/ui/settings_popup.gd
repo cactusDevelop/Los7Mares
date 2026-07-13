@@ -5,6 +5,7 @@ const LOCALE_LABELS := {"fr": "Français", "en": "English", "es": "Español"}
 @onready var padding: MarginContainer = $Padding
 @onready var volume_slider: HSlider = $Padding/Content/VolumeRow/VolumeSlider
 @onready var language_option: OptionButton = $Padding/Content/LanguageRow/LanguageOptionButton
+@onready var animations_check: CheckButton = $Padding/Content/AnimationsRow/AnimationsCheckButton
 
 
 func _ready() -> void:
@@ -26,6 +27,13 @@ func _ready() -> void:
 	var current_index := GameFlow.AVAILABLE_LOCALES.find(current_locale)
 	language_option.selected = current_index if current_index != -1 else 0
 	language_option.item_selected.connect(_on_language_selected)
+
+	animations_check.button_pressed = GameFlow.animations_enabled
+	animations_check.toggled.connect(_on_animations_toggled)
+
+
+func _on_animations_toggled(enabled: bool) -> void:
+	GameFlow.set_animations_enabled(enabled)
 
 
 func _on_language_selected(index: int) -> void:

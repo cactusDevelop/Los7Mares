@@ -53,6 +53,15 @@ const SEA_KEY_BY_NODE_NAME := {
 ## Décoche une fois ces phases prêtes à être testées normalement.
 @export var debug_skip_to_pieces: bool = false
 
+## Vrai si le mode debug (dealing + cachettes auto, boucle de tours) doit
+## s'appliquer : soit parce que la case Inspecteur est cochée (test isolé de
+## la scène via F6), soit parce que GameFlow.is_debug_mode est vrai (bouton
+## "Debug" de l'écran titre). Host/Join/Local mettent is_debug_mode à false,
+## donc ils ne sont jamais affectés par ce mode, indépendamment de l'état de
+## la case Inspecteur.
+func _debug_active() -> bool:
+	return debug_skip_to_pieces or GameFlow.is_debug_mode
+
 @onready var seas_container: Node2D = $Seas
 @onready var deck_area: Area2D = $Seas/DeckArea
 @onready var player_boards_panel: PanelContainer = $UI/PlayerBoardsPanel
@@ -194,14 +203,16 @@ func _ready() -> void:
 	GameFlow.players_changed.connect(_refresh_player_boards)
 	_refresh_player_boards()
 
-	if debug_skip_to_pieces:
+	if _debug_active():
+		if GameFlow.players.is_empty():
+			GameFlow.is_debug_mode = true
+			GameFlow.generate_debug_players(5)
+		_has_started = true
 		narration_box.hide_box()
-		deck_area.visible = false
+		deck_area.get_node("HoverPrompt").hide_prompt()
 		deck_area.input_pickable = false
-		for spot in hideout_spots_container.get_children():
-			spot.visible = false
-		_start_round()
-		_start_piece_placement_phase()
+		deck_area.visible = false
+		_deal_seas()
 	elif GameFlow.pending_setup_mode != "":
 		deck_area.input_pickable = false
 		player_setup_popup.player_confirmed.connect(_on_setup_player_confirmed)
@@ -420,10 +431,10 @@ func _deal_seas() -> void:
 		var target_rot = tile.get_meta("target_rotation")
 
 		var tween = create_tween()
-		tween.tween_interval(deal_count * DEAL_DELAY)
-		tween.tween_property(tile, "global_position", target_pos, DEAL_DURATION)\
+		tween.tween_interval(GameFlow.anim_duration(deal_count * DEAL_DELAY))
+		tween.tween_property(tile, "global_position", target_pos, GameFlow.anim_duration(DEAL_DURATION))\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		tween.parallel().tween_property(tile, "rotation_degrees", target_rot, DEAL_DURATION)\
+		tween.parallel().tween_property(tile, "rotation_degrees", target_rot, GameFlow.anim_duration(DEAL_DURATION))\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		tween.tween_callback(_on_one_card_dealt)
 		deal_count += 1
@@ -432,17 +443,17 @@ func _deal_seas() -> void:
 func _on_one_card_dealt() -> void:
 	_dealt_count += 1
 	if _dealt_count == _total_seas:
-		await get_tree().create_timer(FLIP_DELAY_AFTER_DEAL).timeout
+		await get_tree().create_timer(GameFlow.anim_duration(FLIP_DELAY_AFTER_DEAL)).timeout
 		_flip_all_as_wave()
 
 
 func _flip_all_as_wave() -> void:
 	for i in range(_slot_order.size()):
 		var tile = _slot_order[i]
-		var t = get_tree().create_timer(i * FLIP_WAVE_DELAY)
+		var t = get_tree().create_timer(GameFlow.anim_duration(i * FLIP_WAVE_DELAY))
 		t.timeout.connect(tile.flip_to_front)
 
-	var total_delay := (_slot_order.size() - 1) * FLIP_WAVE_DELAY + 0.3
+	var total_delay := GameFlow.anim_duration((_slot_order.size() - 1) * FLIP_WAVE_DELAY + 0.3)
 	await get_tree().create_timer(total_delay).timeout
 	await _drop_card_piles()
 	_start_hideout_phase()
@@ -476,8 +487,8 @@ func _drop_card_piles() -> void:
 			card.modulate.a = 0.0
 
 			var jitter := randf_range(0.0, CARD_START_JITTER)
-			var fall_duration: float = max(PILE_DROP_DURATION - jitter, CARD_MIN_DROP_DURATION)
-			var start_delay := round_i * PILE_DROP_DELAY + pile_i * CARD_PILE_STAGGER + jitter
+			var fall_duration: float = GameFlow.anim_duration(max(PILE_DROP_DURATION - jitter, CARD_MIN_DROP_DURATION))
+			var start_delay := GameFlow.anim_duration(round_i * PILE_DROP_DELAY + pile_i * CARD_PILE_STAGGER + jitter)
 
 			var landing_offset := Vector2(
 				randf_range(-CARD_LANDING_JITTER_PX, CARD_LANDING_JITTER_PX),
@@ -497,16 +508,17 @@ func _drop_card_piles() -> void:
 			max_landing_time = max(max_landing_time, landing_time)
 			cards_info.append({"card": card, "target_pos": target_global_pos, "landing_time": landing_time})
 
-	var settle_start_time := max_landing_time + CARD_SETTLE_DELAY
+	var card_settle_duration := GameFlow.anim_duration(CARD_SETTLE_DURATION)
+	var settle_start_time := max_landing_time + GameFlow.anim_duration(CARD_SETTLE_DELAY)
 	for info in cards_info:
 		var settle_tween := create_tween()
 		settle_tween.tween_interval(settle_start_time)
-		settle_tween.tween_property(info["card"], "global_position", info["target_pos"], CARD_SETTLE_DURATION)\
+		settle_tween.tween_property(info["card"], "global_position", info["target_pos"], card_settle_duration)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		settle_tween.parallel().tween_property(info["card"], "rotation_degrees", 0.0, CARD_SETTLE_DURATION)\
+		settle_tween.parallel().tween_property(info["card"], "rotation_degrees", 0.0, card_settle_duration)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
-	await get_tree().create_timer(settle_start_time + CARD_SETTLE_DURATION).timeout
+	await get_tree().create_timer(settle_start_time + card_settle_duration).timeout
 
 
 # --- Phase de pose des cachettes : chaque joueur pose une fois, dans l'ordre
@@ -531,6 +543,16 @@ func _begin_hideout_turn() -> void:
 	var player_index: int = _hideout_turn_order[_hideout_turn_index]
 	var player: Dictionary = GameFlow.players[player_index]
 	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
+
+	if _debug_active():
+		var free_spots := hideout_spots_container.get_children().filter(func(s): return not s.is_taken)
+		if free_spots.is_empty():
+			_end_hideout_phase()
+			return
+		var random_spot: Node2D = free_spots[randi() % free_spots.size()]
+		_on_hideout_spot_clicked(random_spot)
+		return
+
 	narration_box.say(tr("Tour de %s : choisis l'emplacement de ta cachette.") % player["name"])
 	for spot in hideout_spots_container.get_children():
 		spot.set_hover_enabled(not spot.is_taken)
@@ -563,6 +585,8 @@ func _end_hideout_phase() -> void:
 ## dernier joueur du tour qui vient d'être déterminé. Il y a exactement 7
 ## jetons sur le plateau, donc la partie dure exactement 7 tours.
 func _start_round() -> void:
+	if GameFlow.players.is_empty():
+		return
 	if GameFlow.get_first_player_id() == -1:
 		GameFlow.set_first_player(GameFlow.players[0]["id"])
 	else:
@@ -666,7 +690,7 @@ func _end_piece_placement_phase() -> void:
 	piece_selection_panel.hide_panel()
 	_shift_camera_for_selection(false)
 
-	if debug_skip_to_pieces:
+	if _debug_active():
 		_debug_round_index += 1
 		if _debug_round_index < DEBUG_TOTAL_ROUNDS:
 			narration_box.say(tr("Tour %d/%d terminé.") % [_debug_round_index, DEBUG_TOTAL_ROUNDS])

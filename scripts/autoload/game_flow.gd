@@ -62,6 +62,7 @@ const SETTINGS_FILE_PATH := "user://settings.cfg"
 const DEFAULT_LOCALE := "fr"
 const AVAILABLE_LOCALES: Array[String] = ["fr", "en", "es"]
 const DEFAULT_VOLUME := 1.0
+const DEFAULT_ANIMATIONS_ENABLED := true
 
 enum PieceRank { SECOND = 0, CAPTAIN = 1 }
 
@@ -75,6 +76,8 @@ var pending_setup_mode: String = ""
 var pending_setup_target_count: int = 1
 var is_debug_mode: bool = false
 
+var animations_enabled: bool = DEFAULT_ANIMATIONS_ENABLED
+
 var players: Array[Dictionary] = []
 
 var _next_player_id: int = 0
@@ -83,6 +86,7 @@ var _next_player_id: int = 0
 func _ready() -> void:
 	_load_locale()
 	_load_volume()
+	_load_animations_enabled()
 
 
 func _load_locale() -> void:
@@ -130,6 +134,33 @@ func get_volume() -> float:
 func _apply_volume(volume: float) -> void:
 	var bus_index := AudioServer.get_bus_index("Master")
 	AudioServer.set_bus_volume_db(bus_index, linear_to_db(volume))
+
+
+func _load_animations_enabled() -> void:
+	var config := ConfigFile.new()
+	var err := config.load(SETTINGS_FILE_PATH)
+	animations_enabled = DEFAULT_ANIMATIONS_ENABLED
+	if err == OK:
+		animations_enabled = config.get_value("settings", "animations_enabled", DEFAULT_ANIMATIONS_ENABLED)
+
+
+## Active/désactive les animations (distribution des mers, pose des pièces,
+## bateaux, piles de cartes...) et sauvegarde le choix pour les prochains
+## lancements.
+func set_animations_enabled(enabled: bool) -> void:
+	animations_enabled = enabled
+	var config := ConfigFile.new()
+	config.load(SETTINGS_FILE_PATH)
+	config.set_value("settings", "animations_enabled", enabled)
+	config.save(SETTINGS_FILE_PATH)
+
+
+## À utiliser à la place de toute durée passée à un Tween ou à
+## get_tree().create_timer() dans les animations de jeu : retourne 0.0 si les
+## animations sont désactivées (donc un effet instantané), sinon la durée
+## d'origine inchangée.
+func anim_duration(duration: float) -> float:
+	return duration if animations_enabled else 0.0
 
 
 func reset_players() -> void:
