@@ -248,7 +248,7 @@ func _build_plank_icon(base_color: Color, size: Vector2) -> Node2D:
 func _add_wood_grain(plank: Node2D, half: Vector2, extrude: Vector2, top_color: Color) -> void:
 	var grain_color: Color = top_color.darkened(PLANK_GRAIN_DARKEN)
 	for i in range(PLANK_GRAIN_LINES):
-		var y := lerp(-half.y * 0.6, half.y * 0.6, float(i) / max(PLANK_GRAIN_LINES - 1, 1))
+		var y: float = lerp(-half.y * 0.6, half.y * 0.6, float(i) / max(PLANK_GRAIN_LINES - 1, 1))
 		var wobble := (half.y * 0.12)
 		var line := Line2D.new()
 		line.width = 3.0
