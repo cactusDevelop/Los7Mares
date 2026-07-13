@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://d33gvwuds8kil"
-path="res://.godot/imported/Beachclub-grunge.otf-993295400854ea4fbe28f264c03fcbfe.fontdata"
+uid="uid://c1gljysxvjw2k"
+path="res://.godot/imported/Beach.ttf-275372c8b038e3038929a23e20e4537d.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/Beachclub-grunge.otf"
-dest_files=["res://.godot/imported/Beachclub-grunge.otf-993295400854ea4fbe28f264c03fcbfe.fontdata"]
+source_file="res://assets/font/Beach.ttf"
+dest_files=["res://.godot/imported/Beach.ttf-275372c8b038e3038929a23e20e4537d.fontdata"]
 
 [params]
 

@@ -1,0 +1,8 @@
+[gd_resource type="Theme" format=3 uid="uid://6pvje6ll41xp"]
+
+[ext_resource type="FontFile" uid="uid://d33gvwuds8kil" path="res://assets/font/Beachclub-grunge.otf" id="1_kf8dp"]
+[ext_resource type="FontFile" uid="uid://1kghftagk5e3" path="res://assets/font/SunnyStar.ttf" id="2_kf8dp"]
+
+[resource]
+Button/fonts/font = ExtResource("1_kf8dp")
+Label/fonts/font = ExtResource("2_kf8dp")
