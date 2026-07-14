@@ -23,10 +23,14 @@ func _ready() -> void:
 
 
 ## À appeler une fois à la création de la pile (positionnement + texture).
-func setup(p_sea_key: String, p_texture: Texture2D, p_token_scale: float) -> void:
+## p_rotation_degrees oriente uniquement le sprite du jeton vers le centre du
+## plateau (comme les tuiles mer et les piles de cartes) ; le chiffre du
+## compteur reste toujours droit.
+func setup(p_sea_key: String, p_texture: Texture2D, p_token_scale: float, p_rotation_degrees: float = 0.0) -> void:
 	sea_key = p_sea_key
 	token_sprite.texture = p_texture
 	token_sprite.scale = Vector2.ONE * p_token_scale
+	token_sprite.rotation_degrees = p_rotation_degrees
 
 
 ## Retire un jeton de la pile (pour une mécanique future de prise de jeton).

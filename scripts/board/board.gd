@@ -28,7 +28,11 @@ const SEA_KEY_BY_NODE_NAME := {
 ## Échelle appliquée au sprite du jeton pour qu'il ait un rayon légèrement
 ## plus petit que celui de la tuile mer sur laquelle il repose. À ajuster
 ## dans l'inspecteur si besoin (sélectionner le noeud "Board").
-@export var token_scale: float = 3.0
+@export var token_scale: float = 1.5
+## Décalage de rayon appliqué à la position des jetons par rapport à celui
+## des tuiles mer (négatif = plus proche du centre). Réglable dans
+## l'inspecteur du noeud "Board".
+@export var token_pile_radius_offset: float = -500.0
 
 @onready var seas_container: Node2D = $Seas
 @onready var deck_area: Area2D = $Seas/DeckArea
@@ -115,6 +119,7 @@ func _ready() -> void:
 			"global_position": board_center + radius * direction,
 			"rotation": angle_degrees + 90.0,
 			"pile_position": board_center + (radius + UiTheme.CARD_PILE_RADIUS_OFFSET) * direction,
+			"token_position": board_center + (radius + token_pile_radius_offset) * direction,
 		})
 
 	_slot_order = _sea_tiles.duplicate()
@@ -136,8 +141,8 @@ func _ready() -> void:
 		if pile.sea_key != "" and ResourceLoader.exists(token_texture_path):
 			var token_pile: Node2D = SEA_TOKEN_PILE_SCENE.instantiate()
 			token_piles_container.add_child(token_pile)
-			token_pile.global_position = slots[i].global_position
-			token_pile.setup(pile.sea_key, load(token_texture_path), token_scale)
+			token_pile.global_position = slots[i].token_position
+			token_pile.setup(pile.sea_key, load(token_texture_path), token_scale, slots[i].rotation)
 			token_pile.visible = false
 
 	var hideout_spots := hideout_spots_container.get_children()

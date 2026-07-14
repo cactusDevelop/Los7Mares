@@ -5,8 +5,8 @@
 [node name="SeaTokenPile" type="Node2D" unique_id=1426608677]
 script = ExtResource("1_v6op0")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1124583011]
+[node name="TokenSprite" type="Sprite2D" parent="." unique_id=1124583011]
 
-[node name="Label" type="Label" parent="." unique_id=2097146877]
+[node name="CountLabel" type="Label" parent="." unique_id=2097146877]
 offset_right = 40.0
 offset_bottom = 17.0
