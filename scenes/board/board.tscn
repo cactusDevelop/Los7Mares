@@ -29,12 +29,6 @@
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
-radius = null
-hideout_radius = null
-fortune_radius = null
-fortune_angle_start_degrees = null
-deck_stack_offset = null
-debug_skip_to_pieces = null
 
 [node name="CenterPiece" type="Sprite2D" parent="." unique_id=1635265673]
 rotation = 2.3125613
@@ -186,6 +180,8 @@ position = Vector2(-323, -293)
 scale = Vector2(1.1, 1.1)
 
 [node name="CardPiles" type="Node2D" parent="." unique_id=2057199386]
+
+[node name="TokenPiles" type="Node2D" parent="." unique_id=1601587640]
 
 [node name="HideoutSpots" type="Node2D" parent="." unique_id=1701089785]
 
