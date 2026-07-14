@@ -28,12 +28,12 @@ func _ready() -> void:
 	language_option.selected = current_index if current_index != -1 else 0
 	language_option.item_selected.connect(_on_language_selected)
 
-	animations_check.button_pressed = GameFlow.animations_enabled
+	animations_check.button_pressed = Settings.animations_enabled
 	animations_check.toggled.connect(_on_animations_toggled)
 
 
 func _on_animations_toggled(enabled: bool) -> void:
-	GameFlow.set_animations_enabled(enabled)
+	Settings.set_animations_enabled(enabled)
 
 
 func _on_language_selected(index: int) -> void:

@@ -13,7 +13,7 @@ func _ready() -> void:
 
 
 func flip_to_front(duration: float = 0.3) -> void:
-	duration = GameFlow.anim_duration(duration)
+	duration = Settings.anim_duration(duration)
 	var tween = create_tween()
 	tween.tween_property(back_sprite, "scale:x", 0.0, duration / 2.0)
 	tween.tween_callback(func():

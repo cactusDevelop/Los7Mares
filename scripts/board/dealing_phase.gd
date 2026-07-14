@@ -20,6 +20,7 @@ const CARD_LANDING_JITTER_PX := 10.0
 const CARD_LANDING_JITTER_DEG := 10.0
 const CARD_SETTLE_DELAY := 0.5
 const CARD_SETTLE_DURATION := 0.3
+const FLIP_WAVE_TRAIL := 0.3
 
 var _card_back_cache: Dictionary = {}
 var _board: Node2D
@@ -56,6 +57,8 @@ func _on_deck_clicked() -> void:
 
 
 func _deal_seas() -> void:
+	var deal_delay := Settings.anim_duration(DEAL_DELAY)
+	var deal_duration := Settings.anim_duration(DEAL_DURATION)
 	var deal_count = 0
 	for i in range(_board._sea_tiles.size() - 1, -1, -1):
 		var tile = _board._sea_tiles[i]
@@ -64,10 +67,10 @@ func _deal_seas() -> void:
 		var target_rot = tile.get_meta("target_rotation")
 
 		var tween = create_tween()
-		tween.tween_interval(deal_count * DEAL_DELAY)
-		tween.tween_property(tile, "global_position", target_pos, DEAL_DURATION)\
+		tween.tween_interval(deal_count * deal_delay)
+		tween.tween_property(tile, "global_position", target_pos, deal_duration)\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		tween.parallel().tween_property(tile, "rotation_degrees", target_rot, DEAL_DURATION)\
+		tween.parallel().tween_property(tile, "rotation_degrees", target_rot, deal_duration)\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		tween.tween_callback(_on_one_card_dealt)
 		deal_count += 1
@@ -76,17 +79,18 @@ func _deal_seas() -> void:
 func _on_one_card_dealt() -> void:
 	_dealt_count += 1
 	if _dealt_count == _board._total_seas:
-		await get_tree().create_timer(FLIP_DELAY_AFTER_DEAL).timeout
+		await get_tree().create_timer(Settings.anim_duration(FLIP_DELAY_AFTER_DEAL)).timeout
 		_flip_all_as_wave()
 
 
 func _flip_all_as_wave() -> void:
+	var flip_wave_delay := Settings.anim_duration(FLIP_WAVE_DELAY)
 	for i in range(_board._slot_order.size()):
 		var tile = _board._slot_order[i]
-		var t = get_tree().create_timer(i * FLIP_WAVE_DELAY)
+		var t = get_tree().create_timer(i * flip_wave_delay)
 		t.timeout.connect(tile.flip_to_front)
 
-	var total_delay := (_board._slot_order.size() - 1) * FLIP_WAVE_DELAY + 0.3
+	var total_delay := (_board._slot_order.size() - 1) * flip_wave_delay + Settings.anim_duration(FLIP_WAVE_TRAIL)
 	await get_tree().create_timer(total_delay).timeout
 	await _drop_card_piles()
 	finished.emit()
@@ -106,6 +110,12 @@ func _drop_card_piles() -> void:
 	for pile in piles:
 		pile.visible = true
 
+	var pile_drop_duration := Settings.anim_duration(PILE_DROP_DURATION)
+	var pile_drop_delay := Settings.anim_duration(PILE_DROP_DELAY)
+	var card_pile_stagger := Settings.anim_duration(CARD_PILE_STAGGER)
+	var card_settle_delay := Settings.anim_duration(CARD_SETTLE_DELAY)
+	var card_settle_duration := Settings.anim_duration(CARD_SETTLE_DURATION)
+
 	var cards_info: Array = []
 	var max_landing_time := 0.0
 
@@ -119,9 +129,9 @@ func _drop_card_piles() -> void:
 			card.global_position = target_global_pos - Vector2(0, PILE_DROP_HEIGHT)
 			card.modulate.a = 0.0
 
-			var jitter := randf_range(0.0, CARD_START_JITTER)
-			var fall_duration: float = max(PILE_DROP_DURATION - jitter, CARD_MIN_DROP_DURATION)
-			var start_delay := round_i * PILE_DROP_DELAY + pile_i * CARD_PILE_STAGGER + jitter
+			var jitter := randf_range(0.0, Settings.anim_duration(CARD_START_JITTER))
+			var fall_duration: float = max(pile_drop_duration - jitter, Settings.anim_duration(CARD_MIN_DROP_DURATION))
+			var start_delay := round_i * pile_drop_delay + pile_i * card_pile_stagger + jitter
 
 			var landing_offset := Vector2(
 				randf_range(-CARD_LANDING_JITTER_PX, CARD_LANDING_JITTER_PX),
@@ -141,13 +151,13 @@ func _drop_card_piles() -> void:
 			max_landing_time = max(max_landing_time, landing_time)
 			cards_info.append({"card": card, "target_pos": target_global_pos, "landing_time": landing_time})
 
-	var settle_start_time := max_landing_time + CARD_SETTLE_DELAY
+	var settle_start_time := max_landing_time + card_settle_delay
 	for info in cards_info:
 		var settle_tween := create_tween()
 		settle_tween.tween_interval(settle_start_time)
-		settle_tween.tween_property(info["card"], "global_position", info["target_pos"], CARD_SETTLE_DURATION)\
+		settle_tween.tween_property(info["card"], "global_position", info["target_pos"], card_settle_duration)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		settle_tween.parallel().tween_property(info["card"], "rotation_degrees", 0.0, CARD_SETTLE_DURATION)\
+		settle_tween.parallel().tween_property(info["card"], "rotation_degrees", 0.0, card_settle_duration)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
-	await get_tree().create_timer(settle_start_time + CARD_SETTLE_DURATION).timeout
+	await get_tree().create_timer(settle_start_time + card_settle_duration).timeout
