@@ -110,6 +110,11 @@ func _drop_card_piles() -> void:
 	for pile in piles:
 		pile.visible = true
 
+	var token_count: int = _board.token_count_for_player_count(GameFlow.players.size())
+	for token_pile in _board.token_piles_container.get_children():
+		token_pile.remaining_count = token_count
+		token_pile.visible = true
+
 	var pile_drop_duration: float = Settings.anim_duration(PILE_DROP_DURATION)
 	var pile_drop_delay : float = Settings.anim_duration(PILE_DROP_DELAY)
 	var card_pile_stagger : float = Settings.anim_duration(CARD_PILE_STAGGER)

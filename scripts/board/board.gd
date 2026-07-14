@@ -6,6 +6,7 @@ const PILE_THUMB_OFFSET := Vector2(0, 6)
 const PLAYER_BOARDS_PANEL_MAX_HEIGHT_RATIO := 0.75
 
 const SEA_CARD_PILE_SCENE := preload("res://scenes/board/sea_card_pile.tscn")
+const SEA_TOKEN_PILE_SCENE := preload("res://scenes/board/sea_token_pile.tscn")
 const PLAYER_BOARD_ROW := preload("res://scenes/ui/player_board_row.tscn")
 
 const SEA_KEY_BY_NODE_NAME := {
@@ -24,6 +25,10 @@ const SEA_KEY_BY_NODE_NAME := {
 @export var fortune_angle_start_degrees: float = -90.0
 @export var deck_stack_offset: Vector2 = Vector2(0, -2)
 @export var debug_skip_to_pieces: bool = false
+## Échelle appliquée au sprite du jeton pour qu'il ait un rayon légèrement
+## plus petit que celui de la tuile mer sur laquelle il repose. À ajuster
+## dans l'inspecteur si besoin (sélectionner le noeud "Board").
+@export var token_scale: float = 3.0
 
 @onready var seas_container: Node2D = $Seas
 @onready var deck_area: Area2D = $Seas/DeckArea
@@ -42,6 +47,7 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var camera: Camera2D = $Camera2D
 @onready var sea_card_popup: Control = $UI/SeaCardPopup
 @onready var card_piles_container: Node2D = $CardPiles
+@onready var token_piles_container: Node2D = $TokenPiles
 
 @onready var dealing_phase: Node = $DealingPhase
 @onready var hideout_phase: Node = $HideoutPhase
@@ -84,6 +90,7 @@ func _ready() -> void:
 	_camera_base_zoom = camera.zoom
 	action_spots_container.z_index = 1
 	seas_container.z_index = 2
+	token_piles_container.z_index = 3
 
 	for child in seas_container.get_children():
 		if child.is_in_group("sea_tile"):
@@ -124,6 +131,14 @@ func _ready() -> void:
 		pile.sea_key = SEA_KEY_BY_NODE_NAME.get(tile.name, "")
 		pile.visible = false
 		pile.modulate.a = 1.0
+
+		var token_texture_path := "res://assets/art/tokens/jeton-%s.png" % pile.sea_key
+		if pile.sea_key != "" and ResourceLoader.exists(token_texture_path):
+			var token_pile: Node2D = SEA_TOKEN_PILE_SCENE.instantiate()
+			token_piles_container.add_child(token_pile)
+			token_pile.global_position = slots[i].global_position
+			token_pile.setup(pile.sea_key, load(token_texture_path), token_scale)
+			token_pile.visible = false
 
 	var hideout_spots := hideout_spots_container.get_children()
 	var hideout_angle_offset := 180.0 / _total_seas
@@ -260,6 +275,15 @@ func _on_player_board_pressed(player_id: int) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		get_tree().quit()
+
+
+## 2 joueurs -> 1 jeton par pile ; 3-4 joueurs -> 2 jetons ; 5 joueurs -> 3 jetons.
+func token_count_for_player_count(player_count: int) -> int:
+	if player_count <= 2:
+		return 1
+	elif player_count <= 4:
+		return 2
+	return 3
 
 
 func _start_round() -> void:

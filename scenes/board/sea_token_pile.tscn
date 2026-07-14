@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://dmg13v33aaicu"]
+
+[ext_resource type="Script" uid="uid://nns2q7iakgmo" path="res://scripts/board/sea_token_pile.gd" id="1_v6op0"]
+
+[node name="SeaTokenPile" type="Node2D" unique_id=1426608677]
+script = ExtResource("1_v6op0")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1124583011]
+
+[node name="Label" type="Label" parent="." unique_id=2097146877]
+offset_right = 40.0
+offset_bottom = 17.0
