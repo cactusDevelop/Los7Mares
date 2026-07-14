@@ -22,9 +22,9 @@ config/windows_native_icon="res://assets/art/ui/7-logo.ico"
 GameFlow="*uid://c0t3m4fqiwodj"
 SeaDecks="*uid://cprpw0afyhcfb"
 MusicManager="*uid://bov1qgoydja6q"
-GlobalUi="*uid://caqros2v31q2x"
 Settings="*uid://bgauvgm6qdmi7"
 UiTheme="*uid://b2mqpqckepofg"
+GlobalUi="*uid://caqros2v31q2x"
 
 [display]
 
