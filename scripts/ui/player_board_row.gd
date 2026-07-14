@@ -1,12 +1,18 @@
 extends VBoxContainer
+signal pressed(player_id: int)
+
 @onready var name_label: Label = $NameLabel
+@onready var board_wrap: Control = $Row/BoardWrap
 @onready var board_texture: TextureRect = $Row/BoardWrap/BoardTexture
 @onready var tokens_container: HBoxContainer = $Row/TokensContainer
 
 const BOARD_THUMB_SIZE := Vector2(160, 107)
 
+var _player_id: int = -1
+
 
 func populate(player: Dictionary) -> void:
+	_player_id = player["id"]
 	name_label.text = "%s — %d pts" % [player["name"], player["points"]]
 	name_label.add_theme_color_override("font_color", GameFlow.COLOR_VALUES[player["color"]])
 
@@ -14,6 +20,12 @@ func populate(player: Dictionary) -> void:
 	board_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	board_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	board_texture.custom_minimum_size = BOARD_THUMB_SIZE
+
+	board_wrap.custom_minimum_size = BOARD_THUMB_SIZE
+	board_wrap.clip_contents = true
+	board_wrap.mouse_filter = Control.MOUSE_FILTER_STOP
+	if not board_wrap.gui_input.is_connected(_on_board_wrap_gui_input):
+		board_wrap.gui_input.connect(_on_board_wrap_gui_input)
 
 	for child in tokens_container.get_children():
 		child.queue_free()
@@ -25,6 +37,11 @@ func populate(player: Dictionary) -> void:
 			tokens_container.add_child(_build_parrot_token(other["color"], true))
 	if player.get("is_first_player", false):
 		tokens_container.add_child(_build_marker_token())
+
+
+func _on_board_wrap_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		pressed.emit(_player_id)
 
 
 func _build_parrot_token(color_name: String, imprisoned: bool) -> Control:

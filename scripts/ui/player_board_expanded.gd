@@ -25,8 +25,8 @@ const SPECIAL_TOKEN_MIN_DISTANCE := 95.0
 const SPECIAL_TOKEN_MAX_ATTEMPTS := 40
 
 ## --- Cohérence de la fausse perspective 3D ---
-## La direction (GameFlow.DEPTH_DIRECTION) est définie une seule fois dans
-## GameFlow pour rester identique partout dans le jeu (ressources, planches,
+## La direction (UiTheme.DEPTH_DIRECTION) est définie une seule fois dans
+## UiTheme pour rester identique partout dans le jeu (ressources, planches,
 ## jetons, bateaux...). Convention : la "matière"/l'épaisseur des objets
 ## s'étend vers le BAS-GAUCHE À L'ÉCRAN (comme une ombre portée), donc leur
 ## face du dessus/avant visible est repoussée vers le HAUT-DROITE. Les
@@ -150,7 +150,7 @@ func _place_special_tokens_random(player: Dictionary, key: String, texture: Text
 ## (DEPTH_DIRECTION), puis la copie en couleur normale au-dessus : donne une
 ## petite épaisseur au jeton au lieu d'un sprite plat.
 func _add_token_with_thickness(texture: Texture2D, anchor: Vector2, icon_size: Vector2) -> void:
-	var step: Vector2 = GameFlow.DEPTH_DIRECTION * (TOKEN_THICKNESS_PX / float(TOKEN_THICKNESS_LAYERS))
+	var step: Vector2 = UiTheme.DEPTH_DIRECTION * (TOKEN_THICKNESS_PX / float(TOKEN_THICKNESS_LAYERS))
 	for layer in range(TOKEN_THICKNESS_LAYERS, 0, -1):
 		var edge := TextureRect.new()
 		edge.texture = texture
@@ -208,7 +208,7 @@ func _build_plank_icon(base_color: Color, size: Vector2) -> Node2D:
 
 	# Épaisseur proportionnelle à la petite dimension (planche fine), pas au
 	# côté comme pour les cubes de ressource.
-	var extrude: Vector2 = -GameFlow.DEPTH_DIRECTION * size.y * CUBE_EXTRUDE_RATIO
+	var extrude: Vector2 = -UiTheme.DEPTH_DIRECTION * size.y * CUBE_EXTRUDE_RATIO
 
 	var top_color: Color = base_color.lightened(0.25)
 	var left_wall_color: Color = base_color.darkened(0.15)
@@ -305,7 +305,7 @@ func _build_cube_icon(base_color: Color, edge: float) -> Node2D:
 	var bottom_right := Vector2(half, half)
 	var bottom_left := Vector2(-half, half)
 
-	var extrude: Vector2 = -GameFlow.DEPTH_DIRECTION * edge * CUBE_EXTRUDE_RATIO
+	var extrude: Vector2 = -UiTheme.DEPTH_DIRECTION * edge * CUBE_EXTRUDE_RATIO
 
 	var roof_color: Color = base_color.lightened(0.35)
 	var left_wall_color: Color = base_color.darkened(0.15)
