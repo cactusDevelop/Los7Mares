@@ -1,10 +1,10 @@
 extends Node
 
-var _board: Node2D
+var _board: Board
 var _cards_enabled: bool = false
 
 
-func start(board: Node2D) -> void:
+func start(board: Board) -> void:
 	_board = board
 	_cards_enabled = true
 	for pile in _board.card_piles_container.get_children():

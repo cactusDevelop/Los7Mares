@@ -1,4 +1,5 @@
 extends Node
+class_name GameFlowManager
 
 signal players_changed
 
@@ -129,7 +130,7 @@ func compute_case_color(pieces: Array) -> Color:
 
 
 func layout_positions_for_case(count: int) -> Array[Vector2]:
-	var spacing := UiTheme.CASE_PIECE_RADIUS
+	var spacing: float = UiTheme.CASE_PIECE_RADIUS
 	var vertical_offset := Vector2(0, UiTheme.CASE_PIECE_VERTICAL_OFFSET)
 	match count:
 		0: return []

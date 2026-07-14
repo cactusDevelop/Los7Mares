@@ -1,4 +1,5 @@
 extends Node
+class_name UiThemeManager
 
 const TITLE_BUTTON_SIZE := Vector2(420, 84)
 const TITLE_BUTTON_FONT_SIZE := 24

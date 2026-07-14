@@ -77,7 +77,7 @@ func _animate_piece_drop(piece_node: Node2D) -> void:
 	var target_position := piece_node.position
 	piece_node.position = target_position - Vector2(0, PIECE_DROP_HEIGHT)
 	piece_node.modulate.a = 0.0
-	var duration := Settings.anim_duration(PIECE_DROP_DURATION)
+	var duration: float = Settings.anim_duration(PIECE_DROP_DURATION)
 	var tween := create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(piece_node, "position", target_position, duration)\
@@ -86,7 +86,7 @@ func _animate_piece_drop(piece_node: Node2D) -> void:
 
 
 func _relayout_pieces() -> void:
-	var positions := GameFlow.layout_positions_for_case(_pieces.size())
+	var positions: Array[Vector2] = GameFlow.layout_positions_for_case(_pieces.size())
 	for i in range(_pieces.size()):
 		_pieces[i]["node"].position = positions[i]
 
@@ -101,7 +101,7 @@ func _relayout_pieces() -> void:
 
 
 func _update_case_color() -> void:
-	var color := GameFlow.compute_case_color(_pieces)
+	var color: Color = GameFlow.compute_case_color(_pieces)
 	var base := color if color.a > 0.0 else Color.WHITE
 	case_sprite.modulate = base * UiTheme.HOVER_TINT if _is_hovering else base
 

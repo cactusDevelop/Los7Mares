@@ -6,7 +6,7 @@ const CAPTAIN_SCENE := preload("res://scenes/board/pieces/captain_piece.tscn")
 const SECOND_SCENE := preload("res://scenes/board/pieces/second_piece.tscn")
 const DEBUG_TOTAL_ROUNDS := 7
 
-var _board: Node2D
+var _board: Board
 var _current_round: int = 0
 var _current_player_index: int = 0
 var _selected_rank: int = -1
@@ -14,7 +14,7 @@ var _placed_rank_by_player: Dictionary = {}
 var _debug_round_index := 0
 
 
-func start(board: Node2D) -> void:
+func start(board: Board) -> void:
 	_board = board
 	_current_round = 0
 	_current_player_index = 0
@@ -106,7 +106,7 @@ func _end_piece_placement_phase() -> void:
 
 func _shift_camera_for_selection(active: bool) -> void:
 	var target_pos := _board._camera_base_position + Vector2(UiTheme.CAMERA_SELECTION_SHIFT, 0) if active else _board._camera_base_position
-	var target_zoom := UiTheme.CAMERA_SELECTION_ZOOM if active else _board._camera_base_zoom
+	var target_zoom: Vector2 = UiTheme.CAMERA_SELECTION_ZOOM if active else _board._camera_base_zoom
 	var tween := create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(_board.camera, "position", target_pos, 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)

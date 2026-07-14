@@ -24,7 +24,7 @@ func _ready() -> void:
 	for locale in Settings.AVAILABLE_LOCALES:
 		language_option.add_item(LOCALE_LABELS.get(locale, locale))
 	var current_locale := TranslationServer.get_locale().substr(0, 2)
-	var current_index := Settings.AVAILABLE_LOCALES.find(current_locale)
+	var current_index: int = Settings.AVAILABLE_LOCALES.find(current_locale)
 	language_option.selected = current_index if current_index != -1 else 0
 	language_option.item_selected.connect(_on_language_selected)
 

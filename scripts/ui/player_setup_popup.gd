@@ -76,7 +76,7 @@ func _layout_popup() -> void:
 
 
 func _apply_button_style(btn: Button, color_name: String, is_selected: bool) -> void:
-	var taken := GameFlow.is_color_taken(color_name)
+	var taken: bool = GameFlow.is_color_taken(color_name)
 	var base_color: Color = TAKEN_COLOR if taken else GameFlow.COLOR_VALUES[color_name]
 
 	var normal_style := _build_color_stylebox(base_color, is_selected)

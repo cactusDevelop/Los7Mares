@@ -23,11 +23,11 @@ const CARD_SETTLE_DURATION := 0.3
 const FLIP_WAVE_TRAIL := 0.3
 
 var _card_back_cache: Dictionary = {}
-var _board: Node2D
+var _board: Board
 var _dealt_count: int = 0
 
 
-func start(board: Node2D) -> void:
+func start(board: Board) -> void:
 	_board = board
 	_board.deck_area.deck_clicked.connect(_on_deck_clicked)
 	_board.deck_area.hover_entered.connect(_on_deck_hover_entered)
@@ -57,8 +57,8 @@ func _on_deck_clicked() -> void:
 
 
 func _deal_seas() -> void:
-	var deal_delay := Settings.anim_duration(DEAL_DELAY)
-	var deal_duration := Settings.anim_duration(DEAL_DURATION)
+	var deal_delay: float = Settings.anim_duration(DEAL_DELAY)
+	var deal_duration: float = Settings.anim_duration(DEAL_DURATION)
 	var deal_count = 0
 	for i in range(_board._sea_tiles.size() - 1, -1, -1):
 		var tile = _board._sea_tiles[i]
@@ -84,7 +84,7 @@ func _on_one_card_dealt() -> void:
 
 
 func _flip_all_as_wave() -> void:
-	var flip_wave_delay := Settings.anim_duration(FLIP_WAVE_DELAY)
+	var flip_wave_delay: float = Settings.anim_duration(FLIP_WAVE_DELAY)
 	for i in range(_board._slot_order.size()):
 		var tile = _board._slot_order[i]
 		var t = get_tree().create_timer(i * flip_wave_delay)
@@ -110,11 +110,11 @@ func _drop_card_piles() -> void:
 	for pile in piles:
 		pile.visible = true
 
-	var pile_drop_duration := Settings.anim_duration(PILE_DROP_DURATION)
-	var pile_drop_delay := Settings.anim_duration(PILE_DROP_DELAY)
-	var card_pile_stagger := Settings.anim_duration(CARD_PILE_STAGGER)
-	var card_settle_delay := Settings.anim_duration(CARD_SETTLE_DELAY)
-	var card_settle_duration := Settings.anim_duration(CARD_SETTLE_DURATION)
+	var pile_drop_duration: float = Settings.anim_duration(PILE_DROP_DURATION)
+	var pile_drop_delay : float = Settings.anim_duration(PILE_DROP_DELAY)
+	var card_pile_stagger : float = Settings.anim_duration(CARD_PILE_STAGGER)
+	var card_settle_delay : float = Settings.anim_duration(CARD_SETTLE_DELAY)
+	var card_settle_duration : float = Settings.anim_duration(CARD_SETTLE_DURATION)
 
 	var cards_info: Array = []
 	var max_landing_time := 0.0

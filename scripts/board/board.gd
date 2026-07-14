@@ -1,4 +1,5 @@
 extends Node2D
+class_name Board
 
 const BOARD_THUMB_SIZE := Vector2(160, 107)
 const PILE_THUMB_OFFSET := Vector2(0, 6)
@@ -181,7 +182,7 @@ func _on_setup_player_confirmed(player_name: String, color: String) -> void:
 func _refresh_player_boards() -> void:
 	for child in player_rows.get_children():
 		child.queue_free()
-	var players := GameFlow.get_players_sorted_by_points()
+	var players: Array[Dictionary] = GameFlow.get_players_sorted_by_points()
 	for player in players:
 		var row := PLAYER_BOARD_ROW.instantiate()
 		player_rows.add_child(row)

@@ -2,12 +2,12 @@ extends Node
 
 signal finished
 
-var _board: Node2D
+var _board: Board
 var _hideout_turn_order: Array = []
 var _hideout_turn_index: int = 0
 
 
-func start(board: Node2D) -> void:
+func start(board: Board) -> void:
 	_board = board
 	_hideout_turn_order = range(GameFlow.players.size() - 1, -1, -1)
 	_hideout_turn_index = 0

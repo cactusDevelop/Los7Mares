@@ -123,7 +123,7 @@ func _show_boat(color: String) -> void:
 		entry["node"].modulate.a = 0.0
 		entry["node"].position = entry["target"] + start_offset
 
-	var duration := Settings.anim_duration(BOAT_DROP_DURATION)
+	var duration: float = Settings.anim_duration(BOAT_DROP_DURATION)
 	var tween := create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(boat_sprite, "position", boat_target_pos, duration)\

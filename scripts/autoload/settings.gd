@@ -1,4 +1,5 @@
 extends Node
+class_name SettingsManager
 
 const SETTINGS_FILE_PATH := "user://settings.cfg"
 const DEFAULT_LOCALE := "fr"
