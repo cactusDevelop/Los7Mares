@@ -1,5 +1,25 @@
 [gd_scene format=3 uid="uid://d2y7fmgyakaim"]
 
+[ext_resource type="Script" uid="uid://dygh60lgoee07" path="res://scripts/ui/player_board_row.gd" id="1_7o0go"]
+
 [node name="PlayerBoardRow" type="VBoxContainer" unique_id=1904464298]
 offset_right = 40.0
 offset_bottom = 40.0
+script = ExtResource("1_7o0go")
+
+[node name="NameLabel" type="Label" parent="." unique_id=1357488389]
+layout_mode = 2
+
+[node name="Row" type="HBoxContainer" parent="." unique_id=557536943]
+layout_mode = 2
+
+[node name="BoardWrap" type="Control" parent="Row" unique_id=810857309]
+layout_mode = 2
+
+[node name="BoardTexture" type="TextureRect" parent="Row/BoardWrap" unique_id=655434736]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TokensContainer" type="HBoxContainer" parent="Row" unique_id=1216573272]
+layout_mode = 2

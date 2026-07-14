@@ -22,9 +22,19 @@
 [ext_resource type="PackedScene" uid="uid://cdx0n5rvtqx0w" path="res://scenes/board/hideout_spot.tscn" id="20_vq54c"]
 [ext_resource type="PackedScene" uid="uid://ce1t4lmygf8iq" path="res://scenes/board/fortune_spot.tscn" id="21_jngt6"]
 [ext_resource type="Script" uid="uid://cnxrqg83d7ymu" path="res://scripts/debug/debug_heptagon.gd" id="22_j2n54"]
+[ext_resource type="Script" uid="uid://da4v1q020p4x" path="res://scripts/board/dealing_phase.gd" id="23_s0ety"]
+[ext_resource type="Script" uid="uid://da2oyotyr3s1s" path="res://scripts/board/hideout_phase.gd" id="24_0avwi"]
+[ext_resource type="Script" uid="uid://dhx64n8v51ihg" path="res://scripts/board/piece_placement_phase.gd" id="25_jhx4t"]
+[ext_resource type="Script" uid="uid://dtqgyitf5s8n7" path="res://scripts/board/card_draw_phase.gd" id="26_m0x5n"]
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
+radius = null
+hideout_radius = null
+fortune_radius = null
+fortune_angle_start_degrees = null
+deck_stack_offset = null
+debug_skip_to_pieces = null
 
 [node name="CenterPiece" type="Sprite2D" parent="." unique_id=1635265673]
 rotation = 2.3125613
@@ -214,6 +224,18 @@ script = ExtResource("22_j2n54")
 show_heptagon = false
 radius = 920.0
 line_width = 10.0
+
+[node name="DealingPhase" type="Node" parent="." unique_id=854529261]
+script = ExtResource("23_s0ety")
+
+[node name="HideoutPhase" type="Node" parent="." unique_id=1991991205]
+script = ExtResource("24_0avwi")
+
+[node name="PiecePlacementPhase" type="Node" parent="." unique_id=1465754435]
+script = ExtResource("25_jhx4t")
+
+[node name="CardDrawPhase" type="Node" parent="." unique_id=1152241436]
+script = ExtResource("26_m0x5n")
 
 [editable path="Seas/SeaAbondance"]
 [editable path="Seas/SeaAzur"]

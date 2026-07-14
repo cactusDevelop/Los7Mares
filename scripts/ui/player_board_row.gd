@@ -1,11 +1,10 @@
 extends VBoxContainer
+@onready var name_label: Label = $NameLabel
+@onready var board_texture: TextureRect = $Row/BoardWrap/BoardTexture
+@onready var tokens_container: HBoxContainer = $Row/TokensContainer
 
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func populate(player: Dictionary) -> void:
+	name_label.text = "%s — %d pts" % [player["name"], player["points"]]
+	name_label.add_theme_color_override("font_color", GameFlow.COLOR_VALUES[player["color"]])
+	board_texture.texture = load(GameFlow.PLAYER_BOARD_TEXTURES[player["color"]])
+	# ajout des jetons perroquet/marqueur dans tokens_container
