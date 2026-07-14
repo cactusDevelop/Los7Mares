@@ -41,6 +41,14 @@ var is_debug_mode: bool = false
 
 var players: Array[Dictionary] = []
 
+var animations_enabled: bool = true
+
+func set_animations_enabled(enabled: bool) -> void:
+	animations_enabled = enabled
+
+func anim_duration(base_duration: float) -> float:
+	return base_duration if animations_enabled else 0.0
+
 var _next_player_id: int = 0
 
 

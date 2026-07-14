@@ -10,11 +10,11 @@ const LOCALE_LABELS := {"fr": "Français", "en": "English", "es": "Español"}
 
 func _ready() -> void:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Settings.POPUP_BG_COLOR
-	style.corner_radius_top_left = Settings.POPUP_CORNER_RADIUS
-	style.corner_radius_top_right = Settings.POPUP_CORNER_RADIUS
-	style.corner_radius_bottom_left = Settings.POPUP_CORNER_RADIUS
-	style.corner_radius_bottom_right = Settings.POPUP_CORNER_RADIUS
+	style.bg_color = UiTheme.POPUP_BG_COLOR
+	style.corner_radius_top_left = UiTheme.POPUP_CORNER_RADIUS
+	style.corner_radius_top_right = UiTheme.POPUP_CORNER_RADIUS
+	style.corner_radius_bottom_left = UiTheme.POPUP_CORNER_RADIUS
+	style.corner_radius_bottom_right = UiTheme.POPUP_CORNER_RADIUS
 	add_theme_stylebox_override("panel", style)
 
 	volume_slider.value = Settings.get_volume()

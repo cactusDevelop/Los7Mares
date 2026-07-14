@@ -71,7 +71,7 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 	var piece_scene: PackedScene = CAPTAIN_SCENE if _selected_rank == GameFlow.PieceRank.CAPTAIN else SECOND_SCENE
 	var piece: Node2D = piece_scene.instantiate()
 	piece.modulate = GameFlow.COLOR_VALUES[player["color"]]
-	piece.scale = Vector2.ONE * GameFlow.PIECE_SCALE
+	piece.scale = Vector2.ONE * UiTheme.PIECE_SCALE
 	spot.add_piece(piece, player["color"], _selected_rank)
 	_board.narration_box.hide_box()
 
@@ -105,8 +105,8 @@ func _end_piece_placement_phase() -> void:
 
 
 func _shift_camera_for_selection(active: bool) -> void:
-	var target_pos := _board._camera_base_position + Vector2(GameFlow.CAMERA_SELECTION_SHIFT, 0) if active else _board._camera_base_position
-	var target_zoom := GameFlow.CAMERA_SELECTION_ZOOM if active else _board._camera_base_zoom
+	var target_pos := _board._camera_base_position + Vector2(UiTheme.CAMERA_SELECTION_SHIFT, 0) if active else _board._camera_base_position
+	var target_zoom := UiTheme.CAMERA_SELECTION_ZOOM if active else _board._camera_base_zoom
 	var tween := create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(_board.camera, "position", target_pos, 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
