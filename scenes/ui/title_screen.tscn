@@ -26,18 +26,22 @@ offset_transform_enabled = true
 
 [node name="DebugButton" type="Button" parent="CenterButtons" unique_id=1554320652]
 layout_mode = 2
+theme_override_font_sizes/font_size = 128
 text = "DEBUG"
 
 [node name="LocalButton" type="Button" parent="CenterButtons" unique_id=1788098042]
 layout_mode = 2
+theme_override_font_sizes/font_size = 32
 text = "PARTIE LOCALE"
 
 [node name="JoinButton" type="Button" parent="CenterButtons" unique_id=1709295050]
 layout_mode = 2
+theme_override_font_sizes/font_size = 32
 text = "REJOINDRE"
 
 [node name="HostButton" type="Button" parent="CenterButtons" unique_id=1351551993]
 layout_mode = 2
+theme_override_font_sizes/font_size = 32
 text = "HEBERGER"
 
 [node name="PlayerCountPopup" type="PopupPanel" parent="." unique_id=380088268]
@@ -45,8 +49,8 @@ text = "HEBERGER"
 [node name="Padding" type="MarginContainer" parent="PlayerCountPopup" unique_id=2065299801]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 417.0
-offset_bottom = 163.0
+offset_right = 96.0
+offset_bottom = 96.0
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
