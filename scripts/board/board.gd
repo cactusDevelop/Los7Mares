@@ -232,10 +232,6 @@ func _on_setup_player_confirmed(player_name: String, color: String) -> void:
 		_start_dealing_phase()
 
 
-func _start_dealing_phase() -> void:
-	narration_box.say(tr("Cliquez sur la pile pour distribuer les mers."))
-
-
 func _refresh_player_boards() -> void:
 	for child in player_rows.get_children():
 		child.queue_free()

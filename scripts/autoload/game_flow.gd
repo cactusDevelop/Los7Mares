@@ -52,7 +52,7 @@ const DEPTH_DIRECTION := Vector2(-0.70710678, 0.70710678)
 # --- Constantes UI communes (tailles, couleurs, styles) ---
 # Regroupées ici pour n'avoir qu'un seul endroit à modifier si le design change.
 const TITLE_BUTTON_SIZE := Vector2(420, 84)
-const TITLE_BUTTON_FONT_SIZE := 24
+const TITLE_BUTTON_FONT_SIZE := 36
 const TITLE_BUTTONS_Y_OFFSET := 100.0     # décalage vertical (vers le bas) des boutons du menu titre
 const POPUP_BG_COLOR := Color(0.12, 0.12, 0.16, 1.0)
 const POPUP_CORNER_RADIUS := 12

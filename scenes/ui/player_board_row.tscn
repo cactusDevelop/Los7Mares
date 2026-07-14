@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://d2y7fmgyakaim"]
+
+[node name="PlayerBoardRow" type="VBoxContainer" unique_id=1904464298]
+offset_right = 40.0
+offset_bottom = 40.0
