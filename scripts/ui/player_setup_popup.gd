@@ -80,7 +80,7 @@ func _apply_button_style(btn: Button, color_name: String, is_selected: bool) -> 
 	var base_color: Color = TAKEN_COLOR if taken else GameFlow.COLOR_VALUES[color_name]
 
 	var normal_style := _build_color_stylebox(base_color, is_selected)
-	var hover_style := _build_color_stylebox(base_color * GameFlow.HOVER_TINT, is_selected)
+	var hover_style: StyleBox = _build_color_stylebox(base_color * UiTheme.HOVER_TINT, is_selected)
 
 	btn.add_theme_stylebox_override("normal", normal_style)
 	btn.add_theme_stylebox_override("hover", hover_style)
