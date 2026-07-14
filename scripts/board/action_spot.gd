@@ -103,7 +103,7 @@ func _relayout_pieces() -> void:
 func _update_case_color() -> void:
 	var color := GameFlow.compute_case_color(_pieces)
 	var base := color if color.a > 0.0 else Color.WHITE
-	case_sprite.modulate = base * GameFlow.HOVER_TINT if _is_hovering else base
+	case_sprite.modulate = base * UiTheme.HOVER_TINT if _is_hovering else base
 
 
 func has_player_piece(color: String) -> bool:

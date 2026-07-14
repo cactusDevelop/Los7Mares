@@ -66,7 +66,7 @@ func _build_piece_option(label_text: String, texture: Texture2D) -> TextureButto
 	# Taille calée EXACTEMENT sur le ratio de la texture : aucune marge
 	# verticale ajoutée, donc les pieds tombent pile en bas du bouton.
 	var aspect := texture.get_width() / float(texture.get_height())
-	btn.custom_minimum_size = Vector2(GameFlow.SELECTION_ICON_HEIGHT * aspect, GameFlow.SELECTION_ICON_HEIGHT)
+	btn.custom_minimum_size = Vector2(UiTheme.SELECTION_ICON_HEIGHT * aspect, UiTheme.SELECTION_ICON_HEIGHT)
 	btn.pivot_offset = btn.custom_minimum_size / 2.0
 
 	btn.mouse_entered.connect(_on_button_hover.bind(btn, true))
@@ -84,8 +84,8 @@ func _build_piece_option(label_text: String, texture: Texture2D) -> TextureButto
 
 func _layout() -> void:
 	var viewport_size := get_viewport_rect().size
-	position = Vector2(viewport_size.x - GameFlow.SELECTION_PANEL_WIDTH, 0)
-	size = Vector2(GameFlow.SELECTION_PANEL_WIDTH, viewport_size.y)
+	position = Vector2(viewport_size.x - UiTheme.SELECTION_PANEL_WIDTH, 0)
+	size = Vector2(UiTheme.SELECTION_PANEL_WIDTH, viewport_size.y)
 	background.position = Vector2.ZERO
 	background.size = size
 	splatter.position = Vector2.ZERO

@@ -10,21 +10,21 @@ const LOCALE_LABELS := {"fr": "Français", "en": "English", "es": "Español"}
 
 func _ready() -> void:
 	var style := StyleBoxFlat.new()
-	style.bg_color = GameFlow.POPUP_BG_COLOR
-	style.corner_radius_top_left = GameFlow.POPUP_CORNER_RADIUS
-	style.corner_radius_top_right = GameFlow.POPUP_CORNER_RADIUS
-	style.corner_radius_bottom_left = GameFlow.POPUP_CORNER_RADIUS
-	style.corner_radius_bottom_right = GameFlow.POPUP_CORNER_RADIUS
+	style.bg_color = Settings.POPUP_BG_COLOR
+	style.corner_radius_top_left = Settings.POPUP_CORNER_RADIUS
+	style.corner_radius_top_right = Settings.POPUP_CORNER_RADIUS
+	style.corner_radius_bottom_left = Settings.POPUP_CORNER_RADIUS
+	style.corner_radius_bottom_right = Settings.POPUP_CORNER_RADIUS
 	add_theme_stylebox_override("panel", style)
 
-	volume_slider.value = GameFlow.get_volume()
+	volume_slider.value = Settings.get_volume()
 	volume_slider.value_changed.connect(_on_volume_changed)
 
 	language_option.clear()
-	for locale in GameFlow.AVAILABLE_LOCALES:
+	for locale in Settings.AVAILABLE_LOCALES:
 		language_option.add_item(LOCALE_LABELS.get(locale, locale))
 	var current_locale := TranslationServer.get_locale().substr(0, 2)
-	var current_index := GameFlow.AVAILABLE_LOCALES.find(current_locale)
+	var current_index := Settings.AVAILABLE_LOCALES.find(current_locale)
 	language_option.selected = current_index if current_index != -1 else 0
 	language_option.item_selected.connect(_on_language_selected)
 
@@ -37,7 +37,7 @@ func _on_animations_toggled(enabled: bool) -> void:
 
 
 func _on_language_selected(index: int) -> void:
-	GameFlow.set_locale(GameFlow.AVAILABLE_LOCALES[index])
+	Settings.set_locale(Settings.AVAILABLE_LOCALES[index])
 
 
 func popup_centered_auto() -> void:
@@ -48,4 +48,4 @@ func popup_centered_auto() -> void:
 
 
 func _on_volume_changed(value: float) -> void:
-	GameFlow.set_volume(value)
+	Settings.set_volume(value)

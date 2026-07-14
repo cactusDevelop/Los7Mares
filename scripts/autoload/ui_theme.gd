@@ -1,11 +1,18 @@
 extends Node
 
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+const TITLE_BUTTON_SIZE := Vector2(420, 84)
+const TITLE_BUTTON_FONT_SIZE := 24
+const TITLE_BUTTONS_Y_OFFSET := 100.0
+const POPUP_BG_COLOR := Color(0.12, 0.12, 0.16, 1.0)
+const POPUP_CORNER_RADIUS := 12
+const SELECTION_PANEL_WIDTH := 240.0
+const SELECTION_ICON_HEIGHT := 110.0
+const HOVER_TINT := Color(0.82, 0.82, 0.82)
+const CAMERA_SELECTION_SHIFT := 400.0
+const CAMERA_SELECTION_ZOOM := Vector2(0.22, 0.22)
+const CASE_PIECE_RADIUS := 100.0
+const CASE_PIECE_VERTICAL_OFFSET := 40.0
+const CARD_POPUP_DURATION := 0.35
+const CARD_PILE_RADIUS_OFFSET := 900.0
+const DEPTH_DIRECTION := Vector2(-0.70710678, 0.70710678)
+const PIECE_SCALE := 0.6

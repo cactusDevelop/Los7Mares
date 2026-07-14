@@ -77,7 +77,7 @@ func claim(color: String) -> void:
 ## d'orientation, et surtout le jour où le bateau ne sera plus un enfant de
 ## HideoutSpot (une fois qu'il pourra se déplacer sur le plateau) puisque le
 ## calcul ne dépend que de la rotation globale au moment de l'appel.
-## L'épaisseur (GameFlow.DEPTH_DIRECTION) reste calculée en repère global
+## L'épaisseur (UiTheme.DEPTH_DIRECTION) reste calculée en repère global
 ## puis reconvertie en repère local du bateau, donc l'axe de perspective
 ## reste parallèle à l'écran pour tous les bateaux quelle que soit leur
 ## orientation ou celle de leur parent.
@@ -91,7 +91,7 @@ func _show_boat(color: String) -> void:
 	# est dans le repère LOCAL de la cachette (self) : c'est donc la rotation
 	# de self (la cachette) qu'il faut annuler pour rester droit à l'écran,
 	# pas celle du bateau (qu'on vient déjà d'annuler ci-dessus à part).
-	var depth_local: Vector2 = GameFlow.DEPTH_DIRECTION.rotated(-global_rotation)
+	var depth_local: Vector2 = UiTheme.DEPTH_DIRECTION.rotated(-global_rotation)
 	var step: Vector2 = depth_local * (BOAT_THICKNESS_PX / float(BOAT_THICKNESS_LAYERS))
 	var boat_target_pos: Vector2 = boat_sprite.position
 

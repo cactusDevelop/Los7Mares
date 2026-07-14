@@ -50,9 +50,9 @@ func show_card(card: SeaCard) -> void:
 
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(padding, "scale", Vector2.ONE, GameFlow.CARD_POPUP_DURATION)\
+	tween.tween_property(padding, "scale", Vector2.ONE, UiTheme.CARD_POPUP_DURATION)\
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(padding, "modulate:a", 1.0, GameFlow.CARD_POPUP_DURATION)
+	tween.tween_property(padding, "modulate:a", 1.0, UiTheme.CARD_POPUP_DURATION)
 
 
 func _on_confirm_pressed() -> void:

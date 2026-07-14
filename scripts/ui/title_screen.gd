@@ -43,20 +43,20 @@ func _layout_ui() -> void:
 		background.size = Vector2(viewport_size.x, tex_size.y * scale_factor)
 
 	for btn in [host_button, join_button, local_button, debug_button]:
-		btn.custom_minimum_size = GameFlow.TITLE_BUTTON_SIZE
-		btn.add_theme_font_size_override("font_size", GameFlow.TITLE_BUTTON_FONT_SIZE)
+		btn.custom_minimum_size = UiTheme.TITLE_BUTTON_SIZE
+		btn.add_theme_font_size_override("font_size", UiTheme.TITLE_BUTTON_FONT_SIZE)
 	center_buttons.size = center_buttons.get_combined_minimum_size()
 	center_buttons.position = (viewport_size - center_buttons.size) / 2.0 \
-		+ Vector2(0, GameFlow.TITLE_BUTTONS_Y_OFFSET)
+		+ Vector2(0, UiTheme.TITLE_BUTTONS_Y_OFFSET)
 
 
 func _style_popup_background(popup: PopupPanel) -> void:
 	var style := StyleBoxFlat.new()
-	style.bg_color = GameFlow.POPUP_BG_COLOR
-	style.corner_radius_top_left = GameFlow.POPUP_CORNER_RADIUS
-	style.corner_radius_top_right = GameFlow.POPUP_CORNER_RADIUS
-	style.corner_radius_bottom_left = GameFlow.POPUP_CORNER_RADIUS
-	style.corner_radius_bottom_right = GameFlow.POPUP_CORNER_RADIUS
+	style.bg_color = UiTheme.POPUP_BG_COLOR
+	style.corner_radius_top_left = UiTheme.POPUP_CORNER_RADIUS
+	style.corner_radius_top_right = UiTheme.POPUP_CORNER_RADIUS
+	style.corner_radius_bottom_left = UiTheme.POPUP_CORNER_RADIUS
+	style.corner_radius_bottom_right = UiTheme.POPUP_CORNER_RADIUS
 	popup.add_theme_stylebox_override("panel", style)
 
 
