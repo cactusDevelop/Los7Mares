@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" uid="uid://cawaiel7vey2f" path="res://scenes/ui/piece_selection_panel.tscn" id="16_bo4hw"]
 [ext_resource type="PackedScene" uid="uid://bn3g7mmfggktb" path="res://scenes/ui/sea_card_popup.tscn" id="17_bo4hw"]
 [ext_resource type="PackedScene" uid="uid://b058e8m5tg4kt" path="res://scenes/ui/player_board_expanded.tscn" id="18_ctilb"]
+[ext_resource type="Texture2D" uid="uid://dedw6tc0y6d80" path="res://assets/art/ui/back.svg" id="19_0avwi"]
 [ext_resource type="PackedScene" uid="uid://cdx0n5rvtqx0w" path="res://scenes/board/hideout_spot.tscn" id="20_vq54c"]
 [ext_resource type="PackedScene" uid="uid://ce1t4lmygf8iq" path="res://scenes/board/fortune_spot.tscn" id="21_jngt6"]
 [ext_resource type="Script" uid="uid://cnxrqg83d7ymu" path="res://scripts/debug/debug_heptagon.gd" id="22_j2n54"]
@@ -158,11 +159,21 @@ layout_mode = 2
 [node name="PlayerBoardExpanded" parent="UI" unique_id=670737293 instance=ExtResource("18_ctilb")]
 
 [node name="ReturnToMenuButton" type="Button" parent="UI" unique_id=1493341315]
-offset_right = 8.0
-offset_bottom = 8.0
+custom_maximum_size = Vector2(70, 70)
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -398.0
+offset_right = 357.0
+grow_vertical = 0
 offset_transform_enabled = true
-offset_transform_position = Vector2(20, 20)
-text = "Retour au menu"
+offset_transform_position = Vector2(20, -20)
+icon = ExtResource("19_0avwi")
+
+[node name="ReturnToMenuConfirm" type="ConfirmationDialog" parent="UI" unique_id=2049528195]
+ok_button_text = "Ok..."
+dialog_text = "Retourner au menu ? Votre progression est sauvegardée."
+cancel_button_text = "non, ça ira"
 
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
 
