@@ -159,6 +159,7 @@ layout_mode = 2
 [node name="PlayerBoardExpanded" parent="UI" unique_id=670737293 instance=ExtResource("18_ctilb")]
 
 [node name="ReturnToMenuButton" type="Button" parent="UI" unique_id=1493341315]
+custom_minimum_size = Vector2(70, 70)
 custom_maximum_size = Vector2(70, 70)
 anchors_preset = 2
 anchor_top = 1.0
@@ -169,8 +170,11 @@ grow_vertical = 0
 offset_transform_enabled = true
 offset_transform_position = Vector2(20, -20)
 icon = ExtResource("19_0avwi")
+icon_alignment = 1
+expand_icon = true
 
 [node name="ReturnToMenuConfirm" type="ConfirmationDialog" parent="UI" unique_id=2049528195]
+title = "Décision de lâche"
 ok_button_text = "Ok..."
 dialog_text = "Retourner au menu ? Votre progression est sauvegardée."
 cancel_button_text = "non, ça ira"

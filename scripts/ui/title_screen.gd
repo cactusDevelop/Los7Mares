@@ -32,6 +32,8 @@ func _ready() -> void:
 	local_button.pressed.connect(_on_local_pressed)
 	debug_button.pressed.connect(_on_debug_pressed)
 	player_count_confirm_button.pressed.connect(_on_player_count_confirmed)
+	continue_button.visible = SaveManager.has_save()
+	continue_button.pressed.connect(_on_continue_pressed)
 
 
 func _layout_ui() -> void:
@@ -48,7 +50,7 @@ func _layout_ui() -> void:
 		background.position = Vector2.ZERO
 		background.size = Vector2(viewport_size.x, tex_size.y * scale_factor)
 
-	for btn in [host_button, join_button, local_button, debug_button]:
+	for btn in [continue_button, host_button, join_button, local_button, debug_button]:
 		btn.custom_minimum_size = UiTheme.TITLE_BUTTON_SIZE
 		btn.add_theme_font_size_override("font_size", UiTheme.TITLE_BUTTON_FONT_SIZE)
 	center_buttons.size = center_buttons.get_combined_minimum_size()
@@ -67,6 +69,7 @@ func _style_popup_background(popup: PopupPanel) -> void:
 
 
 func _on_host_pressed() -> void:
+	SaveManager.delete()
 	GameFlow.reset_players()
 	GameFlow.is_debug_mode = false
 	GameFlow.pending_setup_mode = "host"
@@ -76,6 +79,7 @@ func _on_host_pressed() -> void:
 
 
 func _on_join_pressed() -> void:
+	SaveManager.delete()
 	GameFlow.reset_players()
 	GameFlow.is_debug_mode = false
 	GameFlow.pending_setup_mode = "join"
@@ -90,6 +94,7 @@ func _on_local_pressed() -> void:
 
 ## Le bouton Debug ne demande plus rien : 5 joueurs générés directement.
 func _on_debug_pressed() -> void:
+	SaveManager.delete()
 	GameFlow.is_debug_mode = true
 	GameFlow.pending_setup_mode = ""
 	GameFlow.generate_debug_players(5)
@@ -106,6 +111,7 @@ func _popup_player_count_centered() -> void:
 
 
 func _on_player_count_confirmed() -> void:
+	SaveManager.delete()
 	player_count_popup.hide()
 	var count := int(player_count_spinbox.value)
 	GameFlow.is_debug_mode = false
