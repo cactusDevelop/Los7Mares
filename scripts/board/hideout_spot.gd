@@ -57,12 +57,12 @@ func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> voi
 
 ## Attribue définitivement cet emplacement à un joueur : affiche sa cachette
 ## colorée et désactive le survol/clic.
-func claim(color: String) -> void:
+func claim(color: String, instant: bool = false) -> void:
 	is_taken = true
 	owner_color = color
 	case_sprite.texture = load(CACHETTE_TEXTURE_PATH % color)
 	case_sprite.modulate = Color(1, 1, 1, 1)
-	_show_boat(color)
+	_show_boat(color, instant)
 	set_hover_enabled(false)
 
 
@@ -81,11 +81,12 @@ func claim(color: String) -> void:
 ## puis reconvertie en repère local du bateau, donc l'axe de perspective
 ## reste parallèle à l'écran pour tous les bateaux quelle que soit leur
 ## orientation ou celle de leur parent.
-func _show_boat(color: String) -> void:
+func _show_boat(color: String, instant: bool = false) -> void:
 	var base_color: Color = GameFlow.COLOR_VALUES[color]
 	boat_sprite.rotation = -global_rotation
 	boat_sprite.modulate = base_color
 	boat_sprite.visible = true
+
 
 	# Les offsets (épaisseur, chute) sont ajoutés à boat_sprite.position, qui
 	# est dans le repère LOCAL de la cachette (self) : c'est donc la rotation
@@ -123,7 +124,7 @@ func _show_boat(color: String) -> void:
 		entry["node"].modulate.a = 0.0
 		entry["node"].position = entry["target"] + start_offset
 
-	var duration: float = Settings.anim_duration(BOAT_DROP_DURATION)
+	var duration: float = 0.0 if instant else Settings.anim_duration(BOAT_DROP_DURATION)
 	var tween := create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(boat_sprite, "position", boat_target_pos, duration)\

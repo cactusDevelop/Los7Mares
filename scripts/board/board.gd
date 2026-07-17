@@ -6,6 +6,8 @@ const PILE_THUMB_OFFSET := Vector2(0, 6)
 const PLAYER_BOARDS_PANEL_MAX_HEIGHT_RATIO := 0.75
 
 const SEA_CARD_PILE_SCENE := preload("res://scenes/board/sea_card_pile.tscn")
+const CAPTAIN_PIECE_SCENE := preload("res://scenes/board/pieces/captain_piece.tscn")
+const SECOND_PIECE_SCENE := preload("res://scenes/board/pieces/second_piece.tscn")
 const SEA_TOKEN_PILE_SCENE := preload("res://scenes/board/sea_token_pile.tscn")
 const PLAYER_BOARD_ROW := preload("res://scenes/ui/player_board_row.tscn")
 
@@ -57,6 +59,8 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var hideout_phase: Node = $HideoutPhase
 @onready var piece_placement_phase: Node = $PiecePlacementPhase
 @onready var card_draw_phase: Node = $CardDrawPhase
+@onready var return_to_menu_button: Button = $UI/ReturnToMenuButton
+@onready var return_to_menu_confirm: ConfirmationDialog = $UI/ReturnToMenuConfirm
 
 var _sea_tiles: Array = []
 var _slot_order: Array = []
@@ -95,6 +99,9 @@ func _ready() -> void:
 	action_spots_container.z_index = 1
 	seas_container.z_index = 2
 	token_piles_container.z_index = 3
+	
+	return_to_menu_button.pressed.connect(func(): return_to_menu_confirm.popup_centered())
+	return_to_menu_confirm.confirmed.connect(func(): GameFlow.go_to_title())
 
 	for child in seas_container.get_children():
 		if child.is_in_group("sea_tile"):
@@ -165,14 +172,23 @@ func _ready() -> void:
 	GameFlow.players_changed.connect(_refresh_player_boards)
 	_refresh_player_boards()
 
-	dealing_phase.finished.connect(func(): hideout_phase.start(self))
+	dealing_phase.finished.connect(func():
+		_autosave("hideout")
+		hideout_phase.start(self)
+	)
 	hideout_phase.finished.connect(func():
 		_start_round()
+		_autosave("pieces")
 		piece_placement_phase.start(self)
 	)
-	piece_placement_phase.finished.connect(func(): card_draw_phase.start(self))
+	piece_placement_phase.finished.connect(func():
+		_autosave("cards")
+		card_draw_phase.start(self)
+	)
 
-	if debug_skip_to_pieces:
+	if GameFlow.is_continuing:
+		_restore_from_save()
+	elif debug_skip_to_pieces:
 		narration_box.hide_box()
 		deck_area.visible = false
 		deck_area.input_pickable = false
@@ -317,3 +333,122 @@ func _take_fortune_token_for(player_id: int) -> void:
 			p["special_resources"]["fortune"] += 1
 			break
 	GameFlow.players_changed.emit()
+
+
+func _serialize_state(phase: String) -> Dictionary:
+	var sea_order: Array = []
+	for tile in _slot_order:
+		sea_order.append(SEA_KEY_BY_NODE_NAME.get(tile.name, ""))
+	var action_spots_data: Array = []
+	for spot in action_spots_container.get_children():
+		action_spots_data.append(spot.get_pieces_snapshot())
+	var hideouts_data: Array = []
+	for spot in hideout_spots_container.get_children():
+		hideouts_data.append(spot.owner_color if spot.is_taken else "")
+	var fortune_data: Array = []
+	for spot in fortune_spots_container.get_children():
+		fortune_data.append(spot.is_taken)
+	return {
+		"phase": phase, "sea_order": sea_order, "action_spots": action_spots_data,
+		"hideouts": hideouts_data, "fortune_taken": fortune_data,
+		"deck_remaining": SeaDecks.get_remaining_counts(),
+	}
+
+func _autosave(phase: String) -> void:
+	GameFlow.autosave(_serialize_state(phase))
+
+func _restore_from_save() -> void:
+	var data: Dictionary = GameFlow.take_pending_board_data()
+	if data.is_empty():
+		dealing_phase.start(self)
+		return
+
+	deck_area.visible = false
+	deck_area.input_pickable = false
+	narration_box.hide_box()
+
+	var board_center: Vector2 = global_position
+	var slots: Array = []
+	for i in range(_total_seas):
+		var angle_degrees = 90.0 + i * (360.0 / _total_seas)
+		var angle_rad = deg_to_rad(angle_degrees)
+		var direction := Vector2(cos(angle_rad), sin(angle_rad))
+		slots.append({
+			"global_position": board_center + radius * direction,
+			"rotation": angle_degrees + 90.0,
+			"pile_position": board_center + (radius + UiTheme.CARD_PILE_RADIUS_OFFSET) * direction,
+		})
+
+	var name_to_tile := {}
+	for tile in _sea_tiles:
+		name_to_tile[SEA_KEY_BY_NODE_NAME.get(tile.name, "")] = tile
+
+	_slot_order = []
+	var saved_order: Array = data.get("sea_order", [])
+	var deck_remaining: Dictionary = data.get("deck_remaining", {})
+	for i in range(saved_order.size()):
+		var tile = name_to_tile.get(saved_order[i])
+		if tile == null:
+			continue
+		_slot_order.append(tile)
+		tile.global_position = slots[i].global_position
+		tile.rotation_degrees = slots[i].rotation
+		tile.back_sprite.visible = false
+		tile.front_sprite.visible = true
+
+		var pile: Node2D = SEA_CARD_PILE_SCENE.instantiate()
+		card_piles_container.add_child(pile)
+		pile.global_position = slots[i].pile_position
+		pile.rotation_degrees = slots[i].rotation
+		pile.sea_key = saved_order[i]
+		pile.visible = true
+		pile.modulate.a = 1.0
+		var remaining: int = deck_remaining.get(saved_order[i], 0)
+		var back_path := "res://assets/art/cards/carte-%s-dos.png" % saved_order[i]
+		var back_tex: Texture2D = load(back_path) if ResourceLoader.exists(back_path) else preload("res://assets/art/cards/carte-sauvage-dos.png")
+		pile.restore_visual_stack(remaining, back_tex)
+
+	SeaDecks.set_remaining(deck_remaining)
+
+	var hideout_spots := hideout_spots_container.get_children()
+	var hideouts_data: Array = data.get("hideouts", [])
+	for i in range(hideout_spots.size()):
+		if i < hideouts_data.size() and hideouts_data[i] != "":
+			hideout_spots[i].visible = true
+			hideout_spots[i].claim(hideouts_data[i], true)
+
+	var fortune_spots := fortune_spots_container.get_children()
+	var fortune_data: Array = data.get("fortune_taken", [])
+	for i in range(fortune_spots.size()):
+		if i < fortune_data.size() and fortune_data[i]:
+			fortune_spots[i].take()
+
+	var action_spots := action_spots_container.get_children()
+	var action_data: Array = data.get("action_spots", [])
+	for i in range(action_spots.size()):
+		if i >= action_data.size():
+			continue
+		for piece_info in action_data[i]:
+			var scene: PackedScene = CAPTAIN_PIECE_SCENE if piece_info["rank"] == GameFlow.PieceRank.CAPTAIN else SECOND_PIECE_SCENE
+			var piece: Node2D = scene.instantiate()
+			piece.modulate = GameFlow.COLOR_VALUES[piece_info["color"]]
+			piece.scale = Vector2.ONE * UiTheme.PIECE_SCALE
+			action_spots[i].add_piece(piece, piece_info["color"], piece_info["rank"], false)
+
+	GameFlow.players_changed.connect(_refresh_player_boards)
+	_refresh_player_boards()
+
+	hideout_phase.finished.connect(func():
+		_start_round()
+		_autosave("pieces")
+		piece_placement_phase.start(self)
+	)
+	piece_placement_phase.finished.connect(func():
+		_autosave("cards")
+		card_draw_phase.start(self)
+	)
+
+	match data.get("phase", "cards"):
+		"hideout": hideout_phase.resume(self)
+		"pieces": piece_placement_phase.resume(self)
+		_: card_draw_phase.start(self)

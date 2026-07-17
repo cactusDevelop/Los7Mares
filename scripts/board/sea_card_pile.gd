@@ -46,3 +46,11 @@ func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> voi
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		pile_clicked.emit(self)
+
+
+func restore_visual_stack(remaining_count: int, texture: Texture2D) -> void:
+	for child in cards_container.get_children():
+		child.queue_free()
+	for i in range(remaining_count):
+		var card := add_visual_card(texture, Vector2(0, -2) * i)
+		card.scale = Vector2.ONE * 0.5

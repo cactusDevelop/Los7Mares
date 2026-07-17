@@ -67,3 +67,17 @@ func discard_card(card: SeaCard) -> void:
 
 func cards_remaining(sea_key: String) -> int:
 	return _decks.get(sea_key, []).size()
+
+
+func get_remaining_counts() -> Dictionary:
+	var out := {}
+	for k in SEA_KEYS:
+		out[k] = _decks[k].size()
+	return out
+
+
+func set_remaining(counts: Dictionary) -> void:
+	for k in counts.keys():
+		var target: int = counts[k]
+		while _decks.has(k) and _decks[k].size() > target and not _decks[k].is_empty():
+			_decks[k].pop_back()

@@ -11,6 +11,12 @@ extends Control
 @onready var player_count_popup: PopupPanel = $PlayerCountPopup
 @onready var player_count_spinbox: SpinBox = $PlayerCountPopup/Padding/VBoxContainer/PlayerCountSpinBox
 @onready var player_count_confirm_button: Button = $PlayerCountPopup/Padding/VBoxContainer/ConfirmButton
+@onready var continue_button: Button = $CenterButtons/ContinueButton
+
+
+func _on_continue_pressed() -> void:
+	MusicManager.fade_to_random_game_music()
+	GameFlow.continue_game()
 
 
 func _ready() -> void:

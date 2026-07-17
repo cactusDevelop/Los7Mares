@@ -157,6 +157,13 @@ layout_mode = 2
 
 [node name="PlayerBoardExpanded" parent="UI" unique_id=670737293 instance=ExtResource("18_ctilb")]
 
+[node name="ReturnToMenuButton" type="Button" parent="UI" unique_id=1493341315]
+offset_right = 8.0
+offset_bottom = 8.0
+offset_transform_enabled = true
+offset_transform_position = Vector2(20, 20)
+text = "Retour au menu"
+
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
 
 [node name="Spot1" parent="ActionSpots" unique_id=1764597111 instance=ExtResource("15_kug5n")]

@@ -26,3 +26,4 @@ func _on_card_pile_clicked(pile: Node2D) -> void:
 
 func _on_sea_card_resolved(card: SeaCard) -> void:
 	_board.narration_box.say(tr(card.title) + " — " + tr(card.description))
+	_board._autosave("cards")

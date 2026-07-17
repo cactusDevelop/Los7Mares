@@ -39,6 +39,7 @@ func _on_hideout_spot_clicked(spot: Node2D) -> void:
 	spot.claim(player["color"])
 	_board.narration_box.hide_box()
 	_hideout_turn_index += 1
+	_board._autosave("hideout")
 	_begin_hideout_turn()
 
 
@@ -46,3 +47,18 @@ func _end_hideout_phase() -> void:
 	for spot in _board.hideout_spots_container.get_children():
 		spot.set_hover_enabled(false)
 	finished.emit()
+
+
+func resume(board: Board) -> void:
+	_board = board
+	var claimed := 0
+	for spot in _board.hideout_spots_container.get_children():
+		if spot.is_taken:
+			claimed += 1
+	_hideout_turn_order = range(GameFlow.players.size() - 1, -1, -1)
+	_hideout_turn_index = claimed
+	for spot in _board.hideout_spots_container.get_children():
+		spot.visible = true
+		if not spot.spot_clicked.is_connected(_on_hideout_spot_clicked):
+			spot.spot_clicked.connect(_on_hideout_spot_clicked)
+	_begin_hideout_turn()

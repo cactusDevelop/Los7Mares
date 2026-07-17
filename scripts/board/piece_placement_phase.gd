@@ -79,6 +79,7 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 		_placed_rank_by_player[_current_player_index] = _selected_rank
 	_selected_rank = -1
 	_current_player_index += 1
+	_board._autosave("pieces")
 	_begin_player_piece_turn()
 
 
@@ -111,3 +112,35 @@ func _shift_camera_for_selection(active: bool) -> void:
 	tween.set_parallel(true)
 	tween.tween_property(_board.camera, "position", target_pos, 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(_board.camera, "zoom", target_zoom, 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+
+func resume(board: Board) -> void:
+	_board = board
+	_placed_rank_by_player.clear()
+	var total_pieces := 0
+	for i in range(GameFlow.players.size()):
+		var color: String = GameFlow.players[i]["color"]
+		var count := 0
+		var known_rank := -1
+		for spot in _board.action_spots_container.get_children():
+			for p in spot.get_pieces_snapshot():
+				if p["color"] == color:
+					count += 1
+					known_rank = p["rank"]
+		total_pieces += count
+		if count == 1:
+			_placed_rank_by_player[i] = known_rank
+
+	var n: int = GameFlow.players.size()
+	_current_round = 0 if total_pieces < n else 1
+	_current_player_index = total_pieces if _current_round == 0 else total_pieces - n
+
+	for spot in _board.action_spots_container.get_children():
+		if not spot.spot_clicked.is_connected(_on_action_spot_clicked):
+			spot.spot_clicked.connect(_on_action_spot_clicked)
+		spot.set_hover_enabled(true)
+	if not _board.piece_selection_panel.piece_selected.is_connected(_on_piece_selected):
+		_board.piece_selection_panel.piece_selected.connect(_on_piece_selected)
+	_board.piece_selection_panel.show_for_placement_phase()
+	_shift_camera_for_selection(true)
+	_begin_player_piece_turn()

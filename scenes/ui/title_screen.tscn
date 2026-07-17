@@ -24,6 +24,10 @@ offset_right = 40.0
 offset_bottom = 40.0
 offset_transform_enabled = true
 
+[node name="ContinueButton" type="Button" parent="CenterButtons" unique_id=1815669881]
+layout_mode = 2
+text = "Continuer"
+
 [node name="DebugButton" type="Button" parent="CenterButtons" unique_id=1554320652]
 layout_mode = 2
 text = "DEBUG"

@@ -64,15 +64,6 @@ func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> voi
 		spot_clicked.emit(self)
 
 
-func add_piece(piece_node: Node2D, color: String, rank: int) -> void:
-	var order := _pieces.size()
-	_pieces.append({"color": color, "rank": rank, "order": order, "node": piece_node})
-	add_child(piece_node)
-	_relayout_pieces()
-	_update_case_color()
-	_animate_piece_drop(piece_node)
-
-
 func _animate_piece_drop(piece_node: Node2D) -> void:
 	var target_position := piece_node.position
 	piece_node.position = target_position - Vector2(0, PIECE_DROP_HEIGHT)
@@ -119,3 +110,20 @@ func set_hover_enabled(enabled: bool) -> void:
 		_is_hovering = false
 		_tween_scale(1.0)
 		_update_case_color()
+
+
+func add_piece(piece_node: Node2D, color: String, rank: int, animate: bool = true) -> void:
+	var order := _pieces.size()
+	_pieces.append({"color": color, "rank": rank, "order": order, "node": piece_node})
+	add_child(piece_node)
+	_relayout_pieces()
+	_update_case_color()
+	if animate:
+		_animate_piece_drop(piece_node)
+
+
+func get_pieces_snapshot() -> Array:
+	var out := []
+	for p in _pieces:
+		out.append({"color": p["color"], "rank": p["rank"]})
+	return out

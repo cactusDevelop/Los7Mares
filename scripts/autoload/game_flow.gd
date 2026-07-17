@@ -44,6 +44,9 @@ var players: Array[Dictionary] = []
 
 var _next_player_id: int = 0
 
+var is_continuing: bool = false
+var _pending_board_data: Dictionary = {}
+
 
 func reset_players() -> void:
 	players.clear()
@@ -201,3 +204,37 @@ func get_last_player_id() -> int:
 		return -1
 	var last_index := (first_index - 1 + players.size()) % players.size()
 	return players[last_index]["id"]
+
+
+func start_new_game() -> void:
+	SaveManager.delete()
+	is_continuing = false
+
+
+func continue_game() -> void:
+	var data := SaveManager.read()
+	if data.is_empty():
+		return
+	reset_players()
+	for p in data.get("players", []):
+		players.append(p)
+	_next_player_id = data.get("next_player_id", players.size())
+	is_debug_mode = data.get("is_debug_mode", false)
+	pending_setup_mode = ""
+	is_continuing = true
+	_pending_board_data = data.get("board", {})
+	players_changed.emit()
+	go_to_board()
+
+
+func take_pending_board_data() -> Dictionary:
+	var d := _pending_board_data
+	_pending_board_data = {}
+	return d
+
+
+func autosave(board_data: Dictionary) -> void:
+	SaveManager.write({
+		"players": players, "next_player_id": _next_player_id,
+		"is_debug_mode": is_debug_mode, "board": board_data,
+	})
