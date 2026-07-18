@@ -18,7 +18,7 @@ const BOAT_DROP_DURATION := 0.35
 ## Effet 3D (épaisseur) du bateau : mêmes constantes de style que les jetons
 ## de player_board_expanded.gd (couches assombries décalées). x5 par rapport
 ## aux jetons pour rester visible sur un sprite de bateau plus grand.
-const BOAT_THICKNESS_PX := 30.0
+const BOAT_THICKNESS_PX := 50.0
 const BOAT_THICKNESS_LAYERS := 3
 const BOAT_EDGE_DARKEN := 0.45
 
@@ -82,10 +82,12 @@ func claim(color: String, instant: bool = false) -> void:
 ## reste parallèle à l'écran pour tous les bateaux quelle que soit leur
 ## orientation ou celle de leur parent.
 func _show_boat(color: String, instant: bool = false) -> void:
+	const BOAT_Z_INDEX := 2
 	var base_color: Color = GameFlow.COLOR_VALUES[color]
 	boat_sprite.rotation = -global_rotation
 	boat_sprite.modulate = base_color
 	boat_sprite.visible = true
+	boat_sprite.z_index = BOAT_Z_INDEX
 
 
 	# Les offsets (épaisseur, chute) sont ajoutés à boat_sprite.position, qui

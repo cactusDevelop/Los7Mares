@@ -19,3 +19,15 @@ func read() -> Dictionary:
 func delete() -> void:
 	if has_save():
 		DirAccess.remove_absolute(SAVE_PATH)
+
+## Met à jour uniquement la liste des joueurs dans la sauvegarde existante
+## (sans toucher au reste de l'état du plateau), pour pouvoir persister des
+## changements légers (ex: déplacement d'un objet dans l'inventaire) sans
+## dépendre du prochain autosave lié à une phase de jeu. Ne fait rien s'il
+## n'y a pas de partie sauvegardée en cours.
+func update_players(players: Array) -> void:
+	var data := read()
+	if data.is_empty():
+		return
+	data["players"] = players
+	write(data)

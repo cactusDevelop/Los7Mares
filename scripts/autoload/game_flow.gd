@@ -48,6 +48,27 @@ var is_continuing: bool = false
 var _pending_board_data: Dictionary = {}
 
 
+func _ready() -> void:
+	# Par défaut, Godot ferme l'application dès que la fenêtre est fermée
+	# (bouton "X", Alt+F4) sans laisser la moindre chance de sauvegarder.
+	# On désactive ce comportement automatique pour pouvoir écrire la
+	# sauvegarde nous-mêmes juste avant de quitter réellement.
+	get_tree().set_auto_accept_quit(false)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		save_players()
+		get_tree().quit()
+
+
+## Resauvegarde uniquement la liste des joueurs (donc leur inventaire :
+## positions des ressources, jetons, planches...) dans le fichier de
+## sauvegarde existant, sans attendre le prochain autosave de phase de jeu.
+func save_players() -> void:
+	SaveManager.update_players(players)
+
+
 func reset_players() -> void:
 	players.clear()
 	_next_player_id = 0

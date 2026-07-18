@@ -4,6 +4,19 @@ extends Control
 ## Toutes les coordonnées ci-dessous sont en PIXELS DE L'IMAGE D'ORIGINE
 ## (assets/art/board/plateau-joueur-jaune.png, 2716x1813), pas en pixels
 ## écran : le script convertit automatiquement selon la taille affichée.
+##
+## --- Persistance & drag & drop (inventaire) ---
+## La position réelle de chaque objet (ressource, jeton, planche) est
+## mémorisée dans player["inventory_layout"], qui est sauvegardée avec la
+## partie (GameFlow.autosave -> SaveManager, car "player" est une référence
+## directe vers l'entrée dans GameFlow.players). Au premier affichage, les
+## positions sont générées comme avant (aléatoire dans leur zone pour les
+## jetons/planches, slots fixes pour les ressources), puis elles restent
+## figées et modifiables par glisser-déposer :
+## - Ressources classiques : 9 slots fixes, on peut prendre une ressource et
+##   la déposer sur une autre pour les échanger (swap).
+## - Jetons Fortune/Trésor et planches : position libre mais bornée à
+##   l'intérieur de leur propre zone ("carré").
 
 const RESOURCE_SLOT_PIXELS: Array[Vector2] = [
 	Vector2(2100, 1320), Vector2(2250, 1320), Vector2(2400, 1320),
@@ -11,11 +24,16 @@ const RESOURCE_SLOT_PIXELS: Array[Vector2] = [
 	Vector2(2100, 1620), Vector2(2250, 1620), Vector2(2400, 1620),
 ]
 ## Zones (coin haut-gauche -> coin bas-droit) dans lesquelles les jetons
-## Trésor / Fortune apparaissent à une position aléatoire.
-const TREASURE_RECT_MIN := Vector2(150, 1000)
-const TREASURE_RECT_MAX := Vector2(750, 1250)
-const FORTUNE_RECT_MIN := Vector2(150, 1400)
-const FORTUNE_RECT_MAX := Vector2(750, 1650)
+## Trésor / Fortune apparaissent (position initiale aléatoire, puis bornées
+## lors du glisser-déposer).
+const TREASURE_RECT_MIN := Vector2(100, 925)
+const TREASURE_RECT_MAX := Vector2(790, 1310)
+const FORTUNE_RECT_MIN := Vector2(100, 1350)
+const FORTUNE_RECT_MAX := Vector2(800, 1720)
+## Zone ("carré") dans laquelle les planches de coque peuvent être
+## déplacées librement par glisser-déposer.
+const PLANK_RECT_MIN := Vector2(880, 1250)
+const PLANK_RECT_MAX := Vector2(1930, 1700)
 
 const RESOURCE_CUBE_EDGE := 120.0
 const SPECIAL_ICON_SIZE := Vector2(110, 110)
@@ -50,20 +68,11 @@ const RESOURCE_CUBE_COLORS := {
 const FORTUNE_TEXTURE := preload("res://assets/art/tokens/fortune.png")
 const TREASURE_TEXTURE := preload("res://assets/art/tokens/tresor.png")
 
-## Planches de coque (= points de vie), affichées dans le rectangle
-## (900,1250)-(1950,1700) de l'image d'origine. Disposées en 2 rangées
-## (4 puis 3) façon planches empilées. Ajuste ces positions si elles ne
-## correspondent pas bien à la zone dessinée sur le plateau.
-const PLANK_SLOT_PIXELS: Array[Vector2] = [
-	Vector2(1030, 1360), Vector2(1310, 1360), Vector2(1590, 1360), Vector2(1870, 1360),
-	Vector2(1170, 1590), Vector2(1450, 1590), Vector2(1730, 1590),
-]
-const PLANK_SIZE := Vector2(240, 80)
+## Planches de coque (= points de vie), verticales. Position initiale
+## aléatoire dans PLANK_RECT (comme les jetons Fortune/Trésor) ; ensuite la
+## position réelle vient de player["inventory_layout"]["plank_pos"].
+const PLANK_SIZE := Vector2(80, 240)
 const PLANK_ROTATION_JITTER_DEG := 4.0  # légère inclinaison aléatoire pour un rendu moins rigide
-const PLANK_REFLECTION_COUNT := 3
-const PLANK_REFLECTION_LIGHTEN := 0.35
-const PLANK_REFLECTION_ALPHA_MIN := 0.15
-const PLANK_REFLECTION_ALPHA_MAX := 0.4
 
 @onready var blocker: ColorRect = $Blocker
 @onready var padding: MarginContainer = $Padding
@@ -71,6 +80,19 @@ const PLANK_REFLECTION_ALPHA_MAX := 0.4
 @onready var board_texture: TextureRect = $Padding/Content/BoardArea/BoardStack/BoardTexture
 @onready var resource_slots: Control = $Padding/Content/BoardArea/BoardStack/ResourceSlots
 @onready var close_button: Button = $Padding/Content/CloseButton
+
+## Joueur actuellement affiché (référence directe vers l'entrée dans
+## GameFlow.players, donc toute modification est automatiquement persistée
+## au prochain GameFlow.autosave()).
+var _current_player: Dictionary = {}
+
+## Liste des objets actuellement affichés et déplaçables : chaque entrée est
+## {"kind": "resource"|"treasure"|"fortune"|"plank", "index": int,
+##  "rect": Rect2 (en coordonnées locales de resource_slots), "nodes": [Node]}
+var _draggable_items: Array[Dictionary] = []
+var _dragging_item: Dictionary = {}
+var _drag_active: bool = false
+var _drag_offset: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
@@ -89,6 +111,10 @@ func _ready() -> void:
 	close_button.custom_minimum_size = Vector2(0, 64)
 	close_button.pressed.connect(func(): visible = false)
 	blocker.gui_input.connect(_on_blocker_gui_input)
+
+	resource_slots.mouse_filter = Control.MOUSE_FILTER_STOP
+	resource_slots.gui_input.connect(_on_resource_slots_gui_input)
+	set_process_input(true)
 
 
 func show_player(player: Dictionary) -> void:
@@ -112,44 +138,159 @@ func show_player(player: Dictionary) -> void:
 
 
 ## Place un cube coloré par unité de ressource simple (bois/acier/nourriture/
-## rhum/laine) sur les cases d'inventaire, et des jetons Fortune/Trésor
-## répartis aléatoirement dans leurs zones respectives.
+## rhum/laine) sur les cases d'inventaire, et des jetons Fortune/Trésor et des
+## planches de coque, tous à leur position mémorisée (player["inventory_layout"]).
 func _refresh_resource_display(player: Dictionary) -> void:
 	for child in resource_slots.get_children():
 		child.queue_free()
+	_draggable_items.clear()
+	_current_player = player
 
-	var units: Array[String] = []
-	for res_type in GameFlow.RESOURCE_TYPES:
-		for i in range(player["resources"].get(res_type, 0)):
-			units.append(res_type)
-	units = units.slice(0, RESOURCE_SLOT_PIXELS.size())
+	_ensure_inventory_layout(player)
+	var layout: Dictionary = player["inventory_layout"]
 
 	var edge_local: float = _texture_length_to_local(RESOURCE_CUBE_EDGE)
-	for i in range(units.size()):
-		var cube := _build_cube_icon(RESOURCE_CUBE_COLORS.get(units[i], Color.MAGENTA), edge_local)
+	var slots: Array = layout["resource_slots"]
+	for i in range(slots.size()):
+		var res_type: String = slots[i]
+		if res_type == "":
+			continue
+		var cube := _build_cube_icon(RESOURCE_CUBE_COLORS.get(res_type, Color.MAGENTA), edge_local)
 		resource_slots.add_child(cube)
-		cube.position = _texture_to_local(RESOURCE_SLOT_PIXELS[i])
+		var center: Vector2 = _texture_to_local(RESOURCE_SLOT_PIXELS[i])
+		cube.position = center
+		var half := edge_local / 2.0
+		_draggable_items.append({
+			"kind": "resource", "index": i,
+			"rect": Rect2(center - Vector2(half, half), Vector2(edge_local, edge_local)),
+			"nodes": [cube],
+		})
 
-	_place_special_tokens_random(player, "treasure", TREASURE_TEXTURE, TREASURE_RECT_MIN, TREASURE_RECT_MAX)
-	_place_special_tokens_random(player, "fortune", FORTUNE_TEXTURE, FORTUNE_RECT_MIN, FORTUNE_RECT_MAX)
-	_place_hull_planks(player)
+	_place_special_tokens("treasure", TREASURE_TEXTURE, layout, "treasure_pos")
+	_place_special_tokens("fortune", FORTUNE_TEXTURE, layout, "fortune_pos")
+	_place_hull_planks_from_layout(layout)
 
 
-func _place_special_tokens_random(player: Dictionary, key: String, texture: Texture2D, rect_min: Vector2, rect_max: Vector2) -> void:
-	var count: int = player["special_resources"].get(key, 0)
+## Crée / met à jour player["inventory_layout"] pour qu'il corresponde
+## exactement aux quantités actuelles du joueur (resources, special_resources,
+## hull_planks), en générant une position initiale (aléatoire pour les jetons
+## et les planches au-delà des 7 slots historiques, slot libre pour les
+## ressources) uniquement pour les nouveaux objets, et en retirant les
+## positions des objets qui ont été dépensés/perdus. Les positions déjà
+## connues (placées à la main par le joueur) ne sont jamais modifiées ici.
+func _ensure_inventory_layout(player: Dictionary) -> void:
+	if not player.has("inventory_layout"):
+		player["inventory_layout"] = {}
+	var layout: Dictionary = player["inventory_layout"]
+
+	# --- Ressources classiques : 9 slots fixes, contenu échangeable ---
+	var slot_count := RESOURCE_SLOT_PIXELS.size()
+	var slots: Array = layout.get("resource_slots", [])
+	while slots.size() < slot_count:
+		slots.append("")
+	slots = slots.slice(0, slot_count)
+	for res_type in GameFlow.RESOURCE_TYPES:
+		var wanted: int = player["resources"].get(res_type, 0)
+		var have: int = slots.count(res_type)
+		if have < wanted:
+			for i in range(slot_count):
+				if have >= wanted:
+					break
+				if slots[i] == "":
+					slots[i] = res_type
+					have += 1
+		elif have > wanted:
+			for i in range(slot_count - 1, -1, -1):
+				if have <= wanted:
+					break
+				if slots[i] == res_type:
+					slots[i] = ""
+					have -= 1
+	layout["resource_slots"] = slots
+
+	# --- Jetons Fortune / Trésor : position libre dans leur carré ---
+	_ensure_free_positions(layout, "treasure_pos",
+		player["special_resources"].get("treasure", 0), TREASURE_RECT_MIN, TREASURE_RECT_MAX, SPECIAL_ICON_SIZE)
+	_ensure_free_positions(layout, "fortune_pos",
+		player["special_resources"].get("fortune", 0), FORTUNE_RECT_MIN, FORTUNE_RECT_MAX, SPECIAL_ICON_SIZE)
+
+	# --- Planches de coque : position libre dans leur carré ---
+	_ensure_free_positions(layout, "plank_pos",
+		player.get("hull_planks", 0), PLANK_RECT_MIN, PLANK_RECT_MAX, PLANK_SIZE)
+	_ensure_plank_style(layout)
+
+	player["inventory_layout"] = layout
+
+
+## Ajuste le tableau layout[key] (liste de [x, y], le centre de chaque objet)
+## pour qu'il contienne exactement `count` positions, en ajoutant des
+## positions aléatoires espacées si besoin, ou en retirant les dernières si
+## le joueur a perdu des objets de ce type.
+## `icon_size` (taille de l'objet, en pixels image) sert à rétrécir la zone
+## de tirage de la moitié de la taille de l'icône sur chaque bord : sans ça,
+## un objet tiré tout contre rect_max/rect_min dépasserait de son propre
+## rectangle, alors que le glisser-déposer, lui, garde toute l'icône dedans
+## (incohérence entre apparition et zone de déplacement autorisée).
+func _ensure_free_positions(layout: Dictionary, key: String, count: int, rect_min: Vector2, rect_max: Vector2, icon_size: Vector2) -> void:
+	var half := icon_size / 2.0
+	var safe_min := Vector2(min(rect_min.x + half.x, (rect_min.x + rect_max.x) / 2.0),
+		min(rect_min.y + half.y, (rect_min.y + rect_max.y) / 2.0))
+	var safe_max := Vector2(max(rect_max.x - half.x, safe_min.x),
+		max(rect_max.y - half.y, safe_min.y))
+
+	var positions: Array = layout.get(key, [])
+	if positions.size() < count:
+		var existing: Array[Vector2] = []
+		for p in positions:
+			existing.append(Vector2(p[0], p[1]))
+		for i in range(positions.size(), count):
+			var pixel := _pick_spaced_position(safe_min, safe_max, existing)
+			existing.append(pixel)
+			positions.append([pixel.x, pixel.y])
+	elif positions.size() > count:
+		positions = positions.slice(0, count)
+	layout[key] = positions
+
+
+## Chaque entrée de layout["plank_pos"] est [x, y] au moment de sa création
+## (par _ensure_free_positions) ; on lui ajoute ici une variation de couleur
+## (index 2) et une rotation (index 3), tirées aléatoirement une seule fois
+## puis conservées pour toujours (sinon la planche change d'aspect à chaque
+## réaffichage du panneau, ce qui est perturbant).
+func _ensure_plank_style(layout: Dictionary) -> void:
+	var planks: Array = layout.get("plank_pos", [])
+	for i in range(planks.size()):
+		var p: Array = planks[i]
+		if p.size() < 3:
+			p.append(randf_range(-0.1, 0.1))
+		if p.size() < 4:
+			p.append(randf_range(-PLANK_ROTATION_JITTER_DEG, PLANK_ROTATION_JITTER_DEG))
+		planks[i] = p
+	layout["plank_pos"] = planks
+
+
+## Affiche les jetons Fortune/Trésor à leur position mémorisée (layout[positions_key])
+## et les enregistre comme objets déplaçables.
+func _place_special_tokens(kind: String, texture: Texture2D, layout: Dictionary, positions_key: String) -> void:
+	var positions: Array = layout.get(positions_key, [])
 	var icon_size_local: Vector2 = _texture_size_to_local(SPECIAL_ICON_SIZE)
-	var placed_pixels: Array[Vector2] = []
-	for i in range(count):
-		var pixel_pos := _pick_spaced_position(rect_min, rect_max, placed_pixels)
-		placed_pixels.append(pixel_pos)
-		var anchor: Vector2 = _texture_to_local(pixel_pos) - icon_size_local / 2.0
-		_add_token_with_thickness(texture, anchor, icon_size_local)
+	for i in range(positions.size()):
+		var pixel := Vector2(positions[i][0], positions[i][1])
+		var anchor: Vector2 = _texture_to_local(pixel) - icon_size_local / 2.0
+		var nodes := _add_token_with_thickness(texture, anchor, icon_size_local)
+		_draggable_items.append({
+			"kind": kind, "index": i,
+			"rect": Rect2(anchor, icon_size_local),
+			"nodes": nodes,
+		})
 
 
 ## Empile plusieurs copies assombries du jeton, décalées vers le bas-gauche
 ## (DEPTH_DIRECTION), puis la copie en couleur normale au-dessus : donne une
-## petite épaisseur au jeton au lieu d'un sprite plat.
-func _add_token_with_thickness(texture: Texture2D, anchor: Vector2, icon_size: Vector2) -> void:
+## petite épaisseur au jeton au lieu d'un sprite plat. Retourne la liste des
+## nodes créés (utile pour les déplacer ensemble pendant un glisser-déposer).
+func _add_token_with_thickness(texture: Texture2D, anchor: Vector2, icon_size: Vector2) -> Array:
+	var nodes: Array = []
 	var step: Vector2 = UiTheme.DEPTH_DIRECTION * (TOKEN_THICKNESS_PX / float(TOKEN_THICKNESS_LAYERS))
 	for layer in range(TOKEN_THICKNESS_LAYERS, 0, -1):
 		var edge := TextureRect.new()
@@ -161,6 +302,7 @@ func _add_token_with_thickness(texture: Texture2D, anchor: Vector2, icon_size: V
 		edge.modulate = Color(1, 1, 1).darkened(TOKEN_EDGE_DARKEN)
 		resource_slots.add_child(edge)
 		edge.position = anchor + step * layer
+		nodes.append(edge)
 
 	var top := TextureRect.new()
 	top.texture = texture
@@ -170,28 +312,37 @@ func _add_token_with_thickness(texture: Texture2D, anchor: Vector2, icon_size: V
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resource_slots.add_child(top)
 	top.position = anchor
+	nodes.append(top)
+	return nodes
 
 
-## Place les planches de coque du joueur (points de vie) sur des
-## emplacements fixes (contrairement aux jetons Fortune/Trésor qui sont
-## dispersés aléatoirement) : elles doivent rester lisibles pour compter les
-## points de vie restants d'un coup d'œil.
-func _place_hull_planks(player: Dictionary) -> void:
-	var count: int = min(player.get("hull_planks", 0), PLANK_SLOT_PIXELS.size())
+## Affiche les planches de coque du joueur à leur position, couleur et
+## rotation mémorisées (layout["plank_pos"] = [x, y, teinte, rotation]).
+func _place_hull_planks_from_layout(layout: Dictionary) -> void:
+	var positions: Array = layout.get("plank_pos", [])
 	var size_local: Vector2 = _texture_size_to_local(PLANK_SIZE)
-	for i in range(count):
-		var anchor: Vector2 = _texture_to_local(PLANK_SLOT_PIXELS[i])
-		var plank := _build_plank_icon(_wood_color_variant(), size_local)
+	for i in range(positions.size()):
+		var p: Array = positions[i]
+		var pixel := Vector2(p[0], p[1])
+		var color_shift: float = p[2]
+		var rotation_deg: float = p[3]
+		var center: Vector2 = _texture_to_local(pixel)
+		var plank := _build_plank_icon(_wood_color_variant(color_shift), size_local)
 		resource_slots.add_child(plank)
-		plank.position = anchor
-		plank.rotation_degrees = randf_range(-PLANK_ROTATION_JITTER_DEG, PLANK_ROTATION_JITTER_DEG)
+		plank.position = center
+		plank.rotation_degrees = rotation_deg
+		_draggable_items.append({
+			"kind": "plank", "index": i,
+			"rect": Rect2(center - size_local / 2.0, size_local),
+			"nodes": [plank],
+		})
 
 
-## Légère variation de teinte autour du brun bois de base, pour que les 7
-## planches ne soient pas des clones parfaitement identiques (bois naturel).
-func _wood_color_variant() -> Color:
+## Variation de teinte autour du brun bois de base, pour que les planches ne
+## soient pas des clones parfaitement identiques (bois naturel). `shift` est
+## tiré une seule fois par planche puis mémorisé (voir _ensure_plank_style).
+func _wood_color_variant(shift: float) -> Color:
 	var base: Color = RESOURCE_CUBE_COLORS["wood"]
-	var shift := randf_range(-0.1, 0.1)
 	return base.lightened(shift) if shift > 0.0 else base.darkened(-shift)
 
 
@@ -207,8 +358,9 @@ func _build_plank_icon(base_color: Color, size: Vector2) -> Node2D:
 	var bottom_left := Vector2(-half.x, half.y)
 
 	# Épaisseur proportionnelle à la petite dimension (planche fine), pas au
-	# côté comme pour les cubes de ressource.
-	var extrude: Vector2 = -UiTheme.DEPTH_DIRECTION * size.y * CUBE_EXTRUDE_RATIO
+	# côté comme pour les cubes de ressource. On prend min(x, y) pour rester
+	# correct que la planche soit affichée à l'horizontale ou à la verticale.
+	var extrude: Vector2 = -UiTheme.DEPTH_DIRECTION * min(size.x, size.y) * CUBE_EXTRUDE_RATIO
 
 	var top_color: Color = base_color.lightened(0.25)
 	var left_wall_color: Color = base_color.darkened(0.15)
@@ -237,38 +389,7 @@ func _build_plank_icon(base_color: Color, size: Vector2) -> Node2D:
 	top_face.color = top_color
 	plank.add_child(top_face)
 
-	_add_wood_reflections(plank, half, extrude, top_color)
-
 	return plank
-
-
-## Trace quelques petits reflets clairs, semi-transparents, positionnés et
-## inclinés aléatoirement sur le dessus de la planche, pour évoquer la
-## lumière sur du bois verni plutôt que des veines dessinées à la main.
-func _add_wood_reflections(plank: Node2D, half: Vector2, extrude: Vector2, top_color: Color) -> void:
-	var reflection_color: Color = top_color.lightened(PLANK_REFLECTION_LIGHTEN)
-	for i in range(PLANK_REFLECTION_COUNT):
-		var center := Vector2(
-			randf_range(-half.x * 0.7, half.x * 0.7),
-			randf_range(-half.y * 0.6, half.y * 0.6)
-		)
-		var length := randf_range(half.x * 0.25, half.x * 0.55)
-		var thickness := randf_range(2.0, 4.5)
-		var angle := deg_to_rad(randf_range(-12.0, 12.0))
-		var dir := Vector2(1, 0).rotated(angle)
-
-		var line := Line2D.new()
-		line.width = thickness
-		line.antialiased = true
-		line.default_color = Color(
-			reflection_color.r, reflection_color.g, reflection_color.b,
-			randf_range(PLANK_REFLECTION_ALPHA_MIN, PLANK_REFLECTION_ALPHA_MAX)
-		)
-		line.points = PackedVector2Array([
-			center - dir * length * 0.5 + extrude,
-			center + dir * length * 0.5 + extrude,
-		])
-		plank.add_child(line)
 
 
 ## Tire une position aléatoire dans le rectangle, en essayant de rester à au
@@ -352,6 +473,15 @@ func _texture_to_local(pixel_pos: Vector2) -> Vector2:
 	return pixel_pos * (board_texture.size / board_texture.texture.get_size())
 
 
+## Convertit une position locale (écran, dans ResourceSlots) vers sa position
+## en pixels de l'image d'origine. Inverse de _texture_to_local, utilisée
+## pour mémoriser la position d'un objet après un glisser-déposer.
+func _local_to_texture(local_pos: Vector2) -> Vector2:
+	if board_texture.texture == null:
+		return local_pos
+	return local_pos / (board_texture.size / board_texture.texture.get_size())
+
+
 ## Convertit une longueur (ex: un côté de cube) en pixels image vers sa
 ## longueur équivalente à l'écran.
 func _texture_length_to_local(length_px: float) -> float:
@@ -371,3 +501,134 @@ func _texture_size_to_local(size_px: Vector2) -> Vector2:
 func _on_blocker_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		visible = false
+
+
+## Détecte le clic initial sur un objet déplaçable de l'inventaire.
+func _on_resource_slots_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_try_start_drag(event.position)
+
+
+func _try_start_drag(local_pos: Vector2) -> void:
+	for i in range(_draggable_items.size() - 1, -1, -1):
+		var item: Dictionary = _draggable_items[i]
+		var rect: Rect2 = item["rect"]
+		if rect.has_point(local_pos):
+			_dragging_item = item
+			_drag_offset = local_pos - rect.position
+			_drag_active = true
+			for n in item["nodes"]:
+				n.z_index = 100
+			return
+
+
+## Écoute globale (indépendante des limites de ResourceSlots) pendant un
+## glisser-déposer, pour ne pas perdre le suivi si la souris sort vite de la
+## zone. Ne fait rien tant qu'aucun glisser-déposer n'est en cours.
+func _input(event: InputEvent) -> void:
+	if not _drag_active:
+		return
+	if event is InputEventMouseMotion:
+		_update_drag_position(resource_slots.get_local_mouse_position())
+		get_viewport().set_input_as_handled()
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+		_finish_drag(resource_slots.get_local_mouse_position())
+		get_viewport().set_input_as_handled()
+
+
+func _update_drag_position(local_pos: Vector2) -> void:
+	var item: Dictionary = _dragging_item
+	var rect: Rect2 = item["rect"]
+	var new_top_left: Vector2 = local_pos - _drag_offset
+
+	if item["kind"] != "resource":
+		var rect_min: Vector2
+		var rect_max: Vector2
+		match item["kind"]:
+			"treasure":
+				rect_min = TREASURE_RECT_MIN
+				rect_max = TREASURE_RECT_MAX
+			"fortune":
+				rect_min = FORTUNE_RECT_MIN
+				rect_max = FORTUNE_RECT_MAX
+			"plank":
+				rect_min = PLANK_RECT_MIN
+				rect_max = PLANK_RECT_MAX
+		var local_min: Vector2 = _texture_to_local(rect_min)
+		var local_max: Vector2 = _texture_to_local(rect_max)
+		new_top_left.x = clamp(new_top_left.x, local_min.x, max(local_min.x, local_max.x - rect.size.x))
+		new_top_left.y = clamp(new_top_left.y, local_min.y, max(local_min.y, local_max.y - rect.size.y))
+
+	var delta: Vector2 = new_top_left - rect.position
+	rect.position = new_top_left
+	item["rect"] = rect
+	for n in item["nodes"]:
+		n.position += delta
+
+
+func _finish_drag(local_pos: Vector2) -> void:
+	_update_drag_position(local_pos)
+	var item: Dictionary = _dragging_item
+	_drag_active = false
+	_dragging_item = {}
+	if item.is_empty() or _current_player.is_empty():
+		return
+
+	var layout: Dictionary = _current_player["inventory_layout"]
+	match item["kind"]:
+		"resource":
+			_finish_resource_drag(item, layout)
+		"treasure":
+			_finish_free_drag(item, layout, "treasure_pos")
+		"fortune":
+			_finish_free_drag(item, layout, "fortune_pos")
+		"plank":
+			_finish_free_drag(item, layout, "plank_pos")
+
+	GameFlow.save_players()
+	_refresh_resource_display(_current_player)
+
+
+## Ressource classique : on l'accroche au slot fixe le plus proche du point
+## de dépose. Si ce slot contient déjà une autre ressource, les deux
+## échangent leur place (swap) ; sinon la ressource déplacée occupe le slot
+## libre. Un dépôt hors zone/inchangé n'a aucun effet (retour au refresh).
+func _finish_resource_drag(item: Dictionary, layout: Dictionary) -> void:
+	var slots: Array = layout["resource_slots"]
+	var from_index: int = item["index"]
+	var rect: Rect2 = item["rect"]
+	var center: Vector2 = rect.position + rect.size / 2.0
+
+	var nearest_index := -1
+	var nearest_dist := INF
+	for i in range(RESOURCE_SLOT_PIXELS.size()):
+		var slot_center: Vector2 = _texture_to_local(RESOURCE_SLOT_PIXELS[i])
+		var d := center.distance_to(slot_center)
+		if d < nearest_dist:
+			nearest_dist = d
+			nearest_index = i
+
+	if nearest_index == -1 or nearest_index == from_index:
+		return
+
+	var tmp = slots[nearest_index]
+	slots[nearest_index] = slots[from_index]
+	slots[from_index] = tmp
+	layout["resource_slots"] = slots
+
+
+## Jeton Fortune/Trésor ou planche : la position (déjà bornée à la zone dans
+## _update_drag_position) est simplement mémorisée.
+func _finish_free_drag(item: Dictionary, layout: Dictionary, key: String) -> void:
+	var positions: Array = layout[key]
+	var rect: Rect2 = item["rect"]
+	var center: Vector2 = rect.position + rect.size / 2.0
+	var pixel := _local_to_texture(center)
+	# On ne met à jour que x/y : les éventuels champs supplémentaires (ex :
+	# teinte et rotation des planches, aux index 2 et 3) sont conservés tels
+	# quels pour ne pas régénérer l'aspect de l'objet à chaque déplacement.
+	var entry: Array = positions[item["index"]]
+	entry[0] = pixel.x
+	entry[1] = pixel.y
+	positions[item["index"]] = entry
+	layout[key] = positions
