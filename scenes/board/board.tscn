@@ -186,23 +186,23 @@ cancel_button_text = "Non, ça ira"
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
 
 [node name="Spot1" parent="ActionSpots" unique_id=1764597111 instance=ExtResource("15_kug5n")]
-position = Vector2(-8, 16)
+position = Vector2(1, 24)
 scale = Vector2(1.1, 1.1)
 
 [node name="Spot2" parent="ActionSpots" unique_id=1737948124 instance=ExtResource("15_kug5n")]
-position = Vector2(302, -297)
+position = Vector2(307, -292)
 scale = Vector2(1.1, 1.1)
 
 [node name="Spot3" parent="ActionSpots" unique_id=839672251 instance=ExtResource("15_kug5n")]
-position = Vector2(302, 339)
+position = Vector2(318, 341.99997)
 scale = Vector2(1.1, 1.1)
 
 [node name="Spot4" parent="ActionSpots" unique_id=190707171 instance=ExtResource("15_kug5n")]
-position = Vector2(-317, 335)
+position = Vector2(-313.99997, 340)
 scale = Vector2(1.1, 1.1)
 
 [node name="Spot5" parent="ActionSpots" unique_id=53161306 instance=ExtResource("15_kug5n")]
-position = Vector2(-323, -293)
+position = Vector2(-315, -296)
 scale = Vector2(1.1, 1.1)
 
 [node name="CardPiles" type="Node2D" parent="." unique_id=2057199386]
@@ -245,6 +245,7 @@ scale = Vector2(1.1, 1.1)
 z_index = 4096
 z_as_relative = false
 script = ExtResource("22_j2n54")
+show_heptagon = false
 radius = 920.0
 line_width = 10.0
 
