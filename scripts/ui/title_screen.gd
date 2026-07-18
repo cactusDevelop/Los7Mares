@@ -54,8 +54,10 @@ func _layout_ui() -> void:
 		btn.custom_minimum_size = UiTheme.TITLE_BUTTON_SIZE
 		btn.add_theme_font_size_override("font_size", UiTheme.TITLE_BUTTON_FONT_SIZE)
 	center_buttons.size = center_buttons.get_combined_minimum_size()
-	center_buttons.position = (viewport_size - center_buttons.size) / 2.0 \
-		+ Vector2(0, UiTheme.TITLE_BUTTONS_Y_OFFSET)
+	center_buttons.position = Vector2(
+		(viewport_size.x - center_buttons.size.x) / 2.0,
+		viewport_size.y - center_buttons.size.y - UiTheme.TITLE_BUTTONS_Y_OFFSET
+	)
 
 
 func _style_popup_background(popup: PopupPanel) -> void:

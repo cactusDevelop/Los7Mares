@@ -1,9 +1,9 @@
 extends Node
 class_name UiThemeManager
 
-const TITLE_BUTTON_SIZE := Vector2(420, 84)
+const TITLE_BUTTON_SIZE := Vector2(420, 70)
 const TITLE_BUTTON_FONT_SIZE := 24
-const TITLE_BUTTONS_Y_OFFSET := 100.0
+const TITLE_BUTTONS_Y_OFFSET := 0.0
 const POPUP_BG_COLOR := Color(0.12, 0.12, 0.16, 1.0)
 const POPUP_CORNER_RADIUS := 12
 const SELECTION_PANEL_WIDTH := 240.0
