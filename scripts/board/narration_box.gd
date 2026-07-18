@@ -22,6 +22,11 @@ func _ready() -> void:
 	label.add_theme_color_override("default_color", Color.BLACK)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	# Calcule le retour à la ligne sur le texte COMPLET (déjà mis en forme),
+	# indépendamment du nombre de lettres actuellement révélées. Sans ça,
+	# Godot ne tient compte que des lettres visibles pour le wrap, ce qui
+	# fait sauter les mots de fin de ligne pendant l'animation.
+	label.visible_characters_behavior = TextServer.VC_CHARS_AFTER_SHAPING
 	label.custom_minimum_size = Vector2(420, 0)
 
 
