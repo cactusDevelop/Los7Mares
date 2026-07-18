@@ -45,12 +45,12 @@ func _begin_player_piece_turn() -> void:
 	_selected_rank = -1
 
 	if _current_round == 0:
-		_board.narration_box.say(tr("Tour de %s : choisis la pièce à jouer (capitaine ou second).") % player["name"])
+		_board.narration_box.say_with_player(tr("Tour de %s : choisis la pièce à jouer (capitaine ou second)."), player)
 		_board.piece_selection_panel.setup_for_player(color, -1)
 	else:
 		var placed_rank: int = _placed_rank_by_player[_current_player_index]
 		var forced_rank: int = GameFlow.PieceRank.SECOND if placed_rank == GameFlow.PieceRank.CAPTAIN else GameFlow.PieceRank.CAPTAIN
-		_board.narration_box.say(tr("Tour de %s : place ta dernière pièce.") % player["name"])
+		_board.narration_box.say_with_player(tr("Tour de %s : place ta dernière pièce."), player)
 		_board.piece_selection_panel.setup_for_player(color, forced_rank)
 
 

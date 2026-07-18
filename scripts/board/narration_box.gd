@@ -1,6 +1,11 @@
 extends PanelContainer
 
-@onready var label: Label = $Padding/NarrationLabel
+@onready var label: RichTextLabel = $Padding/NarrationLabel
+
+## Délai entre chaque lettre affichée (en secondes)
+const CHAR_REVEAL_DELAY := 0.03
+
+var _reveal_tween: Tween
 
 
 func _ready() -> void:
@@ -14,20 +19,49 @@ func _ready() -> void:
 	style.corner_radius_bottom_right = 20
 	add_theme_stylebox_override("panel", style)
 
-	label.add_theme_color_override("font_color", Color.BLACK)
+	label.add_theme_color_override("default_color", Color.BLACK)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	label.custom_minimum_size = Vector2(420, 0)
 
 
+## Affiche un texte de narration simple (sans nom de joueur à colorer).
 func say(text: String) -> void:
-	label.text = text
-	visible = true
-	call_deferred("_reposition")
+	_start_reveal(text)
+
+
+## Affiche un texte de narration où "%s" est remplacé par le nom du joueur,
+## affiché dans sa couleur (ex: format = "Tour de %s : joue.").
+func say_with_player(format: String, player: Dictionary) -> void:
+	var player_color: Color = GameFlow.COLOR_VALUES[player["color"]]
+	var colored_name := "[color=#%s]%s[/color]" % [player_color.to_html(false), player["name"]]
+	_start_reveal(format % colored_name)
 
 
 func hide_box() -> void:
 	visible = false
+	if _reveal_tween:
+		_reveal_tween.kill()
+
+
+func _start_reveal(bbcode_text: String) -> void:
+	if _reveal_tween:
+		_reveal_tween.kill()
+
+	# Le texte complet est posé d'un coup : le retour à la ligne (autowrap)
+	# est donc calculé une seule fois, avant l'animation, et ne bouge plus
+	# pendant que les lettres apparaissent une à une.
+	label.text = bbcode_text
+	visible = true
+	call_deferred("_reposition")
+
+	label.visible_characters = 0
+	var total_chars := label.get_total_character_count()
+	if total_chars <= 0:
+		return
+
+	_reveal_tween = create_tween()
+	_reveal_tween.tween_property(label, "visible_characters", total_chars, total_chars * CHAR_REVEAL_DELAY)
 
 
 func _reposition() -> void:

@@ -22,6 +22,8 @@ func _on_continue_pressed() -> void:
 func _ready() -> void:
 	_style_popup_background(player_count_popup)
 
+	continue_button.visible = SaveManager.has_save()
+
 	_layout_ui()
 	get_viewport().size_changed.connect(_layout_ui)
 
@@ -32,7 +34,6 @@ func _ready() -> void:
 	local_button.pressed.connect(_on_local_pressed)
 	debug_button.pressed.connect(_on_debug_pressed)
 	player_count_confirm_button.pressed.connect(_on_player_count_confirmed)
-	continue_button.visible = SaveManager.has_save()
 	continue_button.pressed.connect(_on_continue_pressed)
 
 
