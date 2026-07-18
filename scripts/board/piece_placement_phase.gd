@@ -27,6 +27,7 @@ func start(board: Board) -> void:
 	if not _board.piece_selection_panel.piece_selected.is_connected(_on_piece_selected):
 		_board.piece_selection_panel.piece_selected.connect(_on_piece_selected)
 
+	await _board.piece_selection_panel.play_turn_announcement(GameFlow.round_number)
 	_board.piece_selection_panel.show_for_placement_phase()
 	_shift_camera_for_selection(true)
 	_begin_player_piece_turn()

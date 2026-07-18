@@ -7,11 +7,30 @@ const SELECTED_SCALE := 1.2
 const TWEEN_DURATION := 0.15
 const UNSELECTED_TINT := Color(0.55, 0.55, 0.55)
 
+## Annonce de tour : filtre noir + texte/jeton en perspective.
+const ANNOUNCE_FADE_IN_DURATION := 0.12
+const ANNOUNCE_FILTER_ALPHA := 0.88
+const ANNOUNCE_ZOOM_IN_DURATION := 0.35
+const ANNOUNCE_HOLD_DURATION := 0.65
+const ANNOUNCE_ZOOM_OUT_DURATION := 0.3
+const ANNOUNCE_START_SCALE := 0.05
+const ANNOUNCE_EXIT_SCALE := 2.4
+const ANNOUNCE_CONTENT_SEPARATION := 30
+const ANNOUNCE_FORTUNE_SIZE := Vector2(140, 140)
+
 var background: ColorRect
 var icons_box: VBoxContainer
 var captain_button: TextureButton
 var second_button: TextureButton
 var splatter: TextureRect
+
+## Overlay plein écran indépendant du rect du panneau (posé dans son propre
+## CanvasLayer pour être garanti au-dessus de tout le reste de l'UI).
+var turn_overlay: CanvasLayer
+var black_filter: ColorRect
+var announce_content: VBoxContainer
+var tour_label: Label
+var fortune_sprite: TextureRect
 
 var _button_group := ButtonGroup.new()
 var _current_color: Color = Color.WHITE
@@ -47,6 +66,8 @@ func _ready() -> void:
 
 	get_viewport().size_changed.connect(_layout)
 	_layout()
+
+	_build_turn_overlay()
 
 
 func _build_piece_option(label_text: String, texture: Texture2D) -> TextureButton:
@@ -145,3 +166,88 @@ func _tween_scale(btn: TextureButton, target_scale: float) -> void:
 	var tween := create_tween()
 	tween.tween_property(btn, "scale", Vector2.ONE * target_scale, TWEEN_DURATION)
 	_tweens[btn] = tween
+
+
+## Construit l'overlay d'annonce de tour dans son propre CanvasLayer (layer
+## élevé) : il reste donc plein écran et toujours au-dessus du reste de
+## l'UI, indépendamment du rect (réduit à la colonne de droite) de ce panel.
+func _build_turn_overlay() -> void:
+	turn_overlay = CanvasLayer.new()
+	turn_overlay.layer = 10
+	add_child(turn_overlay)
+
+	black_filter = ColorRect.new()
+	black_filter.color = Color(0, 0, 0, 0)
+	black_filter.mouse_filter = Control.MOUSE_FILTER_STOP
+	black_filter.set_anchors_preset(Control.PRESET_FULL_RECT)
+	turn_overlay.add_child(black_filter)
+
+	announce_content = VBoxContainer.new()
+	announce_content.alignment = BoxContainer.ALIGNMENT_CENTER
+	announce_content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	announce_content.add_theme_constant_override("separation", ANNOUNCE_CONTENT_SEPARATION)
+	turn_overlay.add_child(announce_content)
+
+	tour_label = Label.new()
+	tour_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tour_label.add_theme_font_size_override("font_size", 72)
+	tour_label.add_theme_color_override("font_color", Color.WHITE)
+	tour_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	tour_label.add_theme_constant_override("outline_size", 8)
+	announce_content.add_child(tour_label)
+
+	fortune_sprite = TextureRect.new()
+	fortune_sprite.texture = preload("res://assets/art/tokens/fortune.png")
+	fortune_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	fortune_sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	fortune_sprite.custom_minimum_size = ANNOUNCE_FORTUNE_SIZE
+	fortune_sprite.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	announce_content.add_child(fortune_sprite)
+
+	turn_overlay.visible = false
+
+
+## Recentre l'overlay sur le viewport courant et replace le pivot du groupe
+## texte+jeton en son centre, pour que le zoom se fasse depuis ce point.
+func _layout_turn_overlay() -> void:
+	var vp := get_viewport_rect().size
+	announce_content.size = announce_content.get_combined_minimum_size()
+	announce_content.position = (vp - announce_content.size) / 2.0
+	announce_content.pivot_offset = announce_content.size / 2.0
+
+
+## Fondu noir rapide, puis "Tour X" + jeton fortune qui apparaissent en
+## zoom-in (pop) et disparaissent en continuant sur le MEME zoom-in
+## (accélération vers le spectateur) après une courte pause. Le texte et le
+## jeton sont dans un seul groupe (announce_content) mis à l'échelle
+## ensemble : la distance entre eux reste donc proportionnelle au zoom,
+## contrairement à un simple scale indépendant de chaque élément.
+func play_turn_announcement(round_number: int) -> void:
+	tour_label.text = tr("Tour %d") % round_number
+	_layout_turn_overlay()
+
+	black_filter.color.a = 0.0
+	announce_content.scale = Vector2.ONE * ANNOUNCE_START_SCALE
+	announce_content.modulate.a = 0.0
+	turn_overlay.visible = true
+
+	var fade_in := create_tween()
+	fade_in.tween_property(black_filter, "color:a", ANNOUNCE_FILTER_ALPHA, ANNOUNCE_FADE_IN_DURATION)
+	await fade_in.finished
+
+	var zoom_in := create_tween()
+	zoom_in.set_parallel(true)
+	zoom_in.tween_property(announce_content, "scale", Vector2.ONE, ANNOUNCE_ZOOM_IN_DURATION).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	zoom_in.tween_property(announce_content, "modulate:a", 1.0, ANNOUNCE_ZOOM_IN_DURATION * 0.6)
+	await zoom_in.finished
+
+	await get_tree().create_timer(ANNOUNCE_HOLD_DURATION).timeout
+
+	var zoom_out := create_tween()
+	zoom_out.set_parallel(true)
+	zoom_out.tween_property(announce_content, "scale", Vector2.ONE * ANNOUNCE_EXIT_SCALE, ANNOUNCE_ZOOM_OUT_DURATION).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	zoom_out.tween_property(announce_content, "modulate:a", 0.0, ANNOUNCE_ZOOM_OUT_DURATION)
+	zoom_out.tween_property(black_filter, "color:a", 0.0, ANNOUNCE_ZOOM_OUT_DURATION).set_delay(ANNOUNCE_ZOOM_OUT_DURATION * 0.3)
+	await zoom_out.finished
+
+	turn_overlay.visible = false

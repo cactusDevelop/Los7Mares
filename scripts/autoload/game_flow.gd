@@ -46,6 +46,7 @@ var _next_player_id: int = 0
 
 var is_continuing: bool = false
 var _pending_board_data: Dictionary = {}
+var round_number: int = 0
 
 
 func _ready() -> void:
@@ -230,6 +231,7 @@ func get_last_player_id() -> int:
 func start_new_game() -> void:
 	SaveManager.delete()
 	is_continuing = false
+	round_number = 0
 
 
 func continue_game() -> void:

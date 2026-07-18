@@ -1,3 +1,4 @@
+@tool
 extends Node2D
 
 ## Dessine un heptagone régulier (7 côtés) avec un sommet pointant vers le

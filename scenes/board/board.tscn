@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bbqu86vf8lfka"]
 
 [ext_resource type="Script" uid="uid://ce67b0el0ibc3" path="res://scripts/board/board.gd" id="1_jnyf0"]
-[ext_resource type="Texture2D" uid="uid://dp5v7sc6ibm6" path="res://assets/art/board/plateau.png" id="2_knosr"]
+[ext_resource type="Texture2D" uid="uid://bjwy81flawihg" path="res://assets/art/board/plateau-central.png" id="2_0avwi"]
 [ext_resource type="PackedScene" uid="uid://cihhe3gi0rmb2" path="res://scenes/board/sea_tile.tscn" id="3_w0prs"]
 [ext_resource type="Texture2D" uid="uid://kf5ejodhaooo" path="res://assets/art/board/mer-abondance.png" id="4_hxlvt"]
 [ext_resource type="Texture2D" uid="uid://bu8t21xxdo52n" path="res://assets/art/board/mer-azur.png" id="6_kug5n"]
@@ -32,9 +32,9 @@
 script = ExtResource("1_jnyf0")
 
 [node name="CenterPiece" type="Sprite2D" parent="." unique_id=1635265673]
-rotation = 2.3125613
-texture = ExtResource("2_knosr")
-offset = Vector2(-25, 40)
+position = Vector2(4, -44)
+scale = Vector2(1.01, 1.01)
+texture = ExtResource("2_0avwi")
 
 [node name="Seas" type="Node2D" parent="." unique_id=1282946842]
 position = Vector2(2156, -624)
@@ -242,8 +242,9 @@ scale = Vector2(1.1, 1.1)
 [node name="FortuneSpot7" parent="FortuneSpots" unique_id=468696202 instance=ExtResource("21_jngt6")]
 
 [node name="DebugHeptagon" type="Node2D" parent="." unique_id=6273675]
+z_index = 4096
+z_as_relative = false
 script = ExtResource("22_j2n54")
-show_heptagon = false
 radius = 920.0
 line_width = 10.0
 

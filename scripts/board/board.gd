@@ -309,6 +309,7 @@ func token_count_for_player_count(player_count: int) -> int:
 
 
 func _start_round() -> void:
+	GameFlow.round_number += 1
 	if GameFlow.get_first_player_id() == -1:
 		GameFlow.set_first_player(GameFlow.players[0]["id"])
 	else:
@@ -353,6 +354,7 @@ func _serialize_state(phase: String) -> Dictionary:
 		"phase": phase, "sea_order": sea_order, "action_spots": action_spots_data,
 		"hideouts": hideouts_data, "fortune_taken": fortune_data,
 		"deck_remaining": SeaDecks.get_remaining_counts(),
+		"round_number": GameFlow.round_number,
 	}
 
 func _autosave(phase: String) -> void:
@@ -410,6 +412,7 @@ func _restore_from_save() -> void:
 		pile.restore_visual_stack(remaining, back_tex)
 
 	SeaDecks.set_remaining(deck_remaining)
+	GameFlow.round_number = data.get("round_number", GameFlow.round_number)
 
 	var hideout_spots := hideout_spots_container.get_children()
 	var hideouts_data: Array = data.get("hideouts", [])
