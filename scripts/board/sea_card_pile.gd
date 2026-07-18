@@ -1,9 +1,9 @@
 extends Node2D
 
-## Pioche de cartes affichée à côté d'une mer sur le plateau. Le joueur peut
-## piocher ici une fois que son bateau/pion est passé par cette mer.
-## (Pour l'instant : activée globalement après la phase de placement — sera
-## affinée plus tard pour suivre le déplacement réel des bateaux.)
+## Pioche de cartes affichée à côté d'une mer sur le plateau. Les cartes
+## restent face verso, visibles et empilées. Un clic sur la pile affiche en
+## grand la carte du dessus sur fond noir (cf. SeaCardPopup), qui se retourne
+## alors pour révéler son recto.
 
 signal pile_clicked(pile: Node2D)
 
@@ -30,6 +30,21 @@ func add_visual_card(texture: Texture2D, stack_position: Vector2) -> Sprite2D:
 	cards_container.add_child(card)
 	card.position = stack_position
 	return card
+
+
+## Sprite de la carte du dessus de la pile (celle qui sera révélée), sans la retirer.
+func get_top_card_sprite() -> Sprite2D:
+	if cards_container.get_child_count() == 0:
+		return null
+	return cards_container.get_child(cards_container.get_child_count() - 1)
+
+
+## Retire visuellement la carte du dessus une fois qu'elle a été résolue
+## (après fermeture du grand affichage).
+func pop_top_card() -> void:
+	var top := get_top_card_sprite()
+	if top:
+		top.queue_free()
 
 
 func _on_mouse_entered() -> void:
