@@ -20,7 +20,7 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", style)
 
 	label.add_theme_color_override("default_color", Color.BLACK)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	label.custom_minimum_size = Vector2(420, 0)
 
@@ -48,12 +48,14 @@ func _start_reveal(bbcode_text: String) -> void:
 	if _reveal_tween:
 		_reveal_tween.kill()
 
-	# Le texte complet est posé d'un coup (retour à la ligne calculé une
-	# seule fois, il ne bougera plus). On le laisse temporairement
-	# entièrement visible le temps d'une frame pour que la bulle se
-	# dimensionne et se positionne sur sa taille FINALE.
+	# Le texte complet est posé d'un coup : le retour à la ligne (autowrap)
+	# est donc calculé une seule fois et ne bougera plus jamais pendant
+	# l'animation (un mot ne peut plus être renvoyé à la ligne suivante
+	# au fur et à mesure qu'il apparaît). Le texte reste toutefois
+	# invisible (alpha 0) le temps de mesurer la taille finale de la bulle.
 	label.text = bbcode_text
 	label.visible_ratio = 1.0
+	label.modulate.a = 0.0
 	visible = true
 	call_deferred("_reveal_after_layout")
 
@@ -63,10 +65,12 @@ func _reveal_after_layout() -> void:
 	_reposition()
 
 	var total_chars := label.get_total_character_count()
+	label.modulate.a = 1.0
 	label.visible_characters = 0
 	if total_chars <= 0:
 		return
 
+	# Chaque lettre passe individuellement de invisible à visible.
 	_reveal_tween = create_tween()
 	_reveal_tween.tween_property(label, "visible_characters", total_chars, total_chars * CHAR_REVEAL_DELAY)
 
