@@ -3,7 +3,7 @@ extends PanelContainer
 @onready var label: RichTextLabel = $Padding/NarrationLabel
 
 ## Délai entre chaque lettre affichée (en secondes)
-const CHAR_REVEAL_DELAY := 0.03
+const CHAR_REVEAL_DELAY := 0.015
 
 var _reveal_tween: Tween
 
@@ -48,15 +48,22 @@ func _start_reveal(bbcode_text: String) -> void:
 	if _reveal_tween:
 		_reveal_tween.kill()
 
-	# Le texte complet est posé d'un coup : le retour à la ligne (autowrap)
-	# est donc calculé une seule fois, avant l'animation, et ne bouge plus
-	# pendant que les lettres apparaissent une à une.
+	# Le texte complet est posé d'un coup (retour à la ligne calculé une
+	# seule fois, il ne bougera plus). On le laisse temporairement
+	# entièrement visible le temps d'une frame pour que la bulle se
+	# dimensionne et se positionne sur sa taille FINALE.
 	label.text = bbcode_text
+	label.visible_ratio = 1.0
 	visible = true
-	call_deferred("_reposition")
+	call_deferred("_reveal_after_layout")
 
-	label.visible_characters = 0
+
+func _reveal_after_layout() -> void:
+	# La bulle est maintenant à sa taille et sa position définitives.
+	_reposition()
+
 	var total_chars := label.get_total_character_count()
+	label.visible_characters = 0
 	if total_chars <= 0:
 		return
 
