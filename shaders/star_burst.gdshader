@@ -7,8 +7,8 @@ shader_type canvas_item;
 // halo doux au centre.
 
 uniform float rotation_speed : hint_range(-2.0, 2.0) = 0.15; // tours par seconde
-uniform int ray_count : hint_range(4, 32) = 10;
-uniform float ray_sharpness : hint_range(1.0, 32.0) = 3.0;
+uniform int ray_count : hint_range(4, 32) = 14;
+uniform float ray_sharpness : hint_range(1.0, 32.0) = 6.0;
 uniform float glow_radius : hint_range(0.05, 1.0) = 0.32;
 uniform vec4 light_color : source_color = vec4(1.0, 0.97, 0.85, 1.0);
 
@@ -29,8 +29,8 @@ void fragment() {
 	// Longueur/largeur légèrement aléatoires par rayon (hash stable par
 	// index) : évite l'aspect "ventilateur" parfaitement régulier.
 	float rand_len = mix(0.55, 1.0, hash11(idx));
-	float rand_width = mix(1.5, 2.6, hash11(idx + 91.7));
-	
+	float rand_width = mix(0.5, 1.0, hash11(idx + 91.7));
+
 	float beam = 1.0 - smoothstep(0.0, rand_width * 0.5, abs(local_a));
 	beam = pow(beam, ray_sharpness);
 	float fade = 1.0 - smoothstep(0.0, rand_len, r);

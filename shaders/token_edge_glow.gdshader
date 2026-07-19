@@ -1,0 +1,28 @@
+shader_type canvas_item;
+
+// Liseré lumineux blanc épais tout autour de la silhouette réelle du
+// sprite (pas un simple cercle) : sert à masquer un bord mal détouré sur
+// la texture source. Fonctionne par dilatation de l'alpha : dans plusieurs
+// directions, on regarde s'il y a un pixel opaque à glow_radius_px de
+// distance, et on peint le liseré à cet endroit.
+
+uniform float glow_radius_px : hint_range(0.0, 30.0) = 8.0;
+uniform vec4 glow_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform int direction_samples : hint_range(8, 32) = 16;
+
+void fragment() {
+	vec4 top = texture(TEXTURE, UV);
+	float glow = 0.0;
+
+	for (int i = 0; i < direction_samples; i++) {
+		float a = float(i) / float(direction_samples) * TAU;
+		vec2 dir = vec2(cos(a), sin(a));
+		vec2 offset = dir * TEXTURE_PIXEL_SIZE * glow_radius_px;
+		float sample_a = texture(TEXTURE, UV + offset).a;
+		glow = max(glow, sample_a);
+	}
+
+	vec3 rgb = mix(glow_color.rgb, top.rgb, top.a);
+	float out_a = max(top.a, glow * glow_color.a);
+	COLOR = vec4(rgb, out_a) * COLOR;
+}
