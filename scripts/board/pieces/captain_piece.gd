@@ -20,4 +20,8 @@ func _ready() -> void:
 	mat.set_shader_parameter("thickness_px", THICKNESS_PX)
 	mat.set_shader_parameter("layers", THICKNESS_LAYERS)
 	mat.set_shader_parameter("edge_darken", EDGE_DARKEN)
+	# Rapport taille affichée / taille texture (via le repère global, pour
+	# rester correct même si un parent est mis à l'échelle) : permet à
+	# thickness_px de représenter de vrais pixels écran.
+	mat.set_shader_parameter("display_scale", get_global_transform().get_scale().x)
 	material = mat

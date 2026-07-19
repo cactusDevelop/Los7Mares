@@ -111,6 +111,7 @@ func _build_piece_option(label_text: String, texture: Texture2D) -> TextureButto
 	mat.set_shader_parameter("thickness_px", PIECE_THICKNESS_PX)
 	mat.set_shader_parameter("layers", PIECE_THICKNESS_LAYERS)
 	mat.set_shader_parameter("edge_darken", PIECE_EDGE_DARKEN)
+	mat.set_shader_parameter("display_scale", btn.custom_minimum_size.y / texture.get_height())
 	btn.material = mat
 
 	btn.mouse_entered.connect(_on_button_hover.bind(btn, true))

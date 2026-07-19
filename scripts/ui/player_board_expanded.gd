@@ -50,6 +50,10 @@ const SPECIAL_TOKEN_MAX_ATTEMPTS := 40
 ## face du dessus/avant visible est repoussée vers le HAUT-DROITE. Les
 ## cubes de ressource DOIVENT utiliser la direction opposée à celle-ci.
 ## Épaisseur totale des jetons Fortune/Trésor, en pixels écran (~3px demandés).
+## Géré par un shader (shaders/piece_thickness.gdshader), le même que celui
+## utilisé pour les pièces capitaine/second : un seul draw call par jeton,
+## donc aucun souci d'ordre d'affichage avec les autres objets de l'inventaire.
+const TOKEN_THICKNESS_SHADER := preload("res://shaders/piece_thickness.gdshader")
 const TOKEN_THICKNESS_PX := 3.0
 const TOKEN_THICKNESS_LAYERS := 3
 const TOKEN_EDGE_DARKEN := 0.45
@@ -285,35 +289,37 @@ func _place_special_tokens(kind: String, texture: Texture2D, layout: Dictionary,
 		})
 
 
-## Empile plusieurs copies assombries du jeton, décalées vers le bas-gauche
-## (DEPTH_DIRECTION), puis la copie en couleur normale au-dessus : donne une
-## petite épaisseur au jeton au lieu d'un sprite plat. Retourne la liste des
-## nodes créés (utile pour les déplacer ensemble pendant un glisser-déposer).
+## Donne son épaisseur au jeton via le shader piece_thickness (un seul
+## TextureRect, un seul draw call) au lieu d'empiler des copies assombries.
+## Retourne la liste des nodes créés (ici un seul, gardé en Array pour rester
+## compatible avec le reste du code qui déplace "nodes" pendant le drag).
 func _add_token_with_thickness(texture: Texture2D, anchor: Vector2, icon_size: Vector2) -> Array:
-	var nodes: Array = []
-	var step: Vector2 = UiTheme.DEPTH_DIRECTION * (TOKEN_THICKNESS_PX / float(TOKEN_THICKNESS_LAYERS))
-	for layer in range(TOKEN_THICKNESS_LAYERS, 0, -1):
-		var edge := TextureRect.new()
-		edge.texture = texture
-		edge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		edge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		edge.size = icon_size
-		edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		edge.modulate = Color(1, 1, 1).darkened(TOKEN_EDGE_DARKEN)
-		resource_slots.add_child(edge)
-		edge.position = anchor + step * layer
-		nodes.append(edge)
-
 	var top := TextureRect.new()
 	top.texture = texture
 	top.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	top.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	top.size = icon_size
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var mat := ShaderMaterial.new()
+	mat.shader = TOKEN_THICKNESS_SHADER
+	mat.set_shader_parameter("depth_direction", UiTheme.DEPTH_DIRECTION)
+	mat.set_shader_parameter("thickness_px", TOKEN_THICKNESS_PX)
+	mat.set_shader_parameter("layers", TOKEN_THICKNESS_LAYERS)
+	mat.set_shader_parameter("edge_darken", TOKEN_EDGE_DARKEN)
+	# STRETCH_KEEP_ASPECT_CENTERED réduit la texture pour tenir dans
+	# icon_size sans la déformer : le ratio réellement appliqué est le plus
+	# petit des deux rapports largeur/hauteur (comme le fait Godot en
+	# interne). Sans ce calcul, thickness_px serait interprété en pixels de
+	# la texture source (bien plus grande que 110x110) et l'épaisseur
+	# deviendrait quasi invisible à l'écran.
+	var fit_scale: float = min(icon_size.x / texture.get_width(), icon_size.y / texture.get_height())
+	mat.set_shader_parameter("display_scale", fit_scale)
+	top.material = mat
+
 	resource_slots.add_child(top)
 	top.position = anchor
-	nodes.append(top)
-	return nodes
+	return [top]
 
 
 ## Affiche les planches de coque du joueur à leur position, couleur et
