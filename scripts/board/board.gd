@@ -351,10 +351,14 @@ func _serialize_state(phase: String) -> Dictionary:
 	var fortune_data: Array = []
 	for spot in fortune_spots_container.get_children():
 		fortune_data.append(spot.is_taken)
+	var token_remaining: Dictionary = {}
+	for token_pile in token_piles_container.get_children():
+		token_remaining[token_pile.sea_key] = token_pile.remaining_count
 	return {
 		"phase": phase, "sea_order": sea_order, "action_spots": action_spots_data,
 		"hideouts": hideouts_data, "fortune_taken": fortune_data,
 		"deck_remaining": SeaDecks.get_remaining_counts(),
+		"token_remaining": token_remaining,
 		"round_number": GameFlow.round_number,
 	}
 
@@ -381,7 +385,15 @@ func _restore_from_save() -> void:
 			"global_position": board_center + radius * direction,
 			"rotation": angle_degrees + 90.0,
 			"pile_position": board_center + (radius + UiTheme.CARD_PILE_RADIUS_OFFSET) * direction,
+			"token_position": board_center + (radius + token_pile_radius_offset) * direction,
 		})
+
+	# Les piles de jetons ont été créées dans _ready() selon un tirage aléatoire
+	# qui n'a rien à voir avec l'ordre restauré ci-dessous : on les recrée donc
+	# ici pour qu'elles soient positionnées sur la bonne mer et avec le bon
+	# nombre de jetons restants.
+	for child in token_piles_container.get_children():
+		child.queue_free()
 
 	var name_to_tile := {}
 	for tile in _sea_tiles:
@@ -390,6 +402,7 @@ func _restore_from_save() -> void:
 	_slot_order = []
 	var saved_order: Array = data.get("sea_order", [])
 	var deck_remaining: Dictionary = data.get("deck_remaining", {})
+	var token_remaining: Dictionary = data.get("token_remaining", {})
 	for i in range(saved_order.size()):
 		var tile = name_to_tile.get(saved_order[i])
 		if tile == null:
@@ -411,6 +424,20 @@ func _restore_from_save() -> void:
 		var back_path := "res://assets/art/cards/carte-%s-dos.png" % saved_order[i]
 		var back_tex: Texture2D = load(back_path) if ResourceLoader.exists(back_path) else preload("res://assets/art/cards/carte-sauvage-dos.png")
 		pile.restore_visual_stack(remaining, back_tex)
+
+		var token_texture_path := "res://assets/art/tokens/jeton-%s.png" % saved_order[i]
+		if ResourceLoader.exists(token_texture_path):
+			var token_pile: Node2D = SEA_TOKEN_PILE_SCENE.instantiate()
+			token_piles_container.add_child(token_pile)
+			token_pile.global_position = slots[i].token_position
+			token_pile.setup(saved_order[i], load(token_texture_path), token_scale, slots[i].rotation)
+			token_pile.visible = true
+			# Rétrocompatibilité : si la sauvegarde ne contient pas encore
+			# "token_remaining" (ancienne version), on retombe sur le nombre
+			# de jetons initial correspondant au nombre de joueurs.
+			token_pile.remaining_count = token_remaining.get(
+				saved_order[i], token_count_for_player_count(GameFlow.players.size())
+			)
 
 	SeaDecks.set_remaining(deck_remaining)
 	GameFlow.round_number = data.get("round_number", GameFlow.round_number)
