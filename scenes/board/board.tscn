@@ -110,11 +110,10 @@ script = ExtResource("12_jngt6")
 [node name="PlayerSetupPopup" parent="UI" unique_id=1537230509 instance=ExtResource("14_dj4mb")]
 
 [node name="NarrationBox" type="PanelContainer" parent="UI" unique_id=1704438247]
-anchors_preset = 0
 offset_left = 20.0
 offset_top = 180.0
-offset_right = 320.0
-offset_bottom = 180.0
+offset_right = 270.0
+offset_bottom = 241.0
 script = ExtResource("15_xu7li")
 
 [node name="Padding" type="MarginContainer" parent="UI/NarrationBox" unique_id=311568258]
@@ -138,7 +137,6 @@ bbcode_enabled = true
 fit_content = true
 scroll_active = false
 shortcut_keys_enabled = false
-horizontal_alignment = 0
 
 [node name="PieceSelectionPanel" parent="UI" unique_id=1299012961 instance=ExtResource("16_bo4hw")]
 
