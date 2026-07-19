@@ -236,6 +236,7 @@ func _build_turn_overlay() -> void:
 	fortune_shine.size = ANNOUNCE_SHINE_SIZE
 	fortune_shine.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var shine_mat := ShaderMaterial.new()
+	shine_mat.shader = preload("res://shaders/star_burst.gdshader")
 	fortune_shine.material = shine_mat
 	fortune_wrap.add_child(fortune_shine)
 
