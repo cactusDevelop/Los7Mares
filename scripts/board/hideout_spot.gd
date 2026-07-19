@@ -15,12 +15,9 @@ const CACHETTE_TEXTURE_PATH := "res://assets/art/board/cachette-%s.png"
 const BOAT_DROP_HEIGHT := 220.0
 const BOAT_DROP_DURATION := 0.35
 
-## Effet 3D (épaisseur) du bateau : géré par le shader piece_thickness (le
-## même que pour les pièces capitaine/second et les jetons Fortune/Trésor),
-## avec sa propre épaisseur (x5 par rapport aux jetons pour rester visible
-## sur un sprite de bateau plus grand). Un seul draw call, donc plus besoin
-## d'animer des couches enfants séparées pendant la chute d'apparition.
-const THICKNESS_SHADER := preload("res://shaders/piece_thickness.gdshader")
+## Effet 3D (épaisseur) du bateau : mêmes constantes de style que les jetons
+## de player_board_expanded.gd (couches assombries décalées). x5 par rapport
+## aux jetons pour rester visible sur un sprite de bateau plus grand.
 const BOAT_THICKNESS_PX := 50.0
 const BOAT_THICKNESS_LAYERS := 3
 const BOAT_EDGE_DARKEN := 0.45
@@ -92,36 +89,42 @@ func _show_boat(color: String, instant: bool = false) -> void:
 	boat_sprite.visible = true
 	boat_sprite.z_index = BOAT_Z_INDEX
 
-	# L'épaisseur est portée par le shader (matériau créé une seule fois).
-	# boat_sprite.rotation annule déjà la rotation globale de la cachette
-	# (voir doc au-dessus), donc sa rotation globale finale est toujours 0 :
-	# depth_direction peut rester le vecteur écran global tel quel, sans
-	# reconversion, contrairement à l'ancien calcul par couches enfants (qui,
-	# lui, positionnait des nodes dans le repère tourné de la cachette).
-	if not boat_sprite.material:
-		var mat := ShaderMaterial.new()
-		mat.shader = THICKNESS_SHADER
-		mat.set_shader_parameter("depth_direction", UiTheme.DEPTH_DIRECTION)
-		mat.set_shader_parameter("thickness_px", BOAT_THICKNESS_PX)
-		mat.set_shader_parameter("layers", BOAT_THICKNESS_LAYERS)
-		mat.set_shader_parameter("edge_darken", BOAT_EDGE_DARKEN)
-		# Rapport taille affichée / taille texture, via le repère global du
-		# bateau (au cas où HideoutSpot ou un parent serait mis à l'échelle) :
-		# permet à BOAT_THICKNESS_PX de représenter de vrais pixels écran.
-		mat.set_shader_parameter("display_scale", boat_sprite.get_global_transform().get_scale().x)
-		boat_sprite.material = mat
 
+	# Les offsets (épaisseur, chute) sont ajoutés à boat_sprite.position, qui
+	# est dans le repère LOCAL de la cachette (self) : c'est donc la rotation
+	# de self (la cachette) qu'il faut annuler pour rester droit à l'écran,
+	# pas celle du bateau (qu'on vient déjà d'annuler ci-dessus à part).
+	var depth_local: Vector2 = UiTheme.DEPTH_DIRECTION.rotated(-global_rotation)
+	var step: Vector2 = depth_local * (BOAT_THICKNESS_PX / float(BOAT_THICKNESS_LAYERS))
 	var boat_target_pos: Vector2 = boat_sprite.position
 
-	# Départ : en l'air et transparent. Le décalage doit être vertical à
-	# L'ÉCRAN (comme pour la pile de cartes), pas dans le repère local de la
-	# cachette : on part donc du "haut" global (0,-1) qu'on reconvertit en
-	# repère local via la rotation de self, sinon la chute apparaît en
-	# diagonale sur les cachettes tournées.
+	# Couches assombries formant l'épaisseur, sous le bateau (z_index inférieur).
+	var shadow_layers: Array = []
+	for layer in range(BOAT_THICKNESS_LAYERS, 0, -1):
+		var shadow := Sprite2D.new()
+		shadow.texture = boat_sprite.texture
+		shadow.centered = boat_sprite.centered
+		shadow.offset = boat_sprite.offset
+		shadow.scale = boat_sprite.scale
+		shadow.rotation = boat_sprite.rotation
+		shadow.z_index = boat_sprite.z_index - 1
+		shadow.modulate = base_color.darkened(BOAT_EDGE_DARKEN)
+		add_child(shadow)
+		shadow_layers.append({"node": shadow, "target": boat_target_pos + step * layer})
+
+	# Départ : tout le monde en l'air et transparent. Le décalage doit être
+	# vertical à L'ÉCRAN (comme pour la pile de cartes), pas dans le repère
+	# local de la cachette : on part donc du "haut" global (0,-1) qu'on
+	# reconvertit en repère local via la rotation de self, comme pour
+	# l'épaisseur ci-dessus, sinon la chute apparaît en diagonale sur les
+	# cachettes tournées.
 	var screen_up_local: Vector2 = Vector2(0, -1).rotated(-global_rotation)
 	var start_offset := screen_up_local * BOAT_DROP_HEIGHT
 	boat_sprite.modulate.a = 0.0
 	boat_sprite.position = boat_target_pos + start_offset
+	for entry in shadow_layers:
+		entry["node"].modulate.a = 0.0
+		entry["node"].position = entry["target"] + start_offset
 
 	var duration: float = 0.0 if instant else Settings.anim_duration(BOAT_DROP_DURATION)
 	var tween := create_tween()
@@ -129,6 +132,10 @@ func _show_boat(color: String, instant: bool = false) -> void:
 	tween.tween_property(boat_sprite, "position", boat_target_pos, duration)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(boat_sprite, "modulate:a", 1.0, duration * 0.7)
+	for entry in shadow_layers:
+		tween.tween_property(entry["node"], "position", entry["target"], duration)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tween.tween_property(entry["node"], "modulate:a", 1.0, duration * 0.7)
 
 
 ## Fait apparaître l'emplacement en fondu (au lieu d'une apparition soudaine)

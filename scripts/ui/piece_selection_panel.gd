@@ -11,7 +11,6 @@ const UNSELECTED_TINT := Color(0.55, 0.55, 0.55)
 ## (shaders/piece_thickness.gdshader), le même que celui utilisé pour les
 ## pièces sur le plateau (captain_piece.gd/second_piece.gd). Un seul draw
 ## call par icône, donc aucun souci d'ordre d'affichage.
-const PIECE_THICKNESS_SHADER := preload("res://shaders/piece_thickness.gdshader")
 const PIECE_THICKNESS_PX := 12.0
 const PIECE_THICKNESS_LAYERS := 8
 const PIECE_EDGE_DARKEN := 0.5
@@ -29,7 +28,6 @@ const ANNOUNCE_FORTUNE_SIZE := Vector2(140, 140)
 ## Halo tournant derrière le jeton (shaders/star_burst.gdshader) : plus
 ## grand que le jeton pour que les rayons dépassent visiblement de ses bords.
 const ANNOUNCE_SHINE_SIZE := Vector2(320, 320)
-const STAR_BURST_SHADER := preload("res://shaders/star_burst.gdshader")
 
 var background: ColorRect
 var icons_box: VBoxContainer
@@ -106,7 +104,6 @@ func _build_piece_option(label_text: String, texture: Texture2D) -> TextureButto
 	btn.pivot_offset = btn.custom_minimum_size / 2.0
 
 	var mat := ShaderMaterial.new()
-	mat.shader = PIECE_THICKNESS_SHADER
 	mat.set_shader_parameter("depth_direction", UiTheme.DEPTH_DIRECTION)
 	mat.set_shader_parameter("thickness_px", PIECE_THICKNESS_PX)
 	mat.set_shader_parameter("layers", PIECE_THICKNESS_LAYERS)
@@ -239,7 +236,6 @@ func _build_turn_overlay() -> void:
 	fortune_shine.size = ANNOUNCE_SHINE_SIZE
 	fortune_shine.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var shine_mat := ShaderMaterial.new()
-	shine_mat.shader = STAR_BURST_SHADER
 	fortune_shine.material = shine_mat
 	fortune_wrap.add_child(fortune_shine)
 
