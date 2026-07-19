@@ -101,7 +101,6 @@ func _end_piece_placement_phase() -> void:
 			_board.narration_box.say(tr("Mode test : 7 tours de pose de pièces terminés."))
 		return
 
-	await _board.piece_selection_panel.play_turn_announcement(GameFlow.round_number)
 	_board.narration_box.say(tr("Placement terminé — cliquez sur une pioche de mer pour y piocher une carte."))
 	finished.emit()
 

@@ -179,6 +179,7 @@ func _ready() -> void:
 	hideout_phase.finished.connect(func():
 		_start_round()
 		_autosave("cards")
+		await piece_selection_panel.play_turn_announcement(GameFlow.round_number)
 		card_draw_phase.start(self)
 	)
 	card_draw_phase.finished.connect(func():
