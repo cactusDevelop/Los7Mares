@@ -18,6 +18,7 @@ var _hover_scale_factor: float = 1.0  # multiplicateur animé séparément par l
 var _is_hovering: bool = false
 var hover_enabled: bool = false
 var _pieces: Array = []  # {color, rank, order, node}
+var _drop_tweens: Dictionary = {}  # piece_node -> Tween de chute en cours
 
 
 func _ready() -> void:
@@ -74,12 +75,26 @@ func _animate_piece_drop(piece_node: Node2D) -> void:
 	tween.tween_property(piece_node, "position", target_position, duration)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(piece_node, "modulate:a", 1.0, duration * 0.7)
+	_drop_tweens[piece_node] = tween
+	tween.finished.connect(func():
+		if _drop_tweens.get(piece_node) == tween:
+			_drop_tweens.erase(piece_node)
+	)
 
 
 func _relayout_pieces() -> void:
 	var positions: Array[Vector2] = GameFlow.layout_positions_for_case(_pieces.size())
 	for i in range(_pieces.size()):
-		_pieces[i]["node"].position = positions[i]
+		var node: Node2D = _pieces[i]["node"]
+		# Si cette pièce est encore en train de "tomber" (spam-clic rapide sur
+		# la case), on tue son tween avant de la replacer : sinon le tween,
+		# toujours actif, continue d'écrire une position obsolète par-dessus
+		# celle qu'on vient de recalculer, et la pièce finit décalée.
+		if _drop_tweens.has(node) and _drop_tweens[node]:
+			_drop_tweens[node].kill()
+			_drop_tweens.erase(node)
+			node.modulate.a = 1.0
+		node.position = positions[i]
 
 	# Les pièces plus en avant du polygone doivent s'afficher devant celles plus
 	# en arrière, peu importe l'ordre d'ajout. On classe les indices par y croissant

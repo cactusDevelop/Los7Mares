@@ -124,7 +124,7 @@ func hide_panel() -> void:
 	visible = false
 
 
-## only_rank == -1 -> les deux pièces proposées (aucune sélectionnée au départ).
+## only_rank == -1 -> les deux pièces proposées, capitaine sélectionné par défaut.
 ## only_rank == CAPTAIN/SECOND -> une seule affichée, forcée/sélectionnée.
 func setup_for_player(color: Color, only_rank: int = -1) -> void:
 	_current_color = color
@@ -139,6 +139,9 @@ func setup_for_player(color: Color, only_rank: int = -1) -> void:
 		var forced_btn: TextureButton = captain_button if only_rank == GameFlow.PieceRank.CAPTAIN else second_button
 		forced_btn.button_pressed = true
 		piece_selected.emit(only_rank)
+	else:
+		captain_button.button_pressed = true
+		piece_selected.emit(GameFlow.PieceRank.CAPTAIN)
 
 	_refresh_colors()
 
