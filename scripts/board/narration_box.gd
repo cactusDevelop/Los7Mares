@@ -52,9 +52,7 @@ func say_with_player(format: String, player: Dictionary) -> void:
 
 ## Vide l'onglet "Action" (le panneau reste affiché, seul le texte disparaît).
 func hide_box() -> void:
-	if _reveal_tween:
-		_reveal_tween.kill()
-	label.text = ""
+	_start_reveal("...")
 
 
 func _start_reveal(bbcode_text: String) -> void:

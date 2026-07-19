@@ -7,6 +7,15 @@ const SELECTED_SCALE := 1.2
 const TWEEN_DURATION := 0.15
 const UNSELECTED_TINT := Color(0.55, 0.55, 0.55)
 
+## Effet 3D (épaisseur) des icônes capitaine/second : géré par un shader
+## (shaders/piece_thickness.gdshader), le même que celui utilisé pour les
+## pièces sur le plateau (captain_piece.gd/second_piece.gd). Un seul draw
+## call par icône, donc aucun souci d'ordre d'affichage.
+const PIECE_THICKNESS_SHADER := preload("res://shaders/piece_thickness.gdshader")
+const PIECE_THICKNESS_PX := 12.0
+const PIECE_THICKNESS_LAYERS := 8
+const PIECE_EDGE_DARKEN := 0.5
+
 ## Annonce de tour : filtre noir + texte/jeton en perspective.
 const ANNOUNCE_FADE_IN_DURATION := 0.12
 const ANNOUNCE_FILTER_ALPHA := 0.88
@@ -17,6 +26,10 @@ const ANNOUNCE_START_SCALE := 0.05
 const ANNOUNCE_EXIT_SCALE := 2.4
 const ANNOUNCE_CONTENT_SEPARATION := 30
 const ANNOUNCE_FORTUNE_SIZE := Vector2(140, 140)
+## Halo tournant derrière le jeton (shaders/star_burst.gdshader) : plus
+## grand que le jeton pour que les rayons dépassent visiblement de ses bords.
+const ANNOUNCE_SHINE_SIZE := Vector2(320, 320)
+const STAR_BURST_SHADER := preload("res://shaders/star_burst.gdshader")
 
 var background: ColorRect
 var icons_box: VBoxContainer
@@ -30,6 +43,8 @@ var turn_overlay: CanvasLayer
 var black_filter: ColorRect
 var announce_content: VBoxContainer
 var tour_label: Label
+var fortune_wrap: Control
+var fortune_shine: ColorRect
 var fortune_sprite: TextureRect
 
 var _button_group := ButtonGroup.new()
@@ -89,6 +104,14 @@ func _build_piece_option(label_text: String, texture: Texture2D) -> TextureButto
 	var aspect := texture.get_width() / float(texture.get_height())
 	btn.custom_minimum_size = Vector2(UiTheme.SELECTION_ICON_HEIGHT * aspect, UiTheme.SELECTION_ICON_HEIGHT)
 	btn.pivot_offset = btn.custom_minimum_size / 2.0
+
+	var mat := ShaderMaterial.new()
+	mat.shader = PIECE_THICKNESS_SHADER
+	mat.set_shader_parameter("depth_direction", UiTheme.DEPTH_DIRECTION)
+	mat.set_shader_parameter("thickness_px", PIECE_THICKNESS_PX)
+	mat.set_shader_parameter("layers", PIECE_THICKNESS_LAYERS)
+	mat.set_shader_parameter("edge_darken", PIECE_EDGE_DARKEN)
+	btn.material = mat
 
 	btn.mouse_entered.connect(_on_button_hover.bind(btn, true))
 	btn.mouse_exited.connect(_on_button_hover.bind(btn, false))
@@ -199,13 +222,34 @@ func _build_turn_overlay() -> void:
 	tour_label.add_theme_constant_override("outline_size", 8)
 	announce_content.add_child(tour_label)
 
+	# Conteneur libre (pas de layout auto) qui superpose le halo tournant
+	# (dessous) et le jeton (dessus), au lieu d'un simple sprite empilé
+	# dans le VBoxContainer.
+	fortune_wrap = Control.new()
+	fortune_wrap.custom_minimum_size = ANNOUNCE_SHINE_SIZE
+	fortune_wrap.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	fortune_wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	announce_content.add_child(fortune_wrap)
+
+	# Halo procédural (shader) : rayons irréguliers tournant en continu via
+	# TIME côté GPU, pas de logique _process/queue_redraw côté script.
+	fortune_shine = ColorRect.new()
+	fortune_shine.position = Vector2.ZERO
+	fortune_shine.size = ANNOUNCE_SHINE_SIZE
+	fortune_shine.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var shine_mat := ShaderMaterial.new()
+	shine_mat.shader = STAR_BURST_SHADER
+	fortune_shine.material = shine_mat
+	fortune_wrap.add_child(fortune_shine)
+
 	fortune_sprite = TextureRect.new()
 	fortune_sprite.texture = preload("res://assets/art/tokens/fortune.png")
 	fortune_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	fortune_sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	fortune_sprite.custom_minimum_size = ANNOUNCE_FORTUNE_SIZE
-	fortune_sprite.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	announce_content.add_child(fortune_sprite)
+	fortune_sprite.position = (ANNOUNCE_SHINE_SIZE - ANNOUNCE_FORTUNE_SIZE) / 2.0
+	fortune_sprite.size = ANNOUNCE_FORTUNE_SIZE
+	fortune_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fortune_wrap.add_child(fortune_sprite)
 
 	turn_overlay.visible = false
 
