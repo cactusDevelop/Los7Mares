@@ -96,6 +96,23 @@ func _flip_all_as_wave() -> void:
 	finished.emit()
 
 
+func _animate_token_piles_drop(token_piles: Array) -> void:
+	var pile_drop_duration: float = Settings.anim_duration(PILE_DROP_DURATION)
+	var card_pile_stagger: float = Settings.anim_duration(CARD_PILE_STAGGER)
+	for i in range(token_piles.size()):
+		var token_pile: Node2D = token_piles[i]
+		var target_pos: Vector2 = token_pile.position
+		token_pile.position = target_pos - Vector2(0, PILE_DROP_HEIGHT)
+		token_pile.modulate.a = 0.0
+		token_pile.visible = true
+
+		var tween := create_tween()
+		tween.tween_interval(i * card_pile_stagger)
+		tween.tween_property(token_pile, "position", target_pos, pile_drop_duration)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tween.parallel().tween_property(token_pile, "modulate:a", 1.0, pile_drop_duration * 0.7)
+
+
 func _get_card_back_texture(sea_key: String) -> Texture2D:
 	if _card_back_cache.has(sea_key):
 		return _card_back_cache[sea_key]
@@ -111,9 +128,10 @@ func _drop_card_piles() -> void:
 		pile.visible = true
 
 	var token_count: int = _board.token_count_for_player_count(GameFlow.players.size())
-	for token_pile in _board.token_piles_container.get_children():
+	var token_piles := _board.token_piles_container.get_children()
+	for token_pile in token_piles:
 		token_pile.remaining_count = token_count
-		token_pile.visible = true
+	_animate_token_piles_drop(token_piles)
 
 	var pile_drop_duration: float = Settings.anim_duration(PILE_DROP_DURATION)
 	var pile_drop_delay : float = Settings.anim_duration(PILE_DROP_DELAY)
