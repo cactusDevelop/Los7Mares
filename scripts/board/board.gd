@@ -178,12 +178,12 @@ func _ready() -> void:
 	)
 	hideout_phase.finished.connect(func():
 		_start_round()
-		_autosave("pieces")
-		piece_placement_phase.start(self)
-	)
-	piece_placement_phase.finished.connect(func():
 		_autosave("cards")
 		card_draw_phase.start(self)
+	)
+	card_draw_phase.finished.connect(func():
+		_autosave("pieces")
+		piece_placement_phase.start(self)
 	)
 
 	if GameFlow.is_continuing:
@@ -444,12 +444,12 @@ func _restore_from_save() -> void:
 
 	hideout_phase.finished.connect(func():
 		_start_round()
-		_autosave("pieces")
-		piece_placement_phase.start(self)
-	)
-	piece_placement_phase.finished.connect(func():
 		_autosave("cards")
 		card_draw_phase.start(self)
+	)
+	card_draw_phase.finished.connect(func():
+		_autosave("pieces")
+		piece_placement_phase.start(self)
 	)
 
 	match data.get("phase", "cards"):

@@ -47,6 +47,33 @@ func pop_top_card() -> void:
 		top.queue_free()
 
 
+## Retourne visuellement la carte du dessus de la pile pour révéler son recto,
+## à l'instar du retournement des tuiles de mer (sea_tile.gd) : la carte se
+## réduit sur l'axe horizontal, échange sa texture au point mort, puis se
+## déploie à nouveau, avec un léger soulèvement pour plus de réalisme.
+func flip_top_card(front_texture: Texture2D, duration: float = 0.6) -> void:
+	var top_card := get_top_card_sprite()
+	if top_card == null:
+		return
+	var original_y: float = top_card.position.y
+	var original_scale_x: float = top_card.scale.x
+	top_card.z_index = 20
+
+	var tween := create_tween()
+	tween.tween_property(top_card, "scale:x", 0.0, duration * 0.45)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(top_card, "position:y", original_y - 16.0, duration * 0.45)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_callback(func():
+		top_card.texture = front_texture
+	)
+	tween.tween_property(top_card, "scale:x", original_scale_x, duration * 0.55)\
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(top_card, "position:y", original_y, duration * 0.55)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await tween.finished
+
+
 func _on_mouse_entered() -> void:
 	if draw_enabled:
 		hover_prompt.show_prompt()

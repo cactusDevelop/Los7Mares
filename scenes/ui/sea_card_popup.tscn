@@ -4,31 +4,69 @@
 
 [node name="SeaCardPopup" type="Control" unique_id=1069071596]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1")
 
 [node name="Blocker" type="ColorRect" parent="." unique_id=1256780960]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-color = Color(0, 0, 0, 0.55)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.75)
 
-[node name="Padding" type="MarginContainer" parent="." unique_id=2029170493]
+[node name="Padding" type="PanelContainer" parent="." unique_id=2029170493]
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-theme_override_constants/margin_left = 28
+offset_right = 900.0
+offset_bottom = 480.0
+mouse_filter = 0
+
+[node name="Margin" type="MarginContainer" parent="Padding" unique_id=3312245981]
+layout_mode = 2
+theme_override_constants/margin_left = 32
 theme_override_constants/margin_top = 28
-theme_override_constants/margin_right = 28
+theme_override_constants/margin_right = 32
 theme_override_constants/margin_bottom = 28
 
-[node name="Content" type="CenterContainer" parent="Padding" unique_id=497042099]
+[node name="Content" type="HBoxContainer" parent="Padding/Margin" unique_id=497042099]
 layout_mode = 2
-mouse_filter = 2
+theme_override_constants/separation = 32
 
-[node name="CardImage" type="TextureRect" parent="Padding/Content" unique_id=416527112]
+[node name="CardImage" type="TextureRect" parent="Padding/Margin/Content" unique_id=416527112]
+custom_minimum_size = Vector2(380, 420)
 layout_mode = 2
+size_flags_vertical = 4
 mouse_filter = 2
+expand_mode = 1
 stretch_mode = 5
+
+[node name="DetailsColumn" type="VBoxContainer" parent="Padding/Margin/Content" unique_id=2603314458]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="TitleLabel" type="Label" parent="Padding/Margin/Content/DetailsColumn" unique_id=633411767]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+autowrap_mode = 3
+
+[node name="TypeLabel" type="Label" parent="Padding/Margin/Content/DetailsColumn" unique_id=859722980]
+modulate = Color(0.8, 0.8, 0.8, 1)
+layout_mode = 2
+
+[node name="DescriptionLabel" type="Label" parent="Padding/Margin/Content/DetailsColumn" unique_id=1832441120]
+layout_mode = 2
+size_flags_vertical = 3
+autowrap_mode = 3
+vertical_alignment = 0
+
+[node name="BackButton" type="Button" parent="Padding/Margin/Content/DetailsColumn" unique_id=1267547838]
+layout_mode = 2
+text = "RETOUR"
