@@ -6,7 +6,8 @@ extends Control
 
 signal card_resolved(card: SeaCard)
 
-const CARD_DISPLAY_SCALE := 2.2
+## Fraction maximale de l'écran (largeur/hauteur) que la carte peut occuper.
+const MAX_DISPLAY_RATIO := 0.7
 const FLIP_DELAY := 0.25
 const FLIP_DURATION := 0.6
 
@@ -29,10 +30,13 @@ func show_card(card: SeaCard, back_texture: Texture2D, front_texture: Texture2D)
 	_current_card = card
 	card_image.texture = back_texture
 
-	var display_size: Vector2 = back_texture.get_size() * CARD_DISPLAY_SCALE
+	var viewport_size := get_viewport_rect().size
+	var tex_size: Vector2 = back_texture.get_size()
+	var max_size: Vector2 = viewport_size * MAX_DISPLAY_RATIO
+	var fit_scale: float = min(max_size.x / tex_size.x, max_size.y / tex_size.y)
+	var display_size: Vector2 = tex_size * fit_scale
 	card_image.custom_minimum_size = display_size
 
-	var viewport_size := get_viewport_rect().size
 	blocker.position = Vector2.ZERO
 	blocker.size = viewport_size
 	padding.position = Vector2.ZERO

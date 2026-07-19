@@ -43,7 +43,6 @@ position = Vector2(2156, -624)
 script = ExtResource("12_hxlvt")
 
 [node name="HoverPrompt" parent="Seas/DeckArea" unique_id=1205484487 node_paths=PackedStringArray("card_shape") instance=ExtResource("12_w0prs")]
-box_size = Vector2(1300, 1300)
 outline_width = 30.0
 label_text = "MERS"
 font_size = 100

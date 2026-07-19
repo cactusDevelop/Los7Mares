@@ -1,12 +1,5 @@
 extends Node2D
 
-@export var box_size: Vector2 = Vector2(200, 280):
-	set(value):
-		box_size = value
-		if outline:
-			outline.box_size = value
-			outline.queue_redraw()
-
 @export var outline_width: float = 6.0:
 	set(value):
 		outline_width = value
@@ -58,8 +51,8 @@ extends Node2D
 		if hint_label:
 			_center_label()
 
-## Si assigné, le contour épouse exactement le polygone de ce CollisionPolygon2D
-## au lieu de l'hexagone par défaut.
+## Le contour épouse exactement le polygone de ce CollisionPolygon2D.
+## Obligatoire : assigner un noeud dans l'inspecteur de chaque instance.
 @export var card_shape: CollisionPolygon2D:
 	set(value):
 		card_shape = value
@@ -76,7 +69,6 @@ var _fade_tween: Tween
 
 
 func _ready() -> void:
-	outline.box_size = box_size
 	outline.line_width = outline_width
 	outline.corner_radius = corner_radius
 	outline.card_shape = card_shape
