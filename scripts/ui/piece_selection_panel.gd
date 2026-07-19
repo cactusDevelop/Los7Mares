@@ -7,13 +7,10 @@ const SELECTED_SCALE := 1.2
 const TWEEN_DURATION := 0.15
 const UNSELECTED_TINT := Color(0.55, 0.55, 0.55)
 
-## Effet 3D (épaisseur) des icônes capitaine/second : géré par un shader
-## (shaders/piece_thickness.gdshader), le même que celui utilisé pour les
-## pièces sur le plateau (captain_piece.gd/second_piece.gd). Un seul draw
-## call par icône, donc aucun souci d'ordre d'affichage.
-const PIECE_THICKNESS_PX := 12.0
-const PIECE_THICKNESS_LAYERS := 8
-const PIECE_EDGE_DARKEN := 0.5
+## Effet 3D (épaisseur) des icônes capitaine/second : scripts/common/
+## piece_thickness.gd (constantes partagées avec captain_piece.gd/
+## second_piece.gd). Nodes enfants de btn -> suivent automatiquement son
+## scale (survol/sélection, _tween_scale) et son modulate (_refresh_colors).
 
 ## Annonce de tour : filtre noir + texte/jeton en perspective.
 const ANNOUNCE_FADE_IN_DURATION := 0.12
@@ -104,13 +101,7 @@ func _build_piece_option(label_text: String, texture: Texture2D) -> TextureButto
 	btn.custom_minimum_size = Vector2(UiTheme.SELECTION_ICON_HEIGHT * aspect, UiTheme.SELECTION_ICON_HEIGHT)
 	btn.pivot_offset = btn.custom_minimum_size / 2.0
 
-	var mat := ShaderMaterial.new()
-	mat.set_shader_parameter("depth_direction", UiTheme.DEPTH_DIRECTION)
-	mat.set_shader_parameter("thickness_px", PIECE_THICKNESS_PX)
-	mat.set_shader_parameter("layers", PIECE_THICKNESS_LAYERS)
-	mat.set_shader_parameter("edge_darken", PIECE_EDGE_DARKEN)
-	mat.set_shader_parameter("display_scale", btn.custom_minimum_size.y / texture.get_height())
-	btn.material = mat
+	PieceThickness.add_to_control(btn, texture, btn.custom_minimum_size)
 
 	btn.mouse_entered.connect(_on_button_hover.bind(btn, true))
 	btn.mouse_exited.connect(_on_button_hover.bind(btn, false))

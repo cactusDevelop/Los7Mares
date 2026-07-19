@@ -50,9 +50,11 @@ const SPECIAL_TOKEN_MAX_ATTEMPTS := 40
 ## face du dessus/avant visible est repoussée vers le HAUT-DROITE. Les
 ## cubes de ressource DOIVENT utiliser la direction opposée à celle-ci.
 ## Épaisseur totale des jetons Fortune/Trésor, en pixels écran (~3px demandés).
-## Géré par un shader (shaders/piece_thickness.gdshader), le même que celui
-## utilisé pour les pièces capitaine/second : un seul draw call par jeton,
-## donc aucun souci d'ordre d'affichage avec les autres objets de l'inventaire.
+## Géré par empilement de TextureRect (_add_token_with_thickness ci-dessous),
+## comme les pièces capitaine/second (scripts/common/piece_thickness.gd) et
+## les bateaux (hideout_spot.gd). Ici les nodes restent séparés (pas enfants
+## les uns des autres) car ils doivent être déplacés ensemble pendant un
+## glisser-déposer via le tableau "nodes" de _draggable_items.
 const TOKEN_THICKNESS_PX := 3.0
 const TOKEN_THICKNESS_LAYERS := 3
 const TOKEN_EDGE_DARKEN := 0.45
