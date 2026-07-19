@@ -138,6 +138,17 @@ func _show_boat(color: String, instant: bool = false) -> void:
 		tween.tween_property(entry["node"], "modulate:a", 1.0, duration * 0.7)
 
 
+## Fait apparaître l'emplacement en fondu (au lieu d'une apparition soudaine)
+## quand il est encore vide, par exemple au début de la phase de cachette.
+const EMPTY_FADE_IN_DURATION := 0.35
+
+func fade_in_empty() -> void:
+	modulate.a = 0.0
+	visible = true
+	var tween := create_tween()
+	tween.tween_property(self, "modulate:a", 1.0, Settings.anim_duration(EMPTY_FADE_IN_DURATION))
+
+
 func set_hover_enabled(enabled: bool) -> void:
 	hover_enabled = enabled
 	if not enabled:
