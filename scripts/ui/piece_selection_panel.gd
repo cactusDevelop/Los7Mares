@@ -42,6 +42,7 @@ var black_filter: ColorRect
 var announce_content: VBoxContainer
 var tour_label: Label
 var fortune_wrap: Control
+var fortune_pulse: ColorRect
 var fortune_shine: ColorRect
 var fortune_sprite: TextureRect
 
@@ -228,6 +229,17 @@ func _build_turn_overlay() -> void:
 	fortune_wrap.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	fortune_wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	announce_content.add_child(fortune_wrap)
+
+	# Aura blanche clignotante, tout au fond (sous le halo tournant et
+	# sous le jeton). Ordre d'ajout = ordre de dessin dans un Control.
+	fortune_pulse = ColorRect.new()
+	fortune_pulse.position = Vector2.ZERO
+	fortune_pulse.size = ANNOUNCE_SHINE_SIZE
+	fortune_pulse.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var pulse_mat := ShaderMaterial.new()
+	pulse_mat.shader = preload("res://shaders/fortune_aura.gdshader")
+	fortune_pulse.material = pulse_mat
+	fortune_wrap.add_child(fortune_pulse)
 
 	# Halo procédural (shader) : rayons irréguliers tournant en continu via
 	# TIME côté GPU, pas de logique _process/queue_redraw côté script.
