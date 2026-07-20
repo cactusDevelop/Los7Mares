@@ -12,6 +12,7 @@ var _current_player_index: int = 0
 var _selected_rank: int = -1
 var _placed_rank_by_player: Dictionary = {}
 var _debug_round_index := 0
+var _resolving_action := false
 
 
 func start(board: Board) -> void:
@@ -19,6 +20,7 @@ func start(board: Board) -> void:
 	_current_round = 0
 	_current_player_index = 0
 	_placed_rank_by_player.clear()
+	_resolving_action = false
 
 	for spot in _board.action_spots_container.get_children():
 		if not spot.spot_clicked.is_connected(_on_action_spot_clicked):
@@ -59,7 +61,7 @@ func _on_piece_selected(rank: int) -> void:
 
 
 func _on_action_spot_clicked(spot: Node2D) -> void:
-	if _selected_rank == -1:
+	if _selected_rank == -1 or _resolving_action:
 		return
 
 	var player: Dictionary = GameFlow.players[_current_player_index]
@@ -78,8 +80,14 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 	if _current_round == 0:
 		_placed_rank_by_player[_current_player_index] = _selected_rank
 	_selected_rank = -1
-	_current_player_index += 1
 	_board._autosave("pieces")
+
+	var spot_index: int = spot.get_index()
+	_resolving_action = true
+	await _board.action_resolution_phase.start(_board, player, spot_index)
+	_resolving_action = false
+
+	_current_player_index += 1
 	_begin_player_piece_turn()
 
 

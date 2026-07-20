@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" uid="uid://bn3g7mmfggktb" path="res://scenes/ui/sea_card_popup.tscn" id="17_bo4hw"]
 [ext_resource type="PackedScene" uid="uid://b058e8m5tg4kt" path="res://scenes/ui/player_board_expanded.tscn" id="18_ctilb"]
 [ext_resource type="Texture2D" uid="uid://dedw6tc0y6d80" path="res://assets/art/ui/back.svg" id="19_0avwi"]
+[ext_resource type="Script" uid="uid://thk7r4kfye57" path="res://scripts/ui/action_resolution_panel.gd" id="20_m0x5n"]
 [ext_resource type="PackedScene" uid="uid://cdx0n5rvtqx0w" path="res://scenes/board/hideout_spot.tscn" id="20_vq54c"]
 [ext_resource type="PackedScene" uid="uid://ce1t4lmygf8iq" path="res://scenes/board/fortune_spot.tscn" id="21_jngt6"]
 [ext_resource type="Script" uid="uid://cnxrqg83d7ymu" path="res://scripts/debug/debug_heptagon.gd" id="22_j2n54"]
@@ -27,6 +28,7 @@
 [ext_resource type="Script" uid="uid://da2oyotyr3s1s" path="res://scripts/board/hideout_phase.gd" id="24_0avwi"]
 [ext_resource type="Script" uid="uid://dhx64n8v51ihg" path="res://scripts/board/piece_placement_phase.gd" id="25_jhx4t"]
 [ext_resource type="Script" uid="uid://dtqgyitf5s8n7" path="res://scripts/board/card_draw_phase.gd" id="26_m0x5n"]
+[ext_resource type="Script" uid="uid://crp8o7l2w4rxs" path="res://scripts/board/action_resolution_phase.gd" id="29_x4jil"]
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
@@ -190,6 +192,13 @@ ok_button_text = "Ok..."
 dialog_text = "Retourner au menu ? Votre progression est sauvegardée."
 cancel_button_text = "Non, ça ira"
 
+[node name="ActionResolutionPanel" type="Control" parent="UI" unique_id=786320095]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("20_m0x5n")
+
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
 
 [node name="Spot1" parent="ActionSpots" unique_id=1764597111 instance=ExtResource("15_kug5n")]
@@ -248,6 +257,8 @@ scale = Vector2(1.1, 1.1)
 
 [node name="FortuneSpot7" parent="FortuneSpots" unique_id=468696202 instance=ExtResource("21_jngt6")]
 
+[node name="BoatMarkers" type="Node2D" parent="." unique_id=316796982]
+
 [node name="DebugHeptagon" type="Node2D" parent="." unique_id=6273675]
 z_index = 4096
 z_as_relative = false
@@ -267,6 +278,9 @@ script = ExtResource("25_jhx4t")
 
 [node name="CardDrawPhase" type="Node" parent="." unique_id=1152241436]
 script = ExtResource("26_m0x5n")
+
+[node name="ActionResolutionPhase" type="Node" parent="." unique_id=718650651]
+script = ExtResource("29_x4jil")
 
 [editable path="Seas/SeaAbondance"]
 [editable path="Seas/SeaAzur"]

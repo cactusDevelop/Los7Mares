@@ -12,6 +12,7 @@ const CARD_FRONT_FALLBACK := preload("res://assets/art/cards/carte-sauvage1.png"
 const FLIP_DURATION := 0.6
 const FLIP_RANDOM_DELAY_MIN := 0.0
 const FLIP_RANDOM_DELAY_MAX := 0.5
+const REDRAW_CARD_SCALE := 0.5
 
 var _board: Board
 var _front_texture_cache: Dictionary = {}
@@ -83,3 +84,34 @@ func _on_sea_card_resolved(_card: SeaCard) -> void:
 
 func _finish_phase() -> void:
 	finished.emit()
+
+
+## Utilisé par l'action "déplacement" (action_resolution_phase.gd) quand un
+## joueur reste sur sa mer actuelle pour piocher une nouvelle carte : défausse
+## la carte révélée de cette mer et en révèle une nouvelle à sa place.
+func redraw_card_for_sea(sea_key: String) -> void:
+	var pile: Node2D = null
+	for p in _board.card_piles_container.get_children():
+		if p.sea_key == sea_key:
+			pile = p
+			break
+	if pile == null:
+		return
+
+	if _revealed_cards.has(pile):
+		pile.pop_top_card()
+		SeaDecks.discard_card(_revealed_cards[pile])
+		_revealed_cards.erase(pile)
+
+	var card: SeaCard = SeaDecks.draw_card(sea_key)
+	if card == null:
+		return
+
+	var back_path := "res://assets/art/cards/carte-%s-dos.png" % sea_key
+	var back_texture: Texture2D = load(back_path) if ResourceLoader.exists(back_path) else preload("res://assets/art/cards/carte-sauvage-dos.png")
+	var visual_card: Sprite2D = pile.add_visual_card(back_texture, Vector2.ZERO)
+	visual_card.scale = Vector2.ONE * REDRAW_CARD_SCALE
+
+	_revealed_cards[pile] = card
+	pile.draw_enabled = true
+	pile.flip_top_card(_get_card_front_texture(sea_key), Settings.anim_duration(FLIP_DURATION))

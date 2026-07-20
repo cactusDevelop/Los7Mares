@@ -54,6 +54,10 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var sea_card_popup: Control = $UI/SeaCardPopup
 @onready var card_piles_container: Node2D = $CardPiles
 @onready var token_piles_container: Node2D = $TokenPiles
+@onready var boat_markers_container: Node2D = $BoatMarkers
+
+@onready var action_resolution_phase: Node = $ActionResolutionPhase
+@onready var action_resolution_panel: Control = $UI/ActionResolutionPanel
 
 @onready var dealing_phase: Node = $DealingPhase
 @onready var hideout_phase: Node = $HideoutPhase
@@ -66,6 +70,8 @@ var _sea_tiles: Array = []
 var _slot_order: Array = []
 var _total_seas: int = 0
 var _has_started: bool = false
+var _sea_marker_positions: Dictionary = {}  # sea_key -> Vector2 (position du jeton de bateau)
+var _boat_markers: Dictionary = {}  # player_id -> Sprite2D
 
 var _camera_base_position: Vector2
 var _camera_base_zoom: Vector2
@@ -143,6 +149,7 @@ func _ready() -> void:
 		pile.sea_key = SEA_KEY_BY_NODE_NAME.get(tile.name, "")
 		pile.visible = false
 		pile.modulate.a = 1.0
+		_sea_marker_positions[pile.sea_key] = slots[i].token_position
 
 		var token_texture_path := "res://assets/art/tokens/jeton-%s.png" % pile.sea_key
 		if pile.sea_key != "" and ResourceLoader.exists(token_texture_path):
@@ -338,6 +345,94 @@ func _take_fortune_token_for(player_id: int) -> void:
 	GameFlow.players_changed.emit()
 
 
+## Index (0..6) de la cachette appartenant à un joueur, ou -1 si aucune.
+func hideout_index_for_color(color: String) -> int:
+	var spots := hideout_spots_container.get_children()
+	for i in range(spots.size()):
+		if spots[i].is_taken and spots[i].owner_color == color:
+			return i
+	return -1
+
+
+## Chaque cachette est positionnée exactement entre deux mers voisines dans
+## l'ordre circulaire _slot_order (cf. _ready : angle de la cachette i =
+## angle de la mer i + un demi-pas). La cachette d'index i est donc toujours
+## adjacente aux mers d'index i et i+1 de _slot_order.
+func adjacent_seas_for_hideout(hideout_index: int) -> Array[String]:
+	var n := _slot_order.size()
+	if n == 0 or hideout_index < 0:
+		var empty: Array[String] = []
+		return empty
+	var result: Array[String] = [
+		SEA_KEY_BY_NODE_NAME.get(_slot_order[hideout_index].name, ""),
+		SEA_KEY_BY_NODE_NAME.get(_slot_order[(hideout_index + 1) % n].name, ""),
+	]
+	return result
+
+
+## Les deux mers voisines d'une mer donnée sur le cercle _slot_order.
+func adjacent_seas_for_sea(sea_key: String) -> Array[String]:
+	var n := _slot_order.size()
+	var idx := -1
+	for i in range(n):
+		if SEA_KEY_BY_NODE_NAME.get(_slot_order[i].name, "") == sea_key:
+			idx = i
+			break
+	if idx == -1:
+		var empty: Array[String] = []
+		return empty
+	var result: Array[String] = [
+		SEA_KEY_BY_NODE_NAME.get(_slot_order[(idx - 1 + n) % n].name, ""),
+		SEA_KEY_BY_NODE_NAME.get(_slot_order[(idx + 1) % n].name, ""),
+	]
+	return result
+
+
+func get_sea_marker_position(sea_key: String) -> Vector2:
+	return _sea_marker_positions.get(sea_key, global_position)
+
+
+## Déplace le bateau d'un joueur vers une mer (action "déplacement",
+## action_resolution_phase.gd) : met à jour sa position logique et son
+## marqueur visuel sur le plateau.
+func move_player_boat(player: Dictionary, sea_key: String) -> void:
+	player["boat_sea"] = sea_key
+	_update_boat_marker(player)
+	GameFlow.players_changed.emit()
+
+
+const BOAT_MARKER_SCALE := 0.6
+const BOAT_MARKER_SPREAD := 40.0
+
+## Crée/déplace le petit jeton coloré (texture générique GameFlow.
+## MARKER_TEXTURE_PATH) qui indique sur quelle mer se trouve le bateau d'un
+## joueur. Les marqueurs de plusieurs joueurs sur la même mer sont répartis
+## en cercle autour du jeton de mer pour rester lisibles.
+func _update_boat_marker(player: Dictionary) -> void:
+	var sea_key: String = player.get("boat_sea", "")
+	var pid: int = player["id"]
+	if sea_key == "":
+		if _boat_markers.has(pid):
+			_boat_markers[pid].queue_free()
+			_boat_markers.erase(pid)
+		return
+
+	var color_index: int = GameFlow.COLORS.find(player["color"])
+	var angle: float = (TAU / GameFlow.COLORS.size()) * max(color_index, 0)
+	var pos: Vector2 = get_sea_marker_position(sea_key) + Vector2(cos(angle), sin(angle)) * BOAT_MARKER_SPREAD
+
+	var marker: Sprite2D = _boat_markers.get(pid)
+	if marker == null:
+		marker = Sprite2D.new()
+		marker.texture = load(GameFlow.MARKER_TEXTURE_PATH)
+		marker.scale = Vector2.ONE * BOAT_MARKER_SCALE
+		marker.z_index = 5
+		boat_markers_container.add_child(marker)
+		_boat_markers[pid] = marker
+	marker.modulate = GameFlow.COLOR_VALUES[player["color"]]
+	marker.global_position = pos
+
+
 func _serialize_state(phase: String) -> Dictionary:
 	var sea_order: Array = []
 	for tile in _slot_order:
@@ -420,6 +515,7 @@ func _restore_from_save() -> void:
 		pile.sea_key = saved_order[i]
 		pile.visible = true
 		pile.modulate.a = 1.0
+		_sea_marker_positions[pile.sea_key] = slots[i].token_position
 		var remaining: int = deck_remaining.get(saved_order[i], 0)
 		var back_path := "res://assets/art/cards/carte-%s-dos.png" % saved_order[i]
 		var back_tex: Texture2D = load(back_path) if ResourceLoader.exists(back_path) else preload("res://assets/art/cards/carte-sauvage-dos.png")
@@ -469,6 +565,8 @@ func _restore_from_save() -> void:
 
 	GameFlow.players_changed.connect(_refresh_player_boards)
 	_refresh_player_boards()
+	for p in GameFlow.players:
+		_update_boat_marker(p)
 
 	hideout_phase.finished.connect(func():
 		_start_round()

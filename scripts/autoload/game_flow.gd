@@ -94,6 +94,8 @@ func add_player(player_name: String, color: String) -> Dictionary:
 		"parrot_captured_by": -1,
 		"hull_planks": HULL_PLANKS_START,
 		"is_first_player": false,
+		"sail_level": 1,
+		"boat_sea": "",
 	}
 	_next_player_id += 1
 	players.append(player)
