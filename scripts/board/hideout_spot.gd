@@ -31,6 +31,12 @@ var hover_enabled: bool = false
 var is_taken: bool = false
 var owner_color: String = ""
 
+## Conteneur (créé dans _show_boat) regroupant boat_sprite + ses couches
+## d'épaisseur : c'est cette unité complète qui est détachée par
+## detach_boat() quand le bateau quitte la cachette pour naviguer (au lieu
+## de recréer un sprite séparé sur le plateau).
+var boat_piece: Node2D = null
+
 
 func _ready() -> void:
 	boat_sprite.visible = false
@@ -84,6 +90,16 @@ func claim(color: String, instant: bool = false) -> void:
 func _show_boat(color: String, instant: bool = false) -> void:
 	const BOAT_Z_INDEX := 2
 	var base_color: Color = GameFlow.COLOR_VALUES[color]
+
+	# boat_piece regroupe le bateau + ses couches d'épaisseur dans un seul
+	# noeud détachable (cf detach_boat) : transform identité par rapport à
+	# self, donc les positions locales de boat_sprite ne changent pas.
+	boat_piece = Node2D.new()
+	boat_piece.name = "BoatPiece"
+	add_child(boat_piece)
+	remove_child(boat_sprite)
+	boat_piece.add_child(boat_sprite)
+
 	boat_sprite.rotation = -global_rotation
 	boat_sprite.modulate = base_color
 	boat_sprite.visible = true
@@ -109,7 +125,7 @@ func _show_boat(color: String, instant: bool = false) -> void:
 		shadow.rotation = boat_sprite.rotation
 		shadow.z_index = boat_sprite.z_index - 1
 		shadow.modulate = base_color.darkened(BOAT_EDGE_DARKEN)
-		add_child(shadow)
+		boat_piece.add_child(shadow)
 		shadow_layers.append({"node": shadow, "target": boat_target_pos + step * layer})
 
 	# Départ : tout le monde en l'air et transparent. Le décalage doit être
@@ -136,6 +152,17 @@ func _show_boat(color: String, instant: bool = false) -> void:
 		tween.tween_property(entry["node"], "position", entry["target"], duration)\
 			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		tween.tween_property(entry["node"], "modulate:a", 1.0, duration * 0.7)
+
+
+## Détache et retourne le conteneur "BoatPiece" (bateau + épaisseur) pour
+## que board.gd puisse le faire naviguer sur les mers : appelé une seule
+## fois, au premier déplacement du joueur hors de sa cachette. Le noeud
+## retourné garde sa position/rotation GLOBALE (reparent avec
+## keep_global_transform=true côté appelant), donc aucun saut visuel.
+func detach_boat() -> Node2D:
+	var piece := boat_piece
+	boat_piece = null
+	return piece
 
 
 ## Fait apparaître l'emplacement en fondu (au lieu d'une apparition soudaine)

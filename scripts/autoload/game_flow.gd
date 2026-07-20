@@ -29,6 +29,7 @@ const RANDOM_NAMES: Array[String] = ["Thomas", "Adrien", "Martino", "Raphael", "
 const PARROT_TEXTURE_PATH := "res://assets/art/pieces/perro-%s.png"
 const PARROT_TEXTURE_PATH_PRISON := "res://assets/art/pieces/perro-%s-prison.png"
 const MARKER_TEXTURE_PATH := "res://assets/art/pieces/marqueur.png"
+const BOAT_TEXTURE_PATH := "res://assets/art/pieces/bateau.png"
 const HULL_PLANKS_START := 7
 
 enum PieceRank { SECOND = 0, CAPTAIN = 1 }

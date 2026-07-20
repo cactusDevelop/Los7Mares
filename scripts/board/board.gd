@@ -71,7 +71,7 @@ var _slot_order: Array = []
 var _total_seas: int = 0
 var _has_started: bool = false
 var _sea_marker_positions: Dictionary = {}  # sea_key -> Vector2 (position du jeton de bateau)
-var _boat_markers: Dictionary = {}  # player_id -> Sprite2D
+var _boat_markers: Dictionary = {}  # player_id -> Node2D (boat_piece détaché de la cachette)
 
 var _camera_base_position: Vector2
 var _camera_base_zoom: Vector2
@@ -133,6 +133,7 @@ func _ready() -> void:
 			"rotation": angle_degrees + 90.0,
 			"pile_position": board_center + (radius + UiTheme.CARD_PILE_RADIUS_OFFSET) * direction,
 			"token_position": board_center + (radius + token_pile_radius_offset) * direction,
+			"boat_position": board_center + (radius + token_pile_radius_offset + BOAT_MARKER_RADIUS_BONUS) * direction,
 		})
 
 	_slot_order = _sea_tiles.duplicate()
@@ -150,7 +151,7 @@ func _ready() -> void:
 		pile.sea_key = SEA_KEY_BY_NODE_NAME.get(tile.name, "")
 		pile.visible = false
 		pile.modulate.a = 1.0
-		_sea_marker_positions[pile.sea_key] = slots[i].token_position
+		_sea_marker_positions[pile.sea_key] = slots[i].boat_position
 
 		var token_texture_path := "res://assets/art/tokens/jeton-%s.png" % pile.sea_key
 		if pile.sea_key != "" and ResourceLoader.exists(token_texture_path):
@@ -411,36 +412,47 @@ func move_player_boat(player: Dictionary, sea_key: String) -> void:
 	GameFlow.players_changed.emit()
 
 
-const BOAT_MARKER_SCALE := 0.9
 const BOAT_MARKER_SPREAD := 40.0
+## Ajouté à token_pile_radius_offset pour que le bateau navigue plus loin du
+## centre que les piles de jetons (sur la mer elle-même, pas entre mer et
+## centre).
+const BOAT_MARKER_RADIUS_BONUS := 200.0
+const BOAT_SAIL_DURATION := 0.6
 
-## Crée/déplace le petit jeton coloré (texture générique GameFlow.
-## MARKER_TEXTURE_PATH) qui indique sur quelle mer se trouve le bateau d'un
-## joueur. Les marqueurs de plusieurs joueurs sur la même mer sont répartis
-## en cercle autour du jeton de mer pour rester lisibles.
+## Déplace le VRAI bateau du joueur (celui créé dans hideout_spot.gd, avec
+## son effet d'épaisseur 3D) au lieu d'en recréer un nouveau à chaque fois :
+## au premier déplacement, on le détache de sa cachette (detach_boat) puis
+## on le reparente sur le plateau ; ensuite on anime juste sa position d'une
+## mer à l'autre. Taille, couleur et effet 3D restent donc identiques à ce
+## qu'affichait la cachette.
 func _update_boat_marker(player: Dictionary) -> void:
 	var sea_key: String = player.get("boat_sea", "")
 	var pid: int = player["id"]
 	if sea_key == "":
-		if _boat_markers.has(pid):
-			_boat_markers[pid].queue_free()
-			_boat_markers.erase(pid)
 		return
 
 	var color_index: int = GameFlow.COLORS.find(player["color"])
 	var angle: float = (TAU / GameFlow.COLORS.size()) * max(color_index, 0)
 	var pos: Vector2 = get_sea_marker_position(sea_key) + Vector2(cos(angle), sin(angle)) * BOAT_MARKER_SPREAD
 
-	var marker: Sprite2D = _boat_markers.get(pid)
-	if marker == null:
-		marker = Sprite2D.new()
-		marker.texture = load(GameFlow.BOAT_TEXTURE_PATH)
-		marker.scale = Vector2.ONE * BOAT_MARKER_SCALE
-		marker.z_index = 5
-		boat_markers_container.add_child(marker)
-		_boat_markers[pid] = marker
-	marker.modulate = GameFlow.COLOR_VALUES[player["color"]]
-	marker.global_position = pos
+	var piece: Node2D = _boat_markers.get(pid)
+	if piece == null:
+		var hideout_index: int = hideout_index_for_color(player["color"])
+		if hideout_index == -1:
+			return
+		var spot = hideout_spots_container.get_children()[hideout_index]
+		if spot.boat_piece == null:
+			return
+		piece = spot.detach_boat()
+		piece.reparent(boat_markers_container, true)
+		piece.z_index = 5
+		_boat_markers[pid] = piece
+		piece.global_position = pos
+		return
+
+	var tween := create_tween()
+	tween.tween_property(piece, "global_position", pos, Settings.anim_duration(BOAT_SAIL_DURATION))\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
 func _serialize_state(phase: String) -> Dictionary:
@@ -491,6 +503,7 @@ func _restore_from_save() -> void:
 			"rotation": angle_degrees + 90.0,
 			"pile_position": board_center + (radius + UiTheme.CARD_PILE_RADIUS_OFFSET) * direction,
 			"token_position": board_center + (radius + token_pile_radius_offset) * direction,
+			"boat_position": board_center + (radius + token_pile_radius_offset + BOAT_MARKER_RADIUS_BONUS) * direction,
 		})
 
 	# Les piles de jetons ont été créées dans _ready() selon un tirage aléatoire
@@ -526,7 +539,7 @@ func _restore_from_save() -> void:
 		pile.sea_key = saved_order[i]
 		pile.visible = true
 		pile.modulate.a = 1.0
-		_sea_marker_positions[pile.sea_key] = slots[i].token_position
+		_sea_marker_positions[pile.sea_key] = slots[i].boat_position
 		var remaining: int = deck_remaining.get(saved_order[i], 0)
 		var back_path := "res://assets/art/cards/carte-%s-dos.png" % saved_order[i]
 		var back_tex: Texture2D = load(back_path) if ResourceLoader.exists(back_path) else preload("res://assets/art/cards/carte-sauvage-dos.png")
