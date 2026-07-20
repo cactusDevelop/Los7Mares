@@ -46,7 +46,7 @@ func _ready() -> void:
 
 
 func _on_mouse_entered() -> void:
-	if hover_enabled and not is_taken:
+	if hover_enabled:
 		hover_prompt.show_prompt()
 
 
@@ -55,7 +55,7 @@ func _on_mouse_exited() -> void:
 
 
 func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
-	if not hover_enabled or is_taken:
+	if not hover_enabled:
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		spot_clicked.emit(self)

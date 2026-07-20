@@ -446,11 +446,11 @@ func move_player_boat(player: Dictionary, sea_key: String) -> void:
 	GameFlow.players_changed.emit()
 
 
-const BOAT_MARKER_SPREAD := 400.0
+const BOAT_MARKER_SPREAD := 260.0
 ## Ajouté à token_pile_radius_offset pour que le bateau navigue plus loin du
 ## centre que les piles de jetons (sur la mer elle-même, pas entre mer et
 ## centre).
-const BOAT_MARKER_RADIUS_BONUS := 520.0
+const BOAT_MARKER_RADIUS_BONUS := 200.0
 const BOAT_SAIL_DURATION := 0.6
 
 ## Déplace le VRAI bateau du joueur (celui créé dans hideout_spot.gd, avec
@@ -508,6 +508,41 @@ func _relayout_boats(sea_key: String) -> void:
 		var tween := create_tween()
 		tween.tween_property(piece, "global_position", center + offsets[i], Settings.anim_duration(BOAT_SAIL_DURATION))\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+
+## Symétrique de detach_boat (hideout_spot.gd) : fait rentrer le bateau du
+## joueur dans sa cachette (action "déplacement" quand la mer actuelle est
+## adjacente à sa cachette). Reparente le VRAI bateau (garde son apparence)
+## et l'anime vers la position d'origine à l'intérieur de la cachette ;
+## celle-ci redevient ensuite capable de le détacher à nouveau normalement.
+func move_boat_to_hideout(player: Dictionary) -> void:
+	var old_sea: String = player.get("boat_sea", "")
+	var pid: int = player["id"]
+	player["boat_sea"] = ""
+
+	if old_sea != "" and _boats_by_sea.has(old_sea):
+		_boats_by_sea[old_sea].erase(pid)
+		_relayout_boats(old_sea)
+
+	var piece: Node2D = _boat_markers.get(pid)
+	if piece == null:
+		GameFlow.players_changed.emit()
+		return
+	var hideout_index: int = hideout_index_for_color(player["color"])
+	if hideout_index == -1:
+		GameFlow.players_changed.emit()
+		return
+
+	var spot = hideout_spots_container.get_children()[hideout_index]
+	_boat_markers.erase(pid)
+	piece.z_index = 0
+	piece.reparent(spot, true)
+	spot.boat_piece = piece
+
+	var tween := create_tween()
+	tween.tween_property(piece, "position", Vector2.ZERO, Settings.anim_duration(BOAT_SAIL_DURATION))\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	GameFlow.players_changed.emit()
 
 
 func _serialize_state(phase: String) -> Dictionary:

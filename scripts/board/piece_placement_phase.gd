@@ -113,7 +113,7 @@ func _end_piece_placement_phase() -> void:
 	if _board.debug_skip_to_pieces:
 		_debug_round_index += 1
 		if _debug_round_index < DEBUG_TOTAL_ROUNDS:
-			_board.narration_box.say(tr("Tour %d/%d terminé.") % [_debug_round_index, DEBUG_TOTAL_ROUNDS])
+			_board.narration_box.say(tr("Manche %d/%d terminée.") % [_debug_round_index, DEBUG_TOTAL_ROUNDS])
 			await get_tree().create_timer(1.0).timeout
 			_board.narration_box.hide_box()
 			_board._start_round()
