@@ -29,11 +29,13 @@ func start(board: Board) -> void:
 	if not _board.piece_selection_panel.piece_selected.is_connected(_on_piece_selected):
 		_board.piece_selection_panel.piece_selected.connect(_on_piece_selected)
 
-	_board.piece_selection_panel.show_for_placement_phase()
-	_shift_camera_for_selection(true)
 	_begin_player_piece_turn()
 
 
+## Affiche le panneau de sélection de pièce + recadre la caméra sur la zone
+## de sélection uniquement quand un tour va effectivement suivre (si la
+## phase se termine à la place, on reste sur la vue par défaut : cf le
+## "return" avant ces lignes).
 func _begin_player_piece_turn() -> void:
 	if _current_player_index >= GameFlow.players.size():
 		_current_player_index = 0
@@ -41,6 +43,9 @@ func _begin_player_piece_turn() -> void:
 		if _current_round > 1:
 			_end_piece_placement_phase()
 			return
+
+	_board.piece_selection_panel.show_for_placement_phase()
+	_shift_camera_for_selection(true)
 
 	var player: Dictionary = GameFlow.players[_current_player_index]
 	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
@@ -81,6 +86,13 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 		_placed_rank_by_player[_current_player_index] = _selected_rank
 	_selected_rank = -1
 	_board._autosave("pieces")
+
+	# On quitte la vue "sélection de pièce" (zoom + panneau) dès que la pièce
+	# est posée : la résolution d'action (ex. cliquer sur une mer pour le
+	# déplacement) a besoin de la vue par défaut sur tout le plateau. On y
+	# revient dans _begin_player_piece_turn() pour le joueur suivant.
+	_board.piece_selection_panel.hide_panel()
+	_shift_camera_for_selection(false)
 
 	var spot_index: int = spot.get_index()
 	_resolving_action = true
@@ -149,6 +161,4 @@ func resume(board: Board) -> void:
 		spot.set_hover_enabled(true)
 	if not _board.piece_selection_panel.piece_selected.is_connected(_on_piece_selected):
 		_board.piece_selection_panel.piece_selected.connect(_on_piece_selected)
-	_board.piece_selection_panel.show_for_placement_phase()
-	_shift_camera_for_selection(true)
 	_begin_player_piece_turn()

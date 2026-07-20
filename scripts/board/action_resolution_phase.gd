@@ -24,6 +24,12 @@ const ACTION_LABELS := {
 }
 const IMPLEMENTED_ACTIONS: Array[String] = ["deplacement"]
 
+## Émis dès que la destination du déplacement est connue, que ce soit via un
+## clic sur une mer (_on_sea_tile_clicked) ou via un bouton du panneau
+## ("draw"/"stop") : permet d'attendre les deux sources à la fois dans
+## _run_deplacement (cf await _choice_made ci-dessous).
+signal _choice_made(value: String)
+
 var _board: Board
 var _player: Dictionary
 
@@ -105,25 +111,48 @@ func _run_deplacement() -> void:
 
 	while points > 0:
 		var current_sea: String = _player.get("boat_sea", "")
-		var options: Array = []
+		var reachable: Array[String] = []
 
 		if current_sea == "":
 			var hideout_index: int = _board.hideout_index_for_color(_player["color"])
 			if hideout_index == -1:
 				break
-			for sea_key in _board.adjacent_seas_for_hideout(hideout_index):
-				options.append({"id": "move:" + sea_key, "label": tr("Naviguer vers : ") + sea_key.capitalize()})
+			reachable = _board.adjacent_seas_for_hideout(hideout_index)
 		else:
-			for sea_key in _board.adjacent_seas_for_sea(current_sea):
-				options.append({"id": "move:" + sea_key, "label": tr("Naviguer vers : ") + sea_key.capitalize()})
-			options.append({"id": "draw", "label": tr("Rester ici et piocher une nouvelle carte")})
+			reachable = _board.adjacent_seas_for_sea(current_sea)
 
+		var options: Array = []
+		if current_sea != "":
+			options.append({"id": "draw", "label": tr("Rester ici et piocher une nouvelle carte")})
 		options.append({"id": "stop", "label": tr("Terminer le déplacement")})
 
+		_board.narration_box.say_with_player(
+			tr("Tour de %s : clique sur une mer voisine pour t'y déplacer."), _player
+		)
 		_board.action_resolution_panel.set_title(tr("Déplacement — points restants : %d") % points)
 		_board.action_resolution_panel.set_options(options)
 		_board.action_resolution_panel.show_panel()
-		var choice: String = await _board.action_resolution_panel.option_selected
+
+		# Active le clic sur les mers accessibles pendant que le panneau reste
+		# ouvert pour les options non-spatiales (piocher / arrêter) : les deux
+		# sources de choix émettent toutes les deux _choice_made.
+		var tiles: Array = []
+		for sea_key in reachable:
+			var tile: Node2D = _board.get_sea_tile_by_key(sea_key)
+			if tile == null:
+				continue
+			tiles.append(tile)
+			tile.set_hover_enabled(true)
+			tile.spot_clicked.connect(_on_sea_tile_clicked)
+
+		_board.action_resolution_panel.option_selected.connect(_on_panel_choice)
+
+		var choice: String = await _choice_made
+
+		_board.action_resolution_panel.option_selected.disconnect(_on_panel_choice)
+		for tile in tiles:
+			tile.set_hover_enabled(false)
+			tile.spot_clicked.disconnect(_on_sea_tile_clicked)
 
 		if choice == "stop":
 			break
@@ -136,3 +165,12 @@ func _run_deplacement() -> void:
 			points -= 1
 
 	_board._autosave("pieces")
+
+
+func _on_sea_tile_clicked(tile: Node2D) -> void:
+	_board.action_resolution_panel.hide_panel()
+	_choice_made.emit("move:" + tile.sea_key)
+
+
+func _on_panel_choice(id: String) -> void:
+	_choice_made.emit(id)

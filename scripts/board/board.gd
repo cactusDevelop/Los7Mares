@@ -141,6 +141,7 @@ func _ready() -> void:
 		var tile = _slot_order[i]
 		tile.set_meta("target_global_position", slots[i].global_position)
 		tile.set_meta("target_rotation", slots[i].rotation)
+		tile.sea_key = SEA_KEY_BY_NODE_NAME.get(tile.name, "")
 
 		var pile: Node2D = SEA_CARD_PILE_SCENE.instantiate()
 		card_piles_container.add_child(pile)
@@ -388,6 +389,15 @@ func adjacent_seas_for_sea(sea_key: String) -> Array[String]:
 	return result
 
 
+## Retourne la tuile SeaTile (scripts/board/sea_tile.gd) correspondant à une
+## clé de mer, pour activer son survol/clic (action "déplacement").
+func get_sea_tile_by_key(sea_key: String) -> Node2D:
+	for tile in _slot_order:
+		if tile.sea_key == sea_key:
+			return tile
+	return null
+
+
 func get_sea_marker_position(sea_key: String) -> Vector2:
 	return _sea_marker_positions.get(sea_key, global_position)
 
@@ -401,7 +411,7 @@ func move_player_boat(player: Dictionary, sea_key: String) -> void:
 	GameFlow.players_changed.emit()
 
 
-const BOAT_MARKER_SCALE := 0.6
+const BOAT_MARKER_SCALE := 0.9
 const BOAT_MARKER_SPREAD := 40.0
 
 ## Crée/déplace le petit jeton coloré (texture générique GameFlow.
@@ -424,7 +434,7 @@ func _update_boat_marker(player: Dictionary) -> void:
 	var marker: Sprite2D = _boat_markers.get(pid)
 	if marker == null:
 		marker = Sprite2D.new()
-		marker.texture = load(GameFlow.MARKER_TEXTURE_PATH)
+		marker.texture = load(GameFlow.BOAT_TEXTURE_PATH)
 		marker.scale = Vector2.ONE * BOAT_MARKER_SCALE
 		marker.z_index = 5
 		boat_markers_container.add_child(marker)
@@ -505,6 +515,7 @@ func _restore_from_save() -> void:
 		_slot_order.append(tile)
 		tile.global_position = slots[i].global_position
 		tile.rotation_degrees = slots[i].rotation
+		tile.sea_key = saved_order[i]
 		tile.back_sprite.visible = false
 		tile.front_sprite.visible = true
 

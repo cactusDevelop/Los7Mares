@@ -11,3 +11,10 @@ rotation = 2.6179938
 texture = ExtResource("2_2aeuf")
 
 [node name="FrontSprite" type="Sprite2D" parent="." unique_id=1665497797]
+
+[node name="ClickArea" type="Area2D" parent="." unique_id=729831399]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ClickArea" unique_id=28432010]
+position = Vector2(-58.5, 0)
+scale = Vector2(6.85, 1)
+polygon = PackedVector2Array(-29.416061, -467, 47.956207, -462, 83.430664, 1, 47.956207, 448, -30.000004, 452, -67.81023, 14)
