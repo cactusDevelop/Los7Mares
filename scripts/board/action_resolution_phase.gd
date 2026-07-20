@@ -6,6 +6,13 @@ extends Node
 ## action (déclin = 1 ressource nourriture OU 1 jeton fortune au choix).
 ## Seule l'action "déplacement" est pour l'instant implémentée ; les autres
 ## ne peuvent que être déclinées en attendant leurs règles détaillées.
+##
+## Tous les choix (ordre des actions, faire/décliner, ressources,
+## déplacement...) se font via la narration_box : le paragraphe explique la
+## situation et les boutons apparaissent juste en dessous, dans la même
+## boîte (plus de popup séparée au centre de l'écran). Le contour de la
+## narration_box prend la couleur du joueur dont c'est le tour (posé
+## automatiquement par narration_box.say_with_player).
 
 signal finished
 
@@ -25,8 +32,8 @@ const ACTION_LABELS := {
 const IMPLEMENTED_ACTIONS: Array[String] = ["deplacement"]
 
 ## Émis dès que la destination du déplacement est connue, que ce soit via un
-## clic sur une mer (_on_sea_tile_clicked) ou via un bouton du panneau
-## ("draw"/"stop") : permet d'attendre les deux sources à la fois dans
+## clic sur une mer (_on_sea_tile_clicked) ou via un bouton de la narration
+## box ("draw"/"stop") : permet d'attendre les deux sources à la fois dans
 ## _run_deplacement (cf await _choice_made ci-dessous).
 signal _choice_made(value: String)
 
@@ -37,7 +44,6 @@ var _player: Dictionary
 func start(board: Board, player: Dictionary, spot_index: int) -> void:
 	_board = board
 	_player = player
-	_board.action_resolution_panel.set_outline_color(GameFlow.COLOR_VALUES[player["color"]])
 	var actions: Array = ACTIONS_BY_SPOT[spot_index]
 
 	var first: String = await _choose_order(actions[0], actions[1])
@@ -46,39 +52,33 @@ func start(board: Board, player: Dictionary, spot_index: int) -> void:
 	await _resolve_action(first)
 	await _resolve_action(second)
 
-	_board.action_resolution_panel.hide_panel()
 	_board.narration_box.hide_box()
 	finished.emit()
 
 
 func _choose_order(a: String, b: String) -> String:
 	_board.narration_box.say_with_player(tr("Tour de %s : choisis quelle action faire en premier."), _player)
-	_board.action_resolution_panel.set_title(tr("Quelle action faire en premier ?"))
-	_board.action_resolution_panel.set_options([
+	_board.narration_box.set_options([
 		{"id": a, "label": ACTION_LABELS[a]},
 		{"id": b, "label": ACTION_LABELS[b]},
 	])
-	_board.action_resolution_panel.show_panel()
-	var chosen: String = await _board.action_resolution_panel.option_selected
+	var chosen: String = await _board.narration_box.option_selected
 	return chosen
 
 
 func _resolve_action(action: String) -> void:
 	var is_implemented: bool = action in IMPLEMENTED_ACTIONS
+	var action_text: String = ACTION_LABELS[action] if is_implemented else ACTION_LABELS[action] + tr(" (bientôt disponible)")
 	_board.narration_box.say_with_player(
-		tr("Tour de %s : action ") + ACTION_LABELS[action] + ".", _player
+		tr("Tour de %s : action ") + action_text + ".", _player
 	)
 
-	_board.action_resolution_panel.set_title(
-		ACTION_LABELS[action] if is_implemented else ACTION_LABELS[action] + tr(" (bientôt disponible)")
-	)
 	var options: Array = []
 	if is_implemented:
 		options.append({"id": "do", "label": tr("Faire l'action")})
 	options.append({"id": "decline", "label": tr("Décliner")})
-	_board.action_resolution_panel.set_options(options)
-	_board.action_resolution_panel.show_panel()
-	var choice: String = await _board.action_resolution_panel.option_selected
+	_board.narration_box.set_options(options)
+	var choice: String = await _board.narration_box.option_selected
 
 	if choice == "do" and action == "deplacement":
 		await _run_deplacement()
@@ -87,13 +87,12 @@ func _resolve_action(action: String) -> void:
 
 
 func _run_decline() -> void:
-	_board.action_resolution_panel.set_title(tr("Reçois une ressource à la place :"))
-	_board.action_resolution_panel.set_options([
+	_board.narration_box.say_with_player(tr("Tour de %s : reçois une ressource à la place :"), _player)
+	_board.narration_box.set_options([
 		{"id": "food", "label": tr("Nourriture")},
 		{"id": "fortune", "label": tr("Jeton fortune")},
 	])
-	_board.action_resolution_panel.show_panel()
-	var choice: String = await _board.action_resolution_panel.option_selected
+	var choice: String = await _board.narration_box.option_selected
 
 	if choice == "food":
 		_player["resources"]["food"] += 1
@@ -107,9 +106,10 @@ func _run_decline() -> void:
 ## déplacement. Chaque point permet : hideout -> une des 2 mers adjacentes,
 ## OU mer -> une des 2 mers adjacentes, OU mer -> sa propre cachette (si
 ## elle en fait partie des 2 mers adjacentes), OU rester sur la même mer
-## pour piocher une nouvelle carte. S'il termine le déplacement dans sa
-## cachette (donc après y être explicitement retourné), le joueur reçoit une
-## planche de coque (si moins de 7) et une ressource au choix.
+## pour piocher une nouvelle carte. S'il termine le tour dans sa cachette
+## (qu'il y soit explicitement retourné ou qu'il y soit resté sans bouger),
+## le joueur reçoit une planche de coque (si moins de 7) et une ressource
+## au choix.
 func _run_deplacement() -> void:
 	var points: int = _player.get("sail_level", 1)
 
@@ -133,16 +133,15 @@ func _run_deplacement() -> void:
 		options.append({"id": "stop", "label": tr("Terminer le déplacement")})
 
 		_board.narration_box.say_with_player(
-			tr("Tour de %s : clique sur une mer voisine pour t'y déplacer."), _player
+			tr("Tour de %s : clique sur une mer voisine pour t'y déplacer (points restants : %d)."),
+			_player, [points]
 		)
-		_board.action_resolution_panel.set_title(tr("Déplacement — points restants : %d") % points)
-		_board.action_resolution_panel.set_options(options)
-		_board.action_resolution_panel.show_panel()
+		_board.narration_box.set_options(options)
 
 		# Active le clic sur les mers accessibles (+ la cachette du joueur si
-		# elle est adjacente) pendant que le panneau reste ouvert pour les
-		# options non-spatiales (piocher / arrêter) : les deux sources de
-		# choix émettent toutes les deux _choice_made.
+		# elle est adjacente) pendant que les boutons non-spatiaux (piocher /
+		# arrêter) restent affichés : les deux sources de choix émettent
+		# toutes les deux _choice_made.
 		var tiles: Array = []
 		for sea_key in reachable:
 			var tile: Node2D = _board.get_sea_tile_by_key(sea_key)
@@ -159,11 +158,11 @@ func _run_deplacement() -> void:
 			hideout_spot.set_hover_enabled(true)
 			hideout_spot.spot_clicked.connect(_on_hideout_spot_clicked)
 
-		_board.action_resolution_panel.option_selected.connect(_on_panel_choice)
+		_board.narration_box.option_selected.connect(_on_panel_choice)
 
 		var choice: String = await _choice_made
 
-		_board.action_resolution_panel.option_selected.disconnect(_on_panel_choice)
+		_board.narration_box.option_selected.disconnect(_on_panel_choice)
 		for tile in tiles:
 			tile.set_hover_enabled(false)
 			tile.spot_clicked.disconnect(_on_sea_tile_clicked)
@@ -198,26 +197,24 @@ func _grant_hideout_reward() -> void:
 		_player["hull_planks"] += 1
 
 	_board.narration_box.say_with_player(tr("Tour de %s : de retour à la cachette, choisis une ressource."), _player)
-	_board.action_resolution_panel.set_title(tr("De retour à la cachette — choisis une ressource"))
-	_board.action_resolution_panel.set_options([
+	_board.narration_box.set_options([
 		{"id": "food", "label": tr("Nourriture")},
 		{"id": "wood", "label": tr("Bois")},
 	])
-	_board.action_resolution_panel.show_panel()
-	var resource: String = await _board.action_resolution_panel.option_selected
-	_board.action_resolution_panel.hide_panel()
+	var resource: String = await _board.narration_box.option_selected
+	_board.narration_box.set_options([])
 
 	_player["resources"][resource] += 1
 	GameFlow.players_changed.emit()
 
 
 func _on_sea_tile_clicked(tile: Node2D) -> void:
-	_board.action_resolution_panel.hide_panel()
+	_board.narration_box.set_options([])
 	_choice_made.emit("move:" + tile.sea_key)
 
 
 func _on_hideout_spot_clicked(_spot: Node2D) -> void:
-	_board.action_resolution_panel.hide_panel()
+	_board.narration_box.set_options([])
 	_choice_made.emit("hideout")
 
 

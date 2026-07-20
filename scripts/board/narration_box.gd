@@ -9,10 +9,10 @@ signal option_selected(id: String)
 
 ## Délai entre chaque lettre affichée (en secondes)
 const CHAR_REVEAL_DELAY := 0.015
-const BOX_WIDTH := 380.0
-const LABEL_WIDTH := 340.0
-const BUTTON_HEIGHT := 48.0
-const BUTTON_FONT_SIZE := 18
+const BOX_WIDTH := 260.0
+const LABEL_WIDTH := 220.0
+const BUTTON_HEIGHT := 44.0
+const BUTTON_FONT_SIZE := 16
 ## Filtre noir semi-transparent (au lieu d'un fond blanc opaque), même
 ## principe que le fondu noir de l'annonce "Tour X" (piece_selection_panel).
 const PANEL_FILTER_ALPHA := 0.75
