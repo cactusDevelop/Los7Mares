@@ -271,7 +271,7 @@ func _layout_turn_overlay() -> void:
 ## ensemble : la distance entre eux reste donc proportionnelle au zoom,
 ## contrairement à un simple scale indépendant de chaque élément.
 func play_turn_announcement(round_number: int) -> void:
-	tour_label.text = tr("Tour %d") % round_number
+	tour_label.text = tr("Manche %d") % round_number
 	_layout_turn_overlay()
 
 	black_filter.color.a = 0.0

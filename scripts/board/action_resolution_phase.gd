@@ -104,22 +104,28 @@ func _run_decline() -> void:
 
 ## Déplace le bateau du joueur en dépensant jusqu'à sail_level points de
 ## déplacement. Chaque point permet : hideout -> une des 2 mers adjacentes,
-## OU mer -> une des 2 mers adjacentes, OU rester sur la même mer pour
-## piocher une nouvelle carte.
+## OU mer -> une des 2 mers adjacentes, OU mer -> sa propre cachette (si
+## elle en fait partie des 2 mers adjacentes), OU rester sur la même mer
+## pour piocher une nouvelle carte. S'il termine le déplacement dans sa
+## cachette (donc après y être explicitement retourné), le joueur reçoit une
+## planche de coque (si moins de 7) et une ressource au choix.
 func _run_deplacement() -> void:
 	var points: int = _player.get("sail_level", 1)
+	var returned_to_hideout: bool = false
 
 	while points > 0:
 		var current_sea: String = _player.get("boat_sea", "")
+		var hideout_index: int = _board.hideout_index_for_color(_player["color"])
 		var reachable: Array[String] = []
+		var can_return_home: bool = false
 
 		if current_sea == "":
-			var hideout_index: int = _board.hideout_index_for_color(_player["color"])
 			if hideout_index == -1:
 				break
 			reachable = _board.adjacent_seas_for_hideout(hideout_index)
 		else:
 			reachable = _board.adjacent_seas_for_sea(current_sea)
+			can_return_home = hideout_index != -1 and _board.adjacent_seas_for_hideout(hideout_index).has(current_sea)
 
 		var options: Array = []
 		if current_sea != "":
@@ -133,9 +139,10 @@ func _run_deplacement() -> void:
 		_board.action_resolution_panel.set_options(options)
 		_board.action_resolution_panel.show_panel()
 
-		# Active le clic sur les mers accessibles pendant que le panneau reste
-		# ouvert pour les options non-spatiales (piocher / arrêter) : les deux
-		# sources de choix émettent toutes les deux _choice_made.
+		# Active le clic sur les mers accessibles (+ la cachette du joueur si
+		# elle est adjacente) pendant que le panneau reste ouvert pour les
+		# options non-spatiales (piocher / arrêter) : les deux sources de
+		# choix émettent toutes les deux _choice_made.
 		var tiles: Array = []
 		for sea_key in reachable:
 			var tile: Node2D = _board.get_sea_tile_by_key(sea_key)
@@ -145,6 +152,12 @@ func _run_deplacement() -> void:
 			tile.set_hover_enabled(true)
 			tile.spot_clicked.connect(_on_sea_tile_clicked)
 
+		var hideout_spot: Node2D = null
+		if can_return_home:
+			hideout_spot = _board.hideout_spots_container.get_children()[hideout_index]
+			hideout_spot.set_hover_enabled(true)
+			hideout_spot.spot_clicked.connect(_on_hideout_spot_clicked)
+
 		_board.action_resolution_panel.option_selected.connect(_on_panel_choice)
 
 		var choice: String = await _choice_made
@@ -153,23 +166,59 @@ func _run_deplacement() -> void:
 		for tile in tiles:
 			tile.set_hover_enabled(false)
 			tile.spot_clicked.disconnect(_on_sea_tile_clicked)
+		if hideout_spot != null:
+			hideout_spot.set_hover_enabled(false)
+			hideout_spot.spot_clicked.disconnect(_on_hideout_spot_clicked)
 
 		if choice == "stop":
 			break
 		elif choice == "draw":
 			_board.card_draw_phase.redraw_card_for_sea(current_sea)
 			points -= 1
+		elif choice == "hideout":
+			_board.move_boat_to_hideout(_player)
+			returned_to_hideout = true
+			points -= 1
 		elif choice.begins_with("move:"):
 			var dest: String = choice.substr(5)
 			_board.move_player_boat(_player, dest)
+			returned_to_hideout = false
 			points -= 1
 
+	if returned_to_hideout and _player.get("boat_sea", "") == "":
+		await _grant_hideout_reward()
+
 	_board._autosave("pieces")
+
+
+## Récompense de retour à la cachette : une planche de coque (plafonnée à
+## GameFlow.HULL_PLANKS_START) et une ressource au choix entre nourriture et bois.
+func _grant_hideout_reward() -> void:
+	if _player["hull_planks"] < GameFlow.HULL_PLANKS_START:
+		_player["hull_planks"] += 1
+
+	_board.narration_box.say_with_player(tr("Tour de %s : de retour à la cachette, choisis une ressource."), _player)
+	_board.action_resolution_panel.set_title(tr("De retour à la cachette — choisis une ressource"))
+	_board.action_resolution_panel.set_options([
+		{"id": "food", "label": tr("Nourriture")},
+		{"id": "wood", "label": tr("Bois")},
+	])
+	_board.action_resolution_panel.show_panel()
+	var resource: String = await _board.action_resolution_panel.option_selected
+	_board.action_resolution_panel.hide_panel()
+
+	_player["resources"][resource] += 1
+	GameFlow.players_changed.emit()
 
 
 func _on_sea_tile_clicked(tile: Node2D) -> void:
 	_board.action_resolution_panel.hide_panel()
 	_choice_made.emit("move:" + tile.sea_key)
+
+
+func _on_hideout_spot_clicked(_spot: Node2D) -> void:
+	_board.action_resolution_panel.hide_panel()
+	_choice_made.emit("hideout")
 
 
 func _on_panel_choice(id: String) -> void:
