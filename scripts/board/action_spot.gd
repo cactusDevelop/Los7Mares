@@ -142,3 +142,11 @@ func get_pieces_snapshot() -> Array:
 	for p in _pieces:
 		out.append({"color": p["color"], "rank": p["rank"]})
 	return out
+
+
+## Retire toutes les pièces de la case (début d'un nouveau tour de jeu).
+func clear_pieces() -> void:
+	for p in _pieces:
+		p["node"].queue_free()
+	_pieces.clear()
+	_update_case_color()

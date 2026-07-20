@@ -157,9 +157,10 @@ func compute_case_color(pieces: Array) -> Color:
 	return COLOR_VALUES[top_pieces[0]["color"]]
 
 
-func layout_positions_for_case(count: int) -> Array[Vector2]:
-	var spacing: float = UiTheme.CASE_PIECE_RADIUS
-	var vertical_offset := Vector2(0, UiTheme.CASE_PIECE_VERTICAL_OFFSET)
+## Range count éléments en cercle autour d'un centre (utilisé pour les
+## pièces sur les action spots ET, avec un spacing différent, pour les
+## bateaux regroupés sur une même mer, cf board.gd _relayout_boats).
+func layout_positions_for_case(count: int, spacing: float = UiTheme.CASE_PIECE_RADIUS, vertical_offset: Vector2 = Vector2(0, UiTheme.CASE_PIECE_VERTICAL_OFFSET)) -> Array[Vector2]:
 	match count:
 		0: return []
 		1: return [vertical_offset]

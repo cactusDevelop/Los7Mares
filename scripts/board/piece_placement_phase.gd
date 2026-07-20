@@ -23,6 +23,7 @@ func start(board: Board) -> void:
 	_resolving_action = false
 
 	for spot in _board.action_spots_container.get_children():
+		spot.clear_pieces()
 		if not spot.spot_clicked.is_connected(_on_action_spot_clicked):
 			spot.spot_clicked.connect(_on_action_spot_clicked)
 		spot.set_hover_enabled(true)
@@ -121,7 +122,7 @@ func _end_piece_placement_phase() -> void:
 			_board.narration_box.say(tr("Mode test : 7 tours de pose de pièces terminés."))
 		return
 
-	_board.narration_box.say(tr("Placement terminé — cliquez sur une pioche de mer pour y piocher une carte."))
+	_board.narration_box.hide_box()
 	finished.emit()
 
 

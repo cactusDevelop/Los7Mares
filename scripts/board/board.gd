@@ -72,6 +72,7 @@ var _total_seas: int = 0
 var _has_started: bool = false
 var _sea_marker_positions: Dictionary = {}  # sea_key -> Vector2 (position du jeton de bateau)
 var _boat_markers: Dictionary = {}  # player_id -> Node2D (boat_piece détaché de la cachette)
+var _boats_by_sea: Dictionary = {}  # sea_key -> Array[int] (ids des joueurs dont le bateau est sur cette mer, pour la répartition en cercle)
 
 var _camera_base_position: Vector2
 var _camera_base_zoom: Vector2
@@ -195,6 +196,7 @@ func _ready() -> void:
 		_autosave("pieces")
 		piece_placement_phase.start(self)
 	)
+	piece_placement_phase.finished.connect(_on_round_finished)
 
 	if GameFlow.is_continuing:
 		_restore_from_save()
@@ -318,6 +320,37 @@ func token_count_for_player_count(player_count: int) -> int:
 	return 3
 
 
+## Appelé quand tous les joueurs ont posé et résolu leurs deux pièces
+## (piece_placement_phase.finished) : enchaîne directement sur le tour
+## suivant (nouvelles cartes de mer révélées, puis pose de pièces), ou
+## termine la partie s'il ne reste plus aucun jeton sur les mers.
+func _on_round_finished() -> void:
+	_autosave("pieces")
+	if _all_sea_tokens_taken():
+		_end_game()
+		return
+	_start_round()
+	await piece_selection_panel.play_turn_announcement(GameFlow.round_number)
+	card_draw_phase.start(self)
+
+
+func _all_sea_tokens_taken() -> bool:
+	for pile in token_piles_container.get_children():
+		if pile.remaining_count > 0:
+			return false
+	return true
+
+
+## Fin de partie minimale : affiche le classement final. À étoffer plus
+## tard avec un vrai écran de fin si besoin.
+func _end_game() -> void:
+	var ranking: Array[Dictionary] = GameFlow.get_players_sorted_by_points()
+	var lines: PackedStringArray = []
+	for i in range(ranking.size()):
+		lines.append("%d. %s — %d pts" % [i + 1, ranking[i]["name"], ranking[i]["points"]])
+	narration_box.say(tr("Partie terminée ! Classement final :\n") + "\n".join(lines))
+
+
 func _start_round() -> void:
 	GameFlow.round_number += 1
 	if GameFlow.get_first_player_id() == -1:
@@ -407,16 +440,17 @@ func get_sea_marker_position(sea_key: String) -> Vector2:
 ## action_resolution_phase.gd) : met à jour sa position logique et son
 ## marqueur visuel sur le plateau.
 func move_player_boat(player: Dictionary, sea_key: String) -> void:
+	var old_sea: String = player.get("boat_sea", "")
 	player["boat_sea"] = sea_key
-	_update_boat_marker(player)
+	_update_boat_marker(player, old_sea)
 	GameFlow.players_changed.emit()
 
 
-const BOAT_MARKER_SPREAD := 40.0
+const BOAT_MARKER_SPREAD := 400.0
 ## Ajouté à token_pile_radius_offset pour que le bateau navigue plus loin du
 ## centre que les piles de jetons (sur la mer elle-même, pas entre mer et
 ## centre).
-const BOAT_MARKER_RADIUS_BONUS := 200.0
+const BOAT_MARKER_RADIUS_BONUS := 520.0
 const BOAT_SAIL_DURATION := 0.6
 
 ## Déplace le VRAI bateau du joueur (celui créé dans hideout_spot.gd, avec
@@ -424,16 +458,22 @@ const BOAT_SAIL_DURATION := 0.6
 ## au premier déplacement, on le détache de sa cachette (detach_boat) puis
 ## on le reparente sur le plateau ; ensuite on anime juste sa position d'une
 ## mer à l'autre. Taille, couleur et effet 3D restent donc identiques à ce
-## qu'affichait la cachette.
-func _update_boat_marker(player: Dictionary) -> void:
+## qu'affichait la cachette. old_sea permet de retirer le joueur de la liste
+## d'occupation de la mer qu'il quitte, pour reformer son cercle.
+func _update_boat_marker(player: Dictionary, old_sea: String = "") -> void:
 	var sea_key: String = player.get("boat_sea", "")
 	var pid: int = player["id"]
 	if sea_key == "":
 		return
 
-	var color_index: int = GameFlow.COLORS.find(player["color"])
-	var angle: float = (TAU / GameFlow.COLORS.size()) * max(color_index, 0)
-	var pos: Vector2 = get_sea_marker_position(sea_key) + Vector2(cos(angle), sin(angle)) * BOAT_MARKER_SPREAD
+	if old_sea != "" and old_sea != sea_key and _boats_by_sea.has(old_sea):
+		_boats_by_sea[old_sea].erase(pid)
+		_relayout_boats(old_sea)
+
+	var list: Array = _boats_by_sea.get(sea_key, [])
+	if not list.has(pid):
+		list.append(pid)
+	_boats_by_sea[sea_key] = list
 
 	var piece: Node2D = _boat_markers.get(pid)
 	if piece == null:
@@ -447,12 +487,27 @@ func _update_boat_marker(player: Dictionary) -> void:
 		piece.reparent(boat_markers_container, true)
 		piece.z_index = 5
 		_boat_markers[pid] = piece
-		piece.global_position = pos
-		return
 
-	var tween := create_tween()
-	tween.tween_property(piece, "global_position", pos, Settings.anim_duration(BOAT_SAIL_DURATION))\
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_relayout_boats(sea_key)
+
+
+## Range en cercle (même principe que GameFlow.layout_positions_for_case
+## pour les pièces sur les action spots, avec un espacement plus grand
+## adapté à la taille des bateaux) tous les bateaux actuellement sur une
+## même mer, pour qu'ils ne se superposent jamais.
+func _relayout_boats(sea_key: String) -> void:
+	var list: Array = _boats_by_sea.get(sea_key, [])
+	if list.is_empty():
+		return
+	var center: Vector2 = get_sea_marker_position(sea_key)
+	var offsets: Array[Vector2] = GameFlow.layout_positions_for_case(list.size(), BOAT_MARKER_SPREAD, Vector2.ZERO)
+	for i in range(list.size()):
+		var piece: Node2D = _boat_markers.get(list[i])
+		if piece == null:
+			continue
+		var tween := create_tween()
+		tween.tween_property(piece, "global_position", center + offsets[i], Settings.anim_duration(BOAT_SAIL_DURATION))\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
 func _serialize_state(phase: String) -> Dictionary:
@@ -601,6 +656,7 @@ func _restore_from_save() -> void:
 		_autosave("pieces")
 		piece_placement_phase.start(self)
 	)
+	piece_placement_phase.finished.connect(_on_round_finished)
 
 	match data.get("phase", "cards"):
 		"hideout": hideout_phase.resume(self)
