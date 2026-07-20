@@ -449,7 +449,7 @@ const BOAT_MARKER_SPREAD := 260.0
 ## Ajouté à token_pile_radius_offset pour que le bateau navigue plus loin du
 ## centre que les piles de jetons (sur la mer elle-même, pas entre mer et
 ## centre).
-const BOAT_MARKER_RADIUS_BONUS := 440.0
+const BOAT_MARKER_RADIUS_BONUS := 480.0
 const BOAT_SAIL_DURATION := 0.6
 
 ## Déplace le VRAI bateau du joueur (celui créé dans hideout_spot.gd, avec

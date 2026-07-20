@@ -96,6 +96,7 @@ func clear_outline() -> void:
 ## options: Array[{"id": String, "label": String}]. Liste vide = pas de bouton.
 func set_options(options: Array) -> void:
 	for child in buttons_box.get_children():
+		buttons_box.remove_child(child)
 		child.queue_free()
 	for option in options:
 		var btn := Button.new()
