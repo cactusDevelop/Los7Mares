@@ -57,7 +57,6 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var boat_markers_container: Node2D = $BoatMarkers
 
 @onready var action_resolution_phase: Node = $ActionResolutionPhase
-@onready var action_resolution_panel: Control = $UI/ActionResolutionPanel
 
 @onready var dealing_phase: Node = $DealingPhase
 @onready var hideout_phase: Node = $HideoutPhase
@@ -450,7 +449,7 @@ const BOAT_MARKER_SPREAD := 260.0
 ## Ajouté à token_pile_radius_offset pour que le bateau navigue plus loin du
 ## centre que les piles de jetons (sur la mer elle-même, pas entre mer et
 ## centre).
-const BOAT_MARKER_RADIUS_BONUS := 200.0
+const BOAT_MARKER_RADIUS_BONUS := 440.0
 const BOAT_SAIL_DURATION := 0.6
 
 ## Déplace le VRAI bateau du joueur (celui créé dans hideout_spot.gd, avec

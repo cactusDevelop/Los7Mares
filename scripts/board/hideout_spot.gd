@@ -182,6 +182,13 @@ func set_hover_enabled(enabled: bool) -> void:
 		hover_prompt.hide_prompt()
 
 
+## Change le texte affiché au survol (ex : vide pendant un déplacement de
+## bateau, pour ne pas suggérer "POSER" alors qu'il ne s'agit pas de choisir
+## sa cachette mais d'y revenir).
+func set_hover_label(text: String) -> void:
+	hover_prompt.label_text = text
+
+
 ## Change la couleur du contour affiché au survol (ex : couleur du joueur
 ## dont c'est le tour). Blanc par défaut tant que rien n'est précisé.
 func set_outline_color(color: Color) -> void:

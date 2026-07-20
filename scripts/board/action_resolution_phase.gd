@@ -37,6 +37,7 @@ var _player: Dictionary
 func start(board: Board, player: Dictionary, spot_index: int) -> void:
 	_board = board
 	_player = player
+	_board.action_resolution_panel.set_outline_color(GameFlow.COLOR_VALUES[player["color"]])
 	var actions: Array = ACTIONS_BY_SPOT[spot_index]
 
 	var first: String = await _choose_order(actions[0], actions[1])
@@ -111,7 +112,6 @@ func _run_decline() -> void:
 ## planche de coque (si moins de 7) et une ressource au choix.
 func _run_deplacement() -> void:
 	var points: int = _player.get("sail_level", 1)
-	var returned_to_hideout: bool = false
 
 	while points > 0:
 		var current_sea: String = _player.get("boat_sea", "")
@@ -155,6 +155,7 @@ func _run_deplacement() -> void:
 		var hideout_spot: Node2D = null
 		if can_return_home:
 			hideout_spot = _board.hideout_spots_container.get_children()[hideout_index]
+			hideout_spot.set_hover_label("")
 			hideout_spot.set_hover_enabled(true)
 			hideout_spot.spot_clicked.connect(_on_hideout_spot_clicked)
 
@@ -168,6 +169,7 @@ func _run_deplacement() -> void:
 			tile.spot_clicked.disconnect(_on_sea_tile_clicked)
 		if hideout_spot != null:
 			hideout_spot.set_hover_enabled(false)
+			hideout_spot.set_hover_label("POSER")
 			hideout_spot.spot_clicked.disconnect(_on_hideout_spot_clicked)
 
 		if choice == "stop":
@@ -177,15 +179,13 @@ func _run_deplacement() -> void:
 			points -= 1
 		elif choice == "hideout":
 			_board.move_boat_to_hideout(_player)
-			returned_to_hideout = true
 			points -= 1
 		elif choice.begins_with("move:"):
 			var dest: String = choice.substr(5)
 			_board.move_player_boat(_player, dest)
-			returned_to_hideout = false
 			points -= 1
 
-	if returned_to_hideout and _player.get("boat_sea", "") == "":
+	if _player.get("boat_sea", "") == "":
 		await _grant_hideout_reward()
 
 	_board._autosave("pieces")

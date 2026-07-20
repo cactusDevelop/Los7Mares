@@ -46,6 +46,8 @@ func _on_hideout_spot_clicked(spot: Node2D) -> void:
 func _end_hideout_phase() -> void:
 	for spot in _board.hideout_spots_container.get_children():
 		spot.set_hover_enabled(false)
+		if spot.spot_clicked.is_connected(_on_hideout_spot_clicked):
+			spot.spot_clicked.disconnect(_on_hideout_spot_clicked)
 	finished.emit()
 
 
