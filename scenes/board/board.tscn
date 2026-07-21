@@ -31,14 +31,6 @@
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
-radius = null
-hideout_radius = null
-fortune_radius = null
-fortune_angle_start_degrees = null
-deck_stack_offset = null
-debug_skip_to_pieces = null
-token_scale = null
-token_pile_radius_offset = null
 
 [node name="CenterPiece" type="Sprite2D" parent="." unique_id=1635265673]
 position = Vector2(4, -44)
@@ -205,12 +197,14 @@ cancel_button_text = "Non, ça ira"
 
 [node name="DebugSkipButton" type="Button" parent="UI" unique_id=1105041818]
 visible = false
+custom_minimum_size = Vector2(1000, 1000)
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -8.0
 offset_bottom = 8.0
 grow_horizontal = 0
+offset_transform_enabled = true
 text = "Passer"
 
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
