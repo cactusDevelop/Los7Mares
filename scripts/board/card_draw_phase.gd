@@ -8,7 +8,7 @@ extends Node
 
 signal finished
 
-const CARD_FRONT_FALLBACK := preload("res://assets/art/cards/carte-sauvage1.png")
+const CARD_FRONT_FALLBACK := preload("res://assets/art/cards/carte-sauvage-ile.png")
 const FLIP_DURATION := 0.6
 const FLIP_RANDOM_DELAY_MIN := 0.0
 const FLIP_RANDOM_DELAY_MAX := 0.5
