@@ -8,15 +8,15 @@ extends Node
 
 signal finished
 
-const CARD_FRONT_FALLBACK := preload("res://assets/art/cards/carte-sauvage-ile.png")
+const CARD_FRONT_FALLBACK := preload("res://assets/art/cards/carte-sauvage-ile.png")  # tant qu'aucun art n'existe pour une mer/type
 const FLIP_DURATION := 0.6
 const FLIP_RANDOM_DELAY_MIN := 0.0
 const FLIP_RANDOM_DELAY_MAX := 0.5
 const REDRAW_CARD_SCALE := 0.5
 
 var _board: Board
-var _front_texture_cache: Dictionary = {}
-var _revealed_cards: Dictionary = {}  # pile -> SeaCard révélé ce tour-ci
+var _revealed_cards: Dictionary = {}     # pile -> GameCard révélé ce tour-ci
+var _revealed_textures: Dictionary = {}  # pile -> Texture2D de fond déjà tirée pour ce card
 var _pending_pile: Node2D = null
 
 
@@ -31,6 +31,7 @@ func start(board: Board) -> void:
 		pile.pop_top_card()
 		SeaDecks.discard_card(_revealed_cards[pile])
 	_revealed_cards.clear()
+	_revealed_textures.clear()
 
 	var piles := _board.card_piles_container.get_children()
 	var flip_duration: float = Settings.anim_duration(FLIP_DURATION)
@@ -39,13 +40,16 @@ func start(board: Board) -> void:
 	for pile in piles:
 		if not pile.pile_clicked.is_connected(_on_card_pile_clicked):
 			pile.pile_clicked.connect(_on_card_pile_clicked)
-		var card: SeaCard = SeaDecks.draw_card(pile.sea_key)
+		var card: GameCard = SeaDecks.draw_card(pile.sea_key)
 		if card == null:
 			continue
 		_revealed_cards[pile] = card
+		var front_texture: Texture2D = card.get_random_background()
+		if front_texture == null:
+			front_texture = CARD_FRONT_FALLBACK
+		_revealed_textures[pile] = front_texture
 		flips_remaining[0] += 1
 		var delay: float = Settings.anim_duration(randf_range(FLIP_RANDOM_DELAY_MIN, FLIP_RANDOM_DELAY_MAX))
-		var front_texture: Texture2D = _get_card_front_texture(pile.sea_key)
 		var timer := get_tree().create_timer(delay)
 		timer.timeout.connect(func():
 			pile.flip_top_card(front_texture, flip_duration)
@@ -59,15 +63,6 @@ func start(board: Board) -> void:
 		_finish_phase()
 
 
-func _get_card_front_texture(sea_key: String) -> Texture2D:
-	if _front_texture_cache.has(sea_key):
-		return _front_texture_cache[sea_key]
-	var path := "res://assets/art/cards/carte-%s-recto.png" % sea_key
-	var texture: Texture2D = load(path) if ResourceLoader.exists(path) else CARD_FRONT_FALLBACK
-	_front_texture_cache[sea_key] = texture
-	return texture
-
-
 ## Consultation (facultative) du détail d'une carte déjà révélée sur sa pile.
 func _on_card_pile_clicked(pile: Node2D) -> void:
 	if _pending_pile != null or not _revealed_cards.has(pile):
@@ -75,10 +70,10 @@ func _on_card_pile_clicked(pile: Node2D) -> void:
 	_pending_pile = pile
 	pile.hover_prompt.hide_prompt()
 	_board.narration_box.hide_box()
-	_board.sea_card_popup.show_card(_revealed_cards[pile], _get_card_front_texture(pile.sea_key))
+	_board.sea_card_popup.show_card(_revealed_cards[pile], _revealed_textures[pile])
 
 
-func _on_sea_card_resolved(_card: SeaCard) -> void:
+func _on_sea_card_resolved(_card: GameCard) -> void:
 	_pending_pile = null
 
 
@@ -102,8 +97,9 @@ func redraw_card_for_sea(sea_key: String) -> void:
 		pile.pop_top_card()
 		SeaDecks.discard_card(_revealed_cards[pile])
 		_revealed_cards.erase(pile)
+		_revealed_textures.erase(pile)
 
-	var card: SeaCard = SeaDecks.draw_card(sea_key)
+	var card: GameCard = SeaDecks.draw_card(sea_key)
 	if card == null:
 		return
 
@@ -112,6 +108,11 @@ func redraw_card_for_sea(sea_key: String) -> void:
 	var visual_card: Sprite2D = pile.add_visual_card(back_texture, Vector2.ZERO)
 	visual_card.scale = Vector2.ONE * REDRAW_CARD_SCALE
 
+	var front_texture: Texture2D = card.get_random_background()
+	if front_texture == null:
+		front_texture = CARD_FRONT_FALLBACK
+
 	_revealed_cards[pile] = card
+	_revealed_textures[pile] = front_texture
 	pile.draw_enabled = true
-	pile.flip_top_card(_get_card_front_texture(sea_key), Settings.anim_duration(FLIP_DURATION))
+	pile.flip_top_card(front_texture, Settings.anim_duration(FLIP_DURATION))

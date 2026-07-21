@@ -1,28 +1,30 @@
 extends Control
 
 ## Affiche le détail de la carte du dessus d'une pile, déjà révélée (recto)
-## sur sa pile, dans un panneau centré à l'écran (image à gauche, texte à
-## droite), sur un fond assombri. Cliquer en dehors du panneau, ou sur le
-## bouton RETOUR, referme le panneau.
+## sur sa pile, dans un panneau centré à l'écran (image à gauche avec icône
+## de type + planche d'activité en superposition, texte à droite), sur un
+## fond assombri. Cliquer en dehors du panneau, ou sur le bouton RETOUR,
+## referme le panneau.
 
-signal card_resolved(card: SeaCard)
+signal card_resolved(card: GameCard)
 
 const TYPE_LABELS := {
-	SeaCard.CardType.TRESOR: "Trésor",
-	SeaCard.CardType.RENCONTRE: "Rencontre",
-	SeaCard.CardType.TEMPETE: "Tempête",
-	SeaCard.CardType.COMMERCE: "Commerce",
+	GameCard.CardType.ILE: "Île",
+	GameCard.CardType.PORT: "Port",
+	GameCard.CardType.RENCONTRE: "Rencontre",
 }
 
 @onready var blocker: ColorRect = $Blocker
 @onready var padding: PanelContainer = $Padding
-@onready var card_image: TextureRect = $Padding/Margin/Content/CardImage
+@onready var card_background: TextureRect = $Padding/Margin/Content/CardFrame/CardBackground
+@onready var card_icon: TextureRect = $Padding/Margin/Content/CardFrame/CardIcon
+@onready var card_planche: TextureRect = $Padding/Margin/Content/CardFrame/CardPlanche
 @onready var title_label: Label = $Padding/Margin/Content/DetailsColumn/TitleLabel
 @onready var type_label: Label = $Padding/Margin/Content/DetailsColumn/TypeLabel
 @onready var description_label: Label = $Padding/Margin/Content/DetailsColumn/DescriptionLabel
 @onready var back_button: Button = $Padding/Margin/Content/DetailsColumn/BackButton
 
-var _current_card: SeaCard
+var _current_card: GameCard
 
 
 func _ready() -> void:
@@ -40,11 +42,13 @@ func _ready() -> void:
 	padding.add_theme_stylebox_override("panel", style)
 
 
-func show_card(card: SeaCard, front_texture: Texture2D) -> void:
+func show_card(card: GameCard, front_texture: Texture2D) -> void:
 	_current_card = card
-	card_image.texture = front_texture
+	card_background.texture = front_texture
+	card_icon.texture = card.get_icon()
+	card_planche.texture = card.get_planche_texture()
 	title_label.text = tr(card.title)
-	type_label.text = tr(TYPE_LABELS.get(card.type, ""))
+	type_label.text = tr(TYPE_LABELS.get(card.card_type, ""))
 	description_label.text = tr(card.description)
 
 	visible = true

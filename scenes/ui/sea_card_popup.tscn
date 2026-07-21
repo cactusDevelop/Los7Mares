@@ -18,16 +18,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 color = Color(0, 0, 0, 0.75)
 
 [node name="Padding" type="PanelContainer" parent="." unique_id=2029170493]
 layout_mode = 0
 offset_right = 900.0
 offset_bottom = 480.0
-mouse_filter = 0
 
-[node name="Margin" type="MarginContainer" parent="Padding" unique_id=3312245981]
+[node name="Margin" type="MarginContainer" parent="Padding" unique_id=-982721315]
 layout_mode = 2
 theme_override_constants/margin_left = 32
 theme_override_constants/margin_top = 28
@@ -38,15 +36,31 @@ theme_override_constants/margin_bottom = 28
 layout_mode = 2
 theme_override_constants/separation = 32
 
-[node name="CardImage" type="TextureRect" parent="Padding/Margin/Content" unique_id=416527112]
+[node name="CardFrame" type="Control" parent="Padding/Margin/Content" unique_id=1078933719]
 custom_minimum_size = Vector2(380, 420)
 layout_mode = 2
 size_flags_vertical = 4
 mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
 
-[node name="DetailsColumn" type="VBoxContainer" parent="Padding/Margin/Content" unique_id=2603314458]
+[node name="CardBackground" type="TextureRect" parent="Padding/Margin/Content/CardFrame" unique_id=2104949296]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+expand_mode = 1
+stretch_mode = 6
+
+[node name="CardIcon" type="TextureRect" parent="Padding/Margin/Content/CardFrame" unique_id=1519499380]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+stretch_mode = 6
+
+[node name="CardPlanche" type="TextureRect" parent="Padding/Margin/Content/CardFrame" unique_id=701526169]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="DetailsColumn" type="VBoxContainer" parent="Padding/Margin/Content" unique_id=-1691652838]
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -65,7 +79,6 @@ layout_mode = 2
 layout_mode = 2
 size_flags_vertical = 3
 autowrap_mode = 3
-vertical_alignment = 0
 
 [node name="BackButton" type="Button" parent="Padding/Margin/Content/DetailsColumn" unique_id=1267547838]
 layout_mode = 2
