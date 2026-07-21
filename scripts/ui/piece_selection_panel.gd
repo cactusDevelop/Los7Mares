@@ -1,6 +1,10 @@
 extends Control
 
 signal piece_selected(rank: int)
+## Émis quand un drag démarré sur une pièce se termine hors du panneau
+## (relâchement sur le plateau). piece_placement_phase.gd écoute ce signal
+## pour savoir si la souris était alors au-dessus d'une case valide.
+signal piece_drag_ended(rank: int)
 
 const HOVER_SCALE := 1.1
 const SELECTED_SCALE := 1.2
@@ -26,6 +30,17 @@ const ANNOUNCE_FORTUNE_SIZE := Vector2(140, 140)
 ## grand que le jeton pour que les rayons dépassent visiblement de ses bords.
 const ANNOUNCE_SHINE_SIZE := Vector2(320, 320)
 
+## Point-fantôme affiché pendant un drag de pièce dès que la souris quitte
+## le panneau : point jaune plein + contour pointillé qui tourne.
+const DRAG_DOT_RADIUS := 12.0
+const DRAG_DOT_OUTER_RADIUS := 20.0
+const DRAG_DOT_COLOR := Color(1.0, 0.827, 0.1, 1.0)
+const DRAG_DASH_COLOR := Color(1.0, 0.827, 0.1, 0.85)
+const DRAG_DASH_COUNT := 8
+const DRAG_DASH_LENGTH_DEG := 20.0
+const DRAG_DASH_WIDTH := 3.0
+const DRAG_ROTATE_SPEED_DEG := 140.0
+
 var background: ColorRect
 var icons_box: VBoxContainer
 var captain_button: TextureButton
@@ -46,6 +61,12 @@ var fortune_sprite: TextureRect
 var _button_group := ButtonGroup.new()
 var _current_color: Color = Color.WHITE
 var _tweens: Dictionary = {}
+
+var _drag_ghost: Control
+var _dragging: bool = false
+var _drag_rank: int = -1
+var _drag_button: TextureButton = null
+var _drag_rotation_deg: float = 0.0
 
 
 func _ready() -> void:
@@ -75,10 +96,19 @@ func _ready() -> void:
 	captain_button.pressed.connect(func(): piece_selected.emit(GameFlow.PieceRank.CAPTAIN))
 	second_button.pressed.connect(func(): piece_selected.emit(GameFlow.PieceRank.SECOND))
 
+	captain_button.button_down.connect(_on_piece_button_down.bind(GameFlow.PieceRank.CAPTAIN, captain_button))
+	second_button.button_down.connect(_on_piece_button_down.bind(GameFlow.PieceRank.SECOND, second_button))
+
 	get_viewport().size_changed.connect(_layout)
 	_layout()
 
 	_build_turn_overlay()
+	_build_drag_ghost()
+
+
+func _process(delta: float) -> void:
+	if _dragging:
+		_update_drag(delta)
 
 
 func _build_piece_option(label_text: String, texture: Texture2D) -> TextureButton:
@@ -299,3 +329,90 @@ func play_turn_announcement(round_number: int) -> void:
 	await zoom_out.finished
 
 	turn_overlay.visible = false
+
+
+## --- Drag & drop des pièces --------------------------------------------
+
+## Point-fantôme posé dans son propre CanvasLayer (comme turn_overlay) pour
+## rester au-dessus de tout, quel que soit le rect (réduit) de ce panel.
+func _build_drag_ghost() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 15
+	add_child(layer)
+
+	_drag_ghost = Control.new()
+	_drag_ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var diameter := DRAG_DOT_OUTER_RADIUS * 2.0
+	_drag_ghost.custom_minimum_size = Vector2(diameter, diameter)
+	_drag_ghost.size = Vector2(diameter, diameter)
+	_drag_ghost.visible = false
+	_drag_ghost.draw.connect(_on_drag_ghost_draw)
+	layer.add_child(_drag_ghost)
+
+
+func _on_piece_button_down(rank: int, btn: TextureButton) -> void:
+	_dragging = true
+	_drag_rank = rank
+	_drag_button = btn
+	_drag_rotation_deg = 0.0
+
+
+## Appelé chaque frame tant qu'un drag est en cours. Tant que la souris
+## reste dans le rect du panneau, rien ne change (clic simple normal) : le
+## fantôme reste caché et l'icône visible. Dès que la souris en sort, on
+## cache l'icône dans le panneau et on affiche le point-fantôme qui la
+## suit ; si la souris revient dans le panneau, l'icône réapparaît et le
+## fantôme redisparaît (la pièce "revient" dans le panneau).
+func _update_drag(delta: float) -> void:
+	var mouse_pos := get_viewport().get_mouse_position()
+	var over_panel := get_global_rect().has_point(mouse_pos)
+
+	if over_panel:
+		_drag_ghost.visible = false
+		_drag_button.modulate.a = 1.0
+	else:
+		_drag_button.modulate.a = 0.0
+		_drag_rotation_deg = fmod(_drag_rotation_deg + DRAG_ROTATE_SPEED_DEG * delta, 360.0)
+		_drag_ghost.visible = true
+		_drag_ghost.position = mouse_pos - _drag_ghost.size / 2.0
+		_drag_ghost.queue_redraw()
+
+	if not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		_end_drag(over_panel)
+
+
+## Relâchement du drag. Si la souris était sur le plateau (hors panneau),
+## on émet piece_drag_ended : piece_placement_phase.gd vérifie alors si une
+## case (action_spot) est actuellement survolée pour poser la pièce. Si la
+## souris était encore dans le panneau, on annule simplement (rien à faire,
+## l'icône est déjà réapparue dans _update_drag).
+func _end_drag(over_panel: bool) -> void:
+	_dragging = false
+	_drag_ghost.visible = false
+	if _drag_button:
+		_drag_button.modulate.a = 1.0
+	var rank := _drag_rank
+	_drag_button = null
+	_drag_rank = -1
+	if not over_panel:
+		piece_drag_ended.emit(rank)
+
+
+func _on_drag_ghost_draw() -> void:
+	var center := _drag_ghost.size / 2.0
+	_drag_ghost.draw_circle(center, DRAG_DOT_RADIUS, DRAG_DOT_COLOR)
+	var step := 360.0 / DRAG_DASH_COUNT
+	for i in range(DRAG_DASH_COUNT):
+		var start_deg: float = _drag_rotation_deg + i * step
+		var end_deg: float = start_deg + DRAG_DASH_LENGTH_DEG
+		_draw_drag_dash(center, start_deg, end_deg)
+
+
+func _draw_drag_dash(center: Vector2, start_deg: float, end_deg: float) -> void:
+	var segments := 6
+	var pts := PackedVector2Array()
+	for i in range(segments + 1):
+		var t: float = start_deg + (end_deg - start_deg) * i / float(segments)
+		var rad := deg_to_rad(t)
+		pts.append(center + Vector2(cos(rad), sin(rad)) * DRAG_DOT_OUTER_RADIUS)
+	_drag_ghost.draw_polyline(pts, DRAG_DASH_COLOR, DRAG_DASH_WIDTH, true)
