@@ -355,8 +355,8 @@ func _wood_color_variant(shift: float) -> Color:
 ## _build_cube_icon : toit + 2 parois extrudées dans DEPTH_DIRECTION), avec
 ## en plus des veines de bois et deux clous aux extrémités pour un rendu
 ## plus réaliste qu'un simple rectangle plat.
-func _build_plank_icon(base_color: Color, size: Vector2) -> Node2D:
-	var half := size / 2.0
+func _build_plank_icon(base_color: Color, plank_size: Vector2) -> Node2D:
+	var half := plank_size / 2.0
 	var top_left := Vector2(-half.x, -half.y)
 	var top_right := Vector2(half.x, -half.y)
 	var bottom_right := Vector2(half.x, half.y)
@@ -365,7 +365,7 @@ func _build_plank_icon(base_color: Color, size: Vector2) -> Node2D:
 	# Épaisseur proportionnelle à la petite dimension (planche fine), pas au
 	# côté comme pour les cubes de ressource. On prend min(x, y) pour rester
 	# correct que la planche soit affichée à l'horizontale ou à la verticale.
-	var extrude: Vector2 = -UiTheme.DEPTH_DIRECTION * min(size.x, size.y) * CUBE_EXTRUDE_RATIO
+	var extrude: Vector2 = -UiTheme.DEPTH_DIRECTION * min(plank_size.x, plank_size.y) * CUBE_EXTRUDE_RATIO
 
 	var top_color: Color = base_color.lightened(0.25)
 	var left_wall_color: Color = base_color.darkened(0.15)

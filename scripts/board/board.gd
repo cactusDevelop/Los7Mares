@@ -68,7 +68,6 @@ const SEA_KEY_BY_NODE_NAME := {
 var _sea_tiles: Array = []
 var _slot_order: Array = []
 var _total_seas: int = 0
-var _has_started: bool = false
 var _sea_marker_positions: Dictionary = {}  # sea_key -> Vector2 (position du jeton de bateau)
 var _boat_markers: Dictionary = {}  # player_id -> Node2D (boat_piece détaché de la cachette)
 var _boats_by_sea: Dictionary = {}  # sea_key -> Array[int] (ids des joueurs dont le bateau est sur cette mer, pour la répartition en cercle)
@@ -178,7 +177,6 @@ func _ready() -> void:
 		var f_direction := Vector2(cos(f_angle_rad), sin(f_angle_rad))
 		fortune_spots[i].global_position = board_center + fortune_radius * f_direction
 
-	GameFlow.players_changed.connect(_refresh_player_boards)
 	_refresh_player_boards()
 
 	dealing_phase.finished.connect(func():
@@ -195,7 +193,6 @@ func _ready() -> void:
 		_autosave("pieces")
 		piece_placement_phase.start(self)
 	)
-	piece_placement_phase.finished.connect(_on_round_finished)
 
 	if GameFlow.is_continuing:
 		_restore_from_save()

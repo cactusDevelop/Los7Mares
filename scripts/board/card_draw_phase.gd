@@ -34,7 +34,7 @@ func start(board: Board) -> void:
 
 	var piles := _board.card_piles_container.get_children()
 	var flip_duration: float = Settings.anim_duration(FLIP_DURATION)
-	var flips_remaining := 0
+	var flips_remaining := [0]
 
 	for pile in piles:
 		if not pile.pile_clicked.is_connected(_on_card_pile_clicked):
@@ -43,19 +43,19 @@ func start(board: Board) -> void:
 		if card == null:
 			continue
 		_revealed_cards[pile] = card
-		flips_remaining += 1
+		flips_remaining[0] += 1
 		var delay: float = Settings.anim_duration(randf_range(FLIP_RANDOM_DELAY_MIN, FLIP_RANDOM_DELAY_MAX))
 		var front_texture: Texture2D = _get_card_front_texture(pile.sea_key)
 		var timer := get_tree().create_timer(delay)
 		timer.timeout.connect(func():
 			pile.flip_top_card(front_texture, flip_duration)
 			pile.draw_enabled = true
-			flips_remaining -= 1
-			if flips_remaining == 0:
+			flips_remaining[0] -= 1
+			if flips_remaining[0] == 0:
 				_finish_phase()
 		)
 
-	if flips_remaining == 0:
+	if flips_remaining[0] == 0:
 		_finish_phase()
 
 
