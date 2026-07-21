@@ -34,8 +34,6 @@ const ANNOUNCE_SHINE_SIZE := Vector2(320, 320)
 ## le panneau : point jaune plein + contour pointillé qui tourne.
 const DRAG_DOT_RADIUS := 12.0
 const DRAG_DOT_OUTER_RADIUS := 20.0
-const DRAG_DOT_COLOR := Color(1.0, 0.827, 0.1, 1.0)
-const DRAG_DASH_COLOR := Color(1.0, 0.827, 0.1, 0.85)
 const DRAG_DASH_COUNT := 8
 const DRAG_DASH_LENGTH_DEG := 20.0
 const DRAG_DASH_WIDTH := 3.0
@@ -400,19 +398,21 @@ func _end_drag(over_panel: bool) -> void:
 
 func _on_drag_ghost_draw() -> void:
 	var center := _drag_ghost.size / 2.0
-	_drag_ghost.draw_circle(center, DRAG_DOT_RADIUS, DRAG_DOT_COLOR)
+	var dot_color := Color(_current_color, 1.0)
+	var dash_color := Color(_current_color, 0.85)
+	_drag_ghost.draw_circle(center, DRAG_DOT_RADIUS, dot_color)
 	var step := 360.0 / DRAG_DASH_COUNT
 	for i in range(DRAG_DASH_COUNT):
 		var start_deg: float = _drag_rotation_deg + i * step
 		var end_deg: float = start_deg + DRAG_DASH_LENGTH_DEG
-		_draw_drag_dash(center, start_deg, end_deg)
+		_draw_drag_dash(center, start_deg, end_deg, dash_color)
 
 
-func _draw_drag_dash(center: Vector2, start_deg: float, end_deg: float) -> void:
+func _draw_drag_dash(center: Vector2, start_deg: float, end_deg: float, color: Color) -> void:
 	var segments := 6
 	var pts := PackedVector2Array()
 	for i in range(segments + 1):
 		var t: float = start_deg + (end_deg - start_deg) * i / float(segments)
 		var rad := deg_to_rad(t)
 		pts.append(center + Vector2(cos(rad), sin(rad)) * DRAG_DOT_OUTER_RADIUS)
-	_drag_ghost.draw_polyline(pts, DRAG_DASH_COLOR, DRAG_DASH_WIDTH, true)
+	_drag_ghost.draw_polyline(pts, color, DRAG_DASH_WIDTH, true)

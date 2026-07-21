@@ -29,6 +29,8 @@ func start(board: Board) -> void:
 		spot.set_hover_enabled(true)
 	if not _board.piece_selection_panel.piece_selected.is_connected(_on_piece_selected):
 		_board.piece_selection_panel.piece_selected.connect(_on_piece_selected)
+	if not _board.piece_selection_panel.piece_drag_ended.is_connected(_on_piece_drag_ended):
+		_board.piece_selection_panel.piece_drag_ended.connect(_on_piece_drag_ended)
 
 	_begin_player_piece_turn()
 
@@ -64,6 +66,25 @@ func _begin_player_piece_turn() -> void:
 
 func _on_piece_selected(rank: int) -> void:
 	_selected_rank = rank
+
+
+## Fin d'un drag démarré dans le panneau et relâché hors de celui-ci
+## (piece_selection_panel.gd). On ne pose la pièce que si la souris (pas le
+## point-fantôme) touche la collision d'une case au moment du relâchement,
+## repéré via action_spot.is_hovering() (même état que l'effet de zoom).
+func _on_piece_drag_ended(rank: int) -> void:
+	var spot := _find_hovered_spot()
+	if spot == null:
+		return
+	_selected_rank = rank
+	_on_action_spot_clicked(spot)
+
+
+func _find_hovered_spot() -> Node2D:
+	for spot in _board.action_spots_container.get_children():
+		if spot.is_hovering():
+			return spot
+	return null
 
 
 func _on_action_spot_clicked(spot: Node2D) -> void:
@@ -162,4 +183,6 @@ func resume(board: Board) -> void:
 		spot.set_hover_enabled(true)
 	if not _board.piece_selection_panel.piece_selected.is_connected(_on_piece_selected):
 		_board.piece_selection_panel.piece_selected.connect(_on_piece_selected)
+	if not _board.piece_selection_panel.piece_drag_ended.is_connected(_on_piece_drag_ended):
+		_board.piece_selection_panel.piece_drag_ended.connect(_on_piece_drag_ended)
 	_begin_player_piece_turn()

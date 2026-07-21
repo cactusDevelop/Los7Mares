@@ -112,6 +112,13 @@ func _update_case_color() -> void:
 	case_sprite.modulate = base * UiTheme.HOVER_TINT if _is_hovering else base
 
 
+## Vrai si la souris est actuellement au-dessus de la collision de la case
+## (utilisé par piece_placement_phase.gd pour savoir où lâcher une pièce
+## en drag & drop, en plus de l'effet de zoom au survol).
+func is_hovering() -> bool:
+	return _is_hovering
+
+
 func has_player_piece(color: String) -> bool:
 	for p in _pieces:
 		if p["color"] == color:
