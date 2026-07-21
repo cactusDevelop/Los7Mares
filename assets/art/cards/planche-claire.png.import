@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://6dn8y66u4lw7"
-path="res://.godot/imported/carte-sauvage-dos.png-55e5cb54e3384a900bdb0c912bb90a51.ctex"
+uid="uid://vgkyyh2av6y8"
+path="res://.godot/imported/planche-claire.png-efa321028522c97841a852da65d1e698.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/cards/carte-sauvage-dos.png"
-dest_files=["res://.godot/imported/carte-sauvage-dos.png-55e5cb54e3384a900bdb0c912bb90a51.ctex"]
+source_file="res://assets/art/cards/planche-claire.png"
+dest_files=["res://.godot/imported/planche-claire.png-efa321028522c97841a852da65d1e698.ctex"]
 
 [params]
 

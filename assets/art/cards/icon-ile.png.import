@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://6dn8y66u4lw7"
-path="res://.godot/imported/carte-sauvage-dos.png-55e5cb54e3384a900bdb0c912bb90a51.ctex"
+uid="uid://cnxuee6wy5l6l"
+path="res://.godot/imported/icon-ile.png-6419a75e14dd3ea06dc2e81331ec3765.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/cards/carte-sauvage-dos.png"
-dest_files=["res://.godot/imported/carte-sauvage-dos.png-55e5cb54e3384a900bdb0c912bb90a51.ctex"]
+source_file="res://assets/art/cards/icon-ile.png"
+dest_files=["res://.godot/imported/icon-ile.png-6419a75e14dd3ea06dc2e81331ec3765.ctex"]
 
 [params]
 
