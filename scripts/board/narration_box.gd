@@ -21,6 +21,7 @@ const OUTLINE_WIDTH := 4
 
 var _reveal_tween: Tween
 var _panel_style: StyleBoxFlat
+var _current_option_ids: Array = []
 
 
 func _ready() -> void:
@@ -95,6 +96,7 @@ func clear_outline() -> void:
 ## Affiche une liste de boutons de choix sous le texte de narration.
 ## options: Array[{"id": String, "label": String}]. Liste vide = pas de bouton.
 func set_options(options: Array) -> void:
+	_current_option_ids = options.map(func(o): return o["id"])
 	for child in buttons_box.get_children():
 		buttons_box.remove_child(child)
 		child.queue_free()
@@ -109,6 +111,26 @@ func set_options(options: Array) -> void:
 
 
 func _on_button_pressed(id: String) -> void:
+	option_selected.emit(id)
+
+
+## Vrai si des boutons de choix sont actuellement affichés (donc qu'un await
+## option_selected est en attente quelque part, ex. action_resolution_phase).
+func has_options() -> bool:
+	return not _current_option_ids.is_empty()
+
+
+## Simule le clic du choix le plus "rapide" parmi les options affichées
+## (utilisé par le bouton debug "Passer") : préfère decline/stop pour ne pas
+## effectuer d'action, sinon prend la première option disponible.
+func skip() -> void:
+	if _current_option_ids.is_empty():
+		return
+	var id: String = _current_option_ids[0]
+	if _current_option_ids.has("decline"):
+		id = "decline"
+	elif _current_option_ids.has("stop"):
+		id = "stop"
 	option_selected.emit(id)
 
 
