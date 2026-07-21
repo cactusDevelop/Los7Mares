@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://c48kdx2g13b3b"]
+
+[ext_resource type="Script" uid="uid://24r2usu5i6hn" path="res://scripts/board/game_card_view.gd" id="1_rb6el"]
+
+[node name="GameCardView" type="Node2D" unique_id=1373783892]
+script = ExtResource("1_rb6el")
+
+[node name="Background" type="Sprite2D" parent="." unique_id=156825675]
+
+[node name="Icon" type="Sprite2D" parent="." unique_id=904448317]
+position = Vector2(-670, -380)
+
+[node name="Planche" type="Sprite2D" parent="." unique_id=1729616286]
+position = Vector2(0, 320)
+
+[node name="ActivityDetails" type="Node2D" parent="." unique_id=872963165]
