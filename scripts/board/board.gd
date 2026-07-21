@@ -68,6 +68,7 @@ const SEA_KEY_BY_NODE_NAME := {
 var _sea_tiles: Array = []
 var _slot_order: Array = []
 var _total_seas: int = 0
+@warning_ignore("unused_private_class_variable")
 var _has_started: bool = false
 var _sea_marker_positions: Dictionary = {}  # sea_key -> Vector2 (position du jeton de bateau)
 var _boat_markers: Dictionary = {}  # player_id -> Node2D (boat_piece détaché de la cachette)

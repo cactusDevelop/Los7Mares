@@ -41,9 +41,9 @@ func _on_language_selected(index: int) -> void:
 
 
 func popup_centered_auto() -> void:
-	var min_size: Vector2 = padding.get_combined_minimum_size()
-	min_size.x = max(min_size.x, 320)
-	size = min_size
+	var target_size: Vector2 = padding.get_combined_minimum_size()
+	target_size.x = max(target_size.x, 320)
+	size = target_size
 	popup_centered()
 
 
