@@ -29,6 +29,13 @@
 [ext_resource type="Script" uid="uid://dtqgyitf5s8n7" path="res://scripts/board/card_draw_phase.gd" id="26_m0x5n"]
 [ext_resource type="Script" uid="uid://crp8o7l2w4rxs" path="res://scripts/board/action_resolution_phase.gd" id="29_x4jil"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_debugskip"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
 
@@ -197,14 +204,23 @@ cancel_button_text = "Non, ça ira"
 
 [node name="DebugSkipButton" type="Button" parent="UI" unique_id=1105041818]
 visible = false
-custom_minimum_size = Vector2(1000, 1000)
+custom_minimum_size = Vector2(110, 44)
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -8.0
-offset_bottom = 8.0
+offset_left = -130.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 64.0
 grow_horizontal = 0
-offset_transform_enabled = true
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_debugskip")
+theme_override_styles/hover = SubResource("StyleBoxFlat_debugskip")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_debugskip")
+theme_override_styles/focus = SubResource("StyleBoxFlat_debugskip")
 text = "Passer"
 
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]

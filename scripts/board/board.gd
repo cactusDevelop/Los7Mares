@@ -68,6 +68,7 @@ const SEA_KEY_BY_NODE_NAME := {
 
 var _sea_tiles: Array = []
 var _slot_order: Array = []
+var _auto_skip_active := false
 var _total_seas: int = 0
 @warning_ignore("unused_private_class_variable")
 var _has_started: bool = false
@@ -111,7 +112,7 @@ func _ready() -> void:
 	return_to_menu_button.pressed.connect(func(): return_to_menu_confirm.popup_centered())
 	return_to_menu_confirm.confirmed.connect(func(): GameFlow.go_to_title())
 
-	debug_skip_button.visible = debug_skip_to_pieces
+	debug_skip_button.visible = false
 	debug_skip_button.pressed.connect(_on_debug_skip_button_pressed)
 
 	for child in seas_container.get_children():
@@ -226,10 +227,17 @@ func _ready() -> void:
 ## - sinon, une pose de pièce est en attente : la pose automatiquement sur
 ##   la première case libre.
 func _on_debug_skip_button_pressed() -> void:
-	if narration_box.has_options():
-		narration_box.skip()
-	else:
-		piece_placement_phase.force_skip()
+	if _auto_skip_active:
+		return
+	_auto_skip_active = true
+	var starting_round: int = GameFlow.round_number
+	while GameFlow.round_number == starting_round and not piece_placement_phase.is_debug_finished():
+		if narration_box.has_options():
+			narration_box.skip()
+		else:
+			piece_placement_phase.force_skip()
+		await get_tree().process_frame
+	_auto_skip_active = false
 
 
 func _on_setup_player_confirmed(player_name: String, color: String) -> void:

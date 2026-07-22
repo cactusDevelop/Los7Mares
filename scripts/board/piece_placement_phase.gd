@@ -13,10 +13,12 @@ var _selected_rank: int = -1
 var _placed_rank_by_player: Dictionary = {}
 var _debug_round_index := 0
 var _resolving_action := false
+var _round_transitioning := false
 
 
 func start(board: Board) -> void:
 	_board = board
+	_board.debug_skip_button.visible = GameFlow.is_debug_mode
 	_current_round = 0
 	_current_player_index = 0
 	_placed_rank_by_player.clear()
@@ -66,6 +68,27 @@ func _begin_player_piece_turn() -> void:
 
 func _on_piece_selected(rank: int) -> void:
 	_selected_rank = rank
+
+
+## Pose automatiquement la pièce du joueur courant sur la première case
+## action libre (utilisé par le bouton debug "Passer"). Ne fait rien si une
+## résolution d'action est déjà en cours (le bouton doit alors agir sur
+## narration_box.skip() à la place, cf board.gd).
+func force_skip() -> void:
+	if _resolving_action or _round_transitioning or _current_player_index >= GameFlow.players.size():
+		return
+	if _selected_rank == -1:
+		if _current_round == 0:
+			_selected_rank = GameFlow.PieceRank.CAPTAIN
+		else:
+			var placed_rank: int = _placed_rank_by_player[_current_player_index]
+			_selected_rank = GameFlow.PieceRank.SECOND if placed_rank == GameFlow.PieceRank.CAPTAIN else GameFlow.PieceRank.CAPTAIN
+
+	var player: Dictionary = GameFlow.players[_current_player_index]
+	for spot in _board.action_spots_container.get_children():
+		if not spot.has_player_piece(player["color"]):
+			_on_action_spot_clicked(spot)
+			return
 
 
 ## Fin d'un drag démarré dans le panneau et relâché hors de celui-ci
@@ -125,6 +148,12 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 	_begin_player_piece_turn()
 
 
+## Vrai une fois les DEBUG_TOTAL_ROUNDS manches de test écoulées (utilisé par
+## board.gd pour arrêter la boucle du bouton debug "Passer").
+func is_debug_finished() -> bool:
+	return _debug_round_index >= DEBUG_TOTAL_ROUNDS
+
+
 func _end_piece_placement_phase() -> void:
 	for spot in _board.action_spots_container.get_children():
 		spot.set_hover_enabled(false)
@@ -132,6 +161,7 @@ func _end_piece_placement_phase() -> void:
 	_shift_camera_for_selection(false)
 
 	if _board.debug_skip_to_pieces:
+		_round_transitioning = true
 		_debug_round_index += 1
 		if _debug_round_index < DEBUG_TOTAL_ROUNDS:
 			_board.narration_box.say(tr("Manche %d/%d terminée.") % [_debug_round_index, DEBUG_TOTAL_ROUNDS])
@@ -141,8 +171,10 @@ func _end_piece_placement_phase() -> void:
 			start(_board)
 		else:
 			_board.narration_box.say(tr("Mode test : 7 tours de pose de pièces terminés."))
+		_round_transitioning = false
 		return
 
+	_board.debug_skip_button.visible = false
 	_board.narration_box.hide_box()
 	finished.emit()
 
@@ -158,6 +190,7 @@ func _shift_camera_for_selection(active: bool) -> void:
 
 func resume(board: Board) -> void:
 	_board = board
+	_board.debug_skip_button.visible = GameFlow.is_debug_mode
 	_placed_rank_by_player.clear()
 	var total_pieces := 0
 	for i in range(GameFlow.players.size()):
