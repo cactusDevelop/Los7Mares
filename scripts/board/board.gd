@@ -51,6 +51,7 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var hideout_spots_container: Node2D = $HideoutSpots
 @onready var fortune_spots_container: Node2D = $FortuneSpots
 @onready var camera: Camera2D = $Camera2D
+@onready var debug_preview_camera: Camera2D = $DebugPreviewCamera
 @onready var sea_card_popup: Control = $UI/SeaCardPopup
 @onready var card_piles_container: Node2D = $CardPiles
 @onready var token_piles_container: Node2D = $TokenPiles
@@ -82,10 +83,7 @@ var _camera_base_zoom: Vector2
 var _camera_tween: Tween
 
 var _debug_card_preview_active := false
-var _debug_saved_camera_position: Vector2
-var _debug_saved_camera_zoom: Vector2
-var _debug_input_lock := false
-var _debug_locked_spot_states: Dictionary = {}  # action_spot -> hover_enabled sauvegardé
+var _debug_selection_panel_was_visible := false
 
 
 func _ready() -> void:
@@ -113,6 +111,7 @@ func _ready() -> void:
 
 	_camera_base_position = camera.position
 	_camera_base_zoom = camera.zoom
+	camera.make_current()
 	action_spots_container.z_index = 1
 	seas_container.z_index = 2
 	token_piles_container.z_index = 3
@@ -269,53 +268,42 @@ func tween_camera(target_position: Vector2, target_zoom: Vector2, duration: floa
 	return _camera_tween
 
 
-## Verrouille/déverrouille les entrées de la partie (panneau de sélection de
-## pièce + cases d'action) pendant la preview debug des cartes, pour que la
-## partie ne puisse pas continuer en parallèle (poser une pièce pendant
-## qu'on prévisualise une carte, etc.). Sauvegarde l'état hover_enabled de
-## chaque case avant de le forcer à false, pour le restaurer tel quel au
-## déverrouillage (quelle que soit la phase en cours à ce moment-là).
-func set_game_input_locked(locked: bool) -> void:
-	_debug_input_lock = locked
-	piece_selection_panel.set_interactive(not locked)
-	if locked:
-		_debug_locked_spot_states.clear()
-		for spot in action_spots_container.get_children():
-			_debug_locked_spot_states[spot] = spot.hover_enabled
-			spot.set_hover_enabled(false)
-	else:
-		for spot in action_spots_container.get_children():
-			if _debug_locked_spot_states.has(spot):
-				spot.set_hover_enabled(_debug_locked_spot_states[spot])
-		_debug_locked_spot_states.clear()
-
-
 ## Bouton debug "Piocher" / "Reprendre" (visible seulement en mode debug),
-## en toggle :
-## - 1er clic : verrouille les entrées de la partie (impossible de poser une
-##   pièce ou d'ouvrir une case pendant la preview), sauvegarde la
-##   position/zoom actuels de la caméra (quels qu'ils soient, quelle que
-##   soit la phase en cours), la ramène en vue par défaut, et révèle de
-##   nouvelles cartes SANS faire avancer la partie (start(self, false) :
-##   pas d'émission de "finished", donc pas d'enchaînement automatique sur
-##   la pose de pièces).
-## - 2e clic ("Reprendre") : déverrouille les entrées, remet la caméra
-##   exactement où elle était avant le 1er clic, pour reprendre le cours de
-##   la partie là où elle en était.
+## en toggle. Plutôt que de patcher caméra/panneau à la main par-dessus la
+## partie qui continue de tourner (source de tous les bugs précédents), la
+## preview est un état à part entière :
+## - 1er clic : met le SceneTree en pause (get_tree().paused = true), ce qui
+##   arrête d'un coup tout le reste de la partie (tweens, inputs, phases en
+##   cours) puisqu'ils ont tous le process_mode par défaut (PAUSABLE). Seuls
+##   les noeuds explicitement passés en process_mode ALWAYS dans board.tscn
+##   continuent de tourner "en parallèle" : DebugPreviewCamera, CardPiles,
+##   CardDrawPhase, SeaCardPopup et ce bouton lui-même. On bascule la vue
+##   sur DebugPreviewCamera (caméra dédiée, jamais touchée par le reste du
+##   jeu) et on révèle de nouvelles cartes SANS faire avancer la partie
+##   (start(self, false) : pas d'émission de "finished"). Le panneau de
+##   sélection de pièce (UI plein écran, indépendant de la caméra) est
+##   masqué le temps de la preview pour que ça ressemble vraiment à un
+##   changement d'écran, pas à un simple recadrage caméra par-dessus la
+##   partie en cours.
+## - 2e clic ("Reprendre") : rebascule sur la caméra principale (laissée
+##   telle quelle, elle n'a jamais bougé), redépause l'arbre, et restaure le
+##   panneau de sélection exactement dans l'état de visibilité qu'il avait
+##   avant le 1er clic : la partie reprend exactement où elle en était.
 func _on_debug_draw_cards_button_pressed() -> void:
 	if not _debug_card_preview_active:
 		_debug_card_preview_active = true
-		_debug_saved_camera_position = camera.position
-		_debug_saved_camera_zoom = camera.zoom
 		debug_draw_cards_button.text = "Reprendre"
-		set_game_input_locked(true)
-		tween_camera(_camera_base_position, _camera_base_zoom)
+		_debug_selection_panel_was_visible = piece_selection_panel.visible
+		piece_selection_panel.visible = false
+		debug_preview_camera.make_current()
+		get_tree().paused = true
 		card_draw_phase.start(self, false)
 	else:
 		_debug_card_preview_active = false
 		debug_draw_cards_button.text = "Piocher"
-		set_game_input_locked(false)
-		tween_camera(_debug_saved_camera_position, _debug_saved_camera_zoom)
+		get_tree().paused = false
+		camera.make_current()
+		piece_selection_panel.visible = _debug_selection_panel_was_visible
 
 
 func _on_setup_player_confirmed(player_name: String, color: String) -> void:

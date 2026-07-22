@@ -165,9 +165,11 @@ func hide_panel() -> void:
 	visible = false
 
 
-## Désactive la sélection et le drag des pièces sans cacher le panneau
-## (utilisé pour verrouiller la partie pendant la preview debug des
-## cartes : cf board.gd set_game_input_locked). `disabled = true` sur les
+## Désactive la sélection et le drag des pièces sans cacher le panneau.
+## Utilitaire générique, actuellement inutilisé par board.gd (la preview
+## debug des cartes passe désormais par une vraie pause de l'arbre, cf.
+## board.gd _on_debug_draw_cards_button_pressed), mais gardé au cas où un
+## verrouillage plus ciblé soit utile ailleurs. `disabled = true` sur les
 ## TextureButton bloque aussi bien `pressed` que `button_down`, donc le
 ## drag ne peut pas démarrer non plus.
 func set_interactive(enabled: bool) -> void:

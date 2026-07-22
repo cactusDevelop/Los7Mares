@@ -113,6 +113,11 @@ texture = ExtResource("11_vq54c")
 zoom = Vector2(0.12, 0.12)
 script = ExtResource("12_jngt6")
 
+[node name="DebugPreviewCamera" type="Camera2D" parent="." unique_id=2087654321]
+process_mode = 3
+zoom = Vector2(0.12, 0.12)
+script = ExtResource("12_jngt6")
+
 [node name="UI" type="CanvasLayer" parent="." unique_id=833065195]
 
 [node name="NarrationBox" type="PanelContainer" parent="UI" unique_id=1704438247]
@@ -180,6 +185,7 @@ layout_mode = 2
 [node name="PlayerBoardExpanded" parent="UI" unique_id=670737293 instance=ExtResource("18_ctilb")]
 
 [node name="SeaCardPopup" parent="UI" unique_id=1069071596 instance=ExtResource("17_bo4hw")]
+process_mode = 3
 
 [node name="ReturnToMenuButton" type="Button" parent="UI" unique_id=1493341315]
 custom_minimum_size = Vector2(60, 60)
@@ -224,6 +230,7 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_debugskip")
 text = "Passer"
 
 [node name="DebugDrawCardsButton" type="Button" parent="UI" unique_id=1105041819]
+process_mode = 3
 visible = false
 custom_minimum_size = Vector2(110, 44)
 anchors_preset = 1
@@ -267,6 +274,7 @@ position = Vector2(-315, -296)
 scale = Vector2(1.1, 1.1)
 
 [node name="CardPiles" type="Node2D" parent="." unique_id=2057199386]
+process_mode = 3
 
 [node name="TokenPiles" type="Node2D" parent="." unique_id=1601587640]
 
@@ -322,6 +330,7 @@ script = ExtResource("24_0avwi")
 script = ExtResource("25_jhx4t")
 
 [node name="CardDrawPhase" type="Node" parent="." unique_id=1152241436]
+process_mode = 3
 script = ExtResource("26_m0x5n")
 
 [node name="ActionResolutionPhase" type="Node" parent="." unique_id=718650651]
