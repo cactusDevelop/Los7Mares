@@ -65,6 +65,7 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var return_to_menu_button: Button = $UI/ReturnToMenuButton
 @onready var return_to_menu_confirm: ConfirmationDialog = $UI/ReturnToMenuConfirm
 @onready var debug_skip_button: Button = $UI/DebugSkipButton
+@onready var debug_draw_cards_button: Button = $UI/DebugDrawCardsButton
 
 var _sea_tiles: Array = []
 var _slot_order: Array = []
@@ -78,6 +79,10 @@ var _boats_by_sea: Dictionary = {}  # sea_key -> Array[int] (ids des joueurs don
 
 var _camera_base_position: Vector2
 var _camera_base_zoom: Vector2
+
+var _debug_card_preview_active := false
+var _debug_saved_camera_position: Vector2
+var _debug_saved_camera_zoom: Vector2
 
 
 func _ready() -> void:
@@ -114,6 +119,9 @@ func _ready() -> void:
 
 	debug_skip_button.visible = false
 	debug_skip_button.pressed.connect(_on_debug_skip_button_pressed)
+
+	debug_draw_cards_button.visible = GameFlow.is_debug_mode
+	debug_draw_cards_button.pressed.connect(_on_debug_draw_cards_button_pressed)
 
 	for child in seas_container.get_children():
 		if child.is_in_group("sea_tile"):
@@ -238,6 +246,38 @@ func _on_debug_skip_button_pressed() -> void:
 			piece_placement_phase.force_skip()
 		await get_tree().process_frame
 	_auto_skip_active = false
+
+
+## Bouton debug "Piocher" / "Reprendre" (visible seulement en mode debug),
+## en toggle :
+## - 1er clic : sauvegarde la position/zoom actuels de la caméra (quels
+##   qu'ils soient, quelle que soit la phase en cours), la ramène en vue par
+##   défaut, et révèle de nouvelles cartes SANS faire avancer la partie
+##   (start(self, false) : pas d'émission de "finished", donc pas
+##   d'enchaînement automatique sur la pose de pièces).
+## - 2e clic ("Reprendre") : remet la caméra exactement où elle était avant
+##   le 1er clic, pour reprendre le cours de la partie là où elle en était.
+func _on_debug_draw_cards_button_pressed() -> void:
+	var tween := create_tween()
+	tween.set_parallel(true)
+
+	if not _debug_card_preview_active:
+		_debug_card_preview_active = true
+		_debug_saved_camera_position = camera.position
+		_debug_saved_camera_zoom = camera.zoom
+		debug_draw_cards_button.text = "Reprendre"
+		tween.tween_property(camera, "position", _camera_base_position, 0.4)\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tween.tween_property(camera, "zoom", _camera_base_zoom, 0.4)\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		card_draw_phase.start(self, false)
+	else:
+		_debug_card_preview_active = false
+		debug_draw_cards_button.text = "Piocher"
+		tween.tween_property(camera, "position", _debug_saved_camera_position, 0.4)\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tween.tween_property(camera, "zoom", _debug_saved_camera_zoom, 0.4)\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
 func _on_setup_player_confirmed(player_name: String, color: String) -> void:

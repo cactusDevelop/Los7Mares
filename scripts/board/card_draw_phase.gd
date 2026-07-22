@@ -20,7 +20,11 @@ var _revealed_textures: Dictionary = {}  # pile -> Texture2D de fond déjà tir�
 var _pending_pile: Node2D = null
 
 
-func start(board: Board) -> void:
+## emit_finished=false (utilisé par le bouton debug "Piocher") : révèle les
+## cartes normalement mais n'émet pas "finished", donc n'enchaîne PAS sur la
+## pose de pièces (board.gd a connecté ce signal en permanence pour faire
+## avancer la partie).
+func start(board: Board, emit_finished: bool = true) -> void:
 	_board = board
 	if not _board.sea_card_popup.card_resolved.is_connected(_on_sea_card_resolved):
 		_board.sea_card_popup.card_resolved.connect(_on_sea_card_resolved)
@@ -56,11 +60,11 @@ func start(board: Board) -> void:
 			pile.draw_enabled = true
 			flips_remaining[0] -= 1
 			if flips_remaining[0] == 0:
-				_finish_phase()
+				_finish_phase(emit_finished)
 		)
 
 	if flips_remaining[0] == 0:
-		_finish_phase()
+		_finish_phase(emit_finished)
 
 
 ## Consultation (facultative) du détail d'une carte déjà révélée sur sa pile.
@@ -77,8 +81,9 @@ func _on_sea_card_resolved(_card: GameCard) -> void:
 	_pending_pile = null
 
 
-func _finish_phase() -> void:
-	finished.emit()
+func _finish_phase(emit_finished: bool = true) -> void:
+	if emit_finished:
+		finished.emit()
 
 
 ## Utilisé par l'action "déplacement" (action_resolution_phase.gd) quand un
