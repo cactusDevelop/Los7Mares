@@ -79,10 +79,13 @@ var _boats_by_sea: Dictionary = {}  # sea_key -> Array[int] (ids des joueurs don
 
 var _camera_base_position: Vector2
 var _camera_base_zoom: Vector2
+var _camera_tween: Tween
 
 var _debug_card_preview_active := false
 var _debug_saved_camera_position: Vector2
 var _debug_saved_camera_zoom: Vector2
+var _debug_input_lock := false
+var _debug_locked_spot_states: Dictionary = {}  # action_spot -> hover_enabled sauvegardé
 
 
 func _ready() -> void:
@@ -248,36 +251,71 @@ func _on_debug_skip_button_pressed() -> void:
 	_auto_skip_active = false
 
 
+## Anime la caméra vers une position/zoom donnés en tuant tout tween de
+## caméra encore actif au préalable. Point de passage unique pour tout
+## déplacement de caméra (sélection de pièce, preview debug, etc.) afin que
+## deux animations ne se disputent jamais la caméra en même temps (c'était
+## la cause des sauts observés en combinant le bouton debug "Piocher" avec
+## la phase de pose de pièces).
+func tween_camera(target_position: Vector2, target_zoom: Vector2, duration: float = 0.4) -> Tween:
+	if _camera_tween and _camera_tween.is_valid():
+		_camera_tween.kill()
+	_camera_tween = create_tween()
+	_camera_tween.set_parallel(true)
+	_camera_tween.tween_property(camera, "position", target_position, duration)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_camera_tween.tween_property(camera, "zoom", target_zoom, duration)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	return _camera_tween
+
+
+## Verrouille/déverrouille les entrées de la partie (panneau de sélection de
+## pièce + cases d'action) pendant la preview debug des cartes, pour que la
+## partie ne puisse pas continuer en parallèle (poser une pièce pendant
+## qu'on prévisualise une carte, etc.). Sauvegarde l'état hover_enabled de
+## chaque case avant de le forcer à false, pour le restaurer tel quel au
+## déverrouillage (quelle que soit la phase en cours à ce moment-là).
+func set_game_input_locked(locked: bool) -> void:
+	_debug_input_lock = locked
+	piece_selection_panel.set_interactive(not locked)
+	if locked:
+		_debug_locked_spot_states.clear()
+		for spot in action_spots_container.get_children():
+			_debug_locked_spot_states[spot] = spot.hover_enabled
+			spot.set_hover_enabled(false)
+	else:
+		for spot in action_spots_container.get_children():
+			if _debug_locked_spot_states.has(spot):
+				spot.set_hover_enabled(_debug_locked_spot_states[spot])
+		_debug_locked_spot_states.clear()
+
+
 ## Bouton debug "Piocher" / "Reprendre" (visible seulement en mode debug),
 ## en toggle :
-## - 1er clic : sauvegarde la position/zoom actuels de la caméra (quels
-##   qu'ils soient, quelle que soit la phase en cours), la ramène en vue par
-##   défaut, et révèle de nouvelles cartes SANS faire avancer la partie
-##   (start(self, false) : pas d'émission de "finished", donc pas
-##   d'enchaînement automatique sur la pose de pièces).
-## - 2e clic ("Reprendre") : remet la caméra exactement où elle était avant
-##   le 1er clic, pour reprendre le cours de la partie là où elle en était.
+## - 1er clic : verrouille les entrées de la partie (impossible de poser une
+##   pièce ou d'ouvrir une case pendant la preview), sauvegarde la
+##   position/zoom actuels de la caméra (quels qu'ils soient, quelle que
+##   soit la phase en cours), la ramène en vue par défaut, et révèle de
+##   nouvelles cartes SANS faire avancer la partie (start(self, false) :
+##   pas d'émission de "finished", donc pas d'enchaînement automatique sur
+##   la pose de pièces).
+## - 2e clic ("Reprendre") : déverrouille les entrées, remet la caméra
+##   exactement où elle était avant le 1er clic, pour reprendre le cours de
+##   la partie là où elle en était.
 func _on_debug_draw_cards_button_pressed() -> void:
-	var tween := create_tween()
-	tween.set_parallel(true)
-
 	if not _debug_card_preview_active:
 		_debug_card_preview_active = true
 		_debug_saved_camera_position = camera.position
 		_debug_saved_camera_zoom = camera.zoom
 		debug_draw_cards_button.text = "Reprendre"
-		tween.tween_property(camera, "position", _camera_base_position, 0.4)\
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		tween.tween_property(camera, "zoom", _camera_base_zoom, 0.4)\
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		set_game_input_locked(true)
+		tween_camera(_camera_base_position, _camera_base_zoom)
 		card_draw_phase.start(self, false)
 	else:
 		_debug_card_preview_active = false
 		debug_draw_cards_button.text = "Piocher"
-		tween.tween_property(camera, "position", _debug_saved_camera_position, 0.4)\
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		tween.tween_property(camera, "zoom", _debug_saved_camera_zoom, 0.4)\
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		set_game_input_locked(false)
+		tween_camera(_debug_saved_camera_position, _debug_saved_camera_zoom)
 
 
 func _on_setup_player_confirmed(player_name: String, color: String) -> void:

@@ -165,6 +165,16 @@ func hide_panel() -> void:
 	visible = false
 
 
+## Désactive la sélection et le drag des pièces sans cacher le panneau
+## (utilisé pour verrouiller la partie pendant la preview debug des
+## cartes : cf board.gd set_game_input_locked). `disabled = true` sur les
+## TextureButton bloque aussi bien `pressed` que `button_down`, donc le
+## drag ne peut pas démarrer non plus.
+func set_interactive(enabled: bool) -> void:
+	captain_button.disabled = not enabled
+	second_button.disabled = not enabled
+
+
 ## only_rank == -1 -> les deux pièces proposées, capitaine sélectionné par défaut.
 ## only_rank == CAPTAIN/SECOND -> une seule affichée, forcée/sélectionnée.
 func setup_for_player(color: Color, only_rank: int = -1) -> void:

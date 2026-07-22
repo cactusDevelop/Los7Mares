@@ -182,10 +182,7 @@ func _end_piece_placement_phase() -> void:
 func _shift_camera_for_selection(active: bool) -> void:
 	var target_pos := _board._camera_base_position + Vector2(UiTheme.CAMERA_SELECTION_SHIFT, 0) if active else _board._camera_base_position
 	var target_zoom: Vector2 = UiTheme.CAMERA_SELECTION_ZOOM if active else _board._camera_base_zoom
-	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(_board.camera, "position", target_pos, 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(_board.camera, "zoom", target_zoom, 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_board.tween_camera(target_pos, target_zoom, 0.5)
 
 
 func resume(board: Board) -> void:
