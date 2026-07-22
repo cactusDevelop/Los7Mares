@@ -16,9 +16,8 @@ const TYPE_LABELS := {
 
 @onready var blocker: ColorRect = $Blocker
 @onready var padding: PanelContainer = $Padding
-@onready var card_background: TextureRect = $Padding/Margin/Content/CardFrame/CardBackground
-@onready var card_icon: TextureRect = $Padding/Margin/Content/CardFrame/CardIcon
-@onready var card_planche: TextureRect = $Padding/Margin/Content/CardFrame/CardPlanche
+@onready var card_frame: Control = $Padding/Margin/Content/CardFrame
+@onready var card_art: GameCardView = $Padding/Margin/Content/CardFrame/CardArt
 @onready var title_label: Label = $Padding/Margin/Content/DetailsColumn/TitleLabel
 @onready var type_label: Label = $Padding/Margin/Content/DetailsColumn/TypeLabel
 @onready var description_label: Label = $Padding/Margin/Content/DetailsColumn/DescriptionLabel
@@ -44,9 +43,8 @@ func _ready() -> void:
 
 func show_card(card: GameCard, front_texture: Texture2D) -> void:
 	_current_card = card
-	card_background.texture = front_texture
-	card_icon.texture = card.get_icon()
-	card_planche.texture = card.get_planche_texture()
+	card_art.set_card(card, front_texture)
+	_fit_card_art()
 	title_label.text = tr(card.title)
 	type_label.text = tr(TYPE_LABELS.get(card.card_type, ""))
 	description_label.text = tr(card.description)
@@ -65,6 +63,21 @@ func show_card(card: GameCard, front_texture: Texture2D) -> void:
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(padding, "modulate:a", 1.0, UiTheme.CARD_POPUP_DURATION)
 	await tween.finished
+
+
+## Met à l'échelle l'ensemble CardArt (fond + icône + planche, déjà
+## superposés avec leurs transforms respectifs) pour qu'il tienne dans
+## CardFrame sans jamais être crop : un seul scale uniforme appliqué à tout
+## le groupe, jamais un agrandissement au-delà de la taille native.
+func _fit_card_art() -> void:
+	var native_size := card_art.get_native_size()
+	if native_size == Vector2.ZERO:
+		return
+	var frame_size: Vector2 = card_frame.custom_minimum_size
+	var fit_scale: float = min(frame_size.x / native_size.x, frame_size.y / native_size.y)
+	fit_scale = min(fit_scale, 1.0)
+	card_art.scale = Vector2.ONE * fit_scale
+	card_art.position = frame_size / 2.0
 
 
 func _center_panel() -> void:

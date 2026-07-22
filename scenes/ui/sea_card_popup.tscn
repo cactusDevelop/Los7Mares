@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bn3g7mmfggktb"]
 
 [ext_resource type="Script" uid="uid://bl2jyc7f5qk0y" path="res://scripts/ui/sea_card_popup.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://c48kdx2g13b3b" path="res://scenes/board/game_card_view.tscn" id="2"]
 
 [node name="SeaCardPopup" type="Control" unique_id=1069071596]
 layout_mode = 3
@@ -42,36 +43,7 @@ layout_mode = 2
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="CardBackground" type="TextureRect" parent="Padding/Margin/Content/CardFrame" unique_id=2104949296]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-expand_mode = 1
-stretch_mode = 6
-
-[node name="CardIcon" type="TextureRect" parent="Padding/Margin/Content/CardFrame" unique_id=1519499380]
-layout_mode = 0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 72.0
-offset_bottom = 72.0
-expand_mode = 1
-stretch_mode = 5
-
-[node name="CardPlanche" type="TextureRect" parent="Padding/Margin/Content/CardFrame" unique_id=701526169]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -56.0
-grow_horizontal = 2
-grow_vertical = 0
-expand_mode = 1
-stretch_mode = 5
+[node name="CardArt" parent="Padding/Margin/Content/CardFrame" unique_id=464625607 instance=ExtResource("2")]
 
 [node name="DetailsColumn" type="VBoxContainer" parent="Padding/Margin/Content" unique_id=-1691652838]
 custom_minimum_size = Vector2(360, 0)
