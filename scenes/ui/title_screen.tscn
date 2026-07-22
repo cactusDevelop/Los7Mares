@@ -49,8 +49,8 @@ text = "HEBERGER"
 [node name="Padding" type="MarginContainer" parent="PlayerCountPopup" unique_id=2065299801]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 96.0
-offset_bottom = 96.0
+offset_right = 412.0
+offset_bottom = 157.0
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
