@@ -1,10 +1,19 @@
 extends Control
 
 signal piece_selected(rank: int)
+## Émis dès qu'un drag (potentiel) démarre sur une pièce, avant même de
+## savoir s'il quittera le panneau ou non (board.gd/piece_placement_phase.gd
+## s'en sert pour teinter les cases d'action avec la couleur du joueur
+## pendant qu'il drague).
+signal piece_drag_started(rank: int)
 ## Émis quand un drag démarré sur une pièce se termine hors du panneau
 ## (relâchement sur le plateau). piece_placement_phase.gd écoute ce signal
 ## pour savoir si la souris était alors au-dessus d'une case valide.
 signal piece_drag_ended(rank: int)
+## Émis à la toute fin de CHAQUE drag (relâché dans le panneau ou dehors),
+## contrairement à piece_drag_ended qui ne l'est que dans le 2e cas :
+## utilisé pour toujours nettoyer la teinte de survol posée sur les cases.
+signal piece_drag_stopped
 
 const HOVER_SCALE := 1.1
 const SELECTED_SCALE := 1.2
@@ -365,6 +374,7 @@ func _on_piece_button_down(rank: int, btn: TextureButton) -> void:
 	_drag_rank = rank
 	_drag_button = btn
 	_drag_rotation_deg = 0.0
+	piece_drag_started.emit(rank)
 
 
 ## Appelé chaque frame tant qu'un drag est en cours. Tant que la souris
@@ -406,12 +416,13 @@ func _end_drag(over_panel: bool) -> void:
 	_drag_rank = -1
 	if not over_panel:
 		piece_drag_ended.emit(rank)
+	piece_drag_stopped.emit()
 
 
 func _on_drag_ghost_draw() -> void:
 	var center := _drag_ghost.size / 2.0
-	var dot_color := Color(_current_color, 1.0)
-	var dash_color := Color(_current_color, 0.85)
+	var dot_color := Color(Color.WHITE, 1.0)
+	var dash_color := Color(Color.WHITE, 0.85)
 	_drag_ghost.draw_circle(center, DRAG_DOT_RADIUS, dot_color)
 	var step := 360.0 / DRAG_DASH_COUNT
 	for i in range(DRAG_DASH_COUNT):

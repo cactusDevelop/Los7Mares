@@ -33,6 +33,10 @@ func start(board: Board) -> void:
 		_board.piece_selection_panel.piece_selected.connect(_on_piece_selected)
 	if not _board.piece_selection_panel.piece_drag_ended.is_connected(_on_piece_drag_ended):
 		_board.piece_selection_panel.piece_drag_ended.connect(_on_piece_drag_ended)
+	if not _board.piece_selection_panel.piece_drag_started.is_connected(_on_piece_drag_started):
+		_board.piece_selection_panel.piece_drag_started.connect(_on_piece_drag_started)
+	if not _board.piece_selection_panel.piece_drag_stopped.is_connected(_on_piece_drag_stopped):
+		_board.piece_selection_panel.piece_drag_stopped.connect(_on_piece_drag_stopped)
 
 	_begin_player_piece_turn()
 
@@ -68,6 +72,24 @@ func _begin_player_piece_turn() -> void:
 
 func _on_piece_selected(rank: int) -> void:
 	_selected_rank = rank
+
+
+## Teinte toutes les cases d'action avec la couleur du joueur courant dès
+## qu'il commence à draguer une pièce, pour bien montrer où elle va
+## atterrir au survol (en plus du zoom habituel, cf action_spot.gd
+## set_drag_hover_color).
+func _on_piece_drag_started(_rank: int) -> void:
+	var player: Dictionary = GameFlow.players[_current_player_index]
+	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
+	for spot in _board.action_spots_container.get_children():
+		spot.set_drag_hover_color(color)
+
+
+## Retire la teinte de survol posée par _on_piece_drag_started, que le drag
+## se soit terminé par une pose de pièce ou par un simple relâchement.
+func _on_piece_drag_stopped() -> void:
+	for spot in _board.action_spots_container.get_children():
+		spot.set_drag_hover_color(null)
 
 
 ## Pose automatiquement la pièce du joueur courant sur la première case
@@ -215,4 +237,8 @@ func resume(board: Board) -> void:
 		_board.piece_selection_panel.piece_selected.connect(_on_piece_selected)
 	if not _board.piece_selection_panel.piece_drag_ended.is_connected(_on_piece_drag_ended):
 		_board.piece_selection_panel.piece_drag_ended.connect(_on_piece_drag_ended)
+	if not _board.piece_selection_panel.piece_drag_started.is_connected(_on_piece_drag_started):
+		_board.piece_selection_panel.piece_drag_started.connect(_on_piece_drag_started)
+	if not _board.piece_selection_panel.piece_drag_stopped.is_connected(_on_piece_drag_stopped):
+		_board.piece_selection_panel.piece_drag_stopped.connect(_on_piece_drag_stopped)
 	_begin_player_piece_turn()

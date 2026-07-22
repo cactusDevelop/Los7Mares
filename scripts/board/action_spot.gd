@@ -19,6 +19,7 @@ var _is_hovering: bool = false
 var hover_enabled: bool = false
 var _pieces: Array = []  # {color, rank, order, node}
 var _drop_tweens: Dictionary = {}  # piece_node -> Tween de chute en cours
+var _drag_hover_color = null  # Color ou null : couleur du joueur qui drague, appliquée au survol par-dessus le zoom habituel
 
 
 func _ready() -> void:
@@ -109,7 +110,19 @@ func _relayout_pieces() -> void:
 func _update_case_color() -> void:
 	var color: Color = GameFlow.compute_case_color(_pieces)
 	var base := color if color.a > 0.0 else Color.WHITE
-	case_sprite.modulate = base * UiTheme.HOVER_TINT if _is_hovering else base
+	if _is_hovering and _drag_hover_color != null:
+		case_sprite.modulate = _drag_hover_color
+	else:
+		case_sprite.modulate = base * UiTheme.HOVER_TINT if _is_hovering else base
+
+
+## Teinte appliquée au survol PAR-DESSUS l'effet de zoom habituel pendant
+## qu'un joueur drague une pièce depuis le panneau de sélection (couleur du
+## joueur en train de jouer, pour bien montrer où la pièce va atterrir).
+## Passer null pour revenir à la teinte de survol par défaut.
+func set_drag_hover_color(color) -> void:
+	_drag_hover_color = color
+	_update_case_color()
 
 
 ## Vrai si la souris est actuellement au-dessus de la collision de la case
