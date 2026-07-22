@@ -222,6 +222,104 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_debugskip")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_debugskip")
 theme_override_styles/focus = SubResource("StyleBoxFlat_debugskip")
 text = "Passer"
+[gd_scene format=3 uid="uid://bn3g7mmfggktb"]
+
+[ext_resource type="Script" uid="uid://bl2jyc7f5qk0y" path="res://scripts/ui/sea_card_popup.gd" id="1"]
+
+[node name="SeaCardPopup" type="Control" unique_id=1069071596]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Blocker" type="ColorRect" parent="." unique_id=1256780960]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.75)
+
+[node name="Padding" type="PanelContainer" parent="." unique_id=2029170493]
+layout_mode = 0
+offset_right = 900.0
+offset_bottom = 480.0
+
+[node name="Margin" type="MarginContainer" parent="Padding" unique_id=-982721315]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="Content" type="HBoxContainer" parent="Padding/Margin" unique_id=497042099]
+layout_mode = 2
+theme_override_constants/separation = 32
+
+[node name="CardFrame" type="Control" parent="Padding/Margin/Content" unique_id=1078933719]
+custom_minimum_size = Vector2(380, 420)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="CardBackground" type="TextureRect" parent="Padding/Margin/Content/CardFrame" unique_id=2104949296]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="CardIcon" type="TextureRect" parent="Padding/Margin/Content/CardFrame" unique_id=1519499380]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 72.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CardPlanche" type="TextureRect" parent="Padding/Margin/Content/CardFrame" unique_id=701526169]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -56.0
+grow_horizontal = 2
+grow_vertical = 0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DetailsColumn" type="VBoxContainer" parent="Padding/Margin/Content" unique_id=-1691652838]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="TitleLabel" type="Label" parent="Padding/Margin/Content/DetailsColumn" unique_id=633411767]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+autowrap_mode = 3
+
+[node name="TypeLabel" type="Label" parent="Padding/Margin/Content/DetailsColumn" unique_id=859722980]
+modulate = Color(0.8, 0.8, 0.8, 1)
+layout_mode = 2
+
+[node name="DescriptionLabel" type="Label" parent="Padding/Margin/Content/DetailsColumn" unique_id=1832441120]
+layout_mode = 2
+size_flags_vertical = 3
+autowrap_mode = 3
+
+[node name="BackButton" type="Button" parent="Padding/Margin/Content/DetailsColumn" unique_id=1267547838]
+layout_mode = 2
+text = "RETOUR"
 
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
 
