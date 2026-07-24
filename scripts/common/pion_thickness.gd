@@ -1,7 +1,7 @@
-class_name PieceThickness
+class_name PionThickness
 
-## Constantes PARTAGÉES par le plateau (captain_piece.gd/second_piece.gd) et
-## le panneau de sélection (piece_selection_panel.gd) : un seul endroit à
+## Constantes PARTAGÉES par le plateau (captain_pion.gd/officer_pion.gd) et
+## le panneau de sélection (pion_selection_panel.gd) : un seul endroit à
 ## modifier pour ajuster l'effet partout. thickness_px est TOUJOURS exprimé
 ## en pixels ÉCRAN (affichés), quelle que soit l'échelle du node porteur.
 const THICKNESS_PX := 10.0

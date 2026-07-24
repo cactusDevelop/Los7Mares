@@ -16,7 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://bg437po33iydc" path="res://scenes/ui/player_setup_popup.tscn" id="14_dj4mb"]
 [ext_resource type="PackedScene" uid="uid://dt0ffi66gqwvd" path="res://scenes/board/action_spot.tscn" id="15_kug5n"]
 [ext_resource type="Script" uid="uid://b0a7tt2orhfwo" path="res://scripts/board/narration_box.gd" id="15_xu7li"]
-[ext_resource type="PackedScene" uid="uid://cawaiel7vey2f" path="res://scenes/ui/piece_selection_panel.tscn" id="16_bo4hw"]
+[ext_resource type="PackedScene" uid="uid://cawaiel7vey2f" path="res://scenes/ui/pion_selection_panel.tscn" id="16_bo4hw"]
 [ext_resource type="PackedScene" uid="uid://bn3g7mmfggktb" path="res://scenes/ui/sea_card_popup.tscn" id="17_bo4hw"]
 [ext_resource type="PackedScene" uid="uid://b058e8m5tg4kt" path="res://scenes/ui/player_board_expanded.tscn" id="18_ctilb"]
 [ext_resource type="Texture2D" uid="uid://dedw6tc0y6d80" path="res://assets/art/ui/back.svg" id="19_0avwi"]
@@ -25,7 +25,7 @@
 [ext_resource type="Script" uid="uid://cnxrqg83d7ymu" path="res://scripts/debug/debug_heptagon.gd" id="22_j2n54"]
 [ext_resource type="Script" uid="uid://da4v1q020p4x" path="res://scripts/board/dealing_phase.gd" id="23_s0ety"]
 [ext_resource type="Script" uid="uid://da2oyotyr3s1s" path="res://scripts/board/hideout_phase.gd" id="24_0avwi"]
-[ext_resource type="Script" uid="uid://dhx64n8v51ihg" path="res://scripts/board/piece_placement_phase.gd" id="25_jhx4t"]
+[ext_resource type="Script" uid="uid://dhx64n8v51ihg" path="res://scripts/board/pion_placement_phase.gd" id="25_jhx4t"]
 [ext_resource type="Script" uid="uid://dtqgyitf5s8n7" path="res://scripts/board/card_draw_phase.gd" id="26_m0x5n"]
 [ext_resource type="Script" uid="uid://crp8o7l2w4rxs" path="res://scripts/board/action_resolution_phase.gd" id="29_x4jil"]
 
@@ -155,7 +155,7 @@ theme_override_constants/separation = 8
 
 [node name="PlayerSetupPopup" parent="UI" unique_id=1537230509 instance=ExtResource("14_dj4mb")]
 
-[node name="PieceSelectionPanel" parent="UI" unique_id=1299012961 instance=ExtResource("16_bo4hw")]
+[node name="PionSelectionPanel" parent="UI" unique_id=1299012961 instance=ExtResource("16_bo4hw")]
 
 [node name="PlayerBoardsPile" type="Control" parent="UI" unique_id=1975439067]
 layout_mode = 3
@@ -326,7 +326,7 @@ script = ExtResource("23_s0ety")
 [node name="HideoutPhase" type="Node" parent="." unique_id=1991991205]
 script = ExtResource("24_0avwi")
 
-[node name="PiecePlacementPhase" type="Node" parent="." unique_id=1465754435]
+[node name="PionPlacementPhase" type="Node" parent="." unique_id=1465754435]
 script = ExtResource("25_jhx4t")
 
 [node name="CardDrawPhase" type="Node" parent="." unique_id=1152241436]

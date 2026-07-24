@@ -21,8 +21,8 @@ extends RefCounted
 
 const ACTIVITY_BOARDS := {
 	"rouge": "res://scripts/resources/data/activity_boards/activity_board_rouge.tres",
-	"claire": "res://scripts/resources/data/activity_boards/activity_board_claire.tres",
-	"bleu_claire": "res://scripts/resources/data/activity_boards/activity_board_bleu_claire.tres",
+	"brune": "res://scripts/resources/data/activity_boards/activity_board_brune.tres",
+	"bleue_brune": "res://scripts/resources/data/activity_boards/activity_board_bleue_brune.tres",
 }
 
 const DEFINITIONS := [
@@ -31,11 +31,11 @@ const DEFINITIONS := [
 		"title": "Navire fantôme", "description": "Un navire spectral vous encercle. Lancez 3 dés pour tenter de fuir.",
 	},
 	{
-		"sea": "sauvage", "type": GameCard.CardType.ILE, "planche": "claire",
+		"sea": "sauvage", "type": GameCard.CardType.ILE, "planche": "brune",
 		"title": "Île abandonnée", "description": "Une île silencieuse apparaît à l'horizon.",
 	},
 	{
-		"sea": "sauvage", "type": GameCard.CardType.PORT, "planche": "bleu_claire",
+		"sea": "sauvage", "type": GameCard.CardType.PORT, "planche": "bleue_brune",
 		"title": "Petit port de pêcheurs", "description": "Vous accostez dans un port paisible.",
 	},
 ]
