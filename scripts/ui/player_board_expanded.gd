@@ -42,13 +42,28 @@ const PLANK_RECT_MAX := Vector2(1930, 1700)
 ## À ajuster si la largeur réelle réservée sur l'illustration diffère.
 const CARD_TRACK_RECT_MIN := Vector2(2450, 0)
 const CARD_TRACK_RECT_MAX := Vector2(2716, 1813)
-## Les assets de cartes sont en 600 dpi, le plateau en 300 dpi : on divise
-## par 2 la taille native des cartes pour obtenir leur taille équivalente en
-## "pixels image du plateau", avant toute conversion écran.
-const CARD_TRACK_DPI_SCALE := 0.5
-## Décalage cosmétique (règle 3 : purement visuel) entre 2 cartes empilées
-## dans une même piste, en pixels image du plateau.
-const CARD_TRACK_STACK_OFFSET := 40.0
+## Distance verticale (pixels image du plateau) entre le centre de la piste
+## centrale (combat) et le centre de chacune des 2 autres pistes
+## (exploration au-dessus, commerce en-dessous). La piste centrale est
+## toujours exactement au milieu vertical de CARD_TRACK_RECT ; les 2 autres
+## sont réparties symétriquement à cette distance, réglable ici.
+const CARD_TRACK_CENTER_SPACING := 604.0
+## Largeur totale (pixels image du plateau) que le bord droit de la DERNIÈRE
+## carte d'une pile peut dépasser au-delà de CARD_TRACK_RECT_MAX.x (bord
+## droit du plateau). Cette largeur totale reste la même quel que soit le
+## nombre de cartes dans la pile : le dépassement de chaque carte
+## individuelle est reparti/réduit en conséquence (carte i sur N dépasse de
+## (i+1)/N * CARD_TRACK_OVERHANG_TOTAL), la 1ère carte étant donc la moins
+## visible et la dernière atteignant toujours ce dépassement maximal.
+const CARD_TRACK_OVERHANG_TOTAL := 80.0
+## Largeur cible d'une carte de piste, en pixels image du plateau. Ne dépend
+## plus de la résolution native des assets (qui varie selon les fichiers, ce
+## qui rendait la taille imprévisible) : la hauteur est déduite du ratio
+## largeur/hauteur natif de chaque image pour ne pas la déformer. À monter
+## si les cartes paraissent trop petites, descendre si trop grandes. Les
+## cartes dépassent volontairement de band_width (voir CARD_TRACK_OVERHANG_TOTAL
+## ci-dessus) : ce n'est donc plus borné à la largeur de la bande.
+const CARD_TRACK_WIDTH := 340.0
 
 const RESOURCE_CUBE_EDGE := 120.0
 const SPECIAL_ICON_SIZE := Vector2(110, 110)
@@ -123,6 +138,10 @@ func _ready() -> void:
 	blocker.color = Color(0, 0, 0, 0.7)
 	board_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	board_texture.stretch_mode = TextureRect.STRETCH_SCALE
+	# Les cartes des pistes sont dessinées derrière le plateau : seule la
+	# partie qui dépasse du bord droit du plateau (hors de la zone couverte
+	# par BoardTexture) reste visible.
+	board_texture.z_index = 10
 	padding.add_theme_constant_override("margin_left", 0)
 	padding.add_theme_constant_override("margin_right", 0)
 	padding.add_theme_constant_override("margin_top", 60)
@@ -202,15 +221,19 @@ func _refresh_card_tracks(player: Dictionary) -> void:
 	for child in card_track_slots.get_children():
 		child.queue_free()
 
-	var band_height: float = (CARD_TRACK_RECT_MAX.y - CARD_TRACK_RECT_MIN.y) / float(GameFlow.CARD_TRACK_KEYS.size())
-	var band_width: float = CARD_TRACK_RECT_MAX.x - CARD_TRACK_RECT_MIN.x
+	# Milieu vertical de la zone : la piste centrale (index 1 = combat) y est
+	# alignée exactement ; les 2 autres pistes sont décalées symétriquement
+	# de CARD_TRACK_CENTER_SPACING de part et d'autre.
+	var area_center_y: float = (CARD_TRACK_RECT_MIN.y + CARD_TRACK_RECT_MAX.y) / 2.0
+	var mid_band_index: int = int(GameFlow.CARD_TRACK_KEYS.size() / 2)
 
 	for band_index in range(GameFlow.CARD_TRACK_KEYS.size()):
 		var track: String = GameFlow.CARD_TRACK_KEYS[band_index]
-		var band_top: float = CARD_TRACK_RECT_MIN.y + band_index * band_height
+		var track_center_y: float = area_center_y + (band_index - mid_band_index) * CARD_TRACK_CENTER_SPACING
 		var cards: Array = player.get("card_tracks", {}).get(track, [])
+		var count: int = cards.size()
 
-		for i in range(cards.size()):
+		for i in range(count):
 			var entry: Dictionary = cards[i]
 			var card_type: int = entry.get("card_type", GameCard.CardType.RENCONTRE)
 			var texture: Texture2D = null
@@ -218,13 +241,15 @@ func _refresh_card_tracks(player: Dictionary) -> void:
 			if not pool.is_empty():
 				texture = pool[0]
 
-			# Taille équivalente "pixels plateau" (règle des 600 -> 300 dpi),
-			# puis réduction supplémentaire si nécessaire pour tenir dans la
-			# largeur réservée (ne grandit jamais, ne fait que rétrécir).
+			# Taille "pixels plateau" : largeur fixe réglable (CARD_TRACK_WIDTH),
+			# hauteur déduite du ratio natif de l'image pour ne pas la
+			# déformer. On ne borne plus à la largeur de la bande : les
+			# cartes dépassent volontairement du plateau (voir
+			# CARD_TRACK_OVERHANG_TOTAL).
 			var native_size: Vector2 = texture.get_size() if texture else Vector2(807, 513)
-			var board_size: Vector2 = native_size * CARD_TRACK_DPI_SCALE
-			if board_size.x > band_width:
-				board_size *= band_width / board_size.x
+			var board_size: Vector2 = Vector2(
+				CARD_TRACK_WIDTH, CARD_TRACK_WIDTH * native_size.y / native_size.x
+			)
 
 			var card_node: Control
 			if texture:
@@ -241,10 +266,22 @@ func _refresh_card_tracks(player: Dictionary) -> void:
 			card_track_slots.add_child(card_node)
 			var local_size: Vector2 = _texture_size_to_local(board_size)
 			card_node.size = local_size
+
+			# Dépassement horizontal : la carte i (sur "count") dépasse du
+			# bord droit du plateau de (i+1)/count * CARD_TRACK_OVERHANG_TOTAL.
+			# Ainsi la dernière carte de la pile dépasse toujours du même
+			# total, quel que soit le nombre de cartes empilées ; les cartes
+			# précédentes dépassent proportionnellement moins.
+			var overhang: float = (float(i + 1) / float(count)) * CARD_TRACK_OVERHANG_TOTAL
 			var top_left_px := Vector2(
-				CARD_TRACK_RECT_MIN.x, band_top + i * CARD_TRACK_STACK_OFFSET
+				CARD_TRACK_RECT_MAX.x - board_size.x + overhang,
+				track_center_y - board_size.y / 2.0
 			)
 			card_node.position = _texture_to_local(top_left_px)
+			# Toutes les cartes sont dessinées sous le plateau (voir
+			# board_texture.z_index = 10) : seule la partie qui dépasse du
+			# bord droit reste visible. Entre elles, les cartes suivantes de
+			# la pile passent devant pour montrer leur bord qui dépasse.
 			card_node.z_index = i
 
 

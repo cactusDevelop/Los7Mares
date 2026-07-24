@@ -185,17 +185,23 @@ func generate_debug_players(count: int) -> void:
 		players[1]["parrot_captured_by"] = players[0]["id"]
 
 
-## Mode DEBUG uniquement : donne au premier joueur 3 cartes dans chacune des
-## 3 pistes (Exploration/Combat/Commerce), en piochant dans le catalogue les
-## cartes qui déclarent cette piste parmi leurs possible_tracks (répétées si
-## le catalogue n'en contient pas assez, faute de contenu final).
+## Mode DEBUG uniquement : donne au premier joueur des cartes dans les 3
+## pistes (Exploration/Combat/Commerce, règle 3), en piochant dans le
+## catalogue les cartes qui déclarent cette piste parmi leurs
+## possible_tracks (répétées si le catalogue n'en contient pas assez, faute
+## de contenu final). Quantités différentes par piste (utile pour tester
+## l'affichage de piles de tailles variées) : 5 en exploration, 3 en combat,
+## 1 en commerce.
+const DEBUG_CARD_COUNTS := {"exploration": 5, "combat": 3, "commerce": 1}
+
 func _debug_seed_card_tracks(player: Dictionary) -> void:
 	var catalog_cards: Array[GameCard] = CardCatalog.build_cards()
 	for track in CARD_TRACK_KEYS:
 		var matching := catalog_cards.filter(
 			func(c: GameCard) -> bool: return c.possible_tracks.has(track)
 		)
-		for i in range(3):
+		var count: int = DEBUG_CARD_COUNTS.get(track, 3)
+		for i in range(count):
 			if matching.is_empty():
 				add_card_to_track(player, track, GameCard.new())
 			else:
