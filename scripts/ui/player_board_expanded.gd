@@ -47,7 +47,7 @@ const CARD_TRACK_RECT_MAX := Vector2(2716, 1813)
 ## (exploration au-dessus, commerce en-dessous). La piste centrale est
 ## toujours exactement au milieu vertical de CARD_TRACK_RECT ; les 2 autres
 ## sont réparties symétriquement à cette distance, réglable ici.
-const CARD_TRACK_CENTER_SPACING := 604.0
+const CARD_TRACK_CENTER_SPACING := 565.5
 ## Largeur totale (pixels image du plateau) que le bord droit de la DERNIÈRE
 ## carte d'une pile peut dépasser au-delà de CARD_TRACK_RECT_MAX.x (bord
 ## droit du plateau). Cette largeur totale reste la même quel que soit le
@@ -55,15 +55,23 @@ const CARD_TRACK_CENTER_SPACING := 604.0
 ## individuelle est reparti/réduit en conséquence (carte i sur N dépasse de
 ## (i+1)/N * CARD_TRACK_OVERHANG_TOTAL), la 1ère carte étant donc la moins
 ## visible et la dernière atteignant toujours ce dépassement maximal.
-const CARD_TRACK_OVERHANG_TOTAL := 80.0
+const CARD_TRACK_OVERHANG_TOTAL := 280.0
 ## Largeur cible d'une carte de piste, en pixels image du plateau. Ne dépend
 ## plus de la résolution native des assets (qui varie selon les fichiers, ce
 ## qui rendait la taille imprévisible) : la hauteur est déduite du ratio
 ## largeur/hauteur natif de chaque image pour ne pas la déformer. À monter
 ## si les cartes paraissent trop petites, descendre si trop grandes. Les
-## cartes dépassent volontairement de band_width (voir CARD_TRACK_OVERHANG_TOTAL
+## cartes dépassent volontairement de la bande (voir CARD_TRACK_OVERHANG_TOTAL
 ## ci-dessus) : ce n'est donc plus borné à la largeur de la bande.
-const CARD_TRACK_WIDTH := 340.0
+const CARD_TRACK_WIDTH := 680.0
+## Au survol d'une pile de cartes (piste), les cartes sont assombries et un
+## compteur blanc affiche leur nombre, centré sur la pile.
+const CARD_TRACK_HOVER_DARKEN := Color(0.12, 0.12, 0.12)
+const CARD_TRACK_COUNT_FONT_SIZE := 30
+const CARD_TRACK_COUNT_OUTLINE_SIZE := 6
+## Durée de l'animation (assombrissement des cartes + apparition du chiffre)
+## au survol d'une piste, en secondes. Très rapide par défaut.
+const CARD_TRACK_HOVER_ANIM_DURATION := 0.1
 
 const RESOURCE_CUBE_EDGE := 120.0
 const SPECIAL_ICON_SIZE := Vector2(110, 110)
@@ -225,13 +233,18 @@ func _refresh_card_tracks(player: Dictionary) -> void:
 	# alignée exactement ; les 2 autres pistes sont décalées symétriquement
 	# de CARD_TRACK_CENTER_SPACING de part et d'autre.
 	var area_center_y: float = (CARD_TRACK_RECT_MIN.y + CARD_TRACK_RECT_MAX.y) / 2.0
-	var mid_band_index: int = int(GameFlow.CARD_TRACK_KEYS.size() / 2)
+	@warning_ignore("integer_division")
+	var mid_band_index: int = GameFlow.CARD_TRACK_KEYS.size() / 2
 
 	for band_index in range(GameFlow.CARD_TRACK_KEYS.size()):
 		var track: String = GameFlow.CARD_TRACK_KEYS[band_index]
 		var track_center_y: float = area_center_y + (band_index - mid_band_index) * CARD_TRACK_CENTER_SPACING
 		var cards: Array = player.get("card_tracks", {}).get(track, [])
 		var count: int = cards.size()
+
+		var pile_cards: Array[Control] = []
+		var pile_rect_min := Vector2.INF
+		var pile_rect_max := -Vector2.INF
 
 		for i in range(count):
 			var entry: Dictionary = cards[i]
@@ -262,6 +275,7 @@ func _refresh_card_tracks(player: Dictionary) -> void:
 				var placeholder := ColorRect.new()
 				placeholder.color = GameFlow.CARD_TRACK_COLORS.get(track, Color.MAGENTA)
 				card_node = placeholder
+			card_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 			card_track_slots.add_child(card_node)
 			var local_size: Vector2 = _texture_size_to_local(board_size)
@@ -280,9 +294,74 @@ func _refresh_card_tracks(player: Dictionary) -> void:
 			card_node.position = _texture_to_local(top_left_px)
 			# Toutes les cartes sont dessinées sous le plateau (voir
 			# board_texture.z_index = 10) : seule la partie qui dépasse du
-			# bord droit reste visible. Entre elles, les cartes suivantes de
-			# la pile passent devant pour montrer leur bord qui dépasse.
-			card_node.z_index = i
+			# bord droit reste visible pour chaque carte. Pour que cette
+			# partie visible de CHAQUE carte reste distincte (effet
+			# d'éventail), la carte la MOINS dépassante doit être devant
+			# (z-index le plus haut) et la PLUS dépassante derrière (z-index
+			# le plus bas) : sinon la dernière carte (qui dépasse le plus)
+			# recouvre entièrement le petit bout visible de toutes les
+			# précédentes.
+			card_node.z_index = count - 1 - i
+
+			pile_cards.append(card_node)
+			pile_rect_min = pile_rect_min.min(card_node.position)
+			pile_rect_max = pile_rect_max.max(card_node.position + local_size)
+
+		if count > 0:
+			_add_track_hover_zone(track, count, pile_cards, pile_rect_min, pile_rect_max)
+
+
+## Ajoute une zone invisible couvrant toute la pile d'une piste : au survol,
+## assombrit toutes les cartes de la pile et affiche un compteur blanc
+## (nombre de cartes) centré dessus.
+func _add_track_hover_zone(
+	track: String, count: int, pile_cards: Array[Control], rect_min: Vector2, rect_max: Vector2
+) -> void:
+	var hover_zone := Control.new()
+	hover_zone.mouse_filter = Control.MOUSE_FILTER_STOP
+	hover_zone.position = rect_min
+	hover_zone.size = rect_max - rect_min
+	hover_zone.z_index = count + 10
+	card_track_slots.add_child(hover_zone)
+
+	var count_label := Label.new()
+	count_label.text = str(count)
+	count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	count_label.position = rect_min
+	count_label.size = rect_max - rect_min
+	count_label.add_theme_color_override("font_color", Color.WHITE)
+	count_label.add_theme_font_size_override("font_size", CARD_TRACK_COUNT_FONT_SIZE)
+	count_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	count_label.add_theme_constant_override("outline_size", CARD_TRACK_COUNT_OUTLINE_SIZE)
+	count_label.z_index = count + 11
+	count_label.visible = false
+	count_label.modulate.a = 0.0
+	card_track_slots.add_child(count_label)
+
+	# Tween partagé par cette pile (survol multiple rapide = on interrompt
+	# l'animation en cours plutôt que de les empiler).
+	var hover_tween: Tween = null
+
+	hover_zone.mouse_entered.connect(func():
+		if hover_tween:
+			hover_tween.kill()
+		count_label.visible = true
+		hover_tween = create_tween().set_parallel(true)
+		for c in pile_cards:
+			hover_tween.tween_property(c, "modulate", CARD_TRACK_HOVER_DARKEN, CARD_TRACK_HOVER_ANIM_DURATION)
+		hover_tween.tween_property(count_label, "modulate:a", 1.0, CARD_TRACK_HOVER_ANIM_DURATION)
+	)
+	hover_zone.mouse_exited.connect(func():
+		if hover_tween:
+			hover_tween.kill()
+		hover_tween = create_tween().set_parallel(true)
+		for c in pile_cards:
+			hover_tween.tween_property(c, "modulate", Color.WHITE, CARD_TRACK_HOVER_ANIM_DURATION)
+		hover_tween.tween_property(count_label, "modulate:a", 0.0, CARD_TRACK_HOVER_ANIM_DURATION)
+		hover_tween.chain().tween_callback(func(): count_label.visible = false)
+	)
 
 
 ## Crée / met à jour player["inventory_layout"] pour qu'il corresponde
