@@ -23,11 +23,19 @@ const ACTIONS_BY_SPOT: Array = [
 	["ile", "reparation"],          # Spot4
 	["ile", "deplacement"],         # Spot5
 ]
-const ACTION_LABELS := {
-	"deplacement": "Déplacement",
-	"reparation": "Réparation",
-	"port": "Port",
-	"ile": "Île",
+## Libellé de l'action selon la force de l'emplacement (règle 4) :
+## fort = action principale, faible = action réduite (règle 12).
+const ACTION_LABELS_STRONG := {
+	"deplacement": "Naviguer en mer",
+	"reparation": "Rénover son bateau",
+	"port": "Accéder à un port",
+	"ile": "Débarquer sur une île",
+}
+const ACTION_LABELS_WEAK := {
+	"deplacement": "Caboter en mer",
+	"reparation": "Rabibocher son bateau",
+	"port": "Travailler au port",
+	"ile": "Collecter sur une île",
 }
 const IMPLEMENTED_ACTIONS: Array[String] = ["deplacement"]
 
@@ -39,11 +47,13 @@ signal _choice_made(value: String)
 
 var _board: Board
 var _player: Dictionary
+var _is_strong: bool = true
 
 
-func start(board: Board, player: Dictionary, spot_index: int) -> void:
+func start(board: Board, player: Dictionary, spot_index: int, is_strong: bool = true) -> void:
 	_board = board
 	_player = player
+	_is_strong = is_strong
 	var actions: Array = ACTIONS_BY_SPOT[spot_index]
 
 	var first: String = await _choose_order(actions[0], actions[1])
@@ -56,11 +66,15 @@ func start(board: Board, player: Dictionary, spot_index: int) -> void:
 	finished.emit()
 
 
+func _label_for(action: String) -> String:
+	return ACTION_LABELS_STRONG[action] if _is_strong else ACTION_LABELS_WEAK[action]
+
+
 func _choose_order(a: String, b: String) -> String:
 	_board.narration_box.say_with_player(tr("Tour de %s : choisis quelle action faire en premier."), _player)
 	_board.narration_box.set_options([
-		{"id": a, "label": ACTION_LABELS[a]},
-		{"id": b, "label": ACTION_LABELS[b]},
+		{"id": a, "label": _label_for(a)},
+		{"id": b, "label": _label_for(b)},
 	])
 	var chosen: String = await _board.narration_box.option_selected
 	return chosen
@@ -68,7 +82,7 @@ func _choose_order(a: String, b: String) -> String:
 
 func _resolve_action(action: String) -> void:
 	var is_implemented: bool = action in IMPLEMENTED_ACTIONS
-	var action_text: String = ACTION_LABELS[action] if is_implemented else ACTION_LABELS[action] + tr(" (bientôt disponible)")
+	var action_text: String = _label_for(action) if is_implemented else _label_for(action) + tr(" (bientôt disponible)")
 	_board.narration_box.say_with_player(
 		tr("Tour de %s : action ") + action_text + ".", _player
 	)
@@ -111,7 +125,9 @@ func _run_decline() -> void:
 ## le joueur reçoit une planche de coque (si moins de 7) et une ressource
 ## au choix.
 func _run_deplacement() -> void:
-	var points: int = _player.get("sail_level", 1)
+	# Fort -> Naviguer en mer (points = niveau de voile).
+	# Faible -> Caboter en mer (1 seul point, quel que soit le niveau de voile).
+	var points: int = _player.get("sail_level", 1) if _is_strong else 1
 
 	while points > 0:
 		var current_sea: String = _player.get("boat_sea", "")

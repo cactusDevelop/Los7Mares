@@ -142,6 +142,11 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 		_board.narration_box.say(tr("Tu ne peux pas poser tes deux pions sur la même case."))
 		return
 
+	# Snapshot AVANT la pose : la force (fort/faible) dépend de ce qui est
+	# déjà présent sur la case au moment où ce pion y atterrit (règle 4).
+	var existing_pions: Array = spot.get_pions_snapshot()
+	var is_strong: bool = GameFlow.compute_placement_strength(existing_pions, _selected_rank)
+
 	var pion_scene: PackedScene = CAPTAIN_SCENE if _selected_rank == GameFlow.PionRank.CAPTAIN else OFFICER_SCENE
 	var pion: Node2D = pion_scene.instantiate()
 	pion.modulate = GameFlow.COLOR_VALUES[player["color"]]
@@ -163,7 +168,7 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 
 	var spot_index: int = spot.get_index()
 	_resolving_action = true
-	await _board.action_resolution_phase.start(_board, player, spot_index)
+	await _board.action_resolution_phase.start(_board, player, spot_index, is_strong)
 	_resolving_action = false
 
 	_current_player_index += 1

@@ -146,6 +146,25 @@ func go_to_board() -> void:
 	get_tree().change_scene_to_file(BOARD_SCENE_PATH)
 
 
+## Détermine si la pose d'un pion sur un emplacement d'action rend l'action
+## FORTE (principale) ou FAIBLE (réduite), selon la règle 4 du plateau action :
+## - Fort : emplacement vide, OU on y pose son capitaine alors qu'il n'y a
+##   là que des officiers adverses (aucun capitaine adverse).
+## - Faible : on y pose son officier (peu importe ce qui s'y trouve déjà),
+##   OU on y pose son capitaine alors qu'un capitaine adverse y est déjà.
+## existing_pions doit être l'état de la case AVANT la pose (cf
+## action_spot.get_pions_snapshot appelé avant add_pion).
+func compute_placement_strength(existing_pions: Array, placed_rank: int) -> bool:
+	if existing_pions.is_empty():
+		return true
+	if placed_rank == PionRank.OFFICER:
+		return false
+	for p in existing_pions:
+		if p["rank"] == PionRank.CAPTAIN:
+			return false
+	return true
+
+
 func compute_case_color(pions: Array) -> Color:
 	if pions.is_empty():
 		return Color(0, 0, 0, 0)
