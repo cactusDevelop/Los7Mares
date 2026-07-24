@@ -11,6 +11,11 @@ extends Resource
 ## activity_board référence la "planche" qui symbolise l'activité de la
 ## carte (jet de dés, etc). Plusieurs cartes peuvent partager la même
 ## ActivityBoard.
+##
+## possible_tracks : la ou les pistes (Exploration/Combat/Commerce, règle 3)
+## où cette carte peut être rangée une fois l'activité réussie. Une carte
+## multi-activité (ex: île amicale) déclare 2 pistes ; le joueur choisit
+## alors celle liée à l'activité réellement effectuée (règle 10).
 
 enum CardType { ILE, PORT, RENCONTRE }
 
@@ -19,6 +24,7 @@ enum CardType { ILE, PORT, RENCONTRE }
 @export var activity_board: ActivityBoard
 @export var title: String = ""
 @export var description: String = ""
+@export var possible_tracks: Array[String] = []  # "exploration" / "combat" / "commerce"
 
 
 func get_icon() -> Texture2D:

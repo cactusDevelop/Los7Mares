@@ -29,14 +29,17 @@ const DEFINITIONS := [
 	{
 		"sea": "sauvage", "type": GameCard.CardType.RENCONTRE, "planche": "rouge",
 		"title": "Navire fantôme", "description": "Un navire spectral vous encercle. Lancez 3 dés pour tenter de fuir.",
+		"tracks": ["combat"],
 	},
 	{
 		"sea": "sauvage", "type": GameCard.CardType.ILE, "planche": "brune",
 		"title": "Île abandonnée", "description": "Une île silencieuse apparaît à l'horizon.",
+		"tracks": ["exploration", "commerce"],  # île amicale : choix Exploration OU Commerce (règle 9)
 	},
 	{
 		"sea": "sauvage", "type": GameCard.CardType.PORT, "planche": "bleue_brune",
 		"title": "Petit port de pêcheurs", "description": "Vous accostez dans un port paisible.",
+		"tracks": ["exploration", "commerce"],  # port périlleux : Matelotage + Commerce (règle 9)
 	},
 ]
 
@@ -54,5 +57,6 @@ static func build_cards() -> Array[GameCard]:
 		var planche_id: String = def.get("planche", "")
 		if ACTIVITY_BOARDS.has(planche_id):
 			card.activity_board = load(ACTIVITY_BOARDS[planche_id])
+		card.possible_tracks.assign(def.get("tracks", []))
 		cards.append(card)
 	return cards

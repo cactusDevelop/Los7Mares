@@ -17,6 +17,17 @@ const RESOURCE_LABELS: Dictionary = {
 	"wood": "Bois", "steel": "Acier", "food": "Nourriture",
 	"wool": "Toile", "rum": "Rhum", "fortune": "Fortune", "treasure": "Trésor",
 }
+## Les 3 pistes de cartes du plateau joueur (règle 3) : bleue = Exploration,
+## rouge = Combat, brune = Commerce.
+const CARD_TRACK_KEYS: Array[String] = ["exploration", "combat", "commerce"]
+const CARD_TRACK_LABELS: Dictionary = {
+	"exploration": "Exploration", "combat": "Combat", "commerce": "Commerce",
+}
+const CARD_TRACK_COLORS: Dictionary = {
+	"exploration": Color(0.2, 0.45, 0.85),  # bleue
+	"combat": Color(0.8, 0.2, 0.2),          # rouge
+	"commerce": Color(0.55, 0.35, 0.2),      # brune
+}
 const PLAYER_BOARD_TEXTURES: Dictionary = {
 	"rouge": "res://assets/art/board/plateau-joueur-rouge.png",
 	"jaune": "res://assets/art/board/plateau-joueur-jaune.png",
@@ -98,6 +109,9 @@ func add_player(player_name: String, color: String) -> Dictionary:
 	var special := {}
 	for r in SPECIAL_RESOURCE_TYPES:
 		special[r] = 0
+	var card_tracks := {}
+	for t in CARD_TRACK_KEYS:
+		card_tracks[t] = []  # Array de {"title": String, "sea_key": String} (sérialisable en JSON)
 	var player := {
 		"id": _next_player_id,
 		"name": player_name,
@@ -105,6 +119,7 @@ func add_player(player_name: String, color: String) -> Dictionary:
 		"points": 0,
 		"resources": resources,
 		"special_resources": special,
+		"card_tracks": card_tracks,
 		"has_own_parrot": true,
 		"parrot_captured_by": -1,
 		"hull_planks": HULL_PLANKS_START,
@@ -117,6 +132,20 @@ func add_player(player_name: String, color: String) -> Dictionary:
 	players.append(player)
 	players_changed.emit()
 	return player
+
+
+## Ajoute une carte (résumé sérialisable : titre + mer d'origine, pas la
+## Resource GameCard elle-même — JSON.stringify ne sait pas sérialiser les
+## Resources, cf save_manager.gd) à une piste du joueur (règle 10).
+func add_card_to_track(player: Dictionary, track_key: String, card: GameCard) -> void:
+	if not CARD_TRACK_KEYS.has(track_key):
+		return
+	player["card_tracks"][track_key].append({"title": card.title, "sea_key": card.sea_key})
+	players_changed.emit()
+
+
+func track_card_count(player: Dictionary, track_key: String) -> int:
+	return player.get("card_tracks", {}).get(track_key, []).size()
 
 
 func is_name_taken(player_name: String) -> bool:
@@ -148,9 +177,27 @@ func generate_debug_players(count: int) -> void:
 			players[0]["resources"][res_type] = 1
 		players[0]["special_resources"]["fortune"] = 3
 		players[0]["special_resources"]["treasure"] = 3
+		_debug_seed_card_tracks(players[0])
 	if players.size() >= 2:
 		players[1]["has_own_parrot"] = false
 		players[1]["parrot_captured_by"] = players[0]["id"]
+
+
+## Mode DEBUG uniquement : donne au premier joueur 3 cartes dans chacune des
+## 3 pistes (Exploration/Combat/Commerce), en piochant dans le catalogue les
+## cartes qui déclarent cette piste parmi leurs possible_tracks (répétées si
+## le catalogue n'en contient pas assez, faute de contenu final).
+func _debug_seed_card_tracks(player: Dictionary) -> void:
+	var catalog_cards: Array[GameCard] = CardCatalog.build_cards()
+	for track in CARD_TRACK_KEYS:
+		var matching := catalog_cards.filter(
+			func(c: GameCard) -> bool: return c.possible_tracks.has(track)
+		)
+		for i in range(3):
+			if matching.is_empty():
+				add_card_to_track(player, track, GameCard.new())
+			else:
+				add_card_to_track(player, track, matching[i % matching.size()])
 
 
 func go_to_title() -> void:
