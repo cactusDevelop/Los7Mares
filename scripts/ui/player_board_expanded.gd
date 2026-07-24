@@ -51,7 +51,7 @@ const SPECIAL_TOKEN_MAX_ATTEMPTS := 40
 ## cubes de ressource DOIVENT utiliser la direction opposée à celle-ci.
 ## Épaisseur totale des jetons Fortune/Trésor, en pixels écran (~3px demandés).
 ## Géré par empilement de TextureRect (_add_token_with_thickness ci-dessous),
-## comme les pièces capitaine/second (scripts/common/piece_thickness.gd) et
+## comme les pièces capitaine/second (scripts/common/pion_thickness.gd) et
 ## les bateaux (hideout_spot.gd). Ici les nodes restent séparés (pas enfants
 ## les uns des autres) car ils doivent être déplacés ensemble pendant un
 ## glisser-déposer via le tableau "nodes" de _draggable_items.

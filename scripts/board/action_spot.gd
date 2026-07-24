@@ -6,8 +6,8 @@ const IDLE_SCALE_AMPLITUDE := 0.04  # la case grossit jusqu'à +4%, jamais en de
 const IDLE_SPEED := 1.2
 const HOVER_SCALE := 1.12
 const HOVER_DURATION := 0.15
-const PIECE_DROP_HEIGHT := 220.0
-const PIECE_DROP_DURATION := 0.35
+const PION_DROP_HEIGHT := 220.0
+const PION_DROP_DURATION := 0.35
 
 @onready var case_sprite: Sprite2D = $CaseSprite
 @onready var click_area: Area2D = $ClickArea
@@ -17,8 +17,8 @@ var _hover_tween: Tween
 var _hover_scale_factor: float = 1.0  # multiplicateur animé séparément par le tween de survol
 var _is_hovering: bool = false
 var hover_enabled: bool = false
-var _pieces: Array = []  # {color, rank, order, node}
-var _drop_tweens: Dictionary = {}  # piece_node -> Tween de chute en cours
+var _pions: Array = []  # {color, rank, order, node}
+var _drop_tweens: Dictionary = {}  # pion_node -> Tween de chute en cours
 var _drag_hover_color = null  # Color ou null : couleur du joueur qui drague, appliquée au survol par-dessus le zoom habituel
 
 
@@ -66,27 +66,27 @@ func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> voi
 		spot_clicked.emit(self)
 
 
-func _animate_piece_drop(piece_node: Node2D) -> void:
-	var target_position := piece_node.position
-	piece_node.position = target_position - Vector2(0, PIECE_DROP_HEIGHT)
-	piece_node.modulate.a = 0.0
-	var duration: float = Settings.anim_duration(PIECE_DROP_DURATION)
+func _animate_pion_drop(pion_node: Node2D) -> void:
+	var target_position := pion_node.position
+	pion_node.position = target_position - Vector2(0, PION_DROP_HEIGHT)
+	pion_node.modulate.a = 0.0
+	var duration: float = Settings.anim_duration(PION_DROP_DURATION)
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(piece_node, "position", target_position, duration)\
+	tween.tween_property(pion_node, "position", target_position, duration)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(piece_node, "modulate:a", 1.0, duration * 0.7)
-	_drop_tweens[piece_node] = tween
+	tween.tween_property(pion_node, "modulate:a", 1.0, duration * 0.7)
+	_drop_tweens[pion_node] = tween
 	tween.finished.connect(func():
-		if _drop_tweens.get(piece_node) == tween:
-			_drop_tweens.erase(piece_node)
+		if _drop_tweens.get(pion_node) == tween:
+			_drop_tweens.erase(pion_node)
 	)
 
 
-func _relayout_pieces() -> void:
-	var positions: Array[Vector2] = GameFlow.layout_positions_for_case(_pieces.size())
-	for i in range(_pieces.size()):
-		var node: Node2D = _pieces[i]["node"]
+func _relayout_pions() -> void:
+	var positions: Array[Vector2] = GameFlow.layout_positions_for_case(_pions.size())
+	for i in range(_pions.size()):
+		var node: Node2D = _pions[i]["node"]
 		# Si cette pièce est encore en train de "tomber" (spam-clic rapide sur
 		# la case), on tue son tween avant de la replacer : sinon le tween,
 		# toujours actif, continue d'écrire une position obsolète par-dessus
@@ -101,14 +101,14 @@ func _relayout_pieces() -> void:
 	# en arrière, peu importe l'ordre d'ajout. On classe les indices par y croissant
 	# (arrière -> avant) et on attribue un z_index toujours >= 1, pour rester
 	# devant le sprite de la case (z_index 0).
-	var order := range(_pieces.size())
+	var order := range(_pions.size())
 	order.sort_custom(func(a, b): return positions[a].y < positions[b].y)
 	for rank in range(order.size()):
-		_pieces[order[rank]]["node"].z_index = rank + 1
+		_pions[order[rank]]["node"].z_index = rank + 1
 
 
 func _update_case_color() -> void:
-	var color: Color = GameFlow.compute_case_color(_pieces)
+	var color: Color = GameFlow.compute_case_color(_pions)
 	var base := color if color.a > 0.0 else Color.WHITE
 	if _is_hovering and _drag_hover_color != null:
 		case_sprite.modulate = _drag_hover_color
@@ -126,14 +126,14 @@ func set_drag_hover_color(color) -> void:
 
 
 ## Vrai si la souris est actuellement au-dessus de la collision de la case
-## (utilisé par piece_placement_phase.gd pour savoir où lâcher une pièce
+## (utilisé par pion_placement_phase.gd pour savoir où lâcher une pièce
 ## en drag & drop, en plus de l'effet de zoom au survol).
 func is_hovering() -> bool:
 	return _is_hovering
 
 
-func has_player_piece(color: String) -> bool:
-	for p in _pieces:
+func has_player_pion(color: String) -> bool:
+	for p in _pions:
 		if p["color"] == color:
 			return true
 	return false
@@ -147,26 +147,26 @@ func set_hover_enabled(enabled: bool) -> void:
 		_update_case_color()
 
 
-func add_piece(piece_node: Node2D, color: String, rank: int, animate: bool = true) -> void:
-	var order := _pieces.size()
-	_pieces.append({"color": color, "rank": rank, "order": order, "node": piece_node})
-	add_child(piece_node)
-	_relayout_pieces()
+func add_pion(pion_node: Node2D, color: String, rank: int, animate: bool = true) -> void:
+	var order := _pions.size()
+	_pions.append({"color": color, "rank": rank, "order": order, "node": pion_node})
+	add_child(pion_node)
+	_relayout_pions()
 	_update_case_color()
 	if animate:
-		_animate_piece_drop(piece_node)
+		_animate_pion_drop(pion_node)
 
 
-func get_pieces_snapshot() -> Array:
+func get_pions_snapshot() -> Array:
 	var out := []
-	for p in _pieces:
+	for p in _pions:
 		out.append({"color": p["color"], "rank": p["rank"]})
 	return out
 
 
 ## Retire toutes les pièces de la case (début d'un nouveau tour de jeu).
-func clear_pieces() -> void:
-	for p in _pieces:
+func clear_pions() -> void:
+	for p in _pions:
 		p["node"].queue_free()
-	_pieces.clear()
+	_pions.clear()
 	_update_case_color()

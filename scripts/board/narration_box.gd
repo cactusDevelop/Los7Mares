@@ -14,7 +14,7 @@ const LABEL_WIDTH := 220.0
 const BUTTON_HEIGHT := 44.0
 const BUTTON_FONT_SIZE := 16
 ## Filtre noir semi-transparent (au lieu d'un fond blanc opaque), même
-## principe que le fondu noir de l'annonce "Tour X" (piece_selection_panel).
+## principe que le fondu noir de l'annonce "Tour X" (pion_selection_panel).
 const PANEL_FILTER_ALPHA := 0.75
 ## Épaisseur du contour indiquant la couleur du joueur dont c'est le tour.
 const OUTLINE_WIDTH := 4
