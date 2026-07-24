@@ -6,8 +6,8 @@ const PILE_THUMB_OFFSET := Vector2(0, 6)
 const PLAYER_BOARDS_PANEL_MAX_HEIGHT_RATIO := 0.75
 
 const SEA_CARD_PILE_SCENE := preload("res://scenes/board/sea_card_pile.tscn")
-const CAPTAIN_PION_SCENE := preload("res://scenes/board/pions/captain_pion.tscn")
-const OFFICER_PION_SCENE := preload("res://scenes/board/pions/officer_pion.tscn")
+const CAPTAIN_PIECE_SCENE := preload("res://scenes/board/pieces/captain_piece.tscn")
+const SECOND_PIECE_SCENE := preload("res://scenes/board/pieces/second_piece.tscn")
 const SEA_TOKEN_PILE_SCENE := preload("res://scenes/board/sea_token_pile.tscn")
 const PLAYER_BOARD_ROW := preload("res://scenes/ui/player_board_row.tscn")
 
@@ -26,7 +26,7 @@ const SEA_KEY_BY_NODE_NAME := {
 @export var fortune_radius: float = 780.0
 @export var fortune_angle_start_degrees: float = -90.0
 @export var deck_stack_offset: Vector2 = Vector2(0, -2)
-@export var debug_skip_to_pions: bool = false
+@export var debug_skip_to_pieces: bool = false
 ## Échelle appliquée au sprite du jeton pour qu'il ait un rayon légèrement
 ## plus petit que celui de la tuile mer sur laquelle il repose. À ajuster
 ## dans l'inspecteur si besoin (sélectionner le noeud "Board").
@@ -46,7 +46,7 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var player_board_expanded: Control = $UI/PlayerBoardExpanded
 @onready var player_setup_popup: Control = $UI/PlayerSetupPopup
 @onready var narration_box: PanelContainer = $UI/NarrationBox
-@onready var pion_selection_panel: Control = $UI/PionSelectionPanel
+@onready var piece_selection_panel: Control = $UI/PieceSelectionPanel
 @onready var action_spots_container: Node2D = $ActionSpots
 @onready var hideout_spots_container: Node2D = $HideoutSpots
 @onready var fortune_spots_container: Node2D = $FortuneSpots
@@ -61,7 +61,7 @@ const SEA_KEY_BY_NODE_NAME := {
 
 @onready var dealing_phase: Node = $DealingPhase
 @onready var hideout_phase: Node = $HideoutPhase
-@onready var pion_placement_phase: Node = $PionPlacementPhase
+@onready var piece_placement_phase: Node = $PiecePlacementPhase
 @onready var card_draw_phase: Node = $CardDrawPhase
 @onready var return_to_menu_button: Button = $UI/ReturnToMenuButton
 @onready var return_to_menu_confirm: ConfirmationDialog = $UI/ReturnToMenuConfirm
@@ -204,25 +204,25 @@ func _ready() -> void:
 	hideout_phase.finished.connect(func():
 		_start_round()
 		_autosave("cards")
-		await pion_selection_panel.play_turn_announcement(GameFlow.round_number)
+		await piece_selection_panel.play_turn_announcement(GameFlow.round_number)
 		card_draw_phase.start(self)
 	)
 	card_draw_phase.finished.connect(func():
-		_autosave("pions")
-		pion_placement_phase.start(self)
+		_autosave("pieces")
+		piece_placement_phase.start(self)
 	)
-	pion_placement_phase.finished.connect(_on_round_finished)
+	piece_placement_phase.finished.connect(_on_round_finished)
 
 	if GameFlow.is_continuing:
 		_restore_from_save()
-	elif debug_skip_to_pions:
+	elif debug_skip_to_pieces:
 		narration_box.hide_box()
 		deck_area.visible = false
 		deck_area.input_pickable = false
 		for spot in hideout_spots_container.get_children():
 			spot.visible = false
 		_start_round()
-		pion_placement_phase.start(self)
+		piece_placement_phase.start(self)
 	elif GameFlow.pending_setup_mode != "":
 		deck_area.input_pickable = false
 		player_setup_popup.player_confirmed.connect(_on_setup_player_confirmed)
@@ -231,7 +231,7 @@ func _ready() -> void:
 		dealing_phase.start(self)
 
 
-## Bouton debug "Passer" (visible seulement si debug_skip_to_pions) :
+## Bouton debug "Passer" (visible seulement si debug_skip_to_pieces) :
 ## - si des boutons de choix sont affichés dans narration_box (résolution
 ##   d'action en cours), simule le choix le plus rapide (decline/stop) ;
 ## - sinon, une pose de pièce est en attente : la pose automatiquement sur
@@ -241,11 +241,11 @@ func _on_debug_skip_button_pressed() -> void:
 		return
 	_auto_skip_active = true
 	var starting_round: int = GameFlow.round_number
-	while GameFlow.round_number == starting_round and not pion_placement_phase.is_debug_finished():
+	while GameFlow.round_number == starting_round and not piece_placement_phase.is_debug_finished():
 		if narration_box.has_options():
 			narration_box.skip()
 		else:
-			pion_placement_phase.force_skip()
+			piece_placement_phase.force_skip()
 		await get_tree().process_frame
 	_auto_skip_active = false
 
@@ -293,8 +293,8 @@ func _on_debug_draw_cards_button_pressed() -> void:
 	if not _debug_card_preview_active:
 		_debug_card_preview_active = true
 		debug_draw_cards_button.text = "Reprendre"
-		_debug_selection_panel_was_visible = pion_selection_panel.visible
-		pion_selection_panel.visible = false
+		_debug_selection_panel_was_visible = piece_selection_panel.visible
+		piece_selection_panel.visible = false
 		debug_preview_camera.make_current()
 		get_tree().paused = true
 		card_draw_phase.start(self, false)
@@ -303,7 +303,7 @@ func _on_debug_draw_cards_button_pressed() -> void:
 		debug_draw_cards_button.text = "Piocher"
 		get_tree().paused = false
 		camera.make_current()
-		pion_selection_panel.visible = _debug_selection_panel_was_visible
+		piece_selection_panel.visible = _debug_selection_panel_was_visible
 
 
 func _on_setup_player_confirmed(player_name: String, color: String) -> void:
@@ -411,16 +411,16 @@ func token_count_for_player_count(player_count: int) -> int:
 
 
 ## Appelé quand tous les joueurs ont posé et résolu leurs deux pièces
-## (pion_placement_phase.finished) : enchaîne directement sur le tour
+## (piece_placement_phase.finished) : enchaîne directement sur le tour
 ## suivant (nouvelles cartes de mer révélées, puis pose de pièces), ou
 ## termine la partie s'il ne reste plus aucun jeton sur les mers.
 func _on_round_finished() -> void:
-	_autosave("pions")
+	_autosave("pieces")
 	if _all_sea_tokens_taken():
 		_end_game()
 		return
 	_start_round()
-	await pion_selection_panel.play_turn_announcement(GameFlow.round_number)
+	await piece_selection_panel.play_turn_announcement(GameFlow.round_number)
 	card_draw_phase.start(self)
 
 
@@ -641,7 +641,7 @@ func _serialize_state(phase: String) -> Dictionary:
 		sea_order.append(SEA_KEY_BY_NODE_NAME.get(tile.name, ""))
 	var action_spots_data: Array = []
 	for spot in action_spots_container.get_children():
-		action_spots_data.append(spot.get_pions_snapshot())
+		action_spots_data.append(spot.get_pieces_snapshot())
 	var hideouts_data: Array = []
 	for spot in hideout_spots_container.get_children():
 		hideouts_data.append(spot.owner_color if spot.is_taken else "")
@@ -760,12 +760,12 @@ func _restore_from_save() -> void:
 	for i in range(action_spots.size()):
 		if i >= action_data.size():
 			continue
-		for pion_info in action_data[i]:
-			var scene: PackedScene = CAPTAIN_PION_SCENE if pion_info["rank"] == GameFlow.PionRank.CAPTAIN else OFFICER_PION_SCENE
-			var pion: Node2D = scene.instantiate()
-			pion.modulate = GameFlow.COLOR_VALUES[pion_info["color"]]
-			pion.scale = Vector2.ONE * UiTheme.PION_SCALE
-			action_spots[i].add_pion(pion, pion_info["color"], pion_info["rank"], false)
+		for piece_info in action_data[i]:
+			var scene: PackedScene = CAPTAIN_PIECE_SCENE if piece_info["rank"] == GameFlow.PieceRank.CAPTAIN else SECOND_PIECE_SCENE
+			var piece: Node2D = scene.instantiate()
+			piece.modulate = GameFlow.COLOR_VALUES[piece_info["color"]]
+			piece.scale = Vector2.ONE * UiTheme.PIECE_SCALE
+			action_spots[i].add_piece(piece, piece_info["color"], piece_info["rank"], false)
 
 	_refresh_player_boards()
 	for p in GameFlow.players:
@@ -777,11 +777,11 @@ func _restore_from_save() -> void:
 		card_draw_phase.start(self)
 	)
 	card_draw_phase.finished.connect(func():
-		_autosave("pions")
-		pion_placement_phase.start(self)
+		_autosave("pieces")
+		piece_placement_phase.start(self)
 	)
 
 	match data.get("phase", "cards"):
 		"hideout": hideout_phase.resume(self)
-		"pions": pion_placement_phase.resume(self)
+		"pieces": piece_placement_phase.resume(self)
 		_: card_draw_phase.start(self)

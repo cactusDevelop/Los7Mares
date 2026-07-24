@@ -5,6 +5,6 @@
 
 [resource]
 script = ExtResource("1_yuxt4")
-id = "bleue_brune"
+id = "bleu_claire"
 texture = ExtResource("2_lmmuu")
 metadata/_custom_type_script = "uid://c35kddoarri0x"

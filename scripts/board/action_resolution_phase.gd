@@ -1,7 +1,7 @@
 extends Node
 
 ## Déclenchée juste après qu'un joueur pose une pièce sur une case action
-## (pion_placement_phase.gd). Chaque case action donne accès à 2 des 4
+## (piece_placement_phase.gd). Chaque case action donne accès à 2 des 4
 ## actions du jeu ; le joueur choisit l'ordre, puis fait ou décline chaque
 ## action (déclin = 1 ressource nourriture OU 1 jeton fortune au choix).
 ## Seule l'action "déplacement" est pour l'instant implémentée ; les autres
@@ -99,7 +99,7 @@ func _run_decline() -> void:
 	else:
 		_player["special_resources"]["fortune"] += 1
 	GameFlow.players_changed.emit()
-	_board._autosave("pions")
+	_board._autosave("pieces")
 
 
 ## Déplace le bateau du joueur en dépensant jusqu'à sail_level points de
@@ -187,7 +187,7 @@ func _run_deplacement() -> void:
 	if _player.get("boat_sea", "") == "":
 		await _grant_hideout_reward()
 
-	_board._autosave("pions")
+	_board._autosave("pieces")
 
 
 ## Récompense de retour à la cachette : une planche de coque (plafonnée à

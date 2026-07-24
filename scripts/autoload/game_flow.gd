@@ -32,7 +32,7 @@ const MARKER_TEXTURE_PATH := "res://assets/art/pieces/marqueur.png"
 const BOAT_TEXTURE_PATH := "res://assets/art/pieces/bateau.png"
 const HULL_PLANKS_START := 7
 
-enum PionRank { OFFICER = 0, CAPTAIN = 1 }
+enum PieceRank { SECOND = 0, CAPTAIN = 1 }
 
 const TITLE_SCENE_PATH := "res://scenes/ui/title_screen.tscn"
 const BOARD_SCENE_PATH := "res://scenes/board/board.tscn"
@@ -146,21 +146,21 @@ func go_to_board() -> void:
 	get_tree().change_scene_to_file(BOARD_SCENE_PATH)
 
 
-func compute_case_color(pions: Array) -> Color:
-	if pions.is_empty():
+func compute_case_color(pieces: Array) -> Color:
+	if pieces.is_empty():
 		return Color(0, 0, 0, 0)
 	var max_rank: int = -1
-	for p in pions:
+	for p in pieces:
 		max_rank = max(max_rank, p["rank"])
-	var top_pions := pions.filter(func(p): return p["rank"] == max_rank)
-	top_pions.sort_custom(func(a, b): return a["order"] < b["order"])
-	return COLOR_VALUES[top_pions[0]["color"]]
+	var top_pieces := pieces.filter(func(p): return p["rank"] == max_rank)
+	top_pieces.sort_custom(func(a, b): return a["order"] < b["order"])
+	return COLOR_VALUES[top_pieces[0]["color"]]
 
 
 ## Range count éléments en cercle autour d'un centre (utilisé pour les
 ## pièces sur les action spots ET, avec un spacing différent, pour les
 ## bateaux regroupés sur une même mer, cf board.gd _relayout_boats).
-func layout_positions_for_case(count: int, spacing: float = UiTheme.CASE_PION_RADIUS, vertical_offset: Vector2 = Vector2(0, UiTheme.CASE_PION_VERTICAL_OFFSET)) -> Array[Vector2]:
+func layout_positions_for_case(count: int, spacing: float = UiTheme.CASE_PIECE_RADIUS, vertical_offset: Vector2 = Vector2(0, UiTheme.CASE_PIECE_VERTICAL_OFFSET)) -> Array[Vector2]:
 	match count:
 		0: return []
 		1: return [vertical_offset]

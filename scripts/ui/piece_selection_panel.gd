@@ -1,19 +1,19 @@
 extends Control
 
-signal pion_selected(rank: int)
+signal piece_selected(rank: int)
 ## Émis dès qu'un drag (potentiel) démarre sur une pièce, avant même de
-## savoir s'il quittera le panneau ou non (board.gd/pion_placement_phase.gd
+## savoir s'il quittera le panneau ou non (board.gd/piece_placement_phase.gd
 ## s'en sert pour teinter les cases d'action avec la couleur du joueur
 ## pendant qu'il drague).
-signal pion_drag_started(rank: int)
+signal piece_drag_started(rank: int)
 ## Émis quand un drag démarré sur une pièce se termine hors du panneau
-## (relâchement sur le plateau). pion_placement_phase.gd écoute ce signal
+## (relâchement sur le plateau). piece_placement_phase.gd écoute ce signal
 ## pour savoir si la souris était alors au-dessus d'une case valide.
-signal pion_drag_ended(rank: int)
+signal piece_drag_ended(rank: int)
 ## Émis à la toute fin de CHAQUE drag (relâché dans le panneau ou dehors),
-## contrairement à pion_drag_ended qui ne l'est que dans le 2e cas :
+## contrairement à piece_drag_ended qui ne l'est que dans le 2e cas :
 ## utilisé pour toujours nettoyer la teinte de survol posée sur les cases.
-signal pion_drag_stopped
+signal piece_drag_stopped
 
 const HOVER_SCALE := 1.1
 const SELECTED_SCALE := 1.2
@@ -21,8 +21,8 @@ const TWEEN_DURATION := 0.15
 const UNSELECTED_TINT := Color(0.55, 0.55, 0.55)
 
 ## Effet 3D (épaisseur) des icônes capitaine/second : scripts/common/
-## pion_thickness.gd (constantes partagées avec captain_pion.gd/
-## officer_pion.gd). Nodes enfants de btn -> suivent automatiquement son
+## piece_thickness.gd (constantes partagées avec captain_piece.gd/
+## second_piece.gd). Nodes enfants de btn -> suivent automatiquement son
 ## scale (survol/sélection, _tween_scale) et son modulate (_refresh_colors).
 
 ## Annonce de tour : filtre noir + texte/jeton en perspective.
@@ -51,7 +51,7 @@ const DRAG_ROTATE_SPEED_DEG := 140.0
 var background: ColorRect
 var icons_box: VBoxContainer
 var captain_button: TextureButton
-var officer_button: TextureButton
+var second_button: TextureButton
 var splatter: TextureRect
 
 ## Overlay plein écran indépendant du rect du panneau (posé dans son propre
@@ -97,14 +97,14 @@ func _ready() -> void:
 	icons_box.add_theme_constant_override("separation", 60)
 	add_child(icons_box)
 
-	captain_button = _build_pion_option("Capitaine", preload("res://assets/art/pieces/capitaine.png"))
-	officer_button = _build_pion_option("Officier", preload("res://assets/art/pieces/second.png"))
+	captain_button = _build_piece_option("Capitaine", preload("res://assets/art/pieces/capitaine.png"))
+	second_button = _build_piece_option("Second", preload("res://assets/art/pieces/second.png"))
 
-	captain_button.pressed.connect(func(): pion_selected.emit(GameFlow.PionRank.CAPTAIN))
-	officer_button.pressed.connect(func(): pion_selected.emit(GameFlow.PionRank.OFFICER))
+	captain_button.pressed.connect(func(): piece_selected.emit(GameFlow.PieceRank.CAPTAIN))
+	second_button.pressed.connect(func(): piece_selected.emit(GameFlow.PieceRank.SECOND))
 
-	captain_button.button_down.connect(_on_pion_button_down.bind(GameFlow.PionRank.CAPTAIN, captain_button))
-	officer_button.button_down.connect(_on_pion_button_down.bind(GameFlow.PionRank.OFFICER, officer_button))
+	captain_button.button_down.connect(_on_piece_button_down.bind(GameFlow.PieceRank.CAPTAIN, captain_button))
+	second_button.button_down.connect(_on_piece_button_down.bind(GameFlow.PieceRank.SECOND, second_button))
 
 	get_viewport().size_changed.connect(_layout)
 	_layout()
@@ -118,7 +118,7 @@ func _process(delta: float) -> void:
 		_update_drag(delta)
 
 
-func _build_pion_option(label_text: String, texture: Texture2D) -> TextureButton:
+func _build_piece_option(label_text: String, texture: Texture2D) -> TextureButton:
 	var option := VBoxContainer.new()
 	option.alignment = BoxContainer.ALIGNMENT_CENTER
 	option.add_theme_constant_override("separation", 8)
@@ -138,7 +138,7 @@ func _build_pion_option(label_text: String, texture: Texture2D) -> TextureButton
 	btn.custom_minimum_size = Vector2(UiTheme.SELECTION_ICON_HEIGHT * aspect, UiTheme.SELECTION_ICON_HEIGHT)
 	btn.pivot_offset = btn.custom_minimum_size / 2.0
 
-	PionThickness.add_to_control(btn, texture, btn.custom_minimum_size)
+	PieceThickness.add_to_control(btn, texture, btn.custom_minimum_size)
 
 	btn.mouse_entered.connect(_on_button_hover.bind(btn, true))
 	btn.mouse_exited.connect(_on_button_hover.bind(btn, false))
@@ -183,27 +183,27 @@ func hide_panel() -> void:
 ## drag ne peut pas démarrer non plus.
 func set_interactive(enabled: bool) -> void:
 	captain_button.disabled = not enabled
-	officer_button.disabled = not enabled
+	second_button.disabled = not enabled
 
 
 ## only_rank == -1 -> les deux pièces proposées, capitaine sélectionné par défaut.
 ## only_rank == CAPTAIN/SECOND -> une seule affichée, forcée/sélectionnée.
 func setup_for_player(color: Color, only_rank: int = -1) -> void:
 	_current_color = color
-	captain_button.get_parent().visible = only_rank == -1 or only_rank == GameFlow.PionRank.CAPTAIN
-	officer_button.get_parent().visible = only_rank == -1 or only_rank == GameFlow.PionRank.OFFICER
+	captain_button.get_parent().visible = only_rank == -1 or only_rank == GameFlow.PieceRank.CAPTAIN
+	second_button.get_parent().visible = only_rank == -1 or only_rank == GameFlow.PieceRank.SECOND
 
-	for btn in [captain_button, officer_button]:
+	for btn in [captain_button, second_button]:
 		btn.button_pressed = false
 		btn.scale = Vector2.ONE
 
 	if only_rank != -1:
-		var forced_btn: TextureButton = captain_button if only_rank == GameFlow.PionRank.CAPTAIN else officer_button
+		var forced_btn: TextureButton = captain_button if only_rank == GameFlow.PieceRank.CAPTAIN else second_button
 		forced_btn.button_pressed = true
-		pion_selected.emit(only_rank)
+		piece_selected.emit(only_rank)
 	else:
 		captain_button.button_pressed = true
-		pion_selected.emit(GameFlow.PionRank.CAPTAIN)
+		piece_selected.emit(GameFlow.PieceRank.CAPTAIN)
 
 	_refresh_colors()
 
@@ -221,7 +221,7 @@ func _on_button_toggled(is_pressed: bool, btn: TextureButton) -> void:
 ## Sélectionnée = couleur pleine. Non sélectionnée = couleur grisée.
 ## Plus de filtre noir supplémentaire au survol (le gris suffit déjà).
 func _refresh_colors() -> void:
-	for btn in [captain_button, officer_button]:
+	for btn in [captain_button, second_button]:
 		btn.modulate = _current_color if btn.button_pressed else _current_color * UNSELECTED_TINT
 
 
@@ -369,12 +369,12 @@ func _build_drag_ghost() -> void:
 	layer.add_child(_drag_ghost)
 
 
-func _on_pion_button_down(rank: int, btn: TextureButton) -> void:
+func _on_piece_button_down(rank: int, btn: TextureButton) -> void:
 	_dragging = true
 	_drag_rank = rank
 	_drag_button = btn
 	_drag_rotation_deg = 0.0
-	pion_drag_started.emit(rank)
+	piece_drag_started.emit(rank)
 
 
 ## Appelé chaque frame tant qu'un drag est en cours. Tant que la souris
@@ -402,7 +402,7 @@ func _update_drag(delta: float) -> void:
 
 
 ## Relâchement du drag. Si la souris était sur le plateau (hors panneau),
-## on émet pion_drag_ended : pion_placement_phase.gd vérifie alors si une
+## on émet piece_drag_ended : piece_placement_phase.gd vérifie alors si une
 ## case (action_spot) est actuellement survolée pour poser la pièce. Si la
 ## souris était encore dans le panneau, on annule simplement (rien à faire,
 ## l'icône est déjà réapparue dans _update_drag).
@@ -415,8 +415,8 @@ func _end_drag(over_panel: bool) -> void:
 	_drag_button = null
 	_drag_rank = -1
 	if not over_panel:
-		pion_drag_ended.emit(rank)
-	pion_drag_stopped.emit()
+		piece_drag_ended.emit(rank)
+	piece_drag_stopped.emit()
 
 
 func _on_drag_ghost_draw() -> void:

@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://cawaiel7vey2f"]
 
-[ext_resource type="Script" uid="uid://dc0gxdnkd1bpp" path="res://scripts/ui/pion_selection_panel.gd" id="1_j16g3"]
+[ext_resource type="Script" uid="uid://dc0gxdnkd1bpp" path="res://scripts/ui/piece_selection_panel.gd" id="1_j16g3"]
 [ext_resource type="Texture2D" uid="uid://bgv5vlynaxpi" path="res://assets/art/pieces/capitaine.png" id="1_xvjxm"]
 [ext_resource type="Texture2D" uid="uid://bqgogkq2x27de" path="res://assets/art/pieces/second.png" id="2_j16g3"]
 
-[node name="PionSelectionPanel" type="Control" unique_id=1299012961]
+[node name="PieceSelectionPanel" type="Control" unique_id=1299012961]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
@@ -33,14 +33,14 @@ layout_mode = 2
 text = "Capitaine"
 horizontal_alignment = 1
 
-[node name="OfficerOption" type="VBoxContainer" parent="IconsBox" unique_id=43043918]
+[node name="SecondOption" type="VBoxContainer" parent="IconsBox" unique_id=43043918]
 layout_mode = 2
 
-[node name="OfficerButton" type="TextureButton" parent="IconsBox/OfficerOption" unique_id=1436843481]
+[node name="SecondButton" type="TextureButton" parent="IconsBox/SecondOption" unique_id=1436843481]
 layout_mode = 2
 texture_normal = ExtResource("2_j16g3")
 
-[node name="OfficerLabel" type="Label" parent="IconsBox/OfficerOption" unique_id=2068684674]
+[node name="SecondLabel" type="Label" parent="IconsBox/SecondOption" unique_id=2068684674]
 layout_mode = 2
-text = "Officier"
+text = "Second"
 horizontal_alignment = 1
