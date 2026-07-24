@@ -15,7 +15,7 @@ const RESOURCE_TYPES: Array[String] = ["wood", "steel", "food", "wool", "rum"]
 const SPECIAL_RESOURCE_TYPES: Array[String] = ["fortune", "treasure"]
 const RESOURCE_LABELS: Dictionary = {
 	"wood": "Bois", "steel": "Acier", "food": "Nourriture",
-	"wool": "Laine", "rum": "Rhum", "fortune": "Fortune", "treasure": "Trésor",
+	"wool": "Toile", "rum": "Rhum", "fortune": "Fortune", "treasure": "Trésor",
 }
 const PLAYER_BOARD_TEXTURES: Dictionary = {
 	"rouge": "res://assets/art/board/plateau-joueur-rouge.png",
@@ -31,6 +31,20 @@ const PARROT_TEXTURE_PATH_PRISON := "res://assets/art/pieces/perro-%s-prison.png
 const MARKER_TEXTURE_PATH := "res://assets/art/pieces/marqueur.png"
 const BOAT_TEXTURE_PATH := "res://assets/art/pieces/bateau.png"
 const HULL_PLANKS_START := 7
+
+## Niveau 1 par défaut, jusqu'à 4 améliorations possibles -> niveau max 5
+## (règle 3 : plateau joueur, voile ET armes suivent la même progression).
+const SHIP_LEVEL_MIN := 1
+const SHIP_LEVEL_MAX := 5
+
+## Coût pour atteindre chaque niveau (bois + toile pour la voile, bois +
+## acier pour les armes), indexé par niveau visé (2 à 5) - règle 9.
+const UPGRADE_COST_BY_LEVEL: Dictionary = {
+	2: {"wood": 1, "other": 1},
+	3: {"wood": 1, "other": 2},
+	4: {"wood": 1, "other": 3},
+	5: {"wood": 1, "other": 4},
+}
 
 enum PionRank { OFFICER = 0, CAPTAIN = 1 }
 
@@ -96,6 +110,7 @@ func add_player(player_name: String, color: String) -> Dictionary:
 		"hull_planks": HULL_PLANKS_START,
 		"is_first_player": false,
 		"sail_level": 1,
+		"arms_level": 1,
 		"boat_sea": "",
 	}
 	_next_player_id += 1
