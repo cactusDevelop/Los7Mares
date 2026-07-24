@@ -56,6 +56,15 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="CardTrackSlots" type="Control" parent="Padding/Content/BoardArea/BoardStack" unique_id=1900000004]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
 [node name="Spacer" type="Control" parent="Padding/Content" unique_id=335370113]
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2

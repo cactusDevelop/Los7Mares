@@ -35,6 +35,21 @@ const FORTUNE_RECT_MAX := Vector2(800, 1720)
 const PLANK_RECT_MIN := Vector2(880, 1250)
 const PLANK_RECT_MAX := Vector2(1930, 1700)
 
+## --- Pistes de cartes (Exploration/Combat/Commerce, règle 3) ---
+## Bande à droite du plateau (au-delà des cubes de ressources, qui
+## s'arrêtent vers x=2460), divisée en 3 tiers de même hauteur : Exploration
+## (tiers supérieur), Combat (tiers central), Commerce (tiers inférieur).
+## À ajuster si la largeur réelle réservée sur l'illustration diffère.
+const CARD_TRACK_RECT_MIN := Vector2(2450, 0)
+const CARD_TRACK_RECT_MAX := Vector2(2716, 1813)
+## Les assets de cartes sont en 600 dpi, le plateau en 300 dpi : on divise
+## par 2 la taille native des cartes pour obtenir leur taille équivalente en
+## "pixels image du plateau", avant toute conversion écran.
+const CARD_TRACK_DPI_SCALE := 0.5
+## Décalage cosmétique (règle 3 : purement visuel) entre 2 cartes empilées
+## dans une même piste, en pixels image du plateau.
+const CARD_TRACK_STACK_OFFSET := 40.0
+
 const RESOURCE_CUBE_EDGE := 120.0
 const SPECIAL_ICON_SIZE := Vector2(110, 110)
 ## Distance minimale visée (en pixels image) entre deux jetons du même type,
@@ -84,6 +99,7 @@ const PLANK_ROTATION_JITTER_DEG := 4.0  # légère inclinaison aléatoire pour u
 @onready var title_label: Label = $Padding/Content/TitleLabel
 @onready var board_texture: TextureRect = $Padding/Content/BoardArea/BoardStack/BoardTexture
 @onready var resource_slots: Control = $Padding/Content/BoardArea/BoardStack/ResourceSlots
+@onready var card_track_slots: Control = $Padding/Content/BoardArea/BoardStack/CardTrackSlots
 @onready var close_button: Button = $Padding/Content/CloseButton
 
 ## Joueur actuellement affiché (référence directe vers l'entrée dans
@@ -174,6 +190,62 @@ func _refresh_resource_display(player: Dictionary) -> void:
 	_place_special_tokens("treasure", TREASURE_TEXTURE, layout, "treasure_pos")
 	_place_special_tokens("fortune", FORTUNE_TEXTURE, layout, "fortune_pos")
 	_place_hull_planks_from_layout(layout)
+	_refresh_card_tracks(player)
+
+
+## Affiche les 3 piles de cartes (Exploration/Combat/Commerce, règle 3) dans
+## la bande de droite, une carte du dessus visible par pile avec un décalage
+## cosmétique montrant les suivantes (règle 3 : le décalage n'a aucun effet
+## de jeu). Utilise la vraie image de carte quand un asset existe pour
+## sea_key+card_type (CardArt), sinon une pastille de couleur + un chiffre.
+func _refresh_card_tracks(player: Dictionary) -> void:
+	for child in card_track_slots.get_children():
+		child.queue_free()
+
+	var band_height: float = (CARD_TRACK_RECT_MAX.y - CARD_TRACK_RECT_MIN.y) / float(GameFlow.CARD_TRACK_KEYS.size())
+	var band_width: float = CARD_TRACK_RECT_MAX.x - CARD_TRACK_RECT_MIN.x
+
+	for band_index in range(GameFlow.CARD_TRACK_KEYS.size()):
+		var track: String = GameFlow.CARD_TRACK_KEYS[band_index]
+		var band_top: float = CARD_TRACK_RECT_MIN.y + band_index * band_height
+		var cards: Array = player.get("card_tracks", {}).get(track, [])
+
+		for i in range(cards.size()):
+			var entry: Dictionary = cards[i]
+			var card_type: int = entry.get("card_type", GameCard.CardType.RENCONTRE)
+			var texture: Texture2D = null
+			var pool := CardArt.get_background_pool(entry.get("sea_key", ""), card_type)
+			if not pool.is_empty():
+				texture = pool[0]
+
+			# Taille équivalente "pixels plateau" (règle des 600 -> 300 dpi),
+			# puis réduction supplémentaire si nécessaire pour tenir dans la
+			# largeur réservée (ne grandit jamais, ne fait que rétrécir).
+			var native_size: Vector2 = texture.get_size() if texture else Vector2(807, 513)
+			var board_size: Vector2 = native_size * CARD_TRACK_DPI_SCALE
+			if board_size.x > band_width:
+				board_size *= band_width / board_size.x
+
+			var card_node: Control
+			if texture:
+				var rect := TextureRect.new()
+				rect.texture = texture
+				rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				rect.stretch_mode = TextureRect.STRETCH_SCALE
+				card_node = rect
+			else:
+				var placeholder := ColorRect.new()
+				placeholder.color = GameFlow.CARD_TRACK_COLORS.get(track, Color.MAGENTA)
+				card_node = placeholder
+
+			card_track_slots.add_child(card_node)
+			var local_size: Vector2 = _texture_size_to_local(board_size)
+			card_node.size = local_size
+			var top_left_px := Vector2(
+				CARD_TRACK_RECT_MIN.x, band_top + i * CARD_TRACK_STACK_OFFSET
+			)
+			card_node.position = _texture_to_local(top_left_px)
+			card_node.z_index = i
 
 
 ## Crée / met à jour player["inventory_layout"] pour qu'il corresponde

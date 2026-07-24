@@ -140,7 +140,9 @@ func add_player(player_name: String, color: String) -> Dictionary:
 func add_card_to_track(player: Dictionary, track_key: String, card: GameCard) -> void:
 	if not CARD_TRACK_KEYS.has(track_key):
 		return
-	player["card_tracks"][track_key].append({"title": card.title, "sea_key": card.sea_key})
+	player["card_tracks"][track_key].append({
+		"title": card.title, "sea_key": card.sea_key, "card_type": card.card_type,
+	})
 	players_changed.emit()
 
 
