@@ -346,21 +346,18 @@ func _run_deplacement() -> void:
 	_board._autosave("pions")
 
 
-## Récompense de retour à la cachette : une planche de coque (plafonnée à
-## GameFlow.HULL_PLANKS_START) et une ressource au choix entre nourriture et bois.
+## Récompense de retour à la cachette (règle 6a) : +1 planche de coque
+## (plafonnée à GameFlow.HULL_PLANKS_START), +1 nourriture ET +1 bois -
+## les 3 cumulés, ce n'est PAS un choix entre nourriture et bois.
 func _grant_hideout_reward() -> void:
 	if _player["hull_planks"] < GameFlow.HULL_PLANKS_START:
 		_player["hull_planks"] += 1
+	_player["resources"]["food"] += 1
+	_player["resources"]["wood"] += 1
 
-	_board.narration_box.say_with_player(tr("Tour de %s : de retour à la cachette, choisis une ressource."), _player)
-	_board.narration_box.set_options([
-		{"id": "food", "label": tr("Nourriture")},
-		{"id": "wood", "label": tr("Bois")},
-	])
-	var resource: String = await _board.narration_box.option_selected
-	_board.narration_box.set_options([])
-
-	_player["resources"][resource] += 1
+	_board.narration_box.say_with_player(
+		tr("Tour de %s : de retour à la cachette, +1 planche, +1 nourriture, +1 bois."), _player
+	)
 	GameFlow.players_changed.emit()
 
 
