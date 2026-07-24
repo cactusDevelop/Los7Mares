@@ -37,7 +37,7 @@ const ACTION_LABELS_WEAK := {
 	"port": "Travailler au port",
 	"ile": "Collecter sur une île",
 }
-const IMPLEMENTED_ACTIONS: Array[String] = ["deplacement"]
+const IMPLEMENTED_ACTIONS: Array[String] = ["deplacement", "reparation"]
 
 ## Émis dès que la destination du déplacement est connue, que ce soit via un
 ## clic sur une mer (_on_sea_tile_clicked) ou via un bouton de la narration
@@ -81,7 +81,7 @@ func _choose_order(a: String, b: String) -> String:
 
 
 func _resolve_action(action: String) -> void:
-	var is_implemented: bool = action in IMPLEMENTED_ACTIONS
+	var is_implemented: bool = action in IMPLEMENTED_ACTIONS and _can_do_action(action)
 	var action_text: String = _label_for(action) if is_implemented else _label_for(action) + tr(" (bientôt disponible)")
 	_board.narration_box.say_with_player(
 		tr("Tour de %s : action ") + action_text + ".", _player
@@ -96,8 +96,38 @@ func _resolve_action(action: String) -> void:
 
 	if choice == "do" and action == "deplacement":
 		await _run_deplacement()
+	elif choice == "do" and action == "reparation":
+		await _run_renovation()
 	else:
 		await _run_decline()
+
+
+## Vérifie si l'action est réellement jouable dans l'état actuel du joueur
+## (au-delà du simple fait qu'elle soit codée). Pour l'instant seule
+## "reparation" a une précondition (règle 9/12) ; "deplacement" est toujours
+## possible (même à 0 planche il ne bouge simplement pas, cf boucle).
+func _can_do_action(action: String) -> bool:
+	if action == "reparation":
+		return _can_do_renovation()
+	return true
+
+
+## Rénover son bateau (fort) nécessite ressources suffisantes pour au moins
+## une amélioration, OU une coque endommagée à réparer (règle 9).
+## Rabibocher (faible) nécessite uniquement une coque endommagée (règle 12).
+func _can_do_renovation() -> bool:
+	if not _is_strong:
+		return _player["hull_planks"] < GameFlow.HULL_PLANKS_START
+	if _player["hull_planks"] < GameFlow.HULL_PLANKS_START:
+		return true
+	return _can_upgrade(_player["arms_level"], "steel") or _can_upgrade(_player["sail_level"], "wool")
+
+
+func _can_upgrade(level: int, other_key: String) -> bool:
+	if level >= GameFlow.SHIP_LEVEL_MAX:
+		return false
+	var cost: Dictionary = GameFlow.UPGRADE_COST_BY_LEVEL[level + 1]
+	return _player["resources"]["wood"] >= cost["wood"] and _player["resources"][other_key] >= cost["other"]
 
 
 func _run_decline() -> void:
@@ -114,6 +144,116 @@ func _run_decline() -> void:
 		_player["special_resources"]["fortune"] += 1
 	GameFlow.players_changed.emit()
 	_board._autosave("pions")
+
+
+## Rénover son bateau (fort) : Améliorer OU Réparer, ou les deux en dépensant
+## 1 rhum (règle 9). Rabibocher (faible) : uniquement +1 planche gratuite,
+## sans amélioration ni planche supplémentaire (règle 12).
+func _run_renovation() -> void:
+	if not _is_strong:
+		await _run_rabibochage()
+		_board._autosave("pions")
+		return
+
+	var can_ameliorer: bool = _can_upgrade(_player["sail_level"], "wool") \
+		or _can_upgrade(_player["arms_level"], "steel")
+	var has_rum: bool = _player["resources"]["rum"] >= 1
+
+	var options: Array = [{"id": "reparer", "label": tr("Réparer la coque")}]
+	if can_ameliorer:
+		options.append({"id": "ameliorer", "label": tr("Améliorer (voile ou armes)")})
+	if can_ameliorer and has_rum:
+		options.append({"id": "both", "label": tr("Les deux (dépenser 1 rhum)")})
+
+	_board.narration_box.say_with_player(tr("Tour de %s : Rénover son bateau, que veux-tu faire ?"), _player)
+	_board.narration_box.set_options(options)
+	var choice: String = await _board.narration_box.option_selected
+
+	if choice == "both":
+		_player["resources"]["rum"] -= 1
+		await _do_ameliorer()
+		await _do_reparer()
+	elif choice == "ameliorer":
+		await _do_ameliorer()
+	else:
+		await _do_reparer()
+
+	GameFlow.players_changed.emit()
+	_board._autosave("pions")
+
+
+func _run_rabibochage() -> void:
+	_player["hull_planks"] = min(_player["hull_planks"] + 1, GameFlow.HULL_PLANKS_START)
+	_board.narration_box.say_with_player(tr("Tour de %s : rabibocle son bateau (+1 planche gratuite)."), _player)
+	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
+	await _board.narration_box.option_selected
+	GameFlow.players_changed.emit()
+
+
+## Améliorer : choisit voile ou armes, paie le coût de l'emplacement vide le
+## plus à gauche de la piste choisie (bois + toile pour voile, bois + acier
+## pour armes) et monte le niveau d'1 cran (règle 9). Une seule amélioration
+## à la fois, même quand appelé via "Les deux".
+func _do_ameliorer() -> void:
+	var options: Array = []
+	if _can_upgrade(_player["sail_level"], "wool"):
+		var cost: Dictionary = GameFlow.UPGRADE_COST_BY_LEVEL[_player["sail_level"] + 1]
+		options.append({"id": "voile", "label": tr("Voile niveau %d (coût : %d bois, %d toile)") % [_player["sail_level"] + 1, cost["wood"], cost["other"]]})
+	if _can_upgrade(_player["arms_level"], "steel"):
+		var cost2: Dictionary = GameFlow.UPGRADE_COST_BY_LEVEL[_player["arms_level"] + 1]
+		options.append({"id": "armes", "label": tr("Armes niveau %d (coût : %d bois, %d acier)") % [_player["arms_level"] + 1, cost2["wood"], cost2["other"]]})
+	if options.is_empty():
+		return
+
+	_board.narration_box.say_with_player(tr("Tour de %s : quelle amélioration ?"), _player)
+	_board.narration_box.set_options(options)
+	var choice: String = await _board.narration_box.option_selected
+
+	if choice == "voile":
+		var cost: Dictionary = GameFlow.UPGRADE_COST_BY_LEVEL[_player["sail_level"] + 1]
+		_player["resources"]["wood"] -= cost["wood"]
+		_player["resources"]["wool"] -= cost["other"]
+		_player["sail_level"] += 1
+	else:
+		var cost2: Dictionary = GameFlow.UPGRADE_COST_BY_LEVEL[_player["arms_level"] + 1]
+		_player["resources"]["wood"] -= cost2["wood"]
+		_player["resources"]["steel"] -= cost2["other"]
+		_player["arms_level"] += 1
+
+	GameFlow.players_changed.emit()
+
+
+## Réparer : +1 planche gratuite, puis +1 planche par ressource dépensée
+## (bois, ou toile/acier en remplacement - règle 9), jusqu'à la coque
+## complète (7 planches).
+func _do_reparer() -> void:
+	_player["hull_planks"] = min(_player["hull_planks"] + 1, GameFlow.HULL_PLANKS_START)
+	GameFlow.players_changed.emit()
+
+	while _player["hull_planks"] < GameFlow.HULL_PLANKS_START:
+		var options: Array = []
+		if _player["resources"]["wood"] >= 1:
+			options.append({"id": "wood", "label": tr("Dépenser 1 bois (+1 planche)")})
+		if _player["resources"]["wool"] >= 1:
+			options.append({"id": "wool", "label": tr("Dépenser 1 toile (+1 planche)")})
+		if _player["resources"]["steel"] >= 1:
+			options.append({"id": "steel", "label": tr("Dépenser 1 acier (+1 planche)")})
+		if options.is_empty():
+			break
+		options.append({"id": "stop", "label": tr("Arrêter la réparation")})
+
+		_board.narration_box.say_with_player(
+			tr("Tour de %s : réparer davantage la coque (%d/%d planches) ?"),
+			_player, [_player["hull_planks"], GameFlow.HULL_PLANKS_START]
+		)
+		_board.narration_box.set_options(options)
+		var choice: String = await _board.narration_box.option_selected
+		if choice == "stop":
+			break
+
+		_player["resources"][choice] -= 1
+		_player["hull_planks"] = min(_player["hull_planks"] + 1, GameFlow.HULL_PLANKS_START)
+		GameFlow.players_changed.emit()
 
 
 ## Déplace le bateau du joueur en dépensant jusqu'à sail_level points de
