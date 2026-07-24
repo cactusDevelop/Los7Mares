@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ActivityBoard" format=3 uid="uid://b166x15fts63v"]
 
 [ext_resource type="Script" uid="uid://c35kddoarri0x" path="res://scripts/resources/activity_board.gd" id="1_4sb2b"]
-[ext_resource type="Texture2D" uid="uid://vgkyyh2av6y8" path="res://assets/art/cards/planche-claire.png" id="2_g2sak"]
+[ext_resource type="Texture2D" uid="uid://vgkyyh2av6y8" path="res://assets/art/cards/planche-brune.png" id="2_g2sak"]
 
 [resource]
 script = ExtResource("1_4sb2b")

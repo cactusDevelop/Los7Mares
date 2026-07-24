@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bsikjejqy3eqp"
-path.s3tc="res://.godot/imported/planche-bleu-claire.png-402c28ac05f551f29c7a044b6acd9728.s3tc.ctex"
+uid="uid://vgkyyh2av6y8"
+path.s3tc="res://.godot/imported/planche-brune.png-57c2b16cbe65395d4fab72d3af1596fa.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/cards/planche-bleu-claire.png"
-dest_files=["res://.godot/imported/planche-bleu-claire.png-402c28ac05f551f29c7a044b6acd9728.s3tc.ctex"]
+source_file="res://assets/art/cards/planche-brune.png"
+dest_files=["res://.godot/imported/planche-brune.png-57c2b16cbe65395d4fab72d3af1596fa.s3tc.ctex"]
 
 [params]
 
