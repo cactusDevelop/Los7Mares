@@ -15,6 +15,14 @@ var _placed_rank_by_player: Dictionary = {}
 var _debug_round_index := 0
 var _resolving_action := false
 var _round_transitioning := false
+## Vrai une fois _end_pion_placement_phase() atteint (les 2 cycles de tours
+## de la manche sont posés) : empêche force_skip() de recommencer à poser
+## des pions si le bouton debug "Passer" est encore actif après coup (ex :
+## partie terminée entre-temps, cf board._on_debug_skip_button_pressed).
+## Sans ce garde-fou, _begin_player_pion_turn() remet _current_player_index
+## à 0 juste avant d'appeler _end_pion_placement_phase(), ce qui fait croire
+## à force_skip() qu'une nouvelle manche recommence.
+var _finished := false
 
 
 ## Ordre de tour clockwise en partant du vrai 1er joueur (marqueur doré),
@@ -46,6 +54,7 @@ func start(board: Board) -> void:
 	_turn_order = _compute_turn_order()
 	_placed_rank_by_player.clear()
 	_resolving_action = false
+	_finished = false
 
 	for spot in _board.action_spots_container.get_children():
 		spot.clear_pions()
@@ -120,7 +129,7 @@ func _on_pion_drag_stopped() -> void:
 ## résolution d'action est déjà en cours (le bouton doit alors agir sur
 ## narration_box.skip() à la place, cf board.gd).
 func force_skip() -> void:
-	if _resolving_action or _round_transitioning or _current_player_index >= GameFlow.players.size():
+	if _finished or _resolving_action or _round_transitioning or _current_player_index >= GameFlow.players.size():
 		return
 	if _selected_rank == -1:
 		if _current_round == 0:
@@ -226,6 +235,7 @@ func _end_pion_placement_phase() -> void:
 
 	_board.debug_skip_button.visible = false
 	_board.narration_box.hide_box()
+	_finished = true
 	finished.emit()
 
 

@@ -72,6 +72,12 @@ const SEA_KEY_BY_NODE_NAME := {
 var _sea_tiles: Array = []
 var _slot_order: Array = []
 var _auto_skip_active := false
+## Vrai dès que _end_game() a été appelé : arrête la boucle du bouton debug
+## "Passer" (_on_debug_skip_button_pressed), qui sinon tourne indéfiniment
+## une fois la partie terminée (GameFlow.round_number ne change plus jamais
+## puisqu'aucune manche suivante ne démarre) et continue à appeler
+## pion_placement_phase.force_skip() sans fin.
+var _game_ended := false
 var _total_seas: int = 0
 @warning_ignore("unused_private_class_variable")
 var _has_started: bool = false
@@ -248,7 +254,7 @@ func _on_debug_skip_button_pressed() -> void:
 		return
 	_auto_skip_active = true
 	var starting_round: int = GameFlow.round_number
-	while GameFlow.round_number == starting_round and not pion_placement_phase.is_debug_finished():
+	while not _game_ended and GameFlow.round_number == starting_round and not pion_placement_phase.is_debug_finished():
 		if narration_box.has_options():
 			narration_box.skip()
 		else:
@@ -455,6 +461,7 @@ func _all_sea_tokens_taken() -> bool:
 ## affiche le classement. À étoffer plus tard avec un vrai écran de fin et
 ## le combat final en cas d'égalité (règle 8) si besoin.
 func _end_game() -> void:
+	_game_ended = true
 	GameFlow.apply_final_scores()
 	var ranking: Array[Dictionary] = GameFlow.get_players_sorted_by_points()
 	var lines: PackedStringArray = []

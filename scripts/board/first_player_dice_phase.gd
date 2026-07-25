@@ -66,15 +66,28 @@ func start(board: Board) -> void:
 		winner_id = ids[0]
 	else:
 		winner_id = await _resolve_winner_among(ids)
-		# Le "dernier joueur" de la règle 5.7 se lit sur le tout premier jet
-		# de chacun (les relances ne servent qu'à départager les ex-aequo en
-		# tête) : on le calcule donc sur la liste complète des joueurs, pas
-		# sur un sous-groupe de relance.
-		loser_id = _worst_player(ids)
+		# _skip_requested a pu devenir vrai PENDANT l'await ci-dessus (clic sur
+		# "Passer" en cours de lancer) : dans ce cas _rolls est incomplet (les
+		# joueurs pas encore arrivés à leur tour n'y figurent pas du tout), donc
+		# _worst_player planterait (accès à une entrée absente du dictionnaire).
+		if not _skip_requested:
+			# Le "dernier joueur" de la règle 5.7 se lit sur le tout premier
+			# jet de chacun (les relances ne servent qu'à départager les
+			# ex-aequo en tête) : on le calcule donc sur la liste complète des
+			# joueurs, pas sur un sous-groupe de relance.
+			loser_id = _worst_player(ids)
 	GameFlow.set_first_player(winner_id)
 
+	# Règle 5.7 : "le dernier joueur reçoit 1 fortune" - un jeton de
+	# compensation général, PAS un des 7 jetons dorés du plateau action (ceux-là
+	# comptent les manches restantes et ne doivent être pris qu'en fin de
+	# manche, règle 4/7 : _take_fortune_token_for est réservé à _start_round).
 	if not _skip_requested and loser_id != -1 and loser_id != winner_id:
-		_board._take_fortune_token_for(loser_id)
+		for p in GameFlow.players:
+			if p["id"] == loser_id:
+				p["special_resources"]["fortune"] += 1
+				break
+		GameFlow.players_changed.emit()
 
 	_board.debug_skip_button.pressed.disconnect(_on_skip_pressed)
 	_board.debug_skip_button.visible = false
@@ -109,12 +122,24 @@ func _resolve_winner_among(player_ids: Array[int]) -> int:
 
 	var best_ids := _players_ranked_best(player_ids)
 	if best_ids.size() > 1:
-		_board.narration_box.say(tr("Égalité ! On relance entre les joueurs à égalité."))
+		_board.narration_box.say(tr("Égalité (%s) ! On relance entre les joueurs à égalité.") % _describe_roll(_rolls[best_ids[0]]))
 		await _board.get_tree().create_timer(1.0).timeout
 		var winner_id: int = await _resolve_winner_among(best_ids)
 		return winner_id
 
 	return best_ids[0]
+
+
+## Libellé lisible d'un jet (combat + exploration), utilisé pour rendre
+## l'annonce d'égalité vérifiable : les 3 faces "canon" du dé noir (par ex.)
+## sont bien strictement équivalentes entre elles selon la règle, donc 2
+## joueurs peuvent tomber sur des faces physiquement différentes tout en
+## ayant un jet réellement à égalité - ceci permet de le confirmer d'un
+## coup d'œil plutôt que de devoir deviner.
+func _describe_roll(roll: Dictionary) -> String:
+	var black_labels := {"vide": tr("combat vide"), "abordage": tr("abordage"), "canon": tr("canon")}
+	var white_labels := {"vide": tr("exploration vide"), "un": tr("1 étoile"), "double": tr("2 étoiles")}
+	return "%s, %s" % [black_labels[roll["black"]], white_labels[roll["white"]]]
 
 
 ## Attend un clic du joueur concerné sur "Lancer les dés" (1 clic = son
