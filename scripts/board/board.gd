@@ -60,6 +60,7 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var action_resolution_phase: Node = $ActionResolutionPhase
 
 @onready var dealing_phase: Node = $DealingPhase
+@onready var first_player_dice_phase: Node = $FirstPlayerDicePhase
 @onready var hideout_phase: Node = $HideoutPhase
 @onready var pion_placement_phase: Node = $PionPlacementPhase
 @onready var card_draw_phase: Node = $CardDrawPhase
@@ -198,6 +199,9 @@ func _ready() -> void:
 	_refresh_player_boards()
 
 	dealing_phase.finished.connect(func():
+		first_player_dice_phase.start(self)
+	)
+	first_player_dice_phase.finished.connect(func():
 		_autosave("hideout")
 		hideout_phase.start(self)
 	)
@@ -442,10 +446,16 @@ func _end_game() -> void:
 
 
 func _start_round() -> void:
+	# round_number == 0 -> tout premier tour de la partie : le 1er joueur
+	# vient d'être désigné par le lancer de dés de mise en place
+	# (first_player_dice_phase, règle 5.7), on ne doit pas encore avancer.
+	# GameFlow.get_first_player_id() == -1 reste un filet de sécurité pour
+	# les chemins de démarrage qui sautent cette phase (ex: debug_skip_to_pions).
+	var is_very_first_round: bool = GameFlow.round_number == 0
 	GameFlow.round_number += 1
 	if GameFlow.get_first_player_id() == -1:
 		GameFlow.set_first_player(GameFlow.players[0]["id"])
-	else:
+	elif not is_very_first_round:
 		GameFlow.advance_first_player()
 
 	var last_player_id: int = GameFlow.get_last_player_id()
