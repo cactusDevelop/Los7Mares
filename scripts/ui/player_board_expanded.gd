@@ -315,7 +315,7 @@ func _refresh_card_tracks(player: Dictionary) -> void:
 ## assombrit toutes les cartes de la pile et affiche un compteur blanc
 ## (nombre de cartes) centré dessus.
 func _add_track_hover_zone(
-	track: String, count: int, pile_cards: Array[Control], rect_min: Vector2, rect_max: Vector2
+	_track: String, count: int, pile_cards: Array[Control], rect_min: Vector2, rect_max: Vector2
 ) -> void:
 	var hover_zone := Control.new()
 	hover_zone.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -342,25 +342,28 @@ func _add_track_hover_zone(
 
 	# Tween partagé par cette pile (survol multiple rapide = on interrompt
 	# l'animation en cours plutôt que de les empiler).
-	var hover_tween: Tween = null
+	# Boîte à un élément : les lambdas ci-dessous capturent "hover_tween_box"
+	# par valeur, donc on ne peut pas réassigner une variable locale simple
+	# depuis l'intérieur d'une lambda ; on mute plutôt le contenu du tableau.
+	var hover_tween_box: Array[Tween] = [null]
 
 	hover_zone.mouse_entered.connect(func():
-		if hover_tween:
-			hover_tween.kill()
+		if hover_tween_box[0]:
+			hover_tween_box[0].kill()
 		count_label.visible = true
-		hover_tween = create_tween().set_parallel(true)
+		hover_tween_box[0] = create_tween().set_parallel(true)
 		for c in pile_cards:
-			hover_tween.tween_property(c, "modulate", CARD_TRACK_HOVER_DARKEN, CARD_TRACK_HOVER_ANIM_DURATION)
-		hover_tween.tween_property(count_label, "modulate:a", 1.0, CARD_TRACK_HOVER_ANIM_DURATION)
+			hover_tween_box[0].tween_property(c, "modulate", CARD_TRACK_HOVER_DARKEN, CARD_TRACK_HOVER_ANIM_DURATION)
+		hover_tween_box[0].tween_property(count_label, "modulate:a", 1.0, CARD_TRACK_HOVER_ANIM_DURATION)
 	)
 	hover_zone.mouse_exited.connect(func():
-		if hover_tween:
-			hover_tween.kill()
-		hover_tween = create_tween().set_parallel(true)
+		if hover_tween_box[0]:
+			hover_tween_box[0].kill()
+		hover_tween_box[0] = create_tween().set_parallel(true)
 		for c in pile_cards:
-			hover_tween.tween_property(c, "modulate", Color.WHITE, CARD_TRACK_HOVER_ANIM_DURATION)
-		hover_tween.tween_property(count_label, "modulate:a", 0.0, CARD_TRACK_HOVER_ANIM_DURATION)
-		hover_tween.chain().tween_callback(func(): count_label.visible = false)
+			hover_tween_box[0].tween_property(c, "modulate", Color.WHITE, CARD_TRACK_HOVER_ANIM_DURATION)
+		hover_tween_box[0].tween_property(count_label, "modulate:a", 0.0, CARD_TRACK_HOVER_ANIM_DURATION)
+		hover_tween_box[0].chain().tween_callback(func(): count_label.visible = false)
 	)
 
 

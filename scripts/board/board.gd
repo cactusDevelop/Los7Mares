@@ -220,6 +220,9 @@ func _ready() -> void:
 	if GameFlow.is_continuing:
 		_restore_from_save()
 	elif debug_skip_to_pions:
+		if GameFlow.players.is_empty():
+			GameFlow.is_debug_mode = true
+			GameFlow.generate_debug_players(5)
 		narration_box.hide_box()
 		deck_area.visible = false
 		deck_area.input_pickable = false

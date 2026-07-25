@@ -341,7 +341,7 @@ func _run_deplacement() -> void:
 			points -= 1
 
 	if _player.get("boat_sea", "") == "":
-		await _grant_hideout_reward()
+		_grant_hideout_reward()
 
 	_board._autosave("pions")
 
