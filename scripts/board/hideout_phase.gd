@@ -43,6 +43,7 @@ func _begin_hideout_turn() -> void:
 
 	var player_index: int = _hideout_turn_order[_hideout_turn_index]
 	var player: Dictionary = GameFlow.players[player_index]
+	GameFlow.set_current_player(player["id"])
 	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
 	_board.narration_box.say_with_player(tr("Tour de %s : choisis l'emplacement de ta cachette."), player)
 	for spot in _board.hideout_spots_container.get_children():
