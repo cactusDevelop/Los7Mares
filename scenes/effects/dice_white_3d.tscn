@@ -2,14 +2,14 @@
 
 [ext_resource type="Script" uid="uid://dfg0qtetttbd6" path="res://scripts/effects/dice_3d.gd" id="1_5tkrq"]
 [ext_resource type="Script" uid="uid://b0inntewp2oim" path="res://scripts/effects/rounded_dice_mesh.gd" id="2_dskay"]
-[ext_resource type="Texture2D" uid="uid://b5ev0c54m71iq" path="res://assets/art/dice/dé-noir-canon.png" id="3_d286g"]
-[ext_resource type="Texture2D" uid="uid://b3tftpnxkoatc" path="res://assets/art/dice/dé-noir-abordage.png" id="4_jncwy"]
+[ext_resource type="Texture2D" uid="uid://jyuutpqrwpbp" path="res://assets/art/dice/dé-blanc-un.png" id="3_5tkrq"]
+[ext_resource type="Texture2D" uid="uid://bdnvxv8hjsto8" path="res://assets/art/dice/dé-blanc-double.png" id="4_dskay"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_2ov1x"]
 friction = 0.4
 bounce = 0.3
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_ykjcn"]
+[sub_resource type="ArrayMesh" id="ArrayMesh_d286g"]
 _surfaces = [{
 "aabb": AABB(-0.5, -0.5, -0.5, 1, 1, 1),
 "format": 34359738375,
@@ -28,11 +28,11 @@ albedo_color = Color(0.101960786, 0.101960786, 0.101960786, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2ov1x"]
 transparency = 1
-albedo_texture = ExtResource("3_d286g")
+albedo_texture = ExtResource("3_5tkrq")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3j2dk"]
 transparency = 1
-albedo_texture = ExtResource("4_jncwy")
+albedo_texture = ExtResource("4_dskay")
 
 [node name="Dice3D" type="RigidBody3D" unique_id=1937174660]
 transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0, 0, 0)
@@ -40,34 +40,34 @@ physics_material_override = SubResource("PhysicsMaterial_2ov1x")
 script = ExtResource("1_5tkrq")
 
 [node name="Mesh" type="MeshInstance3D" parent="." unique_id=314981551]
-mesh = SubResource("ArrayMesh_ykjcn")
+mesh = SubResource("ArrayMesh_d286g")
 surface_material_override/0 = SubResource("StandardMaterial3D_m0x5n")
 script = ExtResource("2_dskay")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2086935594]
 shape = SubResource("BoxShape3D_j3le6")
 
-[node name="FaceCanonHaut" type="MeshInstance3D" parent="." unique_id=676863847]
+[node name="FaceEtoileHaut" type="MeshInstance3D" parent="." unique_id=676863847]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0.51, 0)
 mesh = SubResource("QuadMesh_j3le6")
 surface_material_override/0 = SubResource("StandardMaterial3D_2ov1x")
 
-[node name="FaceCanonBas" type="MeshInstance3D" parent="." unique_id=1768431690]
+[node name="FaceEtoileBas" type="MeshInstance3D" parent="." unique_id=1768431690]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, -0.51, 0)
 mesh = SubResource("QuadMesh_j3le6")
 surface_material_override/0 = SubResource("StandardMaterial3D_2ov1x")
 
-[node name="FaceCanonDroite" type="MeshInstance3D" parent="." unique_id=41799877]
+[node name="FaceEtoileDroite" type="MeshInstance3D" parent="." unique_id=41799877]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.51, 0, 0)
 mesh = SubResource("QuadMesh_j3le6")
 surface_material_override/0 = SubResource("StandardMaterial3D_2ov1x")
 
-[node name="FaceAbordageGauche" type="MeshInstance3D" parent="." unique_id=398553612]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.51, 0, 0)
+[node name="FaceEtoileGauche" type="MeshInstance3D" parent="." unique_id=1188847079]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.51, 0, 0)
 mesh = SubResource("QuadMesh_j3le6")
-surface_material_override/0 = SubResource("StandardMaterial3D_3j2dk")
+surface_material_override/0 = SubResource("StandardMaterial3D_2ov1x")
 
-[node name="FaceAbordageAvant" type="MeshInstance3D" parent="." unique_id=400603972]
+[node name="FaceDoubleAvant" type="MeshInstance3D" parent="." unique_id=400603972]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -0.51)
 mesh = SubResource("QuadMesh_j3le6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3j2dk")
