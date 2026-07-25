@@ -1,11 +1,40 @@
 extends Node3D
 
+## Orchestre un lancer de N dés physiques et renvoie les résultats une fois
+## que tous les dés sont immobiles.
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+signal roll_finished(results: Array[int])
+
+@export var die_scene: PackedScene
+@export var spawn_point: Node3D ## Point d'où les dés tombent
+@export var dice_count: int = 2
+
+var _dice: Array[RigidBody3D] = []
+var _results: Array[int] = []
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func roll(count: int = -1) -> void:
+	if count < 0:
+		count = dice_count
+
+	for die in _dice:
+		die.queue_free()
+	_dice.clear()
+	_results.clear()
+
+	for i in range(count):
+		var die: RigidBody3D = die_scene.instantiate()
+		add_child(die)
+		_dice.append(die)
+		die.settled.connect(_on_die_settled)
+
+		var offset := Vector3(randf_range(-0.3, 0.3), 0.0, randf_range(-0.3, 0.3))
+		var from_pos: Vector3 = spawn_point.global_position + offset
+		var target_pos: Vector3 = from_pos + Vector3(randf_range(-0.2, 0.2), -3.0, 0.6)
+		die.throw(from_pos, target_pos)
+
+
+func _on_die_settled(face_value: int) -> void:
+	_results.append(face_value)
+	if _results.size() == _dice.size():
+		roll_finished.emit(_results)

@@ -1,3 +1,23 @@
 [gd_scene format=3 uid="uid://dykmxb7jddo3a"]
 
+[ext_resource type="Script" uid="uid://cawl7lnj6y3l6" path="res://scenes/effects/dice_roll_3d.gd" id="1_ng5vf"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_j3le6"]
+size = Vector3(10, 0.2, 10)
+
 [node name="DiceRoll3D" type="Node3D" unique_id=1843521446]
+script = ExtResource("1_ng5vf")
+
+[node name="Light" type="DirectionalLight3D" parent="." unique_id=333412277]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, -0.70710677, 0, 0.70710677, 0.70710677, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=974564896]
+transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 5, 3)
+
+[node name="SpawnPoint" type="Node3D" parent="." unique_id=1967259884]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
+
+[node name="Floor" type="StaticBody3D" parent="." unique_id=1498242797]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=1134412443]
+shape = SubResource("BoxShape3D_j3le6")
