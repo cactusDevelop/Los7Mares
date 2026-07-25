@@ -3,21 +3,35 @@
 [ext_resource type="Script" uid="uid://cawl7lnj6y3l6" path="res://scenes/effects/dice_roll_3d.gd" id="1_ng5vf"]
 [ext_resource type="PackedScene" uid="uid://6fafl3s52fx1" path="res://scenes/effects/dice_3d.tscn" id="2_mmcw6"]
 
+[sub_resource type="Environment" id="Environment_amb1"]
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.6
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_j3le6"]
 size = Vector3(10, 0.2, 10)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_wallns"]
+size = Vector3(10.2, 2, 0.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wallew"]
+size = Vector3(0.3, 2, 10.2)
+
 [node name="DiceRoll3D" type="Node3D" unique_id=1843521446 node_paths=PackedStringArray("spawn_point")]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 6, 0)
 script = ExtResource("1_ng5vf")
 dice_scene = ExtResource("2_mmcw6")
 spawn_point = NodePath("SpawnPoint")
 
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1622901267]
+environment = SubResource("Environment_amb1")
+
 [node name="Light" type="DirectionalLight3D" parent="." unique_id=333412277]
 transform = Transform3D(1, 0, 0, 0, 0.70710677, -0.70710677, 0, 0.70710677, 0.70710677, 0, 0, 0)
+light_energy = 1.6
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=974564896]
-transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 5, 3)
-projection = 1
+transform = Transform3D(0.99026805, -0.1391731, 0, 0.036020655, 0.25630027, 0.9659258, -0.1344309, -0.95652544, 0.25881907, 0, 7, 2)
+fov = 45.0
 size = 4.0
 
 [node name="SpawnPoint" type="Node3D" parent="." unique_id=1967259884]
@@ -27,3 +41,27 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=1134412443]
 shape = SubResource("BoxShape3D_j3le6")
+
+[node name="WallNorth" type="StaticBody3D" parent="." unique_id=1459608262]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -5.15)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WallNorth" unique_id=593532594]
+shape = SubResource("BoxShape3D_wallns")
+
+[node name="WallSouth" type="StaticBody3D" parent="." unique_id=1428500261]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 5.15)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WallSouth" unique_id=1993775965]
+shape = SubResource("BoxShape3D_wallns")
+
+[node name="WallEast" type="StaticBody3D" parent="." unique_id=350924355]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.15, 1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WallEast" unique_id=1190022350]
+shape = SubResource("BoxShape3D_wallew")
+
+[node name="WallWest" type="StaticBody3D" parent="." unique_id=154371902]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.15, 1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WallWest" unique_id=946760904]
+shape = SubResource("BoxShape3D_wallew")
