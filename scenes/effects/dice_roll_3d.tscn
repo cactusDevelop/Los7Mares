@@ -7,8 +7,9 @@
 size = Vector3(10, 0.2, 10)
 
 [node name="DiceRoll3D" type="Node3D" unique_id=1843521446 node_paths=PackedStringArray("spawn_point")]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 6, 0)
 script = ExtResource("1_ng5vf")
-die_scene = ExtResource("2_mmcw6")
+dice_scene = ExtResource("2_mmcw6")
 spawn_point = NodePath("SpawnPoint")
 
 [node name="Light" type="DirectionalLight3D" parent="." unique_id=333412277]
@@ -16,6 +17,8 @@ transform = Transform3D(1, 0, 0, 0, 0.70710677, -0.70710677, 0, 0.70710677, 0.70
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=974564896]
 transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 5, 3)
+projection = 1
+size = 4.0
 
 [node name="SpawnPoint" type="Node3D" parent="." unique_id=1967259884]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)

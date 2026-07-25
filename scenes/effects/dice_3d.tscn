@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://6fafl3s52fx1"]
 
 [ext_resource type="Script" uid="uid://dfg0qtetttbd6" path="res://scripts/effects/dice_3d.gd" id="1_g0ouu"]
+[ext_resource type="Script" uid="uid://b0inntewp2oim" path="res://scripts/effects/rounded_dice_mesh.gd" id="2_3j2dk"]
+[ext_resource type="Texture2D" uid="uid://b5ev0c54m71iq" path="res://assets/art/dice/dé-noir-canon.png" id="3_ykjcn"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_2ov1x"]
 friction = 0.4
@@ -13,6 +15,12 @@ albedo_color = Color(0.101960786, 0.101960786, 0.101960786, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_j3le6"]
 
+[sub_resource type="QuadMesh" id="QuadMesh_j3le6"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2ov1x"]
+transparency = 1
+albedo_texture = ExtResource("3_ykjcn")
+
 [node name="Dice3D" type="RigidBody3D" unique_id=1937174660]
 physics_material_override = SubResource("PhysicsMaterial_2ov1x")
 script = ExtResource("1_g0ouu")
@@ -20,6 +28,11 @@ script = ExtResource("1_g0ouu")
 [node name="Mesh" type="MeshInstance3D" parent="." unique_id=314981551]
 mesh = SubResource("BoxMesh_j3le6")
 surface_material_override/0 = SubResource("StandardMaterial3D_m0x5n")
+script = ExtResource("2_3j2dk")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2086935594]
 shape = SubResource("BoxShape3D_j3le6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=676863847]
+mesh = SubResource("QuadMesh_j3le6")
+surface_material_override/0 = SubResource("StandardMaterial3D_2ov1x")

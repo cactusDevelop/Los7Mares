@@ -5,7 +5,7 @@ extends Node3D
 
 signal roll_finished(results: Array[String])
 
-@export var die_scene: PackedScene
+@export var dice_scene: PackedScene
 @export var spawn_point: Node3D ## Point d'où les dés tombent
 @export var dice_count: int = 2
 
@@ -23,7 +23,7 @@ func roll(count: int = -1) -> void:
 	_results.clear()
 
 	for i in range(count):
-		var die: RigidBody3D = die_scene.instantiate()
+		var die: RigidBody3D = dice_scene.instantiate()
 		add_child(die)
 		_dice.append(die)
 		die.settled.connect(_on_die_settled)
