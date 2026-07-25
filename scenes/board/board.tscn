@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" uid="uid://bn3g7mmfggktb" path="res://scenes/ui/sea_card_popup.tscn" id="17_bo4hw"]
 [ext_resource type="PackedScene" uid="uid://b058e8m5tg4kt" path="res://scenes/ui/player_board_expanded.tscn" id="18_ctilb"]
 [ext_resource type="Texture2D" uid="uid://dedw6tc0y6d80" path="res://assets/art/ui/back.svg" id="19_0avwi"]
+[ext_resource type="PackedScene" uid="uid://dykmxb7jddo3a" path="res://scenes/effects/dice_roll_3d.tscn" id="20_m0x5n"]
 [ext_resource type="PackedScene" uid="uid://cdx0n5rvtqx0w" path="res://scenes/board/hideout_spot.tscn" id="20_vq54c"]
 [ext_resource type="PackedScene" uid="uid://ce1t4lmygf8iq" path="res://scenes/board/fortune_spot.tscn" id="21_jngt6"]
 [ext_resource type="Script" uid="uid://cnxrqg83d7ymu" path="res://scripts/debug/debug_heptagon.gd" id="22_j2n54"]
@@ -261,9 +262,12 @@ mouse_filter = 2
 stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="UI/SubViewportContainer" unique_id=654585143]
+transparent_bg = true
 handle_input_locally = false
 size = Vector2i(1152, 648)
 render_target_update_mode = 4
+
+[node name="DiceRoll3D" parent="UI/SubViewportContainer/SubViewport" unique_id=1843521446 instance=ExtResource("20_m0x5n")]
 
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
 
