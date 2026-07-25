@@ -38,3 +38,8 @@ func _on_die_settled(face_value: int) -> void:
 	_results.append(face_value)
 	if _results.size() == _dice.size():
 		roll_finished.emit(_results)
+
+
+func _ready() -> void:
+	roll_finished.connect(func(results): print("RESULTAT DES DES: ", results))
+	roll()
