@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://6fafl3s52fx1"]
+
+[ext_resource type="Script" uid="uid://dfg0qtetttbd6" path="res://scripts/effects/dice_3d.gd" id="1_g0ouu"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_2ov1x"]
+friction = 0.4
+bounce = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_j3le6"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_j3le6"]
+
+[node name="Dice3D" type="RigidBody3D" unique_id=1937174660]
+physics_material_override = SubResource("PhysicsMaterial_2ov1x")
+script = ExtResource("1_g0ouu")
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=314981551]
+mesh = SubResource("BoxMesh_j3le6")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2086935594]
+shape = SubResource("BoxShape3D_j3le6")
