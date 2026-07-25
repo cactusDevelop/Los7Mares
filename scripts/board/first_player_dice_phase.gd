@@ -58,7 +58,7 @@ func start(board: Board) -> void:
 	_board.debug_skip_button.pressed.connect(_on_skip_pressed)
 
 	_board.narration_box.say(tr("Tirage au sort du 1er joueur : chaque joueur clique pour lancer 1 dé de combat et 1 dé d'exploration."))
-	await _board.get_tree().create_timer(1.0).timeout
+	await _board.narration_box.wait_for_click()
 
 	var winner_id: int
 	var loser_id: int = -1
@@ -95,7 +95,7 @@ func start(board: Board) -> void:
 
 	var winner_name := _player_name(winner_id)
 	_board.narration_box.say(tr("%s commence la partie !") % winner_name)
-	await _board.get_tree().create_timer(1.2).timeout
+	await _board.narration_box.wait_for_click()
 
 	_viewport_container.visible = false
 	finished.emit()
@@ -109,6 +109,7 @@ func _on_skip_pressed() -> void:
 	_skip_requested = true
 	_board.narration_box.set_options([])
 	_board.narration_box.option_selected.emit("skip")
+	_board.narration_box.request_advance()
 
 
 ## Fait rouler les dés pour chaque joueur de player_ids, puis renvoie l'id
@@ -123,7 +124,7 @@ func _resolve_winner_among(player_ids: Array[int]) -> int:
 	var best_ids := _players_ranked_best(player_ids)
 	if best_ids.size() > 1:
 		_board.narration_box.say(tr("Égalité (%s) ! On relance entre les joueurs à égalité.") % _describe_roll(_rolls[best_ids[0]]))
-		await _board.get_tree().create_timer(1.0).timeout
+		await _board.narration_box.wait_for_click()
 		var winner_id: int = await _resolve_winner_among(best_ids)
 		return winner_id
 

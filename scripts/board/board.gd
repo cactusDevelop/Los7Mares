@@ -126,6 +126,20 @@ func _ready() -> void:
 	return_to_menu_button.pressed.connect(func(): return_to_menu_confirm.popup_centered())
 	return_to_menu_confirm.confirmed.connect(func(): GameFlow.go_to_title())
 
+	# Le bouton debug "Piocher"/"Reprendre" met tout l'arbre en pause pour
+	# geler la partie (cf _on_debug_draw_cards_button_pressed) : par défaut
+	# ça bloquerait aussi le retour au menu et les panneaux joueurs, qui ne
+	# font pas partie des "actions de jeu" à figer. PROCESS_MODE_ALWAYS les
+	# rend insensibles à cette pause (le plateau et narration_box, eux,
+	# restent PAUSABLE par défaut : c'est voulu, seuls eux doivent se
+	# bloquer).
+	for always_node in [
+		return_to_menu_button, return_to_menu_confirm,
+		player_boards_panel, player_boards_pile, player_boards_catcher,
+		player_board_expanded,
+	]:
+		always_node.process_mode = Node.PROCESS_MODE_ALWAYS
+
 	debug_skip_button.visible = false
 	debug_skip_button.pressed.connect(_on_debug_skip_button_pressed)
 
@@ -412,6 +426,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		GameFlow.save_players()
 		get_tree().quit()
+	# _unhandled_input n'est déclenché que si aucun Control (bouton, etc.)
+	# n'a déjà consommé le clic avant : un clic sur le plateau (n'importe où)
+	# fait donc avancer un message de narration "de lecture" en attente
+	# (cf narration_box.wait_for_click), sans jamais interférer avec un
+	# bouton UI ou une autre fonctionnalité cliquable.
+	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		narration_box.request_advance()
 
 
 ## 2 joueurs -> 1 jeton par pile ; 3-4 joueurs -> 2 jetons ; 5 joueurs -> 3 jetons.

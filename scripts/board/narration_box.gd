@@ -7,6 +7,14 @@ extends PanelContainer
 ## Émis quand un bouton de choix (cf set_options) est cliqué.
 signal option_selected(id: String)
 
+## Émis quand la boîte elle-même est cliquée pendant qu'un message "de
+## lecture" (sans bouton) attend d'être passé, cf wait_for_click().
+signal advance_requested
+
+## Vrai entre le début et la fin d'un wait_for_click() : un clic sur cette
+## boîte OU sur le plateau (cf board._unhandled_input) fait alors avancer.
+var _awaiting_advance: bool = false
+
 ## Délai entre chaque lettre affichée (en secondes)
 const CHAR_REVEAL_DELAY := 0.015
 const BOX_WIDTH := 260.0
@@ -56,6 +64,8 @@ func _ready() -> void:
 	label.custom_minimum_size = Vector2(LABEL_WIDTH, 0)
 
 	buttons_box.add_theme_constant_override("separation", 8)
+
+	gui_input.connect(_on_box_gui_input)
 
 	call_deferred("_layout")
 
@@ -118,6 +128,30 @@ func _on_button_pressed(id: String) -> void:
 ## option_selected est en attente quelque part, ex. action_resolution_phase).
 func has_options() -> bool:
 	return not _current_option_ids.is_empty()
+
+
+## Attend un clic n'importe où sur le plateau (cf board._unhandled_input,
+## qui appelle request_advance()) OU directement sur cette boîte, pour les
+## messages "de lecture" qui n'attendent pas un choix précis (set_options)
+## mais ne doivent pas non plus défiler tout seuls après un délai fixe -
+## sans quoi rien ne garantit que le joueur ait eu le temps de les lire.
+func wait_for_click() -> void:
+	_awaiting_advance = true
+	await advance_requested
+	_awaiting_advance = false
+
+
+## Appelé par board._unhandled_input (clic sur le plateau) ou directement
+## par _on_box_gui_input (clic sur cette boîte) : ne fait rien si aucun
+## wait_for_click() n'est en attente.
+func request_advance() -> void:
+	if _awaiting_advance:
+		advance_requested.emit()
+
+
+func _on_box_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		request_advance()
 
 
 ## Simule le clic du choix le plus "rapide" parmi les options affichées
