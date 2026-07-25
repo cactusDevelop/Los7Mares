@@ -3,14 +3,14 @@ extends Node3D
 ## Orchestre un lancer de N dés physiques et renvoie les résultats une fois
 ## que tous les dés sont immobiles.
 
-signal roll_finished(results: Array[int])
+signal roll_finished(results: Array[String])
 
 @export var die_scene: PackedScene
 @export var spawn_point: Node3D ## Point d'où les dés tombent
 @export var dice_count: int = 2
 
 var _dice: Array[RigidBody3D] = []
-var _results: Array[int] = []
+var _results: Array[String] = []
 
 
 func roll(count: int = -1) -> void:
@@ -34,8 +34,8 @@ func roll(count: int = -1) -> void:
 		die.throw(from_pos, target_pos)
 
 
-func _on_die_settled(face_value: int) -> void:
-	_results.append(face_value)
+func _on_die_settled(face_result: String) -> void:
+	_results.append(face_result)
 	if _results.size() == _dice.size():
 		roll_finished.emit(_results)
 

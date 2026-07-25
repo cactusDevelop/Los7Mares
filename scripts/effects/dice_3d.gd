@@ -3,17 +3,18 @@ extends RigidBody3D
 ## Un dé physique 3D. Le résultat est déterminé par la simulation physique
 ## (vitesse/rotation initiales aléatoires), pas par un tirage forcé a posteriori.
 
-signal settled(face_value: int)
+signal settled(face_result: String)
 
-## Normale locale de chaque face -> valeur affichée.
+## Normale locale de chaque face -> symbole affiché.
+## Dé noir : 3 faces "canon", 2 faces "abordage", 1 face "vide".
 ## A adapter si l'orientation de ton mesh/texture ne correspond pas.
-const FACE_NORMALS := {
-	Vector3.UP: 1,
-	Vector3.DOWN: 6,
-	Vector3.RIGHT: 2,
-	Vector3.LEFT: 5,
-	Vector3.FORWARD: 3, # -Z
-	Vector3.BACK: 4,     # +Z
+const FACE_RESULTS := {
+	Vector3.UP: "canon",
+	Vector3.DOWN: "canon",
+	Vector3.RIGHT: "canon",
+	Vector3.LEFT: "abordage",
+	Vector3.FORWARD: "abordage", # -Z
+	Vector3.BACK: "vide",        # +Z
 }
 
 const REST_TIME := 0.35
@@ -53,13 +54,13 @@ func throw(from_position: Vector3, target_position: Vector3, spin_strength: floa
 	)
 
 
-func _get_face_up() -> int:
-	var best_value := 1
+func _get_face_up() -> String:
+	var best_result := "vide"
 	var best_dot := -INF
-	for local_normal: Vector3 in FACE_NORMALS.keys():
+	for local_normal: Vector3 in FACE_RESULTS.keys():
 		var world_normal: Vector3 = global_transform.basis * local_normal
 		var d := world_normal.dot(Vector3.UP)
 		if d > best_dot:
 			best_dot = d
-			best_value = FACE_NORMALS[local_normal]
-	return best_value
+			best_result = FACE_RESULTS[local_normal]
+	return best_result
