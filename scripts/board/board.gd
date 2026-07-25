@@ -420,15 +420,28 @@ func token_count_for_player_count(player_count: int) -> int:
 ## Appelé quand tous les joueurs ont posé et résolu leurs deux pièces
 ## (pion_placement_phase.finished) : enchaîne directement sur le tour
 ## suivant (nouvelles cartes de mer révélées, puis pose de pièces), ou
-## termine la partie s'il ne reste plus aucun jeton sur les mers.
+## termine la partie s'il ne reste plus aucune fortune sur le plateau
+## action (règle 1/4 : "Fin de partie quand il n'y a plus de fortune
+## disponible sur le plateau action à la fin d'une manche").
 func _on_round_finished() -> void:
 	_autosave("pions")
-	if _all_sea_tokens_taken():
+	if _all_fortune_taken():
 		_end_game()
 		return
 	_start_round()
 	await pion_selection_panel.play_turn_announcement(GameFlow.round_number)
 	card_draw_phase.start(self)
+
+
+## NOTE (corrigé) : la fin de partie se base sur l'épuisement des 7
+## fortunes du plateau action (règle 1/4), PAS sur les jetons bonus des
+## mers (_all_sea_tokens_taken, mécanique différente et sans lien avec la
+## fin de partie - cf GAME_RULES.txt section 10 "JETONS BONUS").
+func _all_fortune_taken() -> bool:
+	for spot in fortune_spots_container.get_children():
+		if not spot.is_taken:
+			return false
+	return true
 
 
 func _all_sea_tokens_taken() -> bool:
@@ -438,9 +451,11 @@ func _all_sea_tokens_taken() -> bool:
 	return true
 
 
-## Fin de partie minimale : affiche le classement final. À étoffer plus
-## tard avec un vrai écran de fin si besoin.
+## Fin de partie : calcule le score final de chaque joueur (règle 8) puis
+## affiche le classement. À étoffer plus tard avec un vrai écran de fin et
+## le combat final en cas d'égalité (règle 8) si besoin.
 func _end_game() -> void:
+	GameFlow.apply_final_scores()
 	var ranking: Array[Dictionary] = GameFlow.get_players_sorted_by_points()
 	var lines: PackedStringArray = []
 	for i in range(ranking.size()):

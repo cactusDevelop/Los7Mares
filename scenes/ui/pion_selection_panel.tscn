@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cawaiel7vey2f"]
 
-[ext_resource type="Script" uid="uid://dc0gxdnkd1bpp" path="res://scripts/ui/pion_selection_panel.gd" id="1_j16g3"]
+[ext_resource type="Script" uid="uid://rwwd2s8vajav" path="res://scripts/ui/pion_selection_panel.gd" id="1_j16g3"]
 [ext_resource type="Texture2D" uid="uid://bgv5vlynaxpi" path="res://assets/art/pieces/capitaine.png" id="1_xvjxm"]
 [ext_resource type="Texture2D" uid="uid://bqgogkq2x27de" path="res://assets/art/pieces/second.png" id="2_j16g3"]
 

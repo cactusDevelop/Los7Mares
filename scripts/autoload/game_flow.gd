@@ -278,6 +278,84 @@ func capture_parrot(capturer_id: int, victim_id: int) -> void:
 	players_changed.emit()
 
 
+## Points de gloire par niveau de voile/armes (règle 8, niveau 1 = 0 pt).
+const SAIL_ARMS_POINTS: Dictionary = {1: 0, 2: 1, 3: 3, 4: 5, 5: 7}
+
+## Calcule le détail du score final d'un joueur (règle 8 "Points de
+## gloire"). Catégories couvertes : trésors, fortunes, voile, armes,
+## planches, ressources, perroquets, pistes de cartes.
+## [A FAIRE] Gemmes et jetons bonus ne sont pas encore des données du
+## joueur dans le projet (aucune mécanique de collecte codée pour
+## l'instant, cf GAME_RULES.txt section 2/10/14) : ces 2 catégories ne
+## peuvent donc pas encore être scorées et sont omises du total (à
+## ajouter dès que ces fonctionnalités existeront).
+func compute_final_score_breakdown(player: Dictionary) -> Dictionary:
+	var breakdown := {}
+	breakdown["treasures"] = player["special_resources"].get("treasure", 0) * 2
+	breakdown["fortunes"] = int(player["special_resources"].get("fortune", 0) / 2)
+	breakdown["sail"] = SAIL_ARMS_POINTS.get(player.get("sail_level", SHIP_LEVEL_MIN), 0)
+	breakdown["arms"] = SAIL_ARMS_POINTS.get(player.get("arms_level", SHIP_LEVEL_MIN), 0)
+
+	var planks: int = player.get("hull_planks", 0)
+	breakdown["planks"] = 3 if planks == HULL_PLANKS_START else (1 if planks >= 5 else 0)
+
+	var total_resources := 0
+	for r in RESOURCE_TYPES:
+		total_resources += player["resources"].get(r, 0)
+	breakdown["resources"] = int(total_resources / 3)
+
+	var parrot_points := 0
+	if player.get("has_own_parrot", true):
+		parrot_points += 2
+	for p in players:
+		if p.get("parrot_captured_by", -1) == player["id"]:
+			parrot_points += 1
+	breakdown["parrots"] = parrot_points
+
+	var track_points := 0
+	for track in CARD_TRACK_KEYS:
+		track_points += _card_track_points(player, track)
+	breakdown["card_tracks"] = track_points
+
+	return breakdown
+
+
+## Points de classement d'un joueur sur une piste donnée (règle 8, point
+## 10) : rang = nombre de joueurs STRICTEMENT mieux classés (pas la
+## position dans l'ordre de jeu), donc les égalités partagent le même rang
+## et décalent les places suivantes sans jamais sauter de palier.
+func _card_track_points(player: Dictionary, track_key: String) -> int:
+	var my_count: int = track_card_count(player, track_key)
+	var rank := 0
+	for p in players:
+		if track_card_count(p, track_key) > my_count:
+			rank += 1
+	return _rank_points(rank, players.size())
+
+
+func _rank_points(rank: int, player_count: int) -> int:
+	match rank:
+		0: return player_count
+		1: return max(player_count - 2, 0)
+		2: return max(player_count - 4, 0)
+		_: return 0
+
+
+func compute_final_score_total(player: Dictionary) -> int:
+	var total := 0
+	for value in compute_final_score_breakdown(player).values():
+		total += value
+	return total
+
+
+## Calcule et affecte le score final de tous les joueurs (règle 8),
+## appelé une seule fois à la fin de la partie (board._end_game).
+func apply_final_scores() -> void:
+	for p in players:
+		p["points"] = compute_final_score_total(p)
+	players_changed.emit()
+
+
 func get_players_sorted_by_points() -> Array[Dictionary]:
 	var sorted := players.duplicate()
 	sorted.sort_custom(func(a, b): return a["points"] > b["points"])
