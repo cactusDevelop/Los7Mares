@@ -9,6 +9,7 @@ const DEBUG_TOTAL_ROUNDS := 7
 var _board: Board
 var _current_round: int = 0
 var _current_player_index: int = 0
+var _turn_order: Array[int] = []  # turn_order[step] = index dans GameFlow.players
 var _selected_rank: int = -1
 var _placed_rank_by_player: Dictionary = {}
 var _debug_round_index := 0
@@ -16,11 +17,33 @@ var _resolving_action := false
 var _round_transitioning := false
 
 
+## Ordre de tour clockwise en partant du vrai 1er joueur (marqueur doré),
+## au lieu de l'index 0 fixe dans GameFlow.players.
+func _compute_turn_order() -> Array[int]:
+	var n: int = GameFlow.players.size()
+	var first_id: int = GameFlow.get_first_player_id()
+	var first_index: int = 0
+	for i in range(n):
+		if GameFlow.players[i]["id"] == first_id:
+			first_index = i
+			break
+	var order: Array[int] = []
+	for i in range(n):
+		order.append((first_index + i) % n)
+	return order
+
+
+## Raccourci vers le joueur courant (règle 6) : GameFlow.players[_turn_order[_current_player_index]].
+func _current_player() -> Dictionary:
+	return GameFlow.players[_turn_order[_current_player_index]]
+
+
 func start(board: Board) -> void:
 	_board = board
 	_board.debug_skip_button.visible = GameFlow.is_debug_mode
 	_current_round = 0
 	_current_player_index = 0
+	_turn_order = _compute_turn_order()
 	_placed_rank_by_player.clear()
 	_resolving_action = false
 
@@ -56,7 +79,7 @@ func _begin_player_pion_turn() -> void:
 	_board.pion_selection_panel.show_for_placement_phase()
 	_shift_camera_for_selection(true)
 
-	var player: Dictionary = GameFlow.players[_current_player_index]
+	var player: Dictionary = _current_player()
 	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
 	_selected_rank = -1
 
@@ -79,7 +102,7 @@ func _on_pion_selected(rank: int) -> void:
 ## atterrir au survol (en plus du zoom habituel, cf action_spot.gd
 ## set_drag_hover_color).
 func _on_pion_drag_started(_rank: int) -> void:
-	var player: Dictionary = GameFlow.players[_current_player_index]
+	var player: Dictionary = _current_player()
 	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
 	for spot in _board.action_spots_container.get_children():
 		spot.set_drag_hover_color(color)
@@ -106,7 +129,7 @@ func force_skip() -> void:
 			var placed_rank: int = _placed_rank_by_player[_current_player_index]
 			_selected_rank = GameFlow.PionRank.OFFICER if placed_rank == GameFlow.PionRank.CAPTAIN else GameFlow.PionRank.CAPTAIN
 
-	var player: Dictionary = GameFlow.players[_current_player_index]
+	var player: Dictionary = _current_player()
 	for spot in _board.action_spots_container.get_children():
 		if not spot.has_player_pion(player["color"]):
 			_on_action_spot_clicked(spot)
@@ -136,7 +159,7 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 	if _selected_rank == -1 or _resolving_action:
 		return
 
-	var player: Dictionary = GameFlow.players[_current_player_index]
+	var player: Dictionary = _current_player()
 
 	if spot.has_player_pion(player["color"]):
 		_board.narration_box.say(tr("Tu ne peux pas poser tes deux pions sur la même case."))
@@ -216,9 +239,12 @@ func resume(board: Board) -> void:
 	_board = board
 	_board.debug_skip_button.visible = GameFlow.is_debug_mode
 	_placed_rank_by_player.clear()
+	_turn_order = _compute_turn_order()
+	var n: int = GameFlow.players.size()
 	var total_pions := 0
-	for i in range(GameFlow.players.size()):
-		var color: String = GameFlow.players[i]["color"]
+	for step in range(n):
+		var player_index: int = _turn_order[step]
+		var color: String = GameFlow.players[player_index]["color"]
 		var count := 0
 		var known_rank := -1
 		for spot in _board.action_spots_container.get_children():
@@ -228,9 +254,8 @@ func resume(board: Board) -> void:
 					known_rank = p["rank"]
 		total_pions += count
 		if count == 1:
-			_placed_rank_by_player[i] = known_rank
+			_placed_rank_by_player[step] = known_rank
 
-	var n: int = GameFlow.players.size()
 	_current_round = 0 if total_pions < n else 1
 	_current_player_index = total_pions if _current_round == 0 else total_pions - n
 

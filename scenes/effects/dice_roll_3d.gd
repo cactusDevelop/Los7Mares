@@ -19,6 +19,7 @@ signal roll_finished(results: Array[String])
 
 var _dice: Array[RigidBody3D] = []
 var _results: Array[String] = []
+var _settled_count: int = 0
 
 
 ## Lance count dés, tous instanciés depuis dice_scene (comportement d'origine).
@@ -42,12 +43,18 @@ func _roll_scenes(scenes: Array[PackedScene]) -> void:
 		dice.queue_free()
 	_dice.clear()
 	_results.clear()
+	_results.resize(scenes.size())
+	_settled_count = 0
 
-	for scene in scenes:
-		var dice: RigidBody3D = scene.instantiate()
+	for i in range(scenes.size()):
+		var dice: RigidBody3D = scenes[i].instantiate()
 		add_child(dice)
 		_dice.append(dice)
-		dice.settled.connect(_on_dice_settled)
+		# On fige l'index de CE dé dans la closure pour ranger son résultat
+		# au bon endroit dans _results, quel que soit l'ordre réel dans
+		# lequel les dés s'immobilisent (imprévisible en physique).
+		var dice_index := i
+		dice.settled.connect(func(face_result: String) -> void: _on_dice_settled(dice_index, face_result))
 
 		var offset := Vector3(randf_range(-0.3, 0.3), 0.0, randf_range(-0.3, 0.3))
 		var from_pos: Vector3 = spawn_point.global_position + offset
@@ -55,9 +62,10 @@ func _roll_scenes(scenes: Array[PackedScene]) -> void:
 		dice.throw(from_pos, target_pos)
 
 
-func _on_dice_settled(face_result: String) -> void:
-	_results.append(face_result)
-	if _results.size() == _dice.size():
+func _on_dice_settled(dice_index: int, face_result: String) -> void:
+	_results[dice_index] = face_result
+	_settled_count += 1
+	if _settled_count == _dice.size():
 		roll_finished.emit(_results)
 
 

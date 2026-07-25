@@ -7,9 +7,26 @@ var _hideout_turn_order: Array = []
 var _hideout_turn_index: int = 0
 
 
+## Ordre "du dernier au 1er joueur" (règle 5.8), calculé à partir du vrai
+## 1er joueur désigné par le lancer de dés de mise en place
+## (first_player_dice_phase), pas d'un index fixe dans GameFlow.players.
+func _compute_hideout_order() -> Array:
+	var n: int = GameFlow.players.size()
+	var first_id: int = GameFlow.get_first_player_id()
+	var first_index: int = 0
+	for i in range(n):
+		if GameFlow.players[i]["id"] == first_id:
+			first_index = i
+			break
+	var order: Array = []
+	for i in range(n - 1, -1, -1):
+		order.append((first_index + i) % n)
+	return order
+
+
 func start(board: Board) -> void:
 	_board = board
-	_hideout_turn_order = range(GameFlow.players.size() - 1, -1, -1)
+	_hideout_turn_order = _compute_hideout_order()
 	_hideout_turn_index = 0
 
 	for spot in _board.hideout_spots_container.get_children():
@@ -57,7 +74,7 @@ func resume(board: Board) -> void:
 	for spot in _board.hideout_spots_container.get_children():
 		if spot.is_taken:
 			claimed += 1
-	_hideout_turn_order = range(GameFlow.players.size() - 1, -1, -1)
+	_hideout_turn_order = _compute_hideout_order()
 	_hideout_turn_index = claimed
 	for spot in _board.hideout_spots_container.get_children():
 		if spot.is_taken:

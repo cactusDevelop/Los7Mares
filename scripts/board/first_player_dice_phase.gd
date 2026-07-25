@@ -89,7 +89,8 @@ func _roll_for_player(player_id: int) -> void:
 
 
 func _throw_and_await() -> Array[String]:
-	_dice_roll.roll_mixed([BLACK_DIE_SCENE, WHITE_DIE_SCENE])
+	var scenes: Array[PackedScene] = [BLACK_DIE_SCENE, WHITE_DIE_SCENE]
+	_dice_roll.roll_mixed(scenes)
 	var results: Array[String] = await _dice_roll.roll_finished
 	return results
 
