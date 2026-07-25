@@ -150,6 +150,12 @@ func _ready() -> void:
 	# partie qui dépasse du bord droit du plateau (hors de la zone couverte
 	# par BoardTexture) reste visible.
 	board_texture.z_index = 10
+	# En revanche les objets d'inventaire (cubes de ressources, jetons
+	# fortune/trésor, planches, tous enfants de resource_slots) doivent
+	# rester visibles PAR-DESSUS le plateau, sans quoi board_texture.z_index
+	# = 10 les masque complètement (ils n'ont eux-mêmes aucun z_index
+	# propre, donc valent 0 par défaut).
+	resource_slots.z_index = 11
 	padding.add_theme_constant_override("margin_left", 0)
 	padding.add_theme_constant_override("margin_right", 0)
 	padding.add_theme_constant_override("margin_top", 60)

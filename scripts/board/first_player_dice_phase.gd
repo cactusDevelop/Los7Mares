@@ -29,29 +29,56 @@ var _viewport_container: Control
 var _dice_roll: Node3D
 var _rolls: Dictionary = {}  # player_id -> {"black": String, "white": String}
 
+## Mis à true par le bouton debug "Passer" (réutilisé ici, cf
+## board._on_debug_skip_button_pressed) : abandonne tous les lancers de dés
+## restants et garde l'ordre par défaut des joueurs (players[0] devient le
+## 1er joueur), sans jeton fortune de compensation puisqu'aucun jet n'a
+## réellement départagé qui que ce soit.
+var _skip_requested: bool = false
+
 
 func start(board: Board) -> void:
 	_board = board
 	_viewport_container = board.get_node("UI/SubViewportContainer")
 	_dice_roll = board.get_node("UI/SubViewportContainer/SubViewport/DiceRoll3D")
 	_rolls.clear()
+	_skip_requested = false
 
 	var ids: Array[int] = []
 	for p in GameFlow.players:
 		ids.append(p["id"])
 
-	_board.narration_box.say(tr("Tirage au sort du 1er joueur : chaque joueur lance 1 dé de combat et 1 dé d'exploration."))
+	# board.gd connecte déjà _on_debug_skip_button_pressed en permanence
+	# (utilisé pendant la pose de pions) : on le débranche temporairement
+	# pour brancher notre propre gestionnaire, sans quoi les deux
+	# réagiraient au même clic pendant cette phase.
+	_board.debug_skip_button.visible = GameFlow.is_debug_mode
+	if _board.debug_skip_button.pressed.is_connected(_board._on_debug_skip_button_pressed):
+		_board.debug_skip_button.pressed.disconnect(_board._on_debug_skip_button_pressed)
+	_board.debug_skip_button.pressed.connect(_on_skip_pressed)
+
+	_board.narration_box.say(tr("Tirage au sort du 1er joueur : chaque joueur clique pour lancer 1 dé de combat et 1 dé d'exploration."))
 	await _board.get_tree().create_timer(1.0).timeout
-	var winner_id: int = await _resolve_winner_among(ids)
+
+	var winner_id: int
+	var loser_id: int = -1
+	if _skip_requested:
+		winner_id = ids[0]
+	else:
+		winner_id = await _resolve_winner_among(ids)
+		# Le "dernier joueur" de la règle 5.7 se lit sur le tout premier jet
+		# de chacun (les relances ne servent qu'à départager les ex-aequo en
+		# tête) : on le calcule donc sur la liste complète des joueurs, pas
+		# sur un sous-groupe de relance.
+		loser_id = _worst_player(ids)
 	GameFlow.set_first_player(winner_id)
 
-	# Le "dernier joueur" de la règle 5.7 se lit sur le tout premier jet de
-	# chacun (les relances ne servent qu'à départager les ex-aequo en tête) :
-	# on le calcule donc sur la liste complète des joueurs, pas sur un
-	# sous-groupe de relance.
-	var loser_id := _worst_player(ids)
-	if loser_id != -1 and loser_id != winner_id:
+	if not _skip_requested and loser_id != -1 and loser_id != winner_id:
 		_board._take_fortune_token_for(loser_id)
+
+	_board.debug_skip_button.pressed.disconnect(_on_skip_pressed)
+	_board.debug_skip_button.visible = false
+	_board.debug_skip_button.pressed.connect(_board._on_debug_skip_button_pressed)
 
 	var winner_name := _player_name(winner_id)
 	_board.narration_box.say(tr("%s commence la partie !") % winner_name)
@@ -61,12 +88,24 @@ func start(board: Board) -> void:
 	finished.emit()
 
 
+## Débloque immédiatement l'attente en cours (clic sur "Lancer les dés" du
+## joueur courant, cf _roll_for_player) : émettre option_selected avec un id
+## quelconque suffit, _roll_for_player vérifie _skip_requested avant de
+## regarder quel bouton a été cliqué.
+func _on_skip_pressed() -> void:
+	_skip_requested = true
+	_board.narration_box.set_options([])
+	_board.narration_box.option_selected.emit("skip")
+
+
 ## Fait rouler les dés pour chaque joueur de player_ids, puis renvoie l'id
 ## du gagnant ; en cas d'égalité totale, relance uniquement entre les
 ## joueurs à égalité jusqu'à départage.
 func _resolve_winner_among(player_ids: Array[int]) -> int:
 	for pid in player_ids:
 		await _roll_for_player(pid)
+		if _skip_requested:
+			return player_ids[0]
 
 	var best_ids := _players_ranked_best(player_ids)
 	if best_ids.size() > 1:
@@ -78,10 +117,29 @@ func _resolve_winner_among(player_ids: Array[int]) -> int:
 	return best_ids[0]
 
 
+## Attend un clic du joueur concerné sur "Lancer les dés" (1 clic = son
+## propre lancer, règle 5.7 : chaque joueur lance ses 2 dés à tour de rôle
+## dans l'implémentation, le résultat restant équivalent à un lancer
+## simultané puisque rien ne dépend de l'ordre entre joueurs). Si le bouton
+## debug "Passer" est cliqué entre-temps, renvoie immédiatement sans lancer
+## (résultat "vide" placeholder, ignoré car _skip_requested court-circuite
+## le classement dans start()).
 func _roll_for_player(player_id: int) -> void:
-	_viewport_container.visible = true
-	_board.narration_box.say(tr("%s lance ses dés...") % _player_name(player_id))
+	if _skip_requested:
+		_rolls[player_id] = {"black": "vide", "white": "vide"}
+		return
 
+	_viewport_container.visible = true
+	_board.narration_box.say_with_player(tr("Tour de %s : clique sur \"Lancer les dés\"."), _find_player(player_id))
+	_board.narration_box.set_options([{"id": "roll", "label": tr("Lancer les dés")}])
+	await _board.narration_box.option_selected
+	_board.narration_box.set_options([])
+
+	if _skip_requested:
+		_rolls[player_id] = {"black": "vide", "white": "vide"}
+		return
+
+	_board.narration_box.say(tr("%s lance ses dés...") % _player_name(player_id))
 	var results: Array[String] = await _throw_and_await()
 	_rolls[player_id] = {"black": results[0], "white": results[1]}
 
@@ -139,3 +197,10 @@ func _player_name(player_id: int) -> String:
 		if p["id"] == player_id:
 			return p["name"]
 	return "?"
+
+
+func _find_player(player_id: int) -> Dictionary:
+	for p in GameFlow.players:
+		if p["id"] == player_id:
+			return p
+	return {}

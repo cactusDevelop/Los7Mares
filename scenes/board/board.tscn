@@ -267,7 +267,7 @@ stretch = true
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(1152, 648)
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="DiceRoll3D" parent="UI/SubViewportContainer/SubViewport" unique_id=1843521446 instance=ExtResource("20_m0x5n")]
 
