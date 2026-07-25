@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dykmxb7jddo3a"]
 
 [ext_resource type="Script" uid="uid://cawl7lnj6y3l6" path="res://scenes/effects/dice_roll_3d.gd" id="1_ng5vf"]
-[ext_resource type="PackedScene" uid="uid://6fafl3s52fx1" path="res://scenes/effects/dice_3d.tscn" id="2_mmcw6"]
+[ext_resource type="PackedScene" uid="uid://bk1ojqm1skaxp" path="res://scenes/effects/dice_white_3d.tscn" id="2_mmcw6"]
 
 [sub_resource type="Environment" id="Environment_amb1"]
 ambient_light_source = 2
