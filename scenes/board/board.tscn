@@ -160,6 +160,19 @@ theme_override_constants/separation = 8
 
 [node name="PionSelectionPanel" parent="UI" unique_id=1299012961 instance=ExtResource("16_bo4hw")]
 
+[node name="PlayerBoardsLayout" type="Control" parent="UI" unique_id=1661766560]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="DiceResultsButton" type="Button" parent="UI" unique_id=2093148636]
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Dés"
+
+[node name="DiceResultsPopup" parent="UI" unique_id=1385173848 instance=ExtResource("21_x2ryx")]
+
 [node name="PlayerBoardExpanded" parent="UI" unique_id=670737293 instance=ExtResource("18_ctilb")]
 
 [node name="SeaCardPopup" parent="UI" unique_id=1069071596 instance=ExtResource("17_bo4hw")]
@@ -246,19 +259,6 @@ size = Vector2i(1152, 648)
 render_target_update_mode = 0
 
 [node name="DiceRoll3D" parent="UI/SubViewportContainer/SubViewport" unique_id=1843521446 instance=ExtResource("20_m0x5n")]
-
-[node name="PlayerBoardsLayout" type="Control" parent="UI" unique_id=1661766560]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="DiceResultsButton" type="Button" parent="UI" unique_id=2093148636]
-offset_right = 8.0
-offset_bottom = 8.0
-text = "Dés"
-
-[node name="DiceResultsPopup" parent="UI" unique_id=1385173848 instance=ExtResource("21_x2ryx")]
 
 [node name="ActionSpots" type="Node2D" parent="." unique_id=773537764]
 

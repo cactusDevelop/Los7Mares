@@ -1,7 +1,12 @@
 extends VBoxContainer
 signal pressed(player_id: int)
+## Émis quand la souris entre/sort du plateau (nom + image + jetons) : utilisé
+## par board.gd pour faire glisser le plateau depuis le bord de l'écran
+## (état "peek") vers sa position pleinement visible, et inversement.
+signal hover_changed(is_hovering: bool)
 
 @onready var name_label: Label = $NameLabel
+@onready var row_container: HBoxContainer = $Row
 @onready var board_wrap: Control = $Row/BoardWrap
 @onready var board_texture: TextureRect = $Row/BoardWrap/BoardTexture
 @onready var tokens_container: HBoxContainer = $Row/TokensContainer
@@ -9,6 +14,25 @@ signal pressed(player_id: int)
 const BOARD_THUMB_SIZE := Vector2(160, 107)
 
 var _player_id: int = -1
+
+
+func _ready() -> void:
+	# PASS (pas STOP) : laisse simplement passer le mouse_entered/exited au
+	# niveau du plateau entier (nom + image + jetons), sans bloquer le clic
+	# précis sur board_wrap qui gère déjà son propre gui_input (STOP).
+	mouse_filter = Control.MOUSE_FILTER_PASS
+	mouse_entered.connect(func(): hover_changed.emit(true))
+	mouse_exited.connect(func(): hover_changed.emit(false))
+
+
+## Fait pivoter uniquement l'image du plateau + ses jetons (pas le nom du
+## joueur, qui reste toujours lisible normalement) pour que le "haut" du
+## plateau pointe vers le centre de l'écran, quel que soit le côté où il est
+## affiché (cf board.gd, ROTATION_BY_SLOT). À appeler une fois la taille
+## connue (après populate() + 1 frame), sans quoi pivot_offset serait faux.
+func set_board_rotation(degrees: float) -> void:
+	row_container.pivot_offset = row_container.size / 2.0
+	row_container.rotation_degrees = degrees
 
 
 const TOKEN_BASE_SIZE := Vector2(40, 40)

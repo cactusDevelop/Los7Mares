@@ -379,6 +379,23 @@ const PLAYER_BOARD_SLOTS_BY_REMAINING: Dictionary = {
 	4: ["top", "top", "left", "right"],
 }
 
+## Rotation appliquée à l'image de chaque plateau (pas au nom du joueur) pour
+## que son "haut" pointe vers le centre de l'écran, quel que soit le côté où
+## il est affiché. Le plateau actif (bas) n'a pas besoin d'être tourné : son
+## haut pointe déjà naturellement vers le centre.
+const ROTATION_BY_SLOT: Dictionary = {
+	"bottom": 0.0, "top": 180.0, "left": 90.0, "right": -90.0,
+}
+
+## Seule cette hauteur/largeur (en pixels) dépasse du bord de l'écran tant que
+## le plateau n'est pas survolé ; le reste glisse hors champ. Ne s'applique
+## pas au plateau du joueur actif (toujours pleinement visible, en bas).
+const BOARD_PEEK_VISIBLE_PX := 28.0
+const BOARD_HOVER_SLIDE_DURATION := 0.22
+## Marge de sécurité gardée entre le bas de la narration box et le haut du
+## plateau affiché sur le côté gauche, pour ne jamais les superposer.
+const LEFT_SLOT_NARRATION_MARGIN := 16.0
+
 func _layout_player_boards() -> void:
 	for child in player_boards_layout.get_children():
 		child.queue_free()
@@ -401,7 +418,8 @@ func _layout_player_boards() -> void:
 
 	var viewport_size: Vector2 = get_viewport_rect().size
 
-	# Joueur actif : en bas, centré, en grand.
+	# Joueur actif : en bas, centré, en grand, toujours pleinement visible
+	# (pas de peek/hover pour lui).
 	var current_row := PLAYER_BOARD_ROW.instantiate()
 	player_boards_layout.add_child(current_row)
 	current_row.populate(current_player, CURRENT_BOARD_THUMB_SIZE)
@@ -412,6 +430,7 @@ func _layout_player_boards() -> void:
 		(viewport_size.x - current_min.x) / 2.0,
 		viewport_size.y - current_min.y - BOARD_LAYOUT_MARGIN
 	)
+	current_row.set_board_rotation(ROTATION_BY_SLOT["bottom"])
 
 	# Les autres joueurs, répartis selon leur nombre (cf table ci-dessus).
 	var slots: Array = PLAYER_BOARD_SLOTS_BY_REMAINING.get(others.size(), [])
@@ -423,17 +442,27 @@ func _layout_player_boards() -> void:
 		player_boards_layout.add_child(row)
 		row.populate(others[i], BOARD_THUMB_SIZE)
 		row.pressed.connect(_on_player_board_pressed)
-		match slots[i]:
+		var slot: String = slots[i]
+		row.set_board_rotation(ROTATION_BY_SLOT[slot])
+		match slot:
 			"top":
 				top_rows.append(row)
 			"left":
 				await get_tree().process_frame
 				var min_size: Vector2 = row.get_combined_minimum_size()
-				row.position = Vector2(BOARD_LAYOUT_MARGIN, (viewport_size.y - min_size.y) / 2.0)
+				var narration_bottom: float = narration_box.position.y + narration_box.size.y + LEFT_SLOT_NARRATION_MARGIN
+				var y: float = max(narration_bottom, (viewport_size.y - min_size.y) / 2.0)
+				y = min(y, viewport_size.y - min_size.y - BOARD_LAYOUT_MARGIN)
+				var full_pos := Vector2(BOARD_LAYOUT_MARGIN, y)
+				var peek_pos := Vector2(-(min_size.x - BOARD_PEEK_VISIBLE_PX), y)
+				_setup_board_peek(row, peek_pos, full_pos)
 			"right":
 				await get_tree().process_frame
 				var min_size: Vector2 = row.get_combined_minimum_size()
-				row.position = Vector2(viewport_size.x - min_size.x - BOARD_LAYOUT_MARGIN, (viewport_size.y - min_size.y) / 2.0)
+				var y: float = (viewport_size.y - min_size.y) / 2.0
+				var full_pos := Vector2(viewport_size.x - min_size.x - BOARD_LAYOUT_MARGIN, y)
+				var peek_pos := Vector2(viewport_size.x - BOARD_PEEK_VISIBLE_PX, y)
+				_setup_board_peek(row, peek_pos, full_pos)
 
 	# Les plateaux "top" (1 ou 2) sont centrés ensemble en haut, côte à côte.
 	if not top_rows.is_empty():
@@ -447,8 +476,25 @@ func _layout_player_boards() -> void:
 		total_width += BOARD_LAYOUT_TOP_SPACING * max(top_rows.size() - 1, 0)
 		var x: float = (viewport_size.x - total_width) / 2.0
 		for i in range(top_rows.size()):
-			top_rows[i].position = Vector2(x, BOARD_LAYOUT_MARGIN)
+			var full_pos := Vector2(x, BOARD_LAYOUT_MARGIN)
+			var peek_pos := Vector2(x, -(sizes[i].y - BOARD_PEEK_VISIBLE_PX))
+			_setup_board_peek(top_rows[i], peek_pos, full_pos)
 			x += sizes[i].x + BOARD_LAYOUT_TOP_SPACING
+
+
+## Place row en position "peek" (juste un bord visible) et le fait glisser
+## vers full_pos au survol (souris dessus), puis revenir à peek_pos quand la
+## souris s'en va. N'est jamais appelé pour le plateau du joueur actif.
+func _setup_board_peek(row: Control, peek_pos: Vector2, full_pos: Vector2) -> void:
+	row.position = peek_pos
+	var tween: Tween
+	row.hover_changed.connect(func(is_hovering: bool):
+		if tween and tween.is_valid():
+			tween.kill()
+		tween = row.create_tween()
+		tween.tween_property(row, "position", full_pos if is_hovering else peek_pos, BOARD_HOVER_SLIDE_DURATION)\
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	)
 
 
 func _on_player_board_pressed(player_id: int) -> void:
