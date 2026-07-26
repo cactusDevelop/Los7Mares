@@ -92,6 +92,16 @@ var _has_started: bool = false
 var _sea_marker_positions: Dictionary = {}  # sea_key -> Vector2 (position du jeton de bateau)
 var _boat_markers: Dictionary = {}  # player_id -> Node2D (boat_piece détaché de la cachette)
 var _boats_by_sea: Dictionary = {}  # sea_key -> Array[int] (ids des joueurs dont le bateau est sur cette mer, pour la répartition en cercle)
+## _layout_player_boards contient plusieurs "await get_tree().process_frame"
+## et peut être relancée pendant qu'un appel précédent est encore en cours
+## (GameFlow.current_player_changed + get_viewport().size_changed peuvent
+## tous deux déclencher un appel dans la même frame). Sans garde, l'appel le
+## plus récent libère (queue_free) les plateaux créés par l'appel précédent
+## PENDANT que celui-ci est en pause sur un await, qui plante ensuite en
+## utilisant une référence libérée ("previously freed"). _layout_run_id
+## incrémente à chaque appel ; tout appel dont l'id ne correspond plus au
+## dernier après un await s'arrête immédiatement au lieu de continuer.
+var _layout_run_id: int = 0
 
 var _camera_base_position: Vector2
 var _camera_base_zoom: Vector2
@@ -388,8 +398,8 @@ const ROTATION_BY_SLOT: Dictionary = {
 }
 
 ## Seule cette hauteur/largeur (en pixels) dépasse du bord de l'écran tant que
-## le plateau n'est pas survolé ; le reste glisse hors champ. Ne s'applique
-## pas au plateau du joueur actif (toujours pleinement visible, en bas).
+## le plateau n'est pas survolé ; le reste glisse hors champ. S'applique
+## aussi au plateau du joueur actif (en bas).
 const BOARD_PEEK_VISIBLE_PX := 28.0
 const BOARD_HOVER_SLIDE_DURATION := 0.22
 ## Marge de sécurité gardée entre le bas de la narration box et le haut du
@@ -397,6 +407,13 @@ const BOARD_HOVER_SLIDE_DURATION := 0.22
 const LEFT_SLOT_NARRATION_MARGIN := 16.0
 
 func _layout_player_boards() -> void:
+	# Cf déclaration de _layout_run_id : on identifie cet appel précis, et on
+	# vérifie après chaque await qu'aucun appel plus récent ne l'a entre-temps
+	# rendu obsolète (auquel cas on s'arrête sans toucher aux nodes, qui ont
+	# potentiellement déjà été libérés par cet appel plus récent).
+	_layout_run_id += 1
+	var run_id: int = _layout_run_id
+
 	for child in player_boards_layout.get_children():
 		child.queue_free()
 
@@ -418,18 +435,24 @@ func _layout_player_boards() -> void:
 
 	var viewport_size: Vector2 = get_viewport_rect().size
 
-	# Joueur actif : en bas, centré, en grand, toujours pleinement visible
-	# (pas de peek/hover pour lui).
+	# Joueur actif : en bas, centré, en grand. Même comportement peek/hover
+	# que les autres plateaux (seul le haut dépasse tant qu'il n'est pas
+	# survolé, glisse pleinement visible au survol).
 	var current_row := PLAYER_BOARD_ROW.instantiate()
 	player_boards_layout.add_child(current_row)
 	current_row.populate(current_player, CURRENT_BOARD_THUMB_SIZE, ROTATION_BY_SLOT["bottom"])
 	current_row.pressed.connect(_on_player_board_pressed)
 	await get_tree().process_frame
+	if run_id != _layout_run_id:
+		return
 	var current_min: Vector2 = current_row.get_combined_minimum_size()
-	current_row.position = Vector2(
-		(viewport_size.x - current_min.x) / 2.0,
-		viewport_size.y - current_min.y - BOARD_LAYOUT_MARGIN
+	var current_x: float = (viewport_size.x - current_min.x) / 2.0
+	var current_full_pos := Vector2(current_x, viewport_size.y - current_min.y - BOARD_LAYOUT_MARGIN)
+	var current_peek_pos := Vector2(current_x, viewport_size.y - BOARD_PEEK_VISIBLE_PX)
+	var current_hover_zone := Rect2(
+		Vector2(current_x, current_full_pos.y), Vector2(current_min.x, viewport_size.y - current_full_pos.y)
 	)
+	_setup_board_peek(current_row, current_peek_pos, current_full_pos, current_hover_zone)
 
 	# Les autres joueurs, répartis selon leur nombre (cf table ci-dessus).
 	var slots: Array = PLAYER_BOARD_SLOTS_BY_REMAINING.get(others.size(), [])
@@ -447,6 +470,8 @@ func _layout_player_boards() -> void:
 				top_rows.append(row)
 			"left":
 				await get_tree().process_frame
+				if run_id != _layout_run_id:
+					return
 				var min_size: Vector2 = row.get_combined_minimum_size()
 				var narration_bottom: float = narration_box.position.y + narration_box.size.y + LEFT_SLOT_NARRATION_MARGIN
 				var y: float = max(narration_bottom, (viewport_size.y - min_size.y) / 2.0)
@@ -457,6 +482,8 @@ func _layout_player_boards() -> void:
 				_setup_board_peek(row, peek_pos, full_pos, hover_zone)
 			"right":
 				await get_tree().process_frame
+				if run_id != _layout_run_id:
+					return
 				var min_size: Vector2 = row.get_combined_minimum_size()
 				var y: float = (viewport_size.y - min_size.y) / 2.0
 				var full_pos := Vector2(viewport_size.x - min_size.x - BOARD_LAYOUT_MARGIN, y)
@@ -467,6 +494,8 @@ func _layout_player_boards() -> void:
 	# Les plateaux "top" (1 ou 2) sont centrés ensemble en haut, côte à côte.
 	if not top_rows.is_empty():
 		await get_tree().process_frame
+		if run_id != _layout_run_id:
+			return
 		var sizes: Array[Vector2] = []
 		var total_width := 0.0
 		for row in top_rows:
