@@ -5,7 +5,8 @@ signal pressed(player_id: int)
 @onready var row: BoxContainer = $Row
 @onready var board_wrap: Control = $Row/BoardWrap
 @onready var board_texture: TextureRect = $Row/BoardWrap/BoardTexture
-@onready var tokens_container: HBoxContainer = $Row/TokensContainer
+@onready var tokens_wrap: Control = $Row/TokensWrap
+@onready var tokens_container: HBoxContainer = $Row/TokensWrap/TokensContainer
 
 const BOARD_THUMB_SIZE := Vector2(160, 107)
 const TOKEN_BASE_SIZE := Vector2(40, 40)
@@ -16,15 +17,17 @@ var _player_id: int = -1
 ## thumb_size permet d'afficher ce plateau plus grand que les autres (le
 ## joueur actif, en bas de l'écran, cf board.gd _layout_player_boards).
 ## board_rotation_degrees fait pointer le "haut" du plateau vers le centre de
-## l'écran (0/90/180/-90 selon le côté, cf board.gd ROTATION_BY_SLOT) : SEULE
-## l'image tourne (pas le nom du joueur, ni les jetons, qui restent lisibles).
+## l'écran (0/90/180/-90 selon le côté, cf board.gd ROTATION_BY_SLOT) : le
+## plateau ET les jetons (perroquets, marqueur doré) tournent ensemble du
+## même angle. Seul le nom du joueur reste toujours droit.
 ##
-## Note technique : on tourne board_texture (enfant de board_wrap, un Control
-## simple), PAS Row ni board_wrap eux-mêmes, car ce sont des enfants directs
-## d'un Container (VBoxContainer/HBoxContainer) — Godot réinitialise
-## systématiquement la rotation de ces enfants-là à chaque passe de mise en
-## page. board_texture y échappe car son parent direct (board_wrap) n'est pas
-## un Container.
+## Note technique : on tourne board_texture (enfant de board_wrap) et
+## tokens_container (enfant de tokens_wrap), PAS Row, board_wrap ni
+## tokens_wrap eux-mêmes, car Row est un Container (BoxContainer) — Godot
+## réinitialise systématiquement la rotation des enfants directs d'un
+## Container à chaque passe de mise en page. board_texture/tokens_container y
+## échappent car leur parent direct (board_wrap/tokens_wrap) est un Control
+## simple, pas un Container.
 func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE, board_rotation_degrees: float = 0.0) -> void:
 	_player_id = player["id"]
 	name_label.text = "%s — %d pts" % [player["name"], player["points"]]
@@ -48,6 +51,10 @@ func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE, board_
 	board_wrap.size = wrap_size
 	board_wrap.clip_contents = true
 	board_wrap.mouse_filter = Control.MOUSE_FILTER_STOP
+	board_wrap.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	board_wrap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	tokens_wrap.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	tokens_wrap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	board_texture.position = (wrap_size - thumb_size) / 2.0
 	if not board_wrap.gui_input.is_connected(_on_board_wrap_gui_input):
 		board_wrap.gui_input.connect(_on_board_wrap_gui_input)
@@ -64,6 +71,21 @@ func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE, board_
 	if player.get("is_first_player", false):
 		tokens_container.add_child(_build_marker_token(token_size))
 
+	# Les jetons tournent avec le plateau (même angle), pour la même raison
+	# que board_texture : tokens_container est un enfant de tokens_wrap (un
+	# Control simple, pas un Container), donc sa rotation n'est pas
+	# réinitialisée par une passe de layout.
+	var tokens_min: Vector2 = tokens_container.get_combined_minimum_size()
+	tokens_container.size = tokens_min
+	tokens_container.pivot_offset = tokens_min / 2.0
+	tokens_container.rotation_degrees = board_rotation_degrees
+
+	var tokens_wrap_size: Vector2 = Vector2(tokens_min.y, tokens_min.x) if swapped else tokens_min
+	tokens_wrap.custom_minimum_size = tokens_wrap_size
+	tokens_wrap.size = tokens_wrap_size
+	tokens_wrap.clip_contents = true
+	tokens_container.position = (tokens_wrap_size - tokens_min) / 2.0
+
 
 ## Oriente Row (BoxContainer) et l'ordre de BoardWrap/TokensContainer pour
 ## que perroquets + marqueur doré restent "à droite du plateau" dans le
@@ -72,9 +94,9 @@ func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE, board_
 ## "right" = -90°, "top" = 180°, "bottom" = 0°).
 ## Une direction "à droite" tournée du même angle que le plateau donne :
 ## à droite à 0° (bas), en dessous à 90° (gauche), au-dessus à -90° (droite),
-## à gauche à 180° (haut). tokens_container n'est jamais tourné lui-même
-## (ses jetons restent lisibles) : seuls l'axe (vertical/horizontal) et
-## l'ordre des deux enfants de Row changent.
+## à gauche à 180° (haut). Ici on ne fait que choisir l'axe (vertical/
+## horizontal) et l'ordre des deux enfants de Row ; la rotation des jetons
+## eux-mêmes est gérée plus haut dans populate().
 func _layout_row_direction(board_rotation_degrees: float) -> void:
 	var angle: int = int(round(board_rotation_degrees)) % 360
 	if angle < 0:
@@ -85,10 +107,10 @@ func _layout_row_direction(board_rotation_degrees: float) -> void:
 			row.move_child(board_wrap, 0)
 		270: # slot "right" (-90°) : jetons au-dessus du plateau
 			row.vertical = true
-			row.move_child(tokens_container, 0)
+			row.move_child(tokens_wrap, 0)
 		180: # slot "top" : jetons à gauche du plateau
 			row.vertical = false
-			row.move_child(tokens_container, 0)
+			row.move_child(tokens_wrap, 0)
 		_: # 0°, slot "bottom" : jetons à droite du plateau
 			row.vertical = false
 			row.move_child(board_wrap, 0)
