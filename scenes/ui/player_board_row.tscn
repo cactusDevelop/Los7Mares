@@ -21,5 +21,10 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="TokensContainer" type="HBoxContainer" parent="Row" unique_id=1216573272]
+[node name="TokensWrap" type="Control" parent="Row" unique_id=1216573271]
 layout_mode = 2
+
+[node name="TokensContainer" type="HBoxContainer" parent="Row/TokensWrap" unique_id=1216573272]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
