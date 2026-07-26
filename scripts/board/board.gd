@@ -422,7 +422,7 @@ func _layout_player_boards() -> void:
 	# (pas de peek/hover pour lui).
 	var current_row := PLAYER_BOARD_ROW.instantiate()
 	player_boards_layout.add_child(current_row)
-	current_row.populate(current_player, CURRENT_BOARD_THUMB_SIZE)
+	current_row.populate(current_player, CURRENT_BOARD_THUMB_SIZE, ROTATION_BY_SLOT["bottom"])
 	current_row.pressed.connect(_on_player_board_pressed)
 	await get_tree().process_frame
 	var current_min: Vector2 = current_row.get_combined_minimum_size()
@@ -430,7 +430,6 @@ func _layout_player_boards() -> void:
 		(viewport_size.x - current_min.x) / 2.0,
 		viewport_size.y - current_min.y - BOARD_LAYOUT_MARGIN
 	)
-	current_row.set_board_rotation(ROTATION_BY_SLOT["bottom"])
 
 	# Les autres joueurs, répartis selon leur nombre (cf table ci-dessus).
 	var slots: Array = PLAYER_BOARD_SLOTS_BY_REMAINING.get(others.size(), [])
@@ -438,12 +437,11 @@ func _layout_player_boards() -> void:
 	for i in range(others.size()):
 		if i >= slots.size():
 			break
+		var slot: String = slots[i]
 		var row := PLAYER_BOARD_ROW.instantiate()
 		player_boards_layout.add_child(row)
-		row.populate(others[i], BOARD_THUMB_SIZE)
+		row.populate(others[i], BOARD_THUMB_SIZE, ROTATION_BY_SLOT[slot])
 		row.pressed.connect(_on_player_board_pressed)
-		var slot: String = slots[i]
-		row.set_board_rotation(ROTATION_BY_SLOT[slot])
 		match slot:
 			"top":
 				top_rows.append(row)
@@ -455,14 +453,16 @@ func _layout_player_boards() -> void:
 				y = min(y, viewport_size.y - min_size.y - BOARD_LAYOUT_MARGIN)
 				var full_pos := Vector2(BOARD_LAYOUT_MARGIN, y)
 				var peek_pos := Vector2(-(min_size.x - BOARD_PEEK_VISIBLE_PX), y)
-				_setup_board_peek(row, peek_pos, full_pos)
+				var hover_zone := Rect2(Vector2(0.0, y), Vector2(full_pos.x + min_size.x, min_size.y))
+				_setup_board_peek(row, peek_pos, full_pos, hover_zone)
 			"right":
 				await get_tree().process_frame
 				var min_size: Vector2 = row.get_combined_minimum_size()
 				var y: float = (viewport_size.y - min_size.y) / 2.0
 				var full_pos := Vector2(viewport_size.x - min_size.x - BOARD_LAYOUT_MARGIN, y)
 				var peek_pos := Vector2(viewport_size.x - BOARD_PEEK_VISIBLE_PX, y)
-				_setup_board_peek(row, peek_pos, full_pos)
+				var hover_zone := Rect2(Vector2(full_pos.x, y), Vector2(viewport_size.x - full_pos.x, min_size.y))
+				_setup_board_peek(row, peek_pos, full_pos, hover_zone)
 
 	# Les plateaux "top" (1 ou 2) sont centrés ensemble en haut, côte à côte.
 	if not top_rows.is_empty():
@@ -478,23 +478,40 @@ func _layout_player_boards() -> void:
 		for i in range(top_rows.size()):
 			var full_pos := Vector2(x, BOARD_LAYOUT_MARGIN)
 			var peek_pos := Vector2(x, -(sizes[i].y - BOARD_PEEK_VISIBLE_PX))
-			_setup_board_peek(top_rows[i], peek_pos, full_pos)
+			var hover_zone := Rect2(Vector2(x, 0.0), Vector2(sizes[i].x, full_pos.y + sizes[i].y))
+			_setup_board_peek(top_rows[i], peek_pos, full_pos, hover_zone)
 			x += sizes[i].x + BOARD_LAYOUT_TOP_SPACING
 
 
 ## Place row en position "peek" (juste un bord visible) et le fait glisser
-## vers full_pos au survol (souris dessus), puis revenir à peek_pos quand la
-## souris s'en va. N'est jamais appelé pour le plateau du joueur actif.
-func _setup_board_peek(row: Control, peek_pos: Vector2, full_pos: Vector2) -> void:
+## vers full_pos au survol, puis revenir à peek_pos quand la souris s'en va.
+## N'est jamais appelé pour le plateau du joueur actif.
+##
+## Important : la détection de survol ne se fait PAS sur row lui-même (qui
+## est justement l'élément animé/en mouvement) mais sur un Control invisible
+## et FIXE (hover_zone_rect), qui couvre toute la zone que row peut occuper
+## (du bord d'écran jusqu'à sa position pleinement visible). Détecter le
+## survol sur l'élément qui bouge causait un aller-retour infini : dès que le
+## plateau glissait sous la souris, il sortait de sa propre zone de
+## détection, ce qui le faisait ressortir, etc. (effet de "vibration").
+func _setup_board_peek(row: Control, peek_pos: Vector2, full_pos: Vector2, hover_zone_rect: Rect2) -> void:
 	row.position = peek_pos
+
+	var hover_zone := Control.new()
+	hover_zone.mouse_filter = Control.MOUSE_FILTER_PASS
+	hover_zone.position = hover_zone_rect.position
+	hover_zone.size = hover_zone_rect.size
+	player_boards_layout.add_child(hover_zone)
+
 	var tween: Tween
-	row.hover_changed.connect(func(is_hovering: bool):
+	var slide_to := func(target: Vector2) -> void:
 		if tween and tween.is_valid():
 			tween.kill()
 		tween = row.create_tween()
-		tween.tween_property(row, "position", full_pos if is_hovering else peek_pos, BOARD_HOVER_SLIDE_DURATION)\
+		tween.tween_property(row, "position", target, BOARD_HOVER_SLIDE_DURATION)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	)
+	hover_zone.mouse_entered.connect(func(): slide_to.call(full_pos))
+	hover_zone.mouse_exited.connect(func(): slide_to.call(peek_pos))
 
 
 func _on_player_board_pressed(player_id: int) -> void:

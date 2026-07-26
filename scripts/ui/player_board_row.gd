@@ -1,47 +1,30 @@
 extends VBoxContainer
 signal pressed(player_id: int)
-## Émis quand la souris entre/sort du plateau (nom + image + jetons) : utilisé
-## par board.gd pour faire glisser le plateau depuis le bord de l'écran
-## (état "peek") vers sa position pleinement visible, et inversement.
-signal hover_changed(is_hovering: bool)
 
 @onready var name_label: Label = $NameLabel
-@onready var row_container: HBoxContainer = $Row
 @onready var board_wrap: Control = $Row/BoardWrap
 @onready var board_texture: TextureRect = $Row/BoardWrap/BoardTexture
 @onready var tokens_container: HBoxContainer = $Row/TokensContainer
 
 const BOARD_THUMB_SIZE := Vector2(160, 107)
+const TOKEN_BASE_SIZE := Vector2(40, 40)
 
 var _player_id: int = -1
 
 
-func _ready() -> void:
-	# PASS (pas STOP) : laisse simplement passer le mouse_entered/exited au
-	# niveau du plateau entier (nom + image + jetons), sans bloquer le clic
-	# précis sur board_wrap qui gère déjà son propre gui_input (STOP).
-	mouse_filter = Control.MOUSE_FILTER_PASS
-	mouse_entered.connect(func(): hover_changed.emit(true))
-	mouse_exited.connect(func(): hover_changed.emit(false))
-
-
-## Fait pivoter uniquement l'image du plateau + ses jetons (pas le nom du
-## joueur, qui reste toujours lisible normalement) pour que le "haut" du
-## plateau pointe vers le centre de l'écran, quel que soit le côté où il est
-## affiché (cf board.gd, ROTATION_BY_SLOT). À appeler une fois la taille
-## connue (après populate() + 1 frame), sans quoi pivot_offset serait faux.
-func set_board_rotation(degrees: float) -> void:
-	row_container.pivot_offset = row_container.size / 2.0
-	row_container.rotation_degrees = degrees
-
-
-const TOKEN_BASE_SIZE := Vector2(40, 40)
-
 ## thumb_size permet d'afficher ce plateau plus grand que les autres (le
-## joueur actif, en bas de l'écran, cf board.gd _layout_player_boards) :
-## les jetons (perroquets/marqueur) sont mis à l'échelle dans les mêmes
-## proportions pour rester cohérents visuellement.
-func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE) -> void:
+## joueur actif, en bas de l'écran, cf board.gd _layout_player_boards).
+## board_rotation_degrees fait pointer le "haut" du plateau vers le centre de
+## l'écran (0/90/180/-90 selon le côté, cf board.gd ROTATION_BY_SLOT) : SEULE
+## l'image tourne (pas le nom du joueur, ni les jetons, qui restent lisibles).
+##
+## Note technique : on tourne board_texture (enfant de board_wrap, un Control
+## simple), PAS Row ni board_wrap eux-mêmes, car ce sont des enfants directs
+## d'un Container (VBoxContainer/HBoxContainer) — Godot réinitialise
+## systématiquement la rotation de ces enfants-là à chaque passe de mise en
+## page. board_texture y échappe car son parent direct (board_wrap) n'est pas
+## un Container.
+func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE, board_rotation_degrees: float = 0.0) -> void:
 	_player_id = player["id"]
 	name_label.text = "%s — %d pts" % [player["name"], player["points"]]
 	name_label.add_theme_color_override("font_color", GameFlow.COLOR_VALUES[player["color"]])
@@ -50,10 +33,20 @@ func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE) -> voi
 	board_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	board_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	board_texture.custom_minimum_size = thumb_size
+	board_texture.size = thumb_size
+	board_texture.pivot_offset = thumb_size / 2.0
+	board_texture.rotation_degrees = board_rotation_degrees
 
-	board_wrap.custom_minimum_size = thumb_size
+	# À ±90°, le plateau occupe visuellement une boîte largeur/hauteur
+	# inversée à l'écran : on agrandit board_wrap en conséquence, sinon son
+	# clip_contents coupe l'image tournée. À 0°/180° la boîte ne change pas.
+	var swapped: bool = int(round(board_rotation_degrees)) % 180 != 0
+	var wrap_size: Vector2 = Vector2(thumb_size.y, thumb_size.x) if swapped else thumb_size
+	board_wrap.custom_minimum_size = wrap_size
+	board_wrap.size = wrap_size
 	board_wrap.clip_contents = true
 	board_wrap.mouse_filter = Control.MOUSE_FILTER_STOP
+	board_texture.position = (wrap_size - thumb_size) / 2.0
 	if not board_wrap.gui_input.is_connected(_on_board_wrap_gui_input):
 		board_wrap.gui_input.connect(_on_board_wrap_gui_input)
 
