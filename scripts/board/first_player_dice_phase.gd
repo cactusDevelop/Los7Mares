@@ -77,7 +77,6 @@ func start(board: Board) -> void:
 			# joueurs, pas sur un sous-groupe de relance.
 			loser_id = _worst_player(ids)
 	GameFlow.set_first_player(winner_id)
-	GameFlow.set_current_player(winner_id)
 
 	# Règle 5.7 : "le dernier joueur reçoit 1 fortune" - un jeton de
 	# compensation général, PAS un des 7 jetons dorés du plateau action (ceux-là
@@ -166,17 +165,9 @@ func _roll_for_player(player_id: int) -> void:
 		_rolls[player_id] = {"black": "vide", "white": "vide"}
 		return
 
-	GameFlow.set_current_player(player_id)
 	_board.narration_box.say(tr("%s lance ses dés...") % _player_name(player_id))
 	var results: Array[String] = await _throw_and_await()
 	_rolls[player_id] = {"black": results[0], "white": results[1]}
-	# Mémorisé directement sur le joueur (pas seulement dans _rolls, qui est
-	# local à cette phase) pour rester affichable toute la partie dans la
-	# popup DiceResultsPopup (cf board.gd).
-	var player := _find_player(player_id)
-	if not player.is_empty():
-		player["dice_roll"] = _rolls[player_id].duplicate()
-		GameFlow.players_changed.emit()
 
 	await _board.get_tree().create_timer(ROLL_PAUSE).timeout
 

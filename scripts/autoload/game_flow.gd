@@ -2,12 +2,6 @@ extends Node
 class_name GameFlowManager
 
 signal players_changed
-## Émis quand le joueur "actif" (celui dont le plateau doit apparaître en bas,
-## en grand, dans la disposition des plateaux joueurs) change. En mode local,
-## ça suit le joueur dont c'est le tour (cf pion_placement_phase / hideout_phase
-## qui appellent set_current_player). En mode héberger/rejoindre, ce n'est pas
-## utilisé : voir board.gd, le joueur du PC reste toujours en bas.
-signal current_player_changed(player_id: int)
 
 const COLORS: Array[String] = ["rouge", "jaune", "bleu", "vert", "violet"]
 const COLOR_VALUES: Dictionary = {
@@ -72,18 +66,6 @@ var pending_setup_mode: String = ""
 var pending_setup_target_count: int = 1
 var is_debug_mode: bool = false
 
-## Mode de la partie en cours, fixé une fois pour toutes au lancement du
-## plateau (cf board.gd _ready, à partir de pending_setup_mode) : "local"
-## (partie locale, le joueur actif change à chaque tour), "host" ou "join"
-## (partie en réseau : pas de vrai réseau implémenté pour l'instant, donc un
-## seul joueur existe réellement - le joueur du PC reste toujours affiché
-## en bas).
-var game_mode: String = "local"
-
-## Id du joueur "actif" en mode local (voir current_player_changed). -1 tant
-## qu'aucun tour n'a encore commencé.
-var current_player_id: int = -1
-
 var players: Array[Dictionary] = []
 
 var _next_player_id: int = 0
@@ -145,11 +127,6 @@ func add_player(player_name: String, color: String) -> Dictionary:
 		"sail_level": 1,
 		"arms_level": 1,
 		"boat_sea": "",
-		# Jet du tirage au sort du 1er joueur (dé combat + dé exploration),
-		# rempli par first_player_dice_phase.gd et affiché ensuite toute la
-		# partie dans la popup DiceResultsPopup (voir board.gd). Vide tant
-		# que le joueur n'a pas encore lancé ses dés.
-		"dice_roll": {},
 	}
 	_next_player_id += 1
 	players.append(player)
@@ -385,31 +362,6 @@ func get_players_sorted_by_points() -> Array[Dictionary]:
 	return sorted
 
 
-## Change le joueur "actif" affiché en bas/en grand dans la disposition des
-## plateaux (board.gd). N'a d'effet visible qu'en mode local : voir
-## current_player_changed.
-func set_current_player(player_id: int) -> void:
-	if current_player_id == player_id:
-		return
-	current_player_id = player_id
-	current_player_changed.emit(player_id)
-
-
-const DICE_BLACK_LABELS: Dictionary = {"vide": "Combat vide", "abordage": "Abordage", "canon": "Canon"}
-const DICE_WHITE_LABELS: Dictionary = {"vide": "Exploration vide", "un": "1 étoile", "double": "2 étoiles"}
-
-## Libellé lisible d'un jet de dés {"black": ..., "white": ...} (tirage au
-## sort du 1er joueur), utilisé par DiceResultsPopup. Renvoie une chaîne vide
-## si le joueur n'a pas encore lancé ses dés (roll vide ou absent).
-func describe_dice_roll(roll: Dictionary) -> String:
-	if roll.is_empty():
-		return ""
-	return "%s — %s" % [
-		DICE_BLACK_LABELS.get(roll.get("black", ""), "?"),
-		DICE_WHITE_LABELS.get(roll.get("white", ""), "?"),
-	]
-
-
 func set_first_player(player_id: int) -> void:
 	for p in players:
 		p["is_first_player"] = (p["id"] == player_id)
@@ -462,7 +414,6 @@ func continue_game() -> void:
 		players.append(p)
 	_next_player_id = data.get("next_player_id", players.size())
 	is_debug_mode = data.get("is_debug_mode", false)
-	game_mode = data.get("game_mode", "local")
 	pending_setup_mode = ""
 	is_continuing = true
 	_pending_board_data = data.get("board", {})
@@ -479,5 +430,5 @@ func take_pending_board_data() -> Dictionary:
 func autosave(board_data: Dictionary) -> void:
 	SaveManager.write({
 		"players": players, "next_player_id": _next_player_id,
-		"is_debug_mode": is_debug_mode, "game_mode": game_mode, "board": board_data,
+		"is_debug_mode": is_debug_mode, "board": board_data,
 	})

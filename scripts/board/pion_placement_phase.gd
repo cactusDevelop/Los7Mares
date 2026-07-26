@@ -89,7 +89,6 @@ func _begin_player_pion_turn() -> void:
 	_shift_camera_for_selection(true)
 
 	var player: Dictionary = _current_player()
-	GameFlow.set_current_player(player["id"])
 	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
 	_selected_rank = -1
 

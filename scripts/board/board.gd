@@ -2,13 +2,8 @@ extends Node2D
 class_name Board
 
 const BOARD_THUMB_SIZE := Vector2(160, 107)
-## Plateau du joueur actif (en bas de l'écran) : 2x plus grand que les autres.
-const CURRENT_BOARD_THUMB_SIZE := Vector2(320, 214)
-## Marge entre un plateau et le bord de l'écran (bas/gauche/droite/haut).
-const BOARD_LAYOUT_MARGIN := 24.0
-## Espace horizontal entre les 2 plateaux du slot "top" quand il y en a 2
-## (cas 5 joueurs).
-const BOARD_LAYOUT_TOP_SPACING := 32.0
+const PILE_THUMB_OFFSET := Vector2(0, 6)
+const PLAYER_BOARDS_PANEL_MAX_HEIGHT_RATIO := 0.75
 
 const SEA_CARD_PILE_SCENE := preload("res://scenes/board/sea_card_pile.tscn")
 const CAPTAIN_PION_SCENE := preload("res://scenes/board/pions/captain_pion.tscn")
@@ -43,14 +38,11 @@ const SEA_KEY_BY_NODE_NAME := {
 
 @onready var seas_container: Node2D = $Seas
 @onready var deck_area: Area2D = $Seas/DeckArea
-## Conteneur plein écran (vide, peuplé entièrement par script, comme
-## CardPiles/TokenPiles/BoatMarkers) qui accueille une instance de
-## PlayerBoardRow par joueur, positionnée par _layout_player_boards() :
-## joueur actif en bas et en grand, les autres répartis sur les côtés
-## selon leur nombre (cf constantes PLAYER_BOARD_SLOTS_BY_REMAINING plus bas).
-@onready var player_boards_layout: Control = $UI/PlayerBoardsLayout
-@onready var dice_results_button: Button = $UI/DiceResultsButton
-@onready var dice_results_popup: Control = $UI/DiceResultsPopup
+@onready var player_boards_panel: PanelContainer = $UI/PlayerBoardsPanel
+@onready var player_boards_scroll: ScrollContainer = $UI/PlayerBoardsPanel/Scroll
+@onready var player_rows: VBoxContainer = $UI/PlayerBoardsPanel/Scroll/Rows
+@onready var player_boards_pile: Control = $UI/PlayerBoardsPile
+@onready var player_boards_catcher: Control = $UI/PlayerBoardsCatcher
 @onready var player_board_expanded: Control = $UI/PlayerBoardExpanded
 @onready var player_setup_popup: Control = $UI/PlayerSetupPopup
 @onready var narration_box: PanelContainer = $UI/NarrationBox
@@ -103,11 +95,26 @@ var _debug_selection_panel_was_visible := false
 
 func _ready() -> void:
 	_sea_tiles = []
-	player_boards_layout.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	dice_results_button.position = Vector2(20, 20)
-	dice_results_button.pressed.connect(_on_dice_results_button_pressed)
-	get_viewport().size_changed.connect(_layout_player_boards)
-	GameFlow.current_player_changed.connect(func(_id): _layout_player_boards())
+	player_boards_panel.position = Vector2(20, 20)
+	player_boards_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	player_boards_panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	player_boards_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	player_boards_panel.position = Vector2(20, 20)
+	player_boards_panel.reset_size()
+	var panel_style := StyleBoxFlat.new()
+	panel_style.set_corner_radius_all(UiTheme.POPUP_CORNER_RADIUS)
+	panel_style.content_margin_left = 16
+	panel_style.content_margin_right = 16
+	panel_style.content_margin_top = 16
+	panel_style.content_margin_bottom = 16
+	player_boards_panel.add_theme_stylebox_override("panel", panel_style)
+
+	player_boards_pile.position = Vector2(20, 20)
+	player_boards_pile.gui_input.connect(_on_player_boards_pile_gui_input)
+	player_boards_catcher.gui_input.connect(_on_player_boards_catcher_gui_input)
+	player_boards_panel.visible = false
+	player_boards_catcher.visible = false
+	player_boards_pile.visible = true
 
 	_camera_base_position = camera.position
 	_camera_base_zoom = camera.zoom
@@ -128,7 +135,7 @@ func _ready() -> void:
 	# bloquer).
 	for always_node in [
 		return_to_menu_button, return_to_menu_confirm,
-		player_boards_layout, dice_results_button, dice_results_popup,
+		player_boards_panel, player_boards_pile, player_boards_catcher,
 		player_board_expanded,
 	]:
 		always_node.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -244,12 +251,10 @@ func _ready() -> void:
 		_start_round()
 		pion_placement_phase.start(self)
 	elif GameFlow.pending_setup_mode != "":
-		GameFlow.game_mode = GameFlow.pending_setup_mode
 		deck_area.input_pickable = false
 		player_setup_popup.player_confirmed.connect(_on_setup_player_confirmed)
 		player_setup_popup.open_for_new_player(GameFlow.players.size() + 1, GameFlow.pending_setup_target_count)
 	else:
-		GameFlow.game_mode = "local"
 		dealing_phase.start(self)
 
 
@@ -340,115 +345,74 @@ func _on_setup_player_confirmed(player_name: String, color: String) -> void:
 
 
 func _refresh_player_boards() -> void:
-	_layout_player_boards()
+	for child in player_rows.get_children():
+		child.queue_free()
+	var players: Array[Dictionary] = GameFlow.get_players_sorted_by_points()
+	for player in players:
+		var row := PLAYER_BOARD_ROW.instantiate()
+		player_rows.add_child(row)
+		row.populate(player)
+		row.pressed.connect(_on_player_board_pressed)
+	_build_player_boards_pile(players)
+	await get_tree().process_frame
+	if player_boards_panel.visible:
+		_clamp_player_boards_panel_height()
+		player_boards_panel.reset_size()
 
 
-func _on_dice_results_button_pressed() -> void:
-	dice_results_popup.open_popup()
-
-
-## Id du joueur affiché en bas/en grand. En mode local (et debug), c'est le
-## joueur dont c'est le tour (GameFlow.current_player_id, mis à jour par
-## pion_placement_phase/hideout_phase/first_player_dice_phase), avec repli
-## sur le 1er joueur puis le premier de la liste tant qu'aucun tour n'a
-## encore commencé. En mode héberger/rejoindre, c'est toujours le joueur du
-## PC : comme il n'existe pas encore de vrai réseau, il n'y a de toute façon
-## qu'un seul joueur réel dans ce mode pour l'instant, donc players[0].
-func _get_display_current_player_id() -> int:
-	if GameFlow.players.is_empty():
-		return -1
-	if GameFlow.game_mode == "host" or GameFlow.game_mode == "join":
-		return GameFlow.players[0]["id"]
-	if GameFlow.current_player_id != -1:
-		return GameFlow.current_player_id
-	var first_id: int = GameFlow.get_first_player_id()
-	if first_id != -1:
-		return first_id
-	return GameFlow.players[0]["id"]
-
-
-## Répartition des joueurs "non-actifs" restants selon leur nombre : chaque
-## entrée est le nom du slot dans lequel ranger le joueur correspondant, dans
-## l'ordre. Cf demande : 2 joueurs = face à face (1 en haut) ; 3 = les 2
-## autres sur les côtés ; 4 = un par côté (haut + gauche + droite) ; 5 = deux
-## en face (haut) + un sur chaque côté.
-const PLAYER_BOARD_SLOTS_BY_REMAINING: Dictionary = {
-	1: ["top"],
-	2: ["left", "right"],
-	3: ["top", "left", "right"],
-	4: ["top", "top", "left", "right"],
-}
-
-func _layout_player_boards() -> void:
-	for child in player_boards_layout.get_children():
+func _build_player_boards_pile(players: Array) -> void:
+	for child in player_boards_pile.get_children():
 		child.queue_free()
 
-	var players: Array[Dictionary] = GameFlow.players
-	if players.is_empty():
-		return
+	var count: int = players.size()
+	for i in range(count):
+		var thumb := TextureRect.new()
+		var pile_board_path: String = GameFlow.PLAYER_BOARD_TEXTURES.get(
+			players[i]["color"], GameFlow.PLAYER_BOARD_TEXTURES["jaune"]
+		)
+		thumb.texture = load(pile_board_path)
+		thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		thumb.custom_minimum_size = BOARD_THUMB_SIZE
+		thumb.size = BOARD_THUMB_SIZE
+		thumb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		thumb.position = PILE_THUMB_OFFSET * i
+		player_boards_pile.add_child(thumb)
 
-	var current_id: int = _get_display_current_player_id()
-	var current_player: Dictionary = {}
-	var others: Array[Dictionary] = []
-	for p in players:
-		if p["id"] == current_id:
-			current_player = p
-		else:
-			others.append(p)
-	if current_player.is_empty():
-		current_player = players[0]
-		others = players.slice(1)
+	var total_size: Vector2 = BOARD_THUMB_SIZE + PILE_THUMB_OFFSET * max(count - 1, 0)
+	player_boards_pile.custom_minimum_size = total_size
+	player_boards_pile.size = total_size
 
-	var viewport_size: Vector2 = get_viewport_rect().size
 
-	# Joueur actif : en bas, centré, en grand.
-	var current_row := PLAYER_BOARD_ROW.instantiate()
-	player_boards_layout.add_child(current_row)
-	current_row.populate(current_player, CURRENT_BOARD_THUMB_SIZE)
-	current_row.pressed.connect(_on_player_board_pressed)
+func _clamp_player_boards_panel_height() -> void:
+	var max_height: float = get_viewport_rect().size.y * PLAYER_BOARDS_PANEL_MAX_HEIGHT_RATIO
+	var content_min: Vector2 = player_rows.get_minimum_size()
+	player_boards_scroll.custom_minimum_size = Vector2(content_min.x, min(content_min.y, max_height))
+
+
+func _on_player_boards_pile_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_open_player_boards_panel()
+
+
+func _on_player_boards_catcher_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_close_player_boards_panel()
+
+
+func _open_player_boards_panel() -> void:
+	player_boards_pile.visible = false
+	player_boards_panel.visible = true
+	player_boards_catcher.visible = true
 	await get_tree().process_frame
-	var current_min: Vector2 = current_row.get_combined_minimum_size()
-	current_row.position = Vector2(
-		(viewport_size.x - current_min.x) / 2.0,
-		viewport_size.y - current_min.y - BOARD_LAYOUT_MARGIN
-	)
+	_clamp_player_boards_panel_height()
+	player_boards_panel.reset_size()
 
-	# Les autres joueurs, répartis selon leur nombre (cf table ci-dessus).
-	var slots: Array = PLAYER_BOARD_SLOTS_BY_REMAINING.get(others.size(), [])
-	var top_rows: Array = []
-	for i in range(others.size()):
-		if i >= slots.size():
-			break
-		var row := PLAYER_BOARD_ROW.instantiate()
-		player_boards_layout.add_child(row)
-		row.populate(others[i], BOARD_THUMB_SIZE)
-		row.pressed.connect(_on_player_board_pressed)
-		match slots[i]:
-			"top":
-				top_rows.append(row)
-			"left":
-				await get_tree().process_frame
-				var min_size: Vector2 = row.get_combined_minimum_size()
-				row.position = Vector2(BOARD_LAYOUT_MARGIN, (viewport_size.y - min_size.y) / 2.0)
-			"right":
-				await get_tree().process_frame
-				var min_size: Vector2 = row.get_combined_minimum_size()
-				row.position = Vector2(viewport_size.x - min_size.x - BOARD_LAYOUT_MARGIN, (viewport_size.y - min_size.y) / 2.0)
 
-	# Les plateaux "top" (1 ou 2) sont centrés ensemble en haut, côte à côte.
-	if not top_rows.is_empty():
-		await get_tree().process_frame
-		var sizes: Array[Vector2] = []
-		var total_width := 0.0
-		for row in top_rows:
-			var s: Vector2 = row.get_combined_minimum_size()
-			sizes.append(s)
-			total_width += s.x
-		total_width += BOARD_LAYOUT_TOP_SPACING * max(top_rows.size() - 1, 0)
-		var x: float = (viewport_size.x - total_width) / 2.0
-		for i in range(top_rows.size()):
-			top_rows[i].position = Vector2(x, BOARD_LAYOUT_MARGIN)
-			x += sizes[i].x + BOARD_LAYOUT_TOP_SPACING
+func _close_player_boards_panel() -> void:
+	player_boards_panel.visible = false
+	player_boards_catcher.visible = false
+	player_boards_pile.visible = true
 
 
 func _on_player_board_pressed(player_id: int) -> void:
