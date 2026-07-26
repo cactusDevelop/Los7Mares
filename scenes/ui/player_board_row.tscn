@@ -10,7 +10,7 @@ script = ExtResource("1_7o0go")
 [node name="NameLabel" type="Label" parent="." unique_id=1357488389]
 layout_mode = 2
 
-[node name="Row" type="HBoxContainer" parent="." unique_id=557536943]
+[node name="Row" type="BoxContainer" parent="." unique_id=557536943]
 layout_mode = 2
 
 [node name="BoardWrap" type="Control" parent="Row" unique_id=810857309]

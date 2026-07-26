@@ -2,6 +2,7 @@ extends VBoxContainer
 signal pressed(player_id: int)
 
 @onready var name_label: Label = $NameLabel
+@onready var row: BoxContainer = $Row
 @onready var board_wrap: Control = $Row/BoardWrap
 @onready var board_texture: TextureRect = $Row/BoardWrap/BoardTexture
 @onready var tokens_container: HBoxContainer = $Row/TokensContainer
@@ -36,6 +37,7 @@ func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE, board_
 	board_texture.size = thumb_size
 	board_texture.pivot_offset = thumb_size / 2.0
 	board_texture.rotation_degrees = board_rotation_degrees
+	_layout_row_direction(board_rotation_degrees)
 
 	# À ±90°, le plateau occupe visuellement une boîte largeur/hauteur
 	# inversée à l'écran : on agrandit board_wrap en conséquence, sinon son
@@ -61,6 +63,35 @@ func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE, board_
 			tokens_container.add_child(_build_parrot_token(other["color"], true, token_size))
 	if player.get("is_first_player", false):
 		tokens_container.add_child(_build_marker_token(token_size))
+
+
+## Oriente Row (BoxContainer) et l'ordre de BoardWrap/TokensContainer pour
+## que perroquets + marqueur doré restent "à droite du plateau" dans le
+## repère de RÉFÉRENCE du plateau (non tourné), même quand l'image affichée
+## est tournée (cf ROTATION_BY_SLOT dans board.gd : slot "left" = 90°,
+## "right" = -90°, "top" = 180°, "bottom" = 0°).
+## Une direction "à droite" tournée du même angle que le plateau donne :
+## à droite à 0° (bas), en dessous à 90° (gauche), au-dessus à -90° (droite),
+## à gauche à 180° (haut). tokens_container n'est jamais tourné lui-même
+## (ses jetons restent lisibles) : seuls l'axe (vertical/horizontal) et
+## l'ordre des deux enfants de Row changent.
+func _layout_row_direction(board_rotation_degrees: float) -> void:
+	var angle: int = int(round(board_rotation_degrees)) % 360
+	if angle < 0:
+		angle += 360
+	match angle:
+		90: # slot "left" : jetons en dessous du plateau
+			row.vertical = true
+			row.move_child(board_wrap, 0)
+		270: # slot "right" (-90°) : jetons au-dessus du plateau
+			row.vertical = true
+			row.move_child(tokens_container, 0)
+		180: # slot "top" : jetons à gauche du plateau
+			row.vertical = false
+			row.move_child(tokens_container, 0)
+		_: # 0°, slot "bottom" : jetons à droite du plateau
+			row.vertical = false
+			row.move_child(board_wrap, 0)
 
 
 func _on_board_wrap_gui_input(event: InputEvent) -> void:
