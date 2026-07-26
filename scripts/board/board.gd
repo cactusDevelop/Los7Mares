@@ -114,6 +114,12 @@ var _debug_selection_panel_was_visible := false
 func _ready() -> void:
 	_sea_tiles = []
 	player_boards_layout.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Garantit que les plateaux joueurs (et leur zone de survol/clic) restent
+	# toujours cliquables par-dessus tout le reste de l'UI du plateau, quel
+	# que soit l'ordre des noeuds dans la scène (z_index a priorité sur
+	# l'ordre d'arbre pour la détection de clic des Controls).
+	player_boards_layout.z_index = 50
+	player_board_expanded.z_index = 100
 	dice_results_button.position = Vector2(20, 20)
 	dice_results_button.pressed.connect(_on_dice_results_button_pressed)
 	get_viewport().size_changed.connect(_layout_player_boards)
@@ -405,6 +411,34 @@ const BOARD_HOVER_SLIDE_DURATION := 0.22
 ## Marge de sécurité gardée entre le bas de la narration box et le haut du
 ## plateau affiché sur le côté gauche, pour ne jamais les superposer.
 const LEFT_SLOT_NARRATION_MARGIN := 16.0
+## Facteur appliqué à la zone de déclenchement du survol (hover_zone), sur
+## son axe de "profondeur" uniquement (perpendiculaire au bord d'écran
+## concerné), centré sur cet axe : ne change ni la taille des plateaux ni
+## l'étendue de la zone sur son autre axe (qui reste alignée avec le
+## plateau). Plateaux latéraux/haut : réduite de moitié. Plateau du joueur
+## actif (bas) : réduite au quart (zone plus centrale sur l'écran, donc plus
+## encline aux clics accidentels si elle restait aussi grande).
+const HOVER_ZONE_REACH_FACTOR := 0.5
+const HOVER_ZONE_REACH_FACTOR_ACTIVE := 0.25
+
+## Réduit rect le long d'un seul axe (0 = x, 1 = y) d'un facteur donné (1.0 =
+## inchangé), collé au bord d'écran concerné (anchor_start = true : le bord
+## de départ de rect, ex. x=0/y=0, ne bouge pas, on rogne l'autre bout ;
+## anchor_start = false : c'est le bord d'arrivée, ex. x=viewport width, qui
+## ne bouge pas). L'autre axe n'est pas touché : pour les zones de survol
+## des plateaux, c'est toujours l'axe perpendiculaire au bord d'écran
+## concerné (la "profondeur" de la zone) qui doit être réduit, jamais celui
+## aligné avec la largeur/hauteur du plateau lui-même.
+func _shrink_hover_zone(rect: Rect2, factor: float, axis: int, anchor_start: bool) -> Rect2:
+	if axis == 0:
+		var new_w: float = rect.size.x * factor
+		var new_x: float = rect.position.x if anchor_start else (rect.position.x + rect.size.x - new_w)
+		return Rect2(Vector2(new_x, rect.position.y), Vector2(new_w, rect.size.y))
+	else:
+		var new_h: float = rect.size.y * factor
+		var new_y: float = rect.position.y if anchor_start else (rect.position.y + rect.size.y - new_h)
+		return Rect2(Vector2(rect.position.x, new_y), Vector2(rect.size.x, new_h))
+
 
 func _layout_player_boards() -> void:
 	# Cf déclaration de _layout_run_id : on identifie cet appel précis, et on
@@ -440,6 +474,10 @@ func _layout_player_boards() -> void:
 	# survolé, glisse pleinement visible au survol).
 	var current_row := PLAYER_BOARD_ROW.instantiate()
 	player_boards_layout.add_child(current_row)
+	# Masqué jusqu'à avoir sa position finale (cf _setup_board_peek qui le
+	# rend visible) : sans ça, il apparaît 1 frame à sa position par défaut
+	# (0,0, donc en haut à gauche de l'écran) avant l'await ci-dessous.
+	current_row.visible = false
 	current_row.populate(current_player, CURRENT_BOARD_THUMB_SIZE, ROTATION_BY_SLOT["bottom"])
 	current_row.pressed.connect(_on_player_board_pressed)
 	await get_tree().process_frame
@@ -449,9 +487,9 @@ func _layout_player_boards() -> void:
 	var current_x: float = (viewport_size.x - current_min.x) / 2.0
 	var current_full_pos := Vector2(current_x, viewport_size.y - current_min.y - BOARD_LAYOUT_MARGIN)
 	var current_peek_pos := Vector2(current_x, viewport_size.y - BOARD_PEEK_VISIBLE_PX)
-	var current_hover_zone := Rect2(
+	var current_hover_zone := _shrink_hover_zone(Rect2(
 		Vector2(current_x, current_full_pos.y), Vector2(current_min.x, viewport_size.y - current_full_pos.y)
-	)
+	), HOVER_ZONE_REACH_FACTOR_ACTIVE, 1, false)
 	_setup_board_peek(current_row, current_peek_pos, current_full_pos, current_hover_zone)
 
 	# Les autres joueurs, répartis selon leur nombre (cf table ci-dessus).
@@ -463,6 +501,7 @@ func _layout_player_boards() -> void:
 		var slot: String = slots[i]
 		var row := PLAYER_BOARD_ROW.instantiate()
 		player_boards_layout.add_child(row)
+		row.visible = false
 		row.populate(others[i], BOARD_THUMB_SIZE, ROTATION_BY_SLOT[slot])
 		row.pressed.connect(_on_player_board_pressed)
 		match slot:
@@ -478,7 +517,9 @@ func _layout_player_boards() -> void:
 				y = min(y, viewport_size.y - min_size.y - BOARD_LAYOUT_MARGIN)
 				var full_pos := Vector2(BOARD_LAYOUT_MARGIN, y)
 				var peek_pos := Vector2(-(min_size.x - BOARD_PEEK_VISIBLE_PX), y)
-				var hover_zone := Rect2(Vector2(0.0, y), Vector2(full_pos.x + min_size.x, min_size.y))
+				var hover_zone := _shrink_hover_zone(
+					Rect2(Vector2(0.0, y), Vector2(full_pos.x + min_size.x, min_size.y)), HOVER_ZONE_REACH_FACTOR, 0, true
+				)
 				_setup_board_peek(row, peek_pos, full_pos, hover_zone)
 			"right":
 				await get_tree().process_frame
@@ -488,33 +529,52 @@ func _layout_player_boards() -> void:
 				var y: float = (viewport_size.y - min_size.y) / 2.0
 				var full_pos := Vector2(viewport_size.x - min_size.x - BOARD_LAYOUT_MARGIN, y)
 				var peek_pos := Vector2(viewport_size.x - BOARD_PEEK_VISIBLE_PX, y)
-				var hover_zone := Rect2(Vector2(full_pos.x, y), Vector2(viewport_size.x - full_pos.x, min_size.y))
+				var hover_zone := _shrink_hover_zone(
+					Rect2(Vector2(full_pos.x, y), Vector2(viewport_size.x - full_pos.x, min_size.y)), HOVER_ZONE_REACH_FACTOR, 0, false
+				)
 				_setup_board_peek(row, peek_pos, full_pos, hover_zone)
 
-	# Les plateaux "top" (1 ou 2) sont centrés ensemble en haut, côte à côte.
+	# Les plateaux "top" : centrés ensemble s'il n'y en a qu'un, ou répartis
+	# pour couper le haut de l'écran en tiers s'il y en a 2 (cas 5 joueurs) —
+	# chacun centré sur le repère 1/3 et 2/3 de la largeur d'écran, au lieu
+	# d'être groupés au milieu.
 	if not top_rows.is_empty():
 		await get_tree().process_frame
 		if run_id != _layout_run_id:
 			return
 		var sizes: Array[Vector2] = []
-		var total_width := 0.0
 		for row in top_rows:
-			var s: Vector2 = row.get_combined_minimum_size()
-			sizes.append(s)
-			total_width += s.x
-		total_width += BOARD_LAYOUT_TOP_SPACING * max(top_rows.size() - 1, 0)
-		var x: float = (viewport_size.x - total_width) / 2.0
-		for i in range(top_rows.size()):
-			var full_pos := Vector2(x, BOARD_LAYOUT_MARGIN)
-			var peek_pos := Vector2(x, -(sizes[i].y - BOARD_PEEK_VISIBLE_PX))
-			var hover_zone := Rect2(Vector2(x, 0.0), Vector2(sizes[i].x, full_pos.y + sizes[i].y))
-			_setup_board_peek(top_rows[i], peek_pos, full_pos, hover_zone)
-			x += sizes[i].x + BOARD_LAYOUT_TOP_SPACING
+			sizes.append(row.get_combined_minimum_size())
+
+		if top_rows.size() == 2:
+			var third_marks: Array[float] = [viewport_size.x / 3.0, viewport_size.x * 2.0 / 3.0]
+			for i in range(2):
+				var x: float = third_marks[i] - sizes[i].x / 2.0
+				var full_pos := Vector2(x, BOARD_LAYOUT_MARGIN)
+				var peek_pos := Vector2(x, -(sizes[i].y - BOARD_PEEK_VISIBLE_PX))
+				var hover_zone := _shrink_hover_zone(
+					Rect2(Vector2(x, 0.0), Vector2(sizes[i].x, full_pos.y + sizes[i].y)), HOVER_ZONE_REACH_FACTOR, 1, true
+				)
+				_setup_board_peek(top_rows[i], peek_pos, full_pos, hover_zone)
+		else:
+			var total_width := 0.0
+			for s in sizes:
+				total_width += s.x
+			total_width += BOARD_LAYOUT_TOP_SPACING * max(top_rows.size() - 1, 0)
+			var x: float = (viewport_size.x - total_width) / 2.0
+			for i in range(top_rows.size()):
+				var full_pos := Vector2(x, BOARD_LAYOUT_MARGIN)
+				var peek_pos := Vector2(x, -(sizes[i].y - BOARD_PEEK_VISIBLE_PX))
+				var hover_zone := _shrink_hover_zone(
+					Rect2(Vector2(x, 0.0), Vector2(sizes[i].x, full_pos.y + sizes[i].y)), HOVER_ZONE_REACH_FACTOR, 1, true
+				)
+				_setup_board_peek(top_rows[i], peek_pos, full_pos, hover_zone)
+				x += sizes[i].x + BOARD_LAYOUT_TOP_SPACING
 
 
 ## Place row en position "peek" (juste un bord visible) et le fait glisser
 ## vers full_pos au survol, puis revenir à peek_pos quand la souris s'en va.
-## N'est jamais appelé pour le plateau du joueur actif.
+## Utilisé pour tous les plateaux, y compris celui du joueur actif (en bas).
 ##
 ## Important : la détection de survol ne se fait PAS sur row lui-même (qui
 ## est justement l'élément animé/en mouvement) mais sur un Control invisible
@@ -525,6 +585,7 @@ func _layout_player_boards() -> void:
 ## détection, ce qui le faisait ressortir, etc. (effet de "vibration").
 func _setup_board_peek(row: Control, peek_pos: Vector2, full_pos: Vector2, hover_zone_rect: Rect2) -> void:
 	row.position = peek_pos
+	row.visible = true
 
 	var hover_zone := Control.new()
 	hover_zone.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -541,6 +602,17 @@ func _setup_board_peek(row: Control, peek_pos: Vector2, full_pos: Vector2, hover
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	hover_zone.mouse_entered.connect(func(): slide_to.call(full_pos))
 	hover_zone.mouse_exited.connect(func(): slide_to.call(peek_pos))
+
+	# Filet de sécurité : hover_zone est FIXE et toujours au-dessus (cf
+	# z_index sur player_boards_layout), alors que row glisse et n'est que
+	# partiellement visible/cliquable en position "peek". On câble donc
+	# aussi le clic ici, en plus de celui de board_wrap (player_board_row.gd) :
+	# un doublon n'a aucun effet visible puisque _on_player_board_pressed est
+	# idempotent (réaffiche juste le même popup).
+	hover_zone.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			row.pressed.emit(row.get_player_id())
+	)
 
 
 func _on_player_board_pressed(player_id: int) -> void:

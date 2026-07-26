@@ -157,6 +157,7 @@ func _roll_for_player(player_id: int) -> void:
 		return
 
 	_viewport_container.visible = true
+	GameFlow.set_current_player(player_id)
 	_board.narration_box.say_with_player(tr("Tour de %s : clique sur \"Lancer les dés\"."), _find_player(player_id))
 	_board.narration_box.set_options([{"id": "roll", "label": tr("Lancer les dés")}])
 	await _board.narration_box.option_selected
@@ -166,7 +167,6 @@ func _roll_for_player(player_id: int) -> void:
 		_rolls[player_id] = {"black": "vide", "white": "vide"}
 		return
 
-	GameFlow.set_current_player(player_id)
 	_board.narration_box.say(tr("%s lance ses dés...") % _player_name(player_id))
 	var results: Array[String] = await _throw_and_await()
 	_rolls[player_id] = {"black": results[0], "white": results[1]}

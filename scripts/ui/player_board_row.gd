@@ -68,6 +68,10 @@ func _on_board_wrap_gui_input(event: InputEvent) -> void:
 		pressed.emit(_player_id)
 
 
+func get_player_id() -> int:
+	return _player_id
+
+
 func _build_parrot_token(color_name: String, imprisoned: bool, token_size: Vector2 = TOKEN_BASE_SIZE) -> Control:
 	var texture_rect := TextureRect.new()
 	var path_template: String = GameFlow.PARROT_TEXTURE_PATH_PRISON if imprisoned else GameFlow.PARROT_TEXTURE_PATH
