@@ -140,6 +140,13 @@ func add_player(player_name: String, color: String) -> Dictionary:
 		"card_tracks": card_tracks,
 		"has_own_parrot": true,
 		"parrot_captured_by": -1,
+		# Gemmes (règle 3/10) : sea_key -> true dès que la 1ère carte de cette
+		# mer est collectée. Jetons bonus : sea_key -> {"active": bool}, créé
+		# à la 2e carte de la mer, "active" repasse à true à chaque carte
+		# suivante de cette mer ("rafraîchi") et à false après utilisation
+		# (cf GAME_RULES.txt section 10 "JETONS BONUS").
+		"gems": {},
+		"bonus_tokens": {},
 		"hull_planks": HULL_PLANKS_START,
 		"is_first_player": false,
 		"sail_level": 1,
