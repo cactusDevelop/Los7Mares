@@ -249,7 +249,9 @@ func _ready() -> void:
 		fortune_spots[i].global_position = board_center + fortune_radius * f_direction
 
 	GameFlow.players_changed.connect(_refresh_player_boards)
+	GameFlow.players_changed.connect(_refresh_gem_piles)
 	_refresh_player_boards()
+	_refresh_gem_piles()
 
 	dealing_phase.finished.connect(func():
 		first_player_dice_phase.start(self)
@@ -942,6 +944,17 @@ func _serialize_state(phase: String) -> Dictionary:
 		"gems_taken": gems_taken,
 		"round_number": GameFlow.round_number,
 	}
+
+## Recalcule toutes les piles de gemmes mer selon GameFlow.players actuel
+## (règle 5 setup) : à appeler à chaque ajout de joueur, car les piles sont
+## construites dans _ready() AVANT que les joueurs ne soient ajoutés en
+## partie locale (le popup de création de joueurs s'ouvre après la
+## construction du plateau) - sans ça, sea_gem_pile.setup() ne voit aucun
+## joueur et cache toutes les gemmes définitivement (cf sea_gem_pile.refresh).
+func _refresh_gem_piles() -> void:
+	for gem_pile in sea_gems_container.get_children():
+		gem_pile.refresh()
+
 
 ## Retrouve la pile de gemmes visuelle d'une mer donnée (utilisé par
 ## action_resolution_phase pour retirer la gemme d'un joueur du plateau dès
