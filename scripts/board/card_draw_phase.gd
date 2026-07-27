@@ -29,13 +29,18 @@ func start(board: Board, emit_finished: bool = true) -> void:
 	if not _board.sea_card_popup.card_resolved.is_connected(_on_sea_card_resolved):
 		_board.sea_card_popup.card_resolved.connect(_on_sea_card_resolved)
 
-	# Retire la carte révélée du tour précédent (le dos redevient visible en dessous).
-	for pile in _revealed_cards.keys():
-		pile.draw_enabled = false
-		pile.pop_top_card()
-		SeaDecks.discard_card(_revealed_cards[pile])
-	_revealed_cards.clear()
-	_revealed_textures.clear()
+	# Maintenance (règle 7.1) : ne défausser QUE les cartes rencontre
+	# restantes. Les cartes île/port déjà révélées restent en place (elles
+	# ne sont retirées que lorsqu'une activité les consomme, via
+	# action_resolution_phase / redraw_card_for_sea).
+	for pile in _revealed_cards.keys().duplicate():
+		var revealed: GameCard = _revealed_cards[pile]
+		if revealed.card_type == GameCard.CardType.RENCONTRE:
+			pile.draw_enabled = false
+			pile.pop_top_card()
+			SeaDecks.discard_card(revealed)
+			_revealed_cards.erase(pile)
+			_revealed_textures.erase(pile)
 
 	var piles := _board.card_piles_container.get_children()
 	var flip_duration: float = Settings.anim_duration(FLIP_DURATION)
@@ -44,6 +49,10 @@ func start(board: Board, emit_finished: bool = true) -> void:
 	for pile in piles:
 		if not pile.pile_clicked.is_connected(_on_card_pile_clicked):
 			pile.pile_clicked.connect(_on_card_pile_clicked)
+		# Règle 7.2 : ne révéler une nouvelle carte que dans les mers qui
+		# n'en ont pas encore (île/port conservées ci-dessus sont sautées).
+		if _revealed_cards.has(pile):
+			continue
 		var card: GameCard = SeaDecks.draw_card(pile.sea_key)
 		if card == null:
 			continue
