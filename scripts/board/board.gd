@@ -44,11 +44,12 @@ const SEA_KEY_BY_NODE_NAME := {
 ## Échelle appliquée au sprite de chaque gemme mer. Réglable dans
 ## l'inspecteur du noeud "Board".
 @export var gem_scale: float = 1.0
-## Rayon de répartition de l'heptagone des 7 gemmes mer autour du même centre
-## que le cercle des bateaux (BOAT_MARKER_SPREAD) : doit rester supérieur à
-## BOAT_MARKER_SPREAD pour que les gemmes entourent les bateaux sans se
-## superposer à eux. Réglable dans l'inspecteur du noeud "Board".
-@export var gem_heptagon_radius: float = 420.0
+## Rayon de répartition des gemmes mer (une par joueur, cf sea_gem_pile.gd)
+## autour du même centre que le cercle des bateaux (BOAT_MARKER_SPREAD) :
+## doit rester supérieur à BOAT_MARKER_SPREAD pour que les gemmes entourent
+## les bateaux sans se superposer à eux. Réglable dans l'inspecteur du noeud
+## "Board".
+@export var gem_layout_radius: float = 420.0
 
 @onready var seas_container: Node2D = $Seas
 @onready var deck_area: Area2D = $Seas/DeckArea
@@ -141,6 +142,7 @@ func _ready() -> void:
 	action_spots_container.z_index = 1
 	seas_container.z_index = 2
 	token_piles_container.z_index = 3
+	sea_gems_container.z_index = 3
 	
 	return_to_menu_button.pressed.connect(func(): return_to_menu_confirm.popup_centered())
 	return_to_menu_confirm.confirmed.connect(func(): GameFlow.go_to_title())
@@ -222,11 +224,11 @@ func _ready() -> void:
 			var gem_pile: Node2D = SEA_GEM_PILE_SCENE.instantiate()
 			sea_gems_container.add_child(gem_pile)
 			# Même centre que le cercle des bateaux (slots[i].boat_position),
-			# mais rayon de répartition plus grand (gem_heptagon_radius >
+			# mais rayon de répartition plus grand (gem_layout_radius >
 			# BOAT_MARKER_SPREAD) pour que l'heptagone de gemmes entoure les
 			# bateaux sans s'y superposer.
 			gem_pile.global_position = slots[i].boat_position
-			gem_pile.setup(pile.sea_key, load(gem_texture_path), gem_scale, gem_heptagon_radius, slots[i].rotation)
+			gem_pile.setup(pile.sea_key, load(gem_texture_path), gem_scale, gem_layout_radius, slots[i].rotation)
 			gem_pile.visible = false
 
 	var hideout_spots := hideout_spots_container.get_children()
@@ -1029,7 +1031,7 @@ func _restore_from_save() -> void:
 			var gem_pile: Node2D = SEA_GEM_PILE_SCENE.instantiate()
 			sea_gems_container.add_child(gem_pile)
 			gem_pile.global_position = slots[i].boat_position
-			gem_pile.setup(saved_order[i], load(gem_texture_path), gem_scale, gem_heptagon_radius, slots[i].rotation)
+			gem_pile.setup(saved_order[i], load(gem_texture_path), gem_scale, gem_layout_radius, slots[i].rotation)
 			gem_pile.visible = true
 			gem_pile.restore_taken_indices(gems_taken.get(saved_order[i], []))
 
