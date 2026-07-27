@@ -14,6 +14,7 @@ const SEA_CARD_PILE_SCENE := preload("res://scenes/board/sea_card_pile.tscn")
 const CAPTAIN_PION_SCENE := preload("res://scenes/board/pions/captain_pion.tscn")
 const OFFICER_PION_SCENE := preload("res://scenes/board/pions/officer_pion.tscn")
 const SEA_TOKEN_PILE_SCENE := preload("res://scenes/board/sea_token_pile.tscn")
+const SEA_GEM_PILE_SCENE := preload("res://scenes/board/sea_gem_pile.tscn")
 const PLAYER_BOARD_ROW := preload("res://scenes/ui/player_board_row.tscn")
 
 const SEA_KEY_BY_NODE_NAME := {
@@ -40,6 +41,14 @@ const SEA_KEY_BY_NODE_NAME := {
 ## des tuiles mer (négatif = plus proche du centre). Réglable dans
 ## l'inspecteur du noeud "Board".
 @export var token_pile_radius_offset: float = -500.0
+## Échelle appliquée au sprite de chaque gemme mer. Réglable dans
+## l'inspecteur du noeud "Board".
+@export var gem_scale: float = 1.0
+## Rayon de répartition de l'heptagone des 7 gemmes mer autour du même centre
+## que le cercle des bateaux (BOAT_MARKER_SPREAD) : doit rester supérieur à
+## BOAT_MARKER_SPREAD pour que les gemmes entourent les bateaux sans se
+## superposer à eux. Réglable dans l'inspecteur du noeud "Board".
+@export var gem_heptagon_radius: float = 420.0
 
 @onready var seas_container: Node2D = $Seas
 @onready var deck_area: Area2D = $Seas/DeckArea
@@ -63,6 +72,7 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var sea_card_popup: Control = $UI/SeaCardPopup
 @onready var card_piles_container: Node2D = $CardPiles
 @onready var token_piles_container: Node2D = $TokenPiles
+@onready var sea_gems_container: Node2D = $SeaGems
 @onready var boat_markers_container: Node2D = $BoatMarkers
 
 @onready var action_resolution_phase: Node = $ActionResolutionPhase
@@ -206,6 +216,18 @@ func _ready() -> void:
 			token_pile.global_position = slots[i].token_position
 			token_pile.setup(pile.sea_key, load(token_texture_path), token_scale, slots[i].rotation)
 			token_pile.visible = false
+
+		var gem_texture_path := "res://assets/art/pieces/gemme-%s.png" % pile.sea_key
+		if pile.sea_key != "" and ResourceLoader.exists(gem_texture_path):
+			var gem_pile: Node2D = SEA_GEM_PILE_SCENE.instantiate()
+			sea_gems_container.add_child(gem_pile)
+			# Même centre que le cercle des bateaux (slots[i].boat_position),
+			# mais rayon de répartition plus grand (gem_heptagon_radius >
+			# BOAT_MARKER_SPREAD) pour que l'heptagone de gemmes entoure les
+			# bateaux sans s'y superposer.
+			gem_pile.global_position = slots[i].boat_position
+			gem_pile.setup(pile.sea_key, load(gem_texture_path), gem_scale, gem_heptagon_radius, slots[i].rotation)
+			gem_pile.visible = false
 
 	var hideout_spots := hideout_spots_container.get_children()
 	var hideout_angle_offset := 180.0 / _total_seas
@@ -907,11 +929,15 @@ func _serialize_state(phase: String) -> Dictionary:
 	var token_remaining: Dictionary = {}
 	for token_pile in token_piles_container.get_children():
 		token_remaining[token_pile.sea_key] = token_pile.remaining_count
+	var gems_taken: Dictionary = {}
+	for gem_pile in sea_gems_container.get_children():
+		gems_taken[gem_pile.sea_key] = gem_pile.get_taken_indices()
 	return {
 		"phase": phase, "sea_order": sea_order, "action_spots": action_spots_data,
 		"hideouts": hideouts_data, "fortune_taken": fortune_data,
 		"deck_remaining": SeaDecks.get_remaining_counts(),
 		"token_remaining": token_remaining,
+		"gems_taken": gems_taken,
 		"round_number": GameFlow.round_number,
 	}
 
@@ -948,6 +974,8 @@ func _restore_from_save() -> void:
 	# nombre de jetons restants.
 	for child in token_piles_container.get_children():
 		child.queue_free()
+	for child in sea_gems_container.get_children():
+		child.queue_free()
 
 	var name_to_tile := {}
 	for tile in _sea_tiles:
@@ -957,6 +985,7 @@ func _restore_from_save() -> void:
 	var saved_order: Array = data.get("sea_order", [])
 	var deck_remaining: Dictionary = data.get("deck_remaining", {})
 	var token_remaining: Dictionary = data.get("token_remaining", {})
+	var gems_taken: Dictionary = data.get("gems_taken", {})
 	for i in range(saved_order.size()):
 		var tile = name_to_tile.get(saved_order[i])
 		if tile == null:
@@ -994,6 +1023,15 @@ func _restore_from_save() -> void:
 			token_pile.remaining_count = token_remaining.get(
 				saved_order[i], token_count_for_player_count(GameFlow.players.size())
 			)
+
+		var gem_texture_path := "res://assets/art/pieces/gemme-%s.png" % saved_order[i]
+		if ResourceLoader.exists(gem_texture_path):
+			var gem_pile: Node2D = SEA_GEM_PILE_SCENE.instantiate()
+			sea_gems_container.add_child(gem_pile)
+			gem_pile.global_position = slots[i].boat_position
+			gem_pile.setup(saved_order[i], load(gem_texture_path), gem_scale, gem_heptagon_radius, slots[i].rotation)
+			gem_pile.visible = true
+			gem_pile.restore_taken_indices(gems_taken.get(saved_order[i], []))
 
 	SeaDecks.set_remaining(deck_remaining)
 	GameFlow.round_number = data.get("round_number", GameFlow.round_number)

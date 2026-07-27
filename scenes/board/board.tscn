@@ -287,6 +287,8 @@ process_mode = 3
 
 [node name="TokenPiles" type="Node2D" parent="." unique_id=1601587640]
 
+[node name="SeaGems" type="Node2D" parent="." unique_id=255713418]
+
 [node name="HideoutSpots" type="Node2D" parent="." unique_id=1701089785]
 
 [node name="HideoutSpot1" parent="HideoutSpots" unique_id=1524301276 instance=ExtResource("20_vq54c")]

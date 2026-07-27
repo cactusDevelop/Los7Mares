@@ -113,6 +113,25 @@ func _animate_token_piles_drop(token_piles: Array) -> void:
 		tween.parallel().tween_property(token_pile, "modulate:a", 1.0, pile_drop_duration * 0.7)
 
 
+## Symétrique de _animate_token_piles_drop : les gemmes mer tombent en même
+## temps que les jetons mer (mêmes timings), cf _drop_card_piles.
+func _animate_gem_piles_drop(gem_piles: Array) -> void:
+	var pile_drop_duration: float = Settings.anim_duration(PILE_DROP_DURATION)
+	var card_pile_stagger: float = Settings.anim_duration(CARD_PILE_STAGGER)
+	for i in range(gem_piles.size()):
+		var gem_pile: Node2D = gem_piles[i]
+		var target_pos: Vector2 = gem_pile.position
+		gem_pile.position = target_pos - Vector2(0, PILE_DROP_HEIGHT)
+		gem_pile.modulate.a = 0.0
+		gem_pile.visible = true
+
+		var tween := create_tween()
+		tween.tween_interval(i * card_pile_stagger)
+		tween.tween_property(gem_pile, "position", target_pos, pile_drop_duration)\
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tween.parallel().tween_property(gem_pile, "modulate:a", 1.0, pile_drop_duration * 0.7)
+
+
 func _get_card_back_texture(sea_key: String) -> Texture2D:
 	if _card_back_cache.has(sea_key):
 		return _card_back_cache[sea_key]
@@ -132,6 +151,7 @@ func _drop_card_piles() -> void:
 	for token_pile in token_piles:
 		token_pile.remaining_count = token_count
 	_animate_token_piles_drop(token_piles)
+	_animate_gem_piles_drop(_board.sea_gems_container.get_children())
 
 	var pile_drop_duration: float = Settings.anim_duration(PILE_DROP_DURATION)
 	var pile_drop_delay : float = Settings.anim_duration(PILE_DROP_DELAY)

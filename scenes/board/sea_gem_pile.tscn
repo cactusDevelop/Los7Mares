@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://ylygxfvp4q4n"]
+
+[ext_resource type="Script" uid="uid://c2x26ta06ca7p" path="res://scripts/board/sea_gem_pile.gd" id="1_52174"]
+
+[node name="SeaGemPile" type="Node2D" unique_id=941426228]
+script = ExtResource("1_52174")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=211378638]
