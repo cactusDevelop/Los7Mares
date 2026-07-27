@@ -80,6 +80,7 @@ const SEA_KEY_BY_NODE_NAME := {
 
 @onready var dealing_phase: Node = $DealingPhase
 @onready var first_player_dice_phase: Node = $FirstPlayerDicePhase
+@onready var final_battle_phase: Node = $FinalBattlePhase
 @onready var hideout_phase: Node = $HideoutPhase
 @onready var pion_placement_phase: Node = $PionPlacementPhase
 @onready var card_draw_phase: Node = $CardDrawPhase
@@ -704,17 +705,55 @@ func _all_sea_tokens_taken() -> bool:
 	return true
 
 
-## Fin de partie : calcule le score final de chaque joueur (règle 8) puis
-## affiche le classement. À étoffer plus tard avec un vrai écran de fin et
-## le combat final en cas d'égalité (règle 8) si besoin.
+## Fin de partie : calcule le score final de chaque joueur (règle 8), lance
+## le combat final si plusieurs joueurs sont à égalité en tête (règle 8,
+## "Égalité au score final -> Combat final"), puis affiche le classement.
+## À étoffer plus tard avec un vrai écran de fin si besoin.
 func _end_game() -> void:
 	_game_ended = true
 	GameFlow.apply_final_scores()
 	var ranking: Array[Dictionary] = GameFlow.get_players_sorted_by_points()
+
+	var tied_ids := _tied_leader_ids(ranking)
+	if tied_ids.size() > 1:
+		var winner_id: int = await final_battle_phase.start(self, tied_ids)
+		GameFlow.final_battle_winner_id = winner_id
+		# Le combat final départage le classement sans changer les points de
+		# gloire de chacun (règle 8) : le vainqueur remonte simplement devant
+		# les autres joueurs encore à égalité avec lui.
+		ranking = _ranking_with_final_battle_winner(ranking, winner_id)
+
 	var lines: PackedStringArray = []
 	for i in range(ranking.size()):
 		lines.append("%d. %s — %d pts" % [i + 1, ranking[i]["name"], ranking[i]["points"]])
 	narration_box.say(tr("Partie terminée ! Classement final :\n") + "\n".join(lines))
+
+
+## Renvoie les ids des joueurs à égalité en tête du classement (règle 8),
+## ou un seul id si le 1er n'est pas à égalité (pas de combat final requis).
+func _tied_leader_ids(ranking: Array[Dictionary]) -> Array[int]:
+	var tied: Array[int] = []
+	if ranking.is_empty():
+		return tied
+	var top_points: int = ranking[0]["points"]
+	for p in ranking:
+		if p["points"] == top_points:
+			tied.append(p["id"])
+	return tied
+
+
+## Replace le vainqueur du combat final en tête du classement (les autres
+## joueurs gardent leur ordre relatif, y compris entre eux s'ils étaient
+## eux-mêmes à égalité).
+func _ranking_with_final_battle_winner(ranking: Array[Dictionary], winner_id: int) -> Array[Dictionary]:
+	var winner: Dictionary = {}
+	var rest: Array[Dictionary] = []
+	for p in ranking:
+		if p["id"] == winner_id:
+			winner = p
+		else:
+			rest.append(p)
+	return [winner] + rest
 
 
 func _start_round() -> void:

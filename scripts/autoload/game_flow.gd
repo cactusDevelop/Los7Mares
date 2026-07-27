@@ -93,6 +93,11 @@ var is_continuing: bool = false
 var _pending_board_data: Dictionary = {}
 var round_number: int = 0
 
+## Id du joueur ayant remporté le combat final (règle 8, "Égalité au score
+## final -> Combat final"), ou -1 si la partie ne s'est pas terminée sur
+## une égalité (pas de combat final nécessaire).
+var final_battle_winner_id: int = -1
+
 
 func _ready() -> void:
 	# Par défaut, Godot ferme l'application dès que la fenêtre est fermée
@@ -513,6 +518,7 @@ func start_new_game() -> void:
 	SaveManager.delete()
 	is_continuing = false
 	round_number = 0
+	final_battle_winner_id = -1
 
 
 func continue_game() -> void:

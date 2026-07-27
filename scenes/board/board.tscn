@@ -350,6 +350,8 @@ script = ExtResource("26_m0x5n")
 [node name="ActionResolutionPhase" type="Node" parent="." unique_id=718650651]
 script = ExtResource("29_x4jil")
 
+[node name="FinalBattlePhase" type="Node" parent="." unique_id=855122307]
+
 [editable path="Seas/SeaAbondance"]
 [editable path="Seas/SeaAzur"]
 [editable path="Seas/SeaDeFeu"]
