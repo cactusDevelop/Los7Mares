@@ -1,0 +1,8983 @@
+[
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 acier -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "abondance",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 toile -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bouffe + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bouffe + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bois + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bois + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 3 planches et 2 ressources"
+  },
+  {
+    "sea": "abondance",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "3 toiles -> 1 bois + 1 trésor",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 2 aciers -> 3 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 aciers -> 3 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 4 planches et 1 ressource"
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 voiles (planche) | Commerce : 1 acier -> 3 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "voile"
+          }
+        ],
+        "raw": "2 voiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 acier -> 3 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "planche"
+          },
+          {
+            "amount": 4,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 2 bois + 2 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Géant des mers",
+    "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "canon"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "3 canons -> 3 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 2 planches et 3 ressources"
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 dés à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "planche"
+          },
+          {
+            "amount": 2,
+            "icon": "de"
+          }
+        ],
+        "raw": "2 planches, 2 dés à lancer",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 1 bouffe + 3 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 4,
+            "icon": "planche"
+          },
+          {
+            "amount": 5,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 5 dés à lancer, 1 trésor",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 étoiles (planche) | Commerce : 1 acier -> 3 ressources",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "2 étoiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "ressource"
+          }
+        ],
+        "raw": "1 acier -> 3 ressources",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Flotte marchande",
+    "description": "Commerce : 3 acier/toile -> 3 bouffe/bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icons": [
+              "acier",
+              "toile"
+            ]
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icons": [
+              "bouffe",
+              "bois"
+            ]
+          }
+        ],
+        "raw": "3 acier/toile -> 3 bouffe/bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 acier -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "azur",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 toile -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bouffe + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bouffe + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bois + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bois + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 3 planches et 2 ressources"
+  },
+  {
+    "sea": "azur",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "3 toiles -> 1 bois + 1 trésor",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 2 aciers -> 3 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 aciers -> 3 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 4 planches et 1 ressource"
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 voiles (planche) | Commerce : 1 acier -> 3 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "voile"
+          }
+        ],
+        "raw": "2 voiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 acier -> 3 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "planche"
+          },
+          {
+            "amount": 4,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 2 bois + 2 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Géant des mers",
+    "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "canon"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "3 canons -> 3 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 2 planches et 3 ressources"
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 dés à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "planche"
+          },
+          {
+            "amount": 2,
+            "icon": "de"
+          }
+        ],
+        "raw": "2 planches, 2 dés à lancer",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 1 bouffe + 3 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 4,
+            "icon": "planche"
+          },
+          {
+            "amount": 5,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 5 dés à lancer, 1 trésor",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 étoiles (planche) | Commerce : 1 acier -> 3 ressources",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "2 étoiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "ressource"
+          }
+        ],
+        "raw": "1 acier -> 3 ressources",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Flotte marchande",
+    "description": "Commerce : 3 acier/toile -> 3 bouffe/bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icons": [
+              "acier",
+              "toile"
+            ]
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icons": [
+              "bouffe",
+              "bois"
+            ]
+          }
+        ],
+        "raw": "3 acier/toile -> 3 bouffe/bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 acier -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "feu",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 toile -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bouffe + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bouffe + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bois + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bois + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 3 planches et 2 ressources"
+  },
+  {
+    "sea": "feu",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "3 toiles -> 1 bois + 1 trésor",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 2 aciers -> 3 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 aciers -> 3 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 4 planches et 1 ressource"
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 voiles (planche) | Commerce : 1 acier -> 3 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "voile"
+          }
+        ],
+        "raw": "2 voiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 acier -> 3 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "planche"
+          },
+          {
+            "amount": 4,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 2 bois + 2 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Géant des mers",
+    "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "canon"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "3 canons -> 3 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 2 planches et 3 ressources"
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 dés à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "planche"
+          },
+          {
+            "amount": 2,
+            "icon": "de"
+          }
+        ],
+        "raw": "2 planches, 2 dés à lancer",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 1 bouffe + 3 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 4,
+            "icon": "planche"
+          },
+          {
+            "amount": 5,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 5 dés à lancer, 1 trésor",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 étoiles (planche) | Commerce : 1 acier -> 3 ressources",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "2 étoiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "ressource"
+          }
+        ],
+        "raw": "1 acier -> 3 ressources",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Flotte marchande",
+    "description": "Commerce : 3 acier/toile -> 3 bouffe/bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icons": [
+              "acier",
+              "toile"
+            ]
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icons": [
+              "bouffe",
+              "bois"
+            ]
+          }
+        ],
+        "raw": "3 acier/toile -> 3 bouffe/bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 acier -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "glace",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 toile -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bouffe + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bouffe + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bois + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bois + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 3 planches et 2 ressources"
+  },
+  {
+    "sea": "glace",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "3 toiles -> 1 bois + 1 trésor",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 2 aciers -> 3 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 aciers -> 3 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 4 planches et 1 ressource"
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 voiles (planche) | Commerce : 1 acier -> 3 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "voile"
+          }
+        ],
+        "raw": "2 voiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 acier -> 3 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "planche"
+          },
+          {
+            "amount": 4,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 2 bois + 2 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Géant des mers",
+    "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "canon"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "3 canons -> 3 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 2 planches et 3 ressources"
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 dés à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "planche"
+          },
+          {
+            "amount": 2,
+            "icon": "de"
+          }
+        ],
+        "raw": "2 planches, 2 dés à lancer",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 1 bouffe + 3 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 4,
+            "icon": "planche"
+          },
+          {
+            "amount": 5,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 5 dés à lancer, 1 trésor",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 étoiles (planche) | Commerce : 1 acier -> 3 ressources",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "2 étoiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "ressource"
+          }
+        ],
+        "raw": "1 acier -> 3 ressources",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Flotte marchande",
+    "description": "Commerce : 3 acier/toile -> 3 bouffe/bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icons": [
+              "acier",
+              "toile"
+            ]
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icons": [
+              "bouffe",
+              "bois"
+            ]
+          }
+        ],
+        "raw": "3 acier/toile -> 3 bouffe/bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 acier -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "jade",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 toile -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bouffe + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bouffe + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bois + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bois + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 3 planches et 2 ressources"
+  },
+  {
+    "sea": "jade",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "3 toiles -> 1 bois + 1 trésor",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 2 aciers -> 3 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 aciers -> 3 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 4 planches et 1 ressource"
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 voiles (planche) | Commerce : 1 acier -> 3 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "voile"
+          }
+        ],
+        "raw": "2 voiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 acier -> 3 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "planche"
+          },
+          {
+            "amount": 4,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 2 bois + 2 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Géant des mers",
+    "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "canon"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "3 canons -> 3 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 2 planches et 3 ressources"
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 dés à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "planche"
+          },
+          {
+            "amount": 2,
+            "icon": "de"
+          }
+        ],
+        "raw": "2 planches, 2 dés à lancer",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 1 bouffe + 3 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 4,
+            "icon": "planche"
+          },
+          {
+            "amount": 5,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 5 dés à lancer, 1 trésor",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 étoiles (planche) | Commerce : 1 acier -> 3 ressources",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "2 étoiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "ressource"
+          }
+        ],
+        "raw": "1 acier -> 3 ressources",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Flotte marchande",
+    "description": "Commerce : 3 acier/toile -> 3 bouffe/bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icons": [
+              "acier",
+              "toile"
+            ]
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icons": [
+              "bouffe",
+              "bois"
+            ]
+          }
+        ],
+        "raw": "3 acier/toile -> 3 bouffe/bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 acier -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "maudite",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 toile -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bouffe + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bouffe + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bois + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bois + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 3 planches et 2 ressources"
+  },
+  {
+    "sea": "maudite",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "3 toiles -> 1 bois + 1 trésor",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 2 aciers -> 3 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 aciers -> 3 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 4 planches et 1 ressource"
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 voiles (planche) | Commerce : 1 acier -> 3 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "voile"
+          }
+        ],
+        "raw": "2 voiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 acier -> 3 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "planche"
+          },
+          {
+            "amount": 4,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 2 bois + 2 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Géant des mers",
+    "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "canon"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "3 canons -> 3 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 2 planches et 3 ressources"
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 dés à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "planche"
+          },
+          {
+            "amount": 2,
+            "icon": "de"
+          }
+        ],
+        "raw": "2 planches, 2 dés à lancer",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 1 bouffe + 3 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 4,
+            "icon": "planche"
+          },
+          {
+            "amount": 5,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 5 dés à lancer, 1 trésor",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 étoiles (planche) | Commerce : 1 acier -> 3 ressources",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "2 étoiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "ressource"
+          }
+        ],
+        "raw": "1 acier -> 3 ressources",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Flotte marchande",
+    "description": "Commerce : 3 acier/toile -> 3 bouffe/bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icons": [
+              "acier",
+              "toile"
+            ]
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icons": [
+              "bouffe",
+              "bois"
+            ]
+          }
+        ],
+        "raw": "3 acier/toile -> 3 bouffe/bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 acier -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "sauvage",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "raw": "1 toile -> 2 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bouffe + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bouffe + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île amicale",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 toile -> 2 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île hostile",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Combat : 2 réussites -> 1 bois + 1 acier",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "raw": "2 réussites -> 1 bois + 1 acier",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 3 planches et 2 ressources"
+  },
+  {
+    "sea": "sauvage",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "toile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "3 toiles -> 1 bois + 1 trésor",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port ordinaire",
+    "description": "Commerce : 2 aciers -> 3 bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 aciers -> 3 bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 4 planches et 1 ressource"
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 voiles (planche) | Commerce : 1 acier -> 3 bouffe",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "voile"
+          }
+        ],
+        "raw": "2 voiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 acier -> 3 bouffe",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 3 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "planche"
+          },
+          {
+            "amount": 4,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bouffe + 1 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 étoile -> 1 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 étoiles -> 2 bois + 1 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          },
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "3 étoiles -> 2 bois + 2 bouffe",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Géant des mers",
+    "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "canon"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "3 canons -> 3 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Perdez 5 planches"
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Créature des mers",
+    "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
+    "tracks": [
+      "exploration",
+      "combat"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "1 étoile",
+        "dice_rule": "voile_food_max1"
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "canon"
+          },
+          {
+            "amount": 1,
+            "icon": "abordage"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "fortune"
+          }
+        ],
+        "raw": "1 canon + 1 abordage -> 2 fortunes",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": "Vous ne pouvez plus effectuer d'action ce tour-ci."
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Menace météo",
+    "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 4,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 étoiles -> 1 trésor",
+        "dice_rule": "voile_food_max1"
+      }
+    },
+    "negative_effect": "Perdez 2 planches et 3 ressources"
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 dés à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "planche"
+          },
+          {
+            "amount": 2,
+            "icon": "de"
+          }
+        ],
+        "raw": "2 planches, 2 dés à lancer",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "ile",
+    "planche": "brune",
+    "title": "Île sauvage",
+    "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
+    "tracks": [
+      "exploration"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 3,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 3,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 étoiles -> 1 bouffe + 3 bois",
+        "dice_rule": "ile_libre"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 4,
+            "icon": "planche"
+          },
+          {
+            "amount": 5,
+            "icon": "de"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 5 dés à lancer, 1 trésor",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "port",
+    "planche": "bleue_brune",
+    "title": "Port périlleux",
+    "description": "Exploration : 2 étoiles (planche) | Commerce : 1 acier -> 3 ressources",
+    "tracks": [
+      "exploration",
+      "commerce"
+    ],
+    "activities": {
+      "exploration": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "etoile"
+          }
+        ],
+        "reward": [],
+        "raw": "2 étoiles (planche)",
+        "dice_rule": "voile_food_max1"
+      },
+      "commerce": {
+        "cost": [
+          {
+            "amount": 1,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "ressource"
+          }
+        ],
+        "raw": "1 acier -> 3 ressources",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Flotte marchande",
+    "description": "Commerce : 3 acier/toile -> 3 bouffe/bois",
+    "tracks": [
+      "commerce"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 3,
+            "icons": [
+              "acier",
+              "toile"
+            ]
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icons": [
+              "bouffe",
+              "bois"
+            ]
+          }
+        ],
+        "raw": "3 acier/toile -> 3 bouffe/bois",
+        "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  }
+]

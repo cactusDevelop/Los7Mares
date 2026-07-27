@@ -26,6 +26,17 @@ enum CardType { ILE, PORT, RENCONTRE }
 @export var description: String = ""
 @export var possible_tracks: Array[String] = []  # "exploration" / "combat" / "commerce"
 
+## Détail par piste ("exploration"/"commerce"/"combat") des icônes à
+## afficher sur la planche d'activité : {"cost": [...], "reward": [...]}
+## où chaque élément est {"icon": "bois", "amount": 1} (ou "icons": [...]
+## quand plusieurs ressources sont interchangeables, ex: acier/toile).
+## Alimenté depuis card_catalog.json, voir CardCatalog._load_definitions().
+@export var activities: Dictionary = {}
+
+## Texte brut de l'effet négatif (planche grise) si la carte en a un.
+## Pas encore d'icônes dédiées (cf GAME_RULES.txt, section 14 [A FAIRE]).
+@export var negative_effect: String = ""
+
 
 func get_icon() -> Texture2D:
 	return CardArt.get_icon(card_type)

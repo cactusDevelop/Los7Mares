@@ -1,23 +1,24 @@
 class_name CardCatalog
 extends RefCounted
 
-## >>> FICHIER À ÉDITER POUR AJOUTER / MODIFIER LES CARTES DU JEU <
+## >>> LISTE DES CARTES : voir res://scripts/resources/data/card_catalog.json <
 ##
-## Ajoute une entrée à DEFINITIONS pour chaque carte :
+## Ce script ne contient plus que la logique de construction. Les données
+## (une entrée par carte) vivent dans card_catalog.json, un simple tableau
+## d'objets qu'on peut regénérer depuis le fichier Excel de référence sans
+## toucher au GDScript. Chaque entrée :
 ##   - "sea"   : clé de la mer (voir SeaDecks.SEA_KEYS), détermine le pool
 ##               d'images de fond disponibles pour cette carte.
-##   - "type"  : GameCard.CardType.ILE / PORT / RENCONTRE
+##   - "type"  : "ile" / "port" / "rencontre" (voir TYPE_STRINGS ci-dessous)
 ##   - "planche" : id d'une entrée de ACTIVITY_BOARDS (l'activité de la carte)
 ##   - "title" / "description" : texte affiché dans le popup de carte
-##
-## Exemple donné par l'énoncé : une carte rencontre, mer sauvage, planche
-## rouge (activité "lancer 3 dés", détaillée plus tard sur l'ActivityBoard) :
-##   {"sea": "sauvage", "type": GameCard.CardType.RENCONTRE, "planche": "rouge",
-##    "title": "Navire fantôme", "description": "Un navire spectral vous encercle."}
+##   - "tracks" : pistes possibles ("exploration" / "commerce" / "combat")
 ##
 ## Si "sea" ou "type" ne correspond à aucun asset pour l'instant, la carte
 ## est quand même construite (icône + planche affichées) mais son fond reste
 ## vide (get_random_background() retourne null) en attendant l'asset.
+
+const CATALOG_PATH := "res://scripts/resources/data/card_catalog.json"
 
 const ACTIVITY_BOARDS := {
 	"rouge": "res://scripts/resources/data/activity_boards/activity_board_rouge.tres",
@@ -25,38 +26,47 @@ const ACTIVITY_BOARDS := {
 	"bleue_brune": "res://scripts/resources/data/activity_boards/activity_board_bleue_brune.tres",
 }
 
-const DEFINITIONS := [
-	{
-		"sea": "sauvage", "type": GameCard.CardType.RENCONTRE, "planche": "rouge",
-		"title": "Navire fantôme", "description": "Un navire spectral vous encercle. Lancez 3 dés pour tenter de fuir.",
-		"tracks": ["combat"],
-	},
-	{
-		"sea": "sauvage", "type": GameCard.CardType.ILE, "planche": "brune",
-		"title": "Île abandonnée", "description": "Une île silencieuse apparaît à l'horizon.",
-		"tracks": ["exploration", "commerce"],  # île amicale : choix Exploration OU Commerce (règle 9)
-	},
-	{
-		"sea": "sauvage", "type": GameCard.CardType.PORT, "planche": "bleue_brune",
-		"title": "Petit port de pêcheurs", "description": "Vous accostez dans un port paisible.",
-		"tracks": ["exploration", "commerce"],  # port périlleux : Matelotage + Commerce (règle 9)
-	},
-]
+const TYPE_STRINGS := {
+	"ile": GameCard.CardType.ILE,
+	"port": GameCard.CardType.PORT,
+	"rencontre": GameCard.CardType.RENCONTRE,
+}
 
 
-## Construit les GameCard décrites dans DEFINITIONS. Appelé par les systèmes
-## de pioche/plateau qui ont besoin des cartes réelles du jeu.
+## Lit et parse card_catalog.json. Retourne un tableau vide (+ erreur dans
+## la console) si le fichier est manquant ou mal formé.
+static func _load_definitions() -> Array:
+	if not FileAccess.file_exists(CATALOG_PATH):
+		push_error("CardCatalog: fichier introuvable: %s" % CATALOG_PATH)
+		return []
+
+	var file := FileAccess.open(CATALOG_PATH, FileAccess.READ)
+	var text := file.get_as_text()
+	var parsed: Variant = JSON.parse_string(text)
+	if typeof(parsed) != TYPE_ARRAY:
+		push_error("CardCatalog: JSON invalide dans %s" % CATALOG_PATH)
+		return []
+	return parsed
+
+
+## Construit les GameCard décrites dans card_catalog.json. Appelé par les
+## systèmes de pioche/plateau qui ont besoin des cartes réelles du jeu.
 static func build_cards() -> Array[GameCard]:
 	var cards: Array[GameCard] = []
-	for def: Dictionary in DEFINITIONS:
+	for def: Dictionary in _load_definitions():
 		var card := GameCard.new()
-		card.card_type = def["type"]
+		var type_key: String = def.get("type", "rencontre")
+		card.card_type = TYPE_STRINGS.get(type_key, GameCard.CardType.RENCONTRE)
 		card.sea_key = def.get("sea", "")
 		card.title = def.get("title", "")
 		card.description = def.get("description", "")
+		card.activities = def.get("activities", {})
+		card.negative_effect = def.get("negative_effect", "") if def.get("negative_effect") != null else ""
 		var planche_id: String = def.get("planche", "")
 		if ACTIVITY_BOARDS.has(planche_id):
 			card.activity_board = load(ACTIVITY_BOARDS[planche_id])
-		card.possible_tracks.assign(def.get("tracks", []))
+		var tracks: Array[String] = []
+		tracks.assign(def.get("tracks", []))
+		card.possible_tracks = tracks
 		cards.append(card)
 	return cards

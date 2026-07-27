@@ -1,0 +1,38 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8p7q2m1kx4wt"]
+
+[ext_resource type="Script" path="res://scripts/debug/card_playground.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://c48kdx2g13b3b" path="res://scenes/board/game_card_view.tscn" id="2_card"]
+
+[node name="CardPlayground" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.5, 0.5)
+
+[node name="GameCardView" parent="." instance=ExtResource("2_card")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="UI" type="VBoxContainer" parent="CanvasLayer"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 500.0
+offset_bottom = 100.0
+
+[node name="TitleLabel" type="Label" parent="CanvasLayer/UI"]
+theme_override_font_sizes/font_size = 24
+text = "Titre"
+
+[node name="IndexLabel" type="Label" parent="CanvasLayer/UI"]
+text = "1 / 252"
+
+[node name="Buttons" type="HBoxContainer" parent="CanvasLayer/UI"]
+
+[node name="Previous" type="Button" parent="CanvasLayer/UI/Buttons"]
+text = "< Précédent"
+
+[node name="Next" type="Button" parent="CanvasLayer/UI/Buttons"]
+text = "Suivant >"
+
+[connection signal="pressed" from="CanvasLayer/UI/Buttons/Previous" to="." method="_previous"]
+[connection signal="pressed" from="CanvasLayer/UI/Buttons/Next" to="." method="_next"]

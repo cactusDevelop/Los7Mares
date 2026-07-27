@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://d3f8k2n5qxr7a"]
+
+[ext_resource type="Script" path="res://scripts/board/icon_badge.gd" id="1_badge"]
+
+[node name="IconBadge" type="HBoxContainer"]
+script = ExtResource("1_badge")
+alignment = 1
+
+[node name="Icon1" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(32, 32)
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Icon2" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(32, 32)
+expand_mode = 1
+stretch_mode = 5
+visible = false
+
+[node name="Amount" type="Label" parent="."]
+text = "x1"
