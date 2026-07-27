@@ -28,6 +28,15 @@ const RECOLOR_SHADER := preload("res://shaders/white_recolor.gdshader")
 
 var sea_key: String = ""
 
+## Rayon/rotation mémorisés lors de setup(), pour pouvoir recalculer la
+## disposition plus tard via refresh() (cf board.gd, appelé à chaque ajout
+## de joueur : au moment de la construction initiale du plateau, la liste
+## des joueurs n'est pas encore forcément complète en mode "local" normal,
+## contrairement au mode debug où elle est pré-remplie avant même de
+## charger la scène plateau).
+var _radius: float = 0.0
+var _rotation_degrees: float = 0.0
+
 
 ## Positions d'un polygone régulier à count sommets, rayon spacing, avec un
 ## côté à plat toujours "en bas" (angle +90°) plutôt qu'un sommet : pour un
@@ -82,6 +91,8 @@ func _apply_player_color(gem: Sprite2D, player_color: String) -> void:
 ## nombre de joueurs).
 func setup(p_sea_key: String, p_texture: Texture2D, p_gem_scale: float, p_radius: float, p_rotation_degrees: float = 0.0) -> void:
 	sea_key = p_sea_key
+	_radius = p_radius
+	_rotation_degrees = p_rotation_degrees
 	var count: int = clampi(GameFlow.players.size(), 0, _gems.size())
 	var offsets: Array[Vector2] = _layout_offsets(count, p_radius, p_rotation_degrees)
 	for i in range(_gems.size()):
@@ -92,6 +103,24 @@ func setup(p_sea_key: String, p_texture: Texture2D, p_gem_scale: float, p_radius
 		gem.texture = p_texture
 		gem.scale = Vector2.ONE * p_gem_scale
 		gem.rotation_degrees = p_rotation_degrees
+		gem.position = offsets[i]
+		_apply_player_color(gem, GameFlow.players[i].get("color", ""))
+		gem.visible = true
+
+
+## Recalcule le nombre de gemmes visibles, leur disposition et leur couleur
+## à partir de GameFlow.players actuel, sans re-préciser texture/échelle
+## (déjà posées par setup()). À appeler quand la liste des joueurs change
+## après la construction initiale du plateau (cf board.gd,
+## GameFlow.players_changed).
+func refresh() -> void:
+	var count: int = clampi(GameFlow.players.size(), 0, _gems.size())
+	var offsets: Array[Vector2] = _layout_offsets(count, _radius, _rotation_degrees)
+	for i in range(_gems.size()):
+		var gem := _gems[i]
+		if i >= count:
+			gem.visible = false
+			continue
 		gem.position = offsets[i]
 		_apply_player_color(gem, GameFlow.players[i].get("color", ""))
 		gem.visible = true
