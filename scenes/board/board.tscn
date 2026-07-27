@@ -31,6 +31,7 @@
 [ext_resource type="Script" uid="uid://dtqgyitf5s8n7" path="res://scripts/board/card_draw_phase.gd" id="26_m0x5n"]
 [ext_resource type="Script" uid="uid://crp8o7l2w4rxs" path="res://scripts/board/action_resolution_phase.gd" id="29_x4jil"]
 [ext_resource type="Script" uid="uid://1w2klspackwn" path="res://scripts/board/first_player_dice_phase.gd" id="30_fpdice"]
+[ext_resource type="Script" uid="uid://duwxxqc0d88bd" path="res://scripts/board/final_battle_phase.gd" id="31_fnlbtl"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_debugskip"]
 bg_color = Color(1, 1, 1, 1)
@@ -351,6 +352,7 @@ script = ExtResource("26_m0x5n")
 script = ExtResource("29_x4jil")
 
 [node name="FinalBattlePhase" type="Node" parent="." unique_id=855122307]
+script = ExtResource("31_fnlbtl")
 
 [editable path="Seas/SeaAbondance"]
 [editable path="Seas/SeaAzur"]
