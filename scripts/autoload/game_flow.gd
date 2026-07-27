@@ -46,6 +46,7 @@ const RANDOM_NAMES: Array[String] = ["Thomas", "Adrien", "Martino", "Raphael", "
 const PARROT_TEXTURE_PATH := "res://assets/art/pieces/perro-%s.png"
 const PARROT_TEXTURE_PATH_PRISON := "res://assets/art/pieces/perro-%s-prison.png"
 const MARKER_TEXTURE_PATH := "res://assets/art/pieces/marqueur.png"
+const GEM_TEXTURE_PATH := "res://assets/art/pieces/gemme-%s.png"
 const BOAT_TEXTURE_PATH := "res://assets/art/pieces/bateau.png"
 const HULL_PLANKS_START := 7
 
@@ -140,6 +141,13 @@ func add_player(player_name: String, color: String) -> Dictionary:
 		"card_tracks": card_tracks,
 		"has_own_parrot": true,
 		"parrot_captured_by": -1,
+		# Gemmes (règle 3/10) : sea_key -> true dès que la 1ère carte de cette
+		# mer est collectée. Jetons bonus : sea_key -> {"active": bool}, créé
+		# à la 2e carte de la mer, "active" repasse à true à chaque carte
+		# suivante de cette mer ("rafraîchi") et à false après utilisation
+		# (cf GAME_RULES.txt section 10 "JETONS BONUS").
+		"gems": {},
+		"bonus_tokens": {},
 		"hull_planks": HULL_PLANKS_START,
 		"is_first_player": false,
 		"sail_level": 1,
@@ -171,6 +179,48 @@ func add_card_to_track(player: Dictionary, track_key: String, card: GameCard) ->
 
 func track_card_count(player: Dictionary, track_key: String) -> int:
 	return player.get("card_tracks", {}).get(track_key, []).size()
+
+
+## Nombre de cartes déjà collectées par le joueur dans une mer donnée, toutes
+## pistes confondues (utilisé par register_sea_progress juste après l'ajout
+## de la carte qui vient d'être obtenue, donc le compte l'inclut déjà).
+func sea_card_count(player: Dictionary, sea_key: String) -> int:
+	var count := 0
+	for track in CARD_TRACK_KEYS:
+		for c in player.get("card_tracks", {}).get(track, []):
+			if c.get("sea_key", "") == sea_key:
+				count += 1
+	return count
+
+
+## Récompense de mer (règle 10.2), à appeler juste après add_card_to_track :
+## - 1ère carte de la mer -> gemme.
+## - 2e carte de la mer -> jeton bonus (créé, face "effet" visible).
+## - 3e carte ou plus -> rafraîchit le jeton bonus déjà possédé (sinon rien,
+##   ex: jeton déjà épuisé côté plateau - pas encore modélisé en détail).
+## Renvoie "gem" / "token_new" / "token_refresh" / "none" pour que l'appelant
+## puisse afficher le bon message.
+func register_sea_progress(player: Dictionary, sea_key: String) -> String:
+	if not player.has("gems"):
+		player["gems"] = {}
+	if not player.has("bonus_tokens"):
+		player["bonus_tokens"] = {}
+
+	var count: int = sea_card_count(player, sea_key)
+	var result := "none"
+	if count == 1:
+		player["gems"][sea_key] = true
+		result = "gem"
+	elif count == 2:
+		player["bonus_tokens"][sea_key] = {"active": true}
+		result = "token_new"
+	elif count >= 3 and player["bonus_tokens"].has(sea_key):
+		player["bonus_tokens"][sea_key]["active"] = true
+		result = "token_refresh"
+
+	if result != "none":
+		players_changed.emit()
+	return result
 
 
 func is_name_taken(player_name: String) -> bool:
@@ -306,12 +356,7 @@ const SAIL_ARMS_POINTS: Dictionary = {1: 0, 2: 1, 3: 3, 4: 5, 5: 7}
 
 ## Calcule le détail du score final d'un joueur (règle 8 "Points de
 ## gloire"). Catégories couvertes : trésors, fortunes, voile, armes,
-## planches, ressources, perroquets, pistes de cartes.
-## [A FAIRE] Gemmes et jetons bonus ne sont pas encore des données du
-## joueur dans le projet (aucune mécanique de collecte codée pour
-## l'instant, cf GAME_RULES.txt section 2/10/14) : ces 2 catégories ne
-## peuvent donc pas encore être scorées et sont omises du total (à
-## ajouter dès que ces fonctionnalités existeront).
+## planches, ressources, perroquets, pistes de cartes, gemmes, jetons bonus.
 func compute_final_score_breakdown(player: Dictionary) -> Dictionary:
 	var breakdown := {}
 	breakdown["treasures"] = player["special_resources"].get("treasure", 0) * 2
@@ -339,6 +384,12 @@ func compute_final_score_breakdown(player: Dictionary) -> Dictionary:
 	for track in CARD_TRACK_KEYS:
 		track_points += _card_track_points(player, track)
 	breakdown["card_tracks"] = track_points
+
+	# Gemmes (règle 8.1) : 2 pts/gemme, +2 bonus si les 7 mers sont collectées.
+	var gem_count: int = player.get("gems", {}).size()
+	breakdown["gems"] = gem_count * 2 + (2 if gem_count >= SeaDecks.SEA_KEYS.size() else 0)
+	# Jetons bonus (règle 8.8) : 1 pt chacun, utilisé ou non.
+	breakdown["bonus_tokens"] = player.get("bonus_tokens", {}).size()
 
 	return breakdown
 

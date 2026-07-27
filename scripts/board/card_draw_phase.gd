@@ -67,6 +67,16 @@ func start(board: Board, emit_finished: bool = true) -> void:
 		_finish_phase(emit_finished)
 
 
+## Renvoie la GameCard actuellement révélée pour une mer donnée (utilisé par
+## action_resolution_phase pour les actions île/port), ou null si la mer n'a
+## pas de carte révélée (pioche+défausse vides) ou n'existe pas.
+func get_current_revealed_card(sea_key: String) -> GameCard:
+	for pile in _revealed_cards.keys():
+		if pile.sea_key == sea_key:
+			return _revealed_cards[pile]
+	return null
+
+
 ## Consultation (facultative) du détail d'une carte déjà révélée sur sa pile.
 func _on_card_pile_clicked(pile: Node2D) -> void:
 	if _pending_pile != null or not _revealed_cards.has(pile):
