@@ -223,6 +223,17 @@ func register_sea_progress(player: Dictionary, sea_key: String) -> String:
 	return result
 
 
+## Index d'un joueur dans GameFlow.players (règle 3 : chaque sea_gem_pile
+## colore/positionne ses gemmes dans ce même ordre, cf sea_gem_pile.setup) ;
+## -1 si introuvable. Comparaison par "id" plutôt que par égalité de
+## Dictionary pour rester correct même si l'appelant détient une copie.
+func get_player_index(player: Dictionary) -> int:
+	for i in range(players.size()):
+		if players[i]["id"] == player.get("id", -1):
+			return i
+	return -1
+
+
 func is_name_taken(player_name: String) -> bool:
 	var normalized := player_name.strip_edges().to_lower()
 	for p in players:

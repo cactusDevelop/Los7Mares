@@ -943,6 +943,17 @@ func _serialize_state(phase: String) -> Dictionary:
 		"round_number": GameFlow.round_number,
 	}
 
+## Retrouve la pile de gemmes visuelle d'une mer donnée (utilisé par
+## action_resolution_phase pour retirer la gemme d'un joueur du plateau dès
+## qu'il la remporte, cf register_sea_progress). Renvoie null si la mer
+## n'existe pas (ne devrait pas arriver en jeu normal).
+func get_gem_pile(sea_key: String) -> Node2D:
+	for gem_pile in sea_gems_container.get_children():
+		if gem_pile.sea_key == sea_key:
+			return gem_pile
+	return null
+
+
 func _autosave(phase: String) -> void:
 	GameFlow.autosave(_serialize_state(phase))
 

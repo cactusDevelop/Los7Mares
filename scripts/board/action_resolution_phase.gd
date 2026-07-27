@@ -631,6 +631,13 @@ func _grant_activity_success(card: GameCard, activity_key: String, activity: Dic
 	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
 	await _board.narration_box.option_selected
 
+	if progress == "gem":
+		var gem_pile: Node2D = _board.get_gem_pile(card.sea_key)
+		if gem_pile != null:
+			var player_index: int = GameFlow.get_player_index(_player)
+			if player_index != -1:
+				gem_pile.take_gem(player_index)
+
 	if progress != "none":
 		_board.narration_box.say_with_player(_progress_message(progress), _player)
 		_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
