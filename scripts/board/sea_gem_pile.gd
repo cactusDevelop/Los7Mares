@@ -5,11 +5,13 @@ extends Node2D
 ## même point que le cercle des bateaux de cette mer (cf
 ## Board.get_sea_marker_position / BOAT_MARKER_RADIUS), avec un rayon de
 ## répartition plus grand (cf Board.gem_layout_radius).
-## GameFlow.layout_positions_for_case forme automatiquement la figure
-## correspondant au nombre de joueurs (segment à 2, triangle à 3, carré à 4,
-## pentagone à 5 : même fonction que pour les bateaux, cf
-## Board._relayout_boats). Chaque gemme est teintée (modulate) de la couleur
-## du joueur auquel elle correspond, dans l'ordre de GameFlow.players.
+## _layout_offsets forme un polygone régulier avec toujours un côté à plat
+## "en bas" (pas de sommet en bas), puis fait pivoter tout le polygone de
+## p_rotation_degrees pour l'orienter selon la position de la mer sur le
+## plateau (même angle que celui utilisé pour les jetons mer) : ainsi les
+## gemmes ne chevauchent jamais la pile de jetons, quelle que soit la mer.
+## Chaque gemme est teintée (shader white_recolor, cf ci-dessous) de la
+## couleur du joueur auquel elle correspond, dans l'ordre de GameFlow.players.
 ## Posées en même temps que la pile de jetons mer (DealingPhase._drop_gem_piles).
 ##
 ## Contrairement aux bateaux (qui se redistribuent en cercle à chaque
@@ -20,21 +22,68 @@ extends Node2D
 ## Nombre max de gemmes pré-créées dans la scène (= nombre max de joueurs).
 const MAX_GEMS := 7
 
+const RECOLOR_SHADER := preload("res://shaders/white_recolor.gdshader")
+
 @onready var _gems: Array[Sprite2D] = [$Gem0, $Gem1, $Gem2, $Gem3, $Gem4, $Gem5, $Gem6]
 
 var sea_key: String = ""
 
 
+## Positions d'un polygone régulier à count sommets, rayon spacing, avec un
+## côté à plat toujours "en bas" (angle +90°) plutôt qu'un sommet : pour un
+## nombre de côtés pair, on décale le premier sommet d'un demi-pas par
+## rapport au sommet-en-haut par défaut (sinon un sommet pointerait aussi
+## en bas, symétrique de celui du haut) ; pour un nombre impair, le
+## sommet-en-haut classique laisse déjà un côté à plat en bas. L'ensemble
+## est ensuite pivoté de rotation_degrees pour suivre l'orientation de la
+## mer sur le plateau (même logique que la rotation des jetons/bateaux).
+func _layout_offsets(count: int, spacing: float, rotation_degrees: float) -> Array[Vector2]:
+	var offsets: Array[Vector2] = []
+	if count <= 0:
+		return offsets
+	elif count == 1:
+		offsets.append(Vector2.ZERO)
+	elif count == 2:
+		offsets.append(Vector2(-spacing, 0))
+		offsets.append(Vector2(spacing, 0))
+	else:
+		var start_angle := -PI / 2.0
+		if count % 2 == 0:
+			start_angle += PI / count
+		for i in range(count):
+			var angle := start_angle + i * (TAU / count)
+			offsets.append(Vector2(cos(angle), sin(angle)) * spacing)
+
+	var rot_rad := deg_to_rad(rotation_degrees)
+	for i in range(offsets.size()):
+		offsets[i] = offsets[i].rotated(rot_rad)
+	return offsets
+
+
+## Donne à un Sprite2D son propre ShaderMaterial (chaque gemme a une couleur
+## différente, donc chacune a besoin de sa propre instance de matériau :
+## partager un seul ShaderMaterial entre plusieurs sprites partagerait aussi
+## leur paramètre replace_color).
+func _apply_player_color(gem: Sprite2D, player_color: String) -> void:
+	var mat: ShaderMaterial = gem.material as ShaderMaterial
+	if mat == null:
+		mat = ShaderMaterial.new()
+		mat.shader = RECOLOR_SHADER
+		gem.material = mat
+	mat.set_shader_parameter("replace_color", GameFlow.COLOR_VALUES.get(player_color, Color.WHITE))
+
+
 ## À appeler une fois à la création de la pile. p_radius est le rayon de
 ## répartition (plus grand que BOAT_MARKER_SPREAD des bateaux).
-## p_rotation_degrees oriente les sprites vers le centre du plateau, comme
-## les jetons et les bateaux. Le nombre de gemmes affichées correspond au
-## nombre de joueurs actuellement en partie ; les emplacements en trop
-## restent cachés (utile si MAX_GEMS > nombre de joueurs).
+## p_rotation_degrees oriente à la fois chaque sprite et l'ensemble du
+## polygone vers le centre du plateau, comme les jetons et les bateaux. Le
+## nombre de gemmes affichées correspond au nombre de joueurs actuellement
+## en partie ; les emplacements en trop restent cachés (utile si MAX_GEMS >
+## nombre de joueurs).
 func setup(p_sea_key: String, p_texture: Texture2D, p_gem_scale: float, p_radius: float, p_rotation_degrees: float = 0.0) -> void:
 	sea_key = p_sea_key
 	var count: int = clampi(GameFlow.players.size(), 0, _gems.size())
-	var offsets: Array[Vector2] = GameFlow.layout_positions_for_case(count, p_radius, Vector2.ZERO)
+	var offsets: Array[Vector2] = _layout_offsets(count, p_radius, p_rotation_degrees)
 	for i in range(_gems.size()):
 		var gem := _gems[i]
 		if i >= count:
@@ -44,8 +93,7 @@ func setup(p_sea_key: String, p_texture: Texture2D, p_gem_scale: float, p_radius
 		gem.scale = Vector2.ONE * p_gem_scale
 		gem.rotation_degrees = p_rotation_degrees
 		gem.position = offsets[i]
-		var player_color: String = GameFlow.players[i].get("color", "")
-		gem.modulate = GameFlow.COLOR_VALUES.get(player_color, Color.WHITE)
+		_apply_player_color(gem, GameFlow.players[i].get("color", ""))
 		gem.visible = true
 
 
