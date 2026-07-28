@@ -38,6 +38,7 @@ func start(board: Board, emit_finished: bool = true) -> void:
 		if revealed.card_type == GameCard.CardType.RENCONTRE:
 			pile.draw_enabled = false
 			pile.pop_top_card()
+			pile.hide_id()
 			SeaDecks.discard_card(revealed)
 			_revealed_cards.erase(pile)
 			_revealed_textures.erase(pile)
@@ -66,6 +67,7 @@ func start(board: Board, emit_finished: bool = true) -> void:
 		var timer := get_tree().create_timer(delay)
 		timer.timeout.connect(func():
 			pile.flip_top_card(front_texture, flip_duration)
+			pile.show_id(card.id)
 			pile.draw_enabled = true
 			flips_remaining[0] -= 1
 			if flips_remaining[0] == 0:
@@ -119,6 +121,7 @@ func redraw_card_for_sea(sea_key: String) -> void:
 
 	if _revealed_cards.has(pile):
 		pile.pop_top_card()
+		pile.hide_id()
 		SeaDecks.discard_card(_revealed_cards[pile])
 		_revealed_cards.erase(pile)
 		_revealed_textures.erase(pile)
@@ -140,3 +143,4 @@ func redraw_card_for_sea(sea_key: String) -> void:
 	_revealed_textures[pile] = front_texture
 	pile.draw_enabled = true
 	pile.flip_top_card(front_texture, Settings.anim_duration(FLIP_DURATION))
+	pile.show_id(card.id)

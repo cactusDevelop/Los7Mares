@@ -19,6 +19,14 @@ extends Resource
 
 enum CardType { ILE, PORT, RENCONTRE }
 
+## Numéro de la carte dans card_catalog.json (son index dans le tableau,
+## qui correspond à la ligne du fichier Excel de référence). Sert
+## uniquement de repère visuel temporaire tant que les visuels définitifs
+## ne sont pas tous en place (cf GAME_RULES.txt section 14) : affiché en
+## gros sur la pile et dans l'aperçu zoomé pour identifier une carte sans
+## avoir à ouvrir card_catalog.json.
+@export var id: int = -1
+
 @export var card_type: CardType = CardType.RENCONTRE
 @export var sea_key: String = ""
 @export var activity_board: ActivityBoard

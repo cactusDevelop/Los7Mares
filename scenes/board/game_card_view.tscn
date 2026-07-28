@@ -14,3 +14,15 @@ position = Vector2(-670, -380)
 position = Vector2(0, 320)
 
 [node name="ActivityDetails" type="Node2D" parent="." unique_id=872963165]
+
+[node name="IdLabel" type="Label" parent="." unique_id=1156237480]
+offset_left = 480.0
+offset_top = -510.0
+offset_right = 800.0
+offset_bottom = -400.0
+theme_override_colors/font_color = Color(1, 0.85, 0.1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 96
+horizontal_alignment = 2
+text = "#0"

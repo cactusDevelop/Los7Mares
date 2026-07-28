@@ -22,6 +22,7 @@ const ROW_SPACING := 40.0
 @onready var icon: Sprite2D = $Icon
 @onready var planche: Sprite2D = $Planche
 @onready var activity_details: Node2D = $ActivityDetails
+@onready var id_label: Label = $IdLabel
 
 
 ## background_override permet d'imposer une texture de fond précise (carte
@@ -30,6 +31,7 @@ func set_card(card: GameCard, background_override: Texture2D = null) -> void:
 	background.texture = background_override if background_override else card.get_random_background()
 	icon.texture = card.get_icon()
 	planche.texture = card.get_planche_texture()
+	id_label.text = "#%d" % card.id
 	_build_activity_details(card)
 
 

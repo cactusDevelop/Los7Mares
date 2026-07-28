@@ -10,9 +10,23 @@ signal pile_clicked(pile: Node2D)
 @onready var click_area: Area2D = $ClickArea
 @onready var hover_prompt: Node2D = $HoverPrompt
 @onready var cards_container: Node2D = $Cards
+@onready var id_label: Label = $IdLabel
 
 var sea_key: String = ""
 var draw_enabled: bool = false
+
+
+## Affiche en gros le numéro de la carte actuellement révélée (repère
+## temporaire tant que les visuels définitifs ne sont pas tous en place,
+## cf card.id). Appelé par card_draw_phase juste après le flip.
+func show_id(id: int) -> void:
+	id_label.text = "#%d" % id
+	id_label.visible = true
+
+
+## Masque le repère quand la carte révélée est retirée (défaussée/consommée).
+func hide_id() -> void:
+	id_label.visible = false
 
 
 func _ready() -> void:

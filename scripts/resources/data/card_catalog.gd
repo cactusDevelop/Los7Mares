@@ -53,8 +53,11 @@ static func _load_definitions() -> Array:
 ## systèmes de pioche/plateau qui ont besoin des cartes réelles du jeu.
 static func build_cards() -> Array[GameCard]:
 	var cards: Array[GameCard] = []
-	for def: Dictionary in _load_definitions():
+	var definitions: Array = _load_definitions()
+	for i in range(definitions.size()):
+		var def: Dictionary = definitions[i]
 		var card := GameCard.new()
+		card.id = i
 		var type_key: String = def.get("type", "rencontre")
 		card.card_type = TYPE_STRINGS.get(type_key, GameCard.CardType.RENCONTRE)
 		card.sea_key = def.get("sea", "")
