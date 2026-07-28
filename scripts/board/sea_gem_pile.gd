@@ -26,6 +26,18 @@ const RECOLOR_SHADER := preload("res://shaders/white_recolor.gdshader")
 
 @onready var _gems: Array[Sprite2D] = [$Gem0, $Gem1, $Gem2, $Gem3, $Gem4, $Gem5, $Gem6]
 
+## Couches d'épaisseur 3D par gemme (ombres + face avant), construites une
+## fois par setup() (cf _ensure_thickness_layers). Un index par gemme, dans
+## le même ordre que _gems ; chaque entrée est un Array[Sprite2D] (ombres
+## d'abord, face avant en dernier), CHACUNE avec son propre ShaderMaterial
+## white_recolor : contrairement aux pions (PionThickness.add_to_sprite, qui
+## se contente de copier texture/centered/offset car la couleur du pion
+## vient d'un simple modulate hérité par les enfants), la couleur d'une
+## gemme vient d'un ShaderMaterial (replace_color) qui, lui, n'est PAS hérité
+## par les enfants : chaque couche doit donc avoir son propre matériau,
+## remis à jour par _apply_player_color à chaque setup()/refresh().
+var _gem_layers: Array = []
+
 var sea_key: String = ""
 
 ## Rayon/rotation mémorisés lors de setup(), pour pouvoir recalculer la
@@ -74,17 +86,64 @@ func _layout_offsets(count: int, spacing: float, rotation_degrees: float) -> Arr
 	return offsets
 
 
-## Donne à un Sprite2D son propre ShaderMaterial (chaque gemme a une couleur
-## différente, donc chacune a besoin de sa propre instance de matériau :
-## partager un seul ShaderMaterial entre plusieurs sprites partagerait aussi
-## leur paramètre replace_color).
-func _apply_player_color(gem: Sprite2D, player_color: String) -> void:
-	var mat: ShaderMaterial = gem.material as ShaderMaterial
-	if mat == null:
-		mat = ShaderMaterial.new()
-		mat.shader = RECOLOR_SHADER
-		gem.material = mat
-	mat.set_shader_parameter("replace_color", GameFlow.COLOR_VALUES.get(player_color, Color.WHITE))
+## Applique la couleur du joueur à TOUTES les couches d'épaisseur 3D de la
+## gemme d'indice `index` (ombres + face avant, cf _ensure_thickness_layers),
+## chacune ayant son propre ShaderMaterial (partager une seule instance
+## entre plusieurs couches/gemmes partagerait aussi leur replace_color).
+func _apply_player_color(index: int, player_color: String) -> void:
+	var color: Color = GameFlow.COLOR_VALUES.get(player_color, Color.WHITE)
+	for layer in _gem_layers[index]:
+		var mat: ShaderMaterial = layer.material as ShaderMaterial
+		mat.set_shader_parameter("replace_color", color)
+
+
+## Construit (une seule fois par gemme) les couches d'épaisseur 3D : mêmes
+## constantes que les pions capitaine/second (PionThickness, cf
+## scripts/common/pion_thickness.gd), mais implémenté ici à la main plutôt
+## que via PionThickness.add_to_sprite, qui ne copie pas le "material" du
+## sprite d'origine (seulement texture/centered/offset) : sans ça, les
+## couches resteraient blanches au lieu de prendre la couleur du joueur.
+## `gem` (le sprite d'origine) devient invisible (self_modulate.a = 0), ses
+## enfants (ombres puis face avant, dans cet ordre d'ajout) restent seuls
+## visibles et suivent automatiquement sa position/rotation/échelle.
+func _ensure_thickness_layers(index: int, gem: Sprite2D) -> void:
+	if not _gem_layers[index].is_empty():
+		return
+	if PionThickness.LAYERS <= 0 or PionThickness.THICKNESS_PX <= 0.0:
+		return
+	gem.self_modulate.a = 0.0
+
+	var scale_x: float = gem.scale.x if absf(gem.scale.x) > 0.0001 else 1.0
+	var scale_y: float = gem.scale.y if absf(gem.scale.y) > 0.0001 else 1.0
+	var step_screen: Vector2 = UiTheme.DEPTH_DIRECTION * (PionThickness.THICKNESS_PX / float(PionThickness.LAYERS))
+	var step_local := Vector2(step_screen.x / scale_x, step_screen.y / scale_y)
+	var darken := Color(1, 1, 1).darkened(PionThickness.EDGE_DARKEN)
+
+	var layers: Array = []
+	for layer in range(PionThickness.LAYERS, 0, -1):
+		var shadow := Sprite2D.new()
+		shadow.texture = gem.texture
+		shadow.centered = gem.centered
+		shadow.offset = gem.offset
+		shadow.position = step_local * layer
+		shadow.modulate = darken
+		var shadow_mat := ShaderMaterial.new()
+		shadow_mat.shader = RECOLOR_SHADER
+		shadow.material = shadow_mat
+		gem.add_child(shadow)
+		layers.append(shadow)
+
+	var front := Sprite2D.new()
+	front.texture = gem.texture
+	front.centered = gem.centered
+	front.offset = gem.offset
+	var front_mat := ShaderMaterial.new()
+	front_mat.shader = RECOLOR_SHADER
+	front.material = front_mat
+	gem.add_child(front)
+	layers.append(front)
+
+	_gem_layers[index] = layers
 
 
 ## À appeler une fois à la création de la pile. p_radius est le rayon de

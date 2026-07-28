@@ -622,6 +622,8 @@ func _setup_board_peek(row: Control, peek_pos: Vector2, full_pos: Vector2, hover
 
 	var tween: Tween
 	var slide_to := func(target: Vector2) -> void:
+		if not is_instance_valid(row):
+			return
 		if tween and tween.is_valid():
 			tween.kill()
 		tween = row.create_tween()

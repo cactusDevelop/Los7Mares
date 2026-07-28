@@ -245,7 +245,8 @@ func _refresh_resource_display(player: Dictionary) -> void:
 ## gemmes de son plateau (GEM_SLOT_PIXELS, une position fixe par mer), teintées
 ## de sa couleur (même shader white_recolor que sea_gem_pile.gd pour la pile
 ## de gemmes disponibles près des tuiles mer), avec la même épaisseur 3D que
-## les ressources/jetons (_add_token_with_thickness), et tournées de sorte
+## les pions capitaine/second (PionThickness, cf scripts/common/pion_thickness.gd),
+## et tournées de sorte
 ## que le bas de chaque gemme pointe vers le centre de la rose (heptagone),
 ## comme les tuiles mer (cf board.gd : rotation = angle_vers_l'extérieur + 90°,
 ## donc ici angle_vers_le_centre - 90°, équivalent). Non déplaçables (position
@@ -278,12 +279,15 @@ func _refresh_gems(player: Dictionary) -> void:
 ## chaque copie reçoit son propre ShaderMaterial (white_recolor) pour la
 ## teinter de la couleur du joueur, et l'ensemble est tourné de
 ## rotation_deg autour de son centre (pivot_offset = moitié de la taille).
+## Épaisseur = PionThickness (mêmes constantes que capitaine/second), PAS
+## TOKEN_THICKNESS_* (réservé aux jetons Fortune/Trésor) : demande explicite
+## d'avoir la même épaisseur 3D que les pions pour les gemmes.
 func _add_gem_with_thickness(texture: Texture2D, center: Vector2, icon_size: Vector2, replace_color: Color, rotation_deg: float) -> Array:
 	var nodes: Array = []
-	var step: Vector2 = UiTheme.DEPTH_DIRECTION * (TOKEN_THICKNESS_PX / float(TOKEN_THICKNESS_LAYERS))
+	var step: Vector2 = UiTheme.DEPTH_DIRECTION * (PionThickness.THICKNESS_PX / float(PionThickness.LAYERS))
 	var top_left: Vector2 = center - icon_size / 2.0
 
-	for layer in range(TOKEN_THICKNESS_LAYERS, 0, -1):
+	for layer in range(PionThickness.LAYERS, 0, -1):
 		var edge := TextureRect.new()
 		edge.texture = texture
 		edge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -295,7 +299,7 @@ func _add_gem_with_thickness(texture: Texture2D, center: Vector2, icon_size: Vec
 		edge_mat.shader = GEM_RECOLOR_SHADER
 		edge_mat.set_shader_parameter("replace_color", replace_color)
 		edge.material = edge_mat
-		edge.modulate = Color(1, 1, 1).darkened(TOKEN_EDGE_DARKEN)
+		edge.modulate = Color(1, 1, 1).darkened(PionThickness.EDGE_DARKEN)
 		edge.rotation_degrees = rotation_deg
 		resource_slots.add_child(edge)
 		edge.position = top_left + step * layer
