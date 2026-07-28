@@ -73,6 +73,20 @@ const CARD_TRACK_COUNT_OUTLINE_SIZE := 6
 ## au survol d'une piste, en secondes. Très rapide par défaut.
 const CARD_TRACK_HOVER_ANIM_DURATION := 0.1
 
+## Positions (centre, pixels image du plateau) des 7 emplacements de gemmes
+## sur le plateau joueur (rose des gemmes), une par mer.
+const GEM_SLOT_PIXELS: Dictionary = {
+	"glace": Vector2(440, 225),
+	"jade": Vector2(640, 325),
+	"abondance": Vector2(690, 550),
+	"feu": Vector2(550, 725),
+	"maudite": Vector2(330, 725),
+	"azur": Vector2(200, 550),
+	"sauvage": Vector2(250, 350),
+}
+const GEM_ICON_SIZE := Vector2(175, 175)
+const GEM_RECOLOR_SHADER := preload("res://shaders/white_recolor.gdshader")
+
 const RESOURCE_CUBE_EDGE := 120.0
 const SPECIAL_ICON_SIZE := Vector2(110, 110)
 ## Distance minimale visée (en pixels image) entre deux jetons du même type,
@@ -223,7 +237,86 @@ func _refresh_resource_display(player: Dictionary) -> void:
 	_place_special_tokens("treasure", TREASURE_TEXTURE, layout, "treasure_pos")
 	_place_special_tokens("fortune", FORTUNE_TEXTURE, layout, "fortune_pos")
 	_place_hull_planks_from_layout(layout)
+	_refresh_gems(player)
 	_refresh_card_tracks(player)
+
+
+## Affiche les gemmes obtenues par le joueur (règle 3/10) sur la rose des
+## gemmes de son plateau (GEM_SLOT_PIXELS, une position fixe par mer), teintées
+## de sa couleur (même shader white_recolor que sea_gem_pile.gd pour la pile
+## de gemmes disponibles près des tuiles mer), avec la même épaisseur 3D que
+## les ressources/jetons (_add_token_with_thickness), et tournées de sorte
+## que le bas de chaque gemme pointe vers le centre de la rose (heptagone),
+## comme les tuiles mer (cf board.gd : rotation = angle_vers_l'extérieur + 90°,
+## donc ici angle_vers_le_centre - 90°, équivalent). Non déplaçables (position
+## fixe liée à la mer, pas d'inventaire libre comme les ressources/jetons).
+func _refresh_gems(player: Dictionary) -> void:
+	var icon_size_local: Vector2 = _texture_size_to_local(GEM_ICON_SIZE)
+	var rose_center: Vector2 = Vector2.ZERO
+	for pos in GEM_SLOT_PIXELS.values():
+		rose_center += pos
+	rose_center /= GEM_SLOT_PIXELS.size()
+
+	var replace_color: Color = GameFlow.COLOR_VALUES.get(player["color"], Color.WHITE)
+	for sea_key in player.get("gems", {}).keys():
+		if not GEM_SLOT_PIXELS.has(sea_key):
+			continue
+		var path: String = GameFlow.GEM_TEXTURE_PATH % sea_key
+		if not ResourceLoader.exists(path):
+			continue
+		var pixel: Vector2 = GEM_SLOT_PIXELS[sea_key]
+		var direction: Vector2 = pixel - rose_center
+		var rotation_deg: float = rad_to_deg(atan2(direction.y, direction.x)) + 90.0
+		var center: Vector2 = _texture_to_local(pixel)
+		var nodes := _add_gem_with_thickness(load(path), center, icon_size_local, replace_color, rotation_deg)
+		for n in nodes:
+			n.tooltip_text = sea_key
+
+
+## Comme _add_token_with_thickness (empilement de copies assombries décalées
+## dans DEPTH_DIRECTION pour simuler une épaisseur), mais pour les gemmes :
+## chaque copie reçoit son propre ShaderMaterial (white_recolor) pour la
+## teinter de la couleur du joueur, et l'ensemble est tourné de
+## rotation_deg autour de son centre (pivot_offset = moitié de la taille).
+func _add_gem_with_thickness(texture: Texture2D, center: Vector2, icon_size: Vector2, replace_color: Color, rotation_deg: float) -> Array:
+	var nodes: Array = []
+	var step: Vector2 = UiTheme.DEPTH_DIRECTION * (TOKEN_THICKNESS_PX / float(TOKEN_THICKNESS_LAYERS))
+	var top_left: Vector2 = center - icon_size / 2.0
+
+	for layer in range(TOKEN_THICKNESS_LAYERS, 0, -1):
+		var edge := TextureRect.new()
+		edge.texture = texture
+		edge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		edge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		edge.size = icon_size
+		edge.pivot_offset = icon_size / 2.0
+		edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var edge_mat := ShaderMaterial.new()
+		edge_mat.shader = GEM_RECOLOR_SHADER
+		edge_mat.set_shader_parameter("replace_color", replace_color)
+		edge.material = edge_mat
+		edge.modulate = Color(1, 1, 1).darkened(TOKEN_EDGE_DARKEN)
+		edge.rotation_degrees = rotation_deg
+		resource_slots.add_child(edge)
+		edge.position = top_left + step * layer
+		nodes.append(edge)
+
+	var top := TextureRect.new()
+	top.texture = texture
+	top.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	top.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	top.size = icon_size
+	top.pivot_offset = icon_size / 2.0
+	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var top_mat := ShaderMaterial.new()
+	top_mat.shader = GEM_RECOLOR_SHADER
+	top_mat.set_shader_parameter("replace_color", replace_color)
+	top.material = top_mat
+	top.rotation_degrees = rotation_deg
+	resource_slots.add_child(top)
+	top.position = top_left
+	nodes.append(top)
+	return nodes
 
 
 ## Affiche les 3 piles de cartes (Exploration/Combat/Commerce, règle 3) dans

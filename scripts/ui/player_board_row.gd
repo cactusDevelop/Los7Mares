@@ -70,8 +70,6 @@ func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE, board_
 			tokens_container.add_child(_build_parrot_token(other["color"], true, token_size))
 	if player.get("is_first_player", false):
 		tokens_container.add_child(_build_marker_token(token_size))
-	for sea_key in player.get("gems", {}).keys():
-		tokens_container.add_child(_build_gem_token(sea_key, token_size))
 
 	# Les jetons tournent avec le plateau (même angle), pour la même raison
 	# que board_texture : tokens_container est un enfant de tokens_wrap (un
@@ -144,25 +142,3 @@ func _build_marker_token(token_size: Vector2 = TOKEN_BASE_SIZE) -> Control:
 	texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	texture_rect.custom_minimum_size = token_size
 	return texture_rect
-
-
-## Gemme obtenue (règle 3/10) : une par mer, colorée selon la mer d'origine.
-## Certaines mers n'ont pas encore leur asset dédié (cf assets/art/pieces/
-## gemme-*.png) : dans ce cas on affiche un losange de couleur neutre plutôt
-## que de planter, en attendant l'asset.
-func _build_gem_token(sea_key: String, token_size: Vector2 = TOKEN_BASE_SIZE) -> Control:
-	var path: String = GameFlow.GEM_TEXTURE_PATH % sea_key
-	if ResourceLoader.exists(path):
-		var texture_rect := TextureRect.new()
-		texture_rect.texture = load(path)
-		texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		texture_rect.custom_minimum_size = token_size
-		texture_rect.tooltip_text = sea_key
-		return texture_rect
-
-	var placeholder := ColorRect.new()
-	placeholder.color = Color(0.7, 0.7, 0.75)
-	placeholder.custom_minimum_size = token_size
-	placeholder.tooltip_text = sea_key
-	return placeholder

@@ -89,18 +89,21 @@ func get_current_revealed_card(sea_key: String) -> GameCard:
 
 
 ## Consultation (facultative) du détail d'une carte déjà révélée sur sa pile.
-## Ignorée si un choix est en attente ailleurs (ex: action_resolution_phase
-## attend un bouton de narration_box) : sans ce garde-fou, hide_box() efface
-## les boutons sous cet await et bloque la partie (plus aucun bouton à
-## cliquer).
+## Toujours possible, même si des boutons de choix sont affichés dans
+## narration_box (résolution d'action en cours) : on n'appelle alors PAS
+## hide_box() pour ne pas effacer ces boutons sous un await en attente
+## ailleurs (ex: action_resolution_phase). sea_card_popup est un panneau
+## autonome (son propre fond + bouton RETOUR) qui n'interagit jamais avec
+## narration_box.option_selected, donc l'ouvrir par-dessus un choix en
+## attente ne casse rien : le joueur peut consulter la carte puis revenir
+## cliquer le bouton toujours affiché.
 func _on_card_pile_clicked(pile: Node2D) -> void:
 	if _pending_pile != null or not _revealed_cards.has(pile):
 		return
-	if _board.narration_box.has_options():
-		return
 	_pending_pile = pile
 	pile.hover_prompt.hide_prompt()
-	_board.narration_box.hide_box()
+	if not _board.narration_box.has_options():
+		_board.narration_box.hide_box()
 	_board.sea_card_popup.show_card(_revealed_cards[pile], _revealed_textures[pile])
 
 
