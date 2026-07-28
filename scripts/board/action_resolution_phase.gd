@@ -4,8 +4,13 @@ extends Node
 ## (pion_placement_phase.gd). Chaque case action donne accès à 2 des 4
 ## actions du jeu ; le joueur choisit l'ordre, puis fait ou décline chaque
 ## action (déclin = 1 ressource nourriture OU 1 jeton fortune au choix).
-## "déplacement", "reparation" et "ile" sont implémentées ; "port" ne peut
-## encore qu'être déclinée en attendant ses règles détaillées.
+## Les 4 actions (déplacement, réparation, île, port) sont implémentées avec
+## leurs variantes principale/réduite (règles 9/11/12). "Gérer une
+## rencontre" (bateau pirate, menace météo, etc. - règle 9) n'est pas
+## encore résolu au sens strict : les cartes rencontre passent aujourd'hui
+## par le même moteur générique que les îles (dés + coût/récompense), sans
+## les phases dédiées (canons/abordage) ni les cartes pirate/malfamé
+## distinctes du catalogue actuel.
 ##
 ## Tous les choix (ordre des actions, faire/décliner, ressources,
 ## déplacement...) se font via la narration_box : le paragraphe explique la
@@ -37,7 +42,7 @@ const ACTION_LABELS_WEAK := {
 	"port": "Travailler au port",
 	"ile": "Collecter sur une île",
 }
-const IMPLEMENTED_ACTIONS: Array[String] = ["deplacement", "reparation", "ile"]
+const IMPLEMENTED_ACTIONS: Array[String] = ["deplacement", "reparation", "ile", "port"]
 
 ## Dés physiques réutilisés depuis first_player_dice_phase.gd : noir = combat
 ## (vide/abordage/canon), blanc = exploration (vide/un/double étoile).
@@ -122,6 +127,8 @@ func _resolve_action(action: String) -> void:
 		await _run_renovation()
 	elif choice == "do" and action == "ile":
 		await _run_ile()
+	elif choice == "do" and action == "port":
+		await _run_port()
 	else:
 		await _run_decline()
 
@@ -135,6 +142,8 @@ func _can_do_action(action: String) -> bool:
 		return _can_do_renovation()
 	if action == "ile":
 		return _can_do_ile()
+	if action == "port":
+		return _can_do_port()
 	return true
 
 
@@ -146,6 +155,26 @@ func _can_do_ile() -> bool:
 		return false
 	var card: GameCard = _board.card_draw_phase.get_current_revealed_card(sea_key)
 	return card != null and card.card_type == GameCard.CardType.ILE
+
+
+## Accéder à un port (fort) nécessite une mer avec une carte port + les
+## ressources suffisantes (avec substitution) pour un port ordinaire ; les
+## variantes à dés (périlleux/malfamé) n'ont pas de précondition de
+## ressources. Travailler au port (faible, règle 12) ne nécessite que la
+## carte port.
+func _can_do_port() -> bool:
+	var sea_key: String = _player.get("boat_sea", "")
+	if sea_key == "":
+		return false
+	var card: GameCard = _board.card_draw_phase.get_current_revealed_card(sea_key)
+	if card == null or card.card_type != GameCard.CardType.PORT:
+		return false
+	if not _is_strong:
+		return true
+	var activity: Dictionary = card.activities.get("commerce", {})
+	if activity.get("dice_rule", "") == "":
+		return _can_afford_port_cost(activity.get("cost", []))
+	return true
 
 
 ## Rénover son bateau (fort) nécessite ressources suffisantes pour au moins
@@ -488,6 +517,223 @@ func _activity_label(key: String) -> String:
 
 
 # =========================================================================
+# ACCEDER A UN PORT (règle 9) / TRAVAILLER AU PORT (règle 12)
+# =========================================================================
+
+## Fort : détermine la variante depuis dice_rule de l'activité "commerce"
+## (null -> ordinaire, "voile_food_max1" -> périlleux, "armes" -> malfamé)
+## et la résout (règle 9).
+func _run_port() -> void:
+	if not _is_strong:
+		await _run_port_work()
+		_board._autosave("pions")
+		return
+
+	var sea_key: String = _player.get("boat_sea", "")
+	var card: GameCard = _board.card_draw_phase.get_current_revealed_card(sea_key)
+	if card == null or card.card_type != GameCard.CardType.PORT:
+		await _run_decline()
+		return
+
+	var activity: Dictionary = card.activities.get("commerce", {})
+	match activity.get("dice_rule", ""):
+		"voile_food_max1":
+			await _run_port_perilleux(card, activity)
+		"armes":
+			await _run_port_malfame(card, activity)
+		_:
+			await _run_port_ordinaire(card, activity)
+
+	_board._autosave("pions")
+
+
+## Port ordinaire : payer les ressources demandées, avec substitution
+## possible (1 rhum pour n'importe quelle ressource, ou 2 ressources d'un
+## autre type pour 1) puis recevoir la récompense (règle 9).
+func _run_port_ordinaire(card: GameCard, activity: Dictionary) -> void:
+	var cost: Array = activity.get("cost", [])
+	if not _can_afford_port_cost(cost):
+		_board.narration_box.say_with_player(
+			tr("Tour de %s : ressources insuffisantes pour accéder au port (même avec substitution)."), _player
+		)
+		_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
+		await _board.narration_box.option_selected
+		await _run_decline()
+		return
+
+	await _pay_port_cost_interactive(cost)
+	for reward in activity.get("reward", []):
+		await _grant_reward_entry(reward)
+	await _check_overload()
+	await _finalize_success(card, "commerce")
+
+
+## Port périlleux : dés d'exploration = niveau de voile (+1 nourriture pour
+## +1 dé, max 1) pour atteindre le nombre d'étoiles requis. Échec -> perdre
+## autant de planches que d'étoiles manquantes (règle 9), sans fortune de
+## compensation ni carte défaussée (pas la même mécanique qu'échouer une
+## activité classique).
+func _run_port_perilleux(card: GameCard, activity: Dictionary) -> void:
+	var base: int = max(_player.get("sail_level", 1), 1)
+	var stars: int = await _roll_exploration_stars(base, 1)
+	var needed: int = _needed_stars(activity)
+
+	if stars >= needed:
+		for reward in activity.get("reward", []):
+			await _grant_reward_entry(reward)
+		await _check_overload()
+		await _finalize_success(card, "commerce")
+		return
+
+	var missing: int = needed - stars
+	_board.narration_box.say_with_player(
+		tr("Tour de %s : étoiles insuffisantes (%d/%d) au port périlleux, perd %d planche(s)."),
+		_player, [stars, needed, missing]
+	)
+	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
+	await _board.narration_box.option_selected
+	await _lose_planks(missing)
+
+
+## Port malfamé : dés de combat = niveau d'armes pour atteindre le nombre
+## de succès requis (canon OU abordage). Réussite -> Commerce normal.
+## Échec -> Commerce quand même, mais récompense réduite du nombre de
+## succès manquants (règle 9).
+func _run_port_malfame(card: GameCard, activity: Dictionary) -> void:
+	var count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
+	var results: Array[String] = await _throw_dice(count, false)
+
+	var successes := 0
+	for r in results:
+		if r == "canon" or r == "abordage":
+			successes += 1
+	var needed := 0
+	for c in activity.get("cost", []):
+		if c.get("icon", "") in ["canon", "abordage", "reussite"]:
+			needed += c.get("amount", 0)
+	var missing: int = max(needed - successes, 0)
+
+	_board.narration_box.say_with_player(
+		tr("Tour de %s : %d succès obtenus sur %d requis au port malfamé."),
+		_player, [successes, needed]
+	)
+	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
+	await _board.narration_box.option_selected
+
+	var reward: Array = activity.get("reward", [])
+	if missing > 0:
+		reward = _reduced_reward(reward, missing)
+	for entry in reward:
+		await _grant_reward_entry(entry)
+	await _check_overload()
+	await _finalize_success(card, "commerce")
+
+
+## Réduit une liste de récompenses de "missing" unités au total (règle 9,
+## port malfamé) en rognant d'abord les entrées les plus abondantes.
+func _reduced_reward(reward: Array, missing: int) -> Array:
+	var result: Array = []
+	var to_cut: int = missing
+	for entry in reward:
+		var e: Dictionary = entry.duplicate(true)
+		var cut: int = min(to_cut, int(e.get("amount", 0)))
+		e["amount"] = int(e.get("amount", 0)) - cut
+		to_cut -= cut
+		if e["amount"] > 0:
+			result.append(e)
+	return result
+
+
+## Vérifie si le coût peut être couvert en tenant compte de la substitution
+## (règle 9) : ressource exacte possédée + 1 rhum par unité manquante, ou 2
+## ressources (hors rhum, hors la ressource demandée) par unité manquante.
+func _can_afford_port_cost(cost: Array) -> bool:
+	for entry in cost:
+		var icon: String = entry.get("icon", "")
+		var amount: int = entry.get("amount", 0)
+		var missing: int = amount - _get_icon_amount(icon)
+		if missing <= 0:
+			continue
+		var rhum: int = _player["resources"].get("rum", 0)
+		missing -= min(missing, rhum)
+		if missing <= 0:
+			continue
+		var other_total := 0
+		for key in GameFlow.RESOURCE_TYPES:
+			if key == "rum" or ICON_TO_RESOURCE.get(icon, "") == key:
+				continue
+			other_total += _player["resources"].get(key, 0)
+		if int(other_total / 2) < missing:
+			return false
+	return true
+
+
+## Paie le coût demandé, en piochant d'abord dans la ressource exacte, puis
+## en demandant au joueur comment couvrir le manque (1 rhum ou 2 d'une autre
+## ressource par unité manquante - règle 9).
+func _pay_port_cost_interactive(cost: Array) -> void:
+	for entry in cost:
+		var icon: String = entry.get("icon", "")
+		var amount: int = entry.get("amount", 0)
+		var direct: int = min(_get_icon_amount(icon), amount)
+		_add_icon_amount(icon, -direct)
+		var remaining: int = amount - direct
+
+		while remaining > 0:
+			var options: Array = []
+			if _player["resources"].get("rum", 0) >= 1:
+				options.append({"id": "rhum", "label": tr("Payer avec 1 rhum")})
+			for key in GameFlow.RESOURCE_TYPES:
+				if key == "rum" or ICON_TO_RESOURCE.get(icon, "") == key:
+					continue
+				if _player["resources"].get(key, 0) >= 2:
+					options.append({"id": "sub:" + key, "label": tr("Payer avec 2 ") + GameFlow.RESOURCE_LABELS.get(key, key)})
+
+			_board.narration_box.say_with_player(
+				tr("Tour de %s : il manque ") + _icon_label(icon) + tr(" (%d restant(s)), comment payer ?"),
+				_player, [remaining]
+			)
+			_board.narration_box.set_options(options)
+			var choice: String = await _board.narration_box.option_selected
+
+			if choice == "rhum":
+				_player["resources"]["rum"] -= 1
+			elif choice.begins_with("sub:"):
+				_player["resources"][choice.substr(4)] -= 2
+			remaining -= 1
+			GameFlow.players_changed.emit()
+
+
+## Faible (règle 12) : 1 ressource au choix parmi celles à droite de la
+## flèche d'échange, sans dé, sans trésor, la carte reste en place.
+func _run_port_work() -> void:
+	var sea_key: String = _player.get("boat_sea", "")
+	var card: GameCard = _board.card_draw_phase.get_current_revealed_card(sea_key)
+	if card == null or card.card_type != GameCard.CardType.PORT:
+		await _run_decline()
+		return
+
+	var activity: Dictionary = card.activities.get("commerce", {})
+	var choices: Array = []
+	for reward in activity.get("reward", []):
+		var candidates: Array = reward["icons"] if reward.has("icons") else [reward.get("icon", "")]
+		for ic in candidates:
+			if not choices.has(ic):
+				choices.append(ic)
+	if choices.is_empty():
+		choices = ["bois", "bouffe"]
+
+	_board.narration_box.say_with_player(tr("Tour de %s : travaille au port, quelle ressource ?"), _player)
+	var options: Array = []
+	for c in choices:
+		options.append({"id": c, "label": _icon_label(c)})
+	_board.narration_box.set_options(options)
+	var choice: String = await _board.narration_box.option_selected
+	_add_icon_amount(choice, 1)
+	GameFlow.players_changed.emit()
+
+
+# =========================================================================
 # MECANIQUES TRANSVERSALES (règle 10) : réussir/échouer une activité,
 # lancers de dés, récompenses, gemmes/jetons bonus, effets négatifs.
 # =========================================================================
@@ -518,35 +764,14 @@ func _resolve_activity(card: GameCard, activity_key: String) -> void:
 		await _grant_activity_failure(card)
 
 
-## Lance les dés adaptés à dice_rule et compare au(x) coût(s) requis :
-## - "ile_libre" (île) : dés d'exploration, 1er gratuit, +1 par nourriture
-##   dépensée (pas de max autre que MAX_DICE_PER_ROLL).
-## - "voile_food_max1" (port périlleux / rencontres météo-créature) : dés
-##   d'exploration = niveau de voile, +1 dé si 1 nourriture dépensée (max +1).
-## - "armes" (combat) : dés de combat = niveau d'armes, pas de dé bonus.
-func _roll_for_activity(activity: Dictionary, dice_rule: String) -> bool:
-	var is_white: bool = dice_rule != "armes"
-	var count: int = 0
-	var can_add_food: bool = false
-	var max_food_extra: int = 0
-
-	match dice_rule:
-		"ile_libre":
-			count = 1
-			can_add_food = true
-			max_food_extra = MAX_DICE_PER_ROLL
-		"voile_food_max1":
-			count = max(_player.get("sail_level", 1), 1)
-			can_add_food = true
-			max_food_extra = 1
-		"armes":
-			count = max(_player.get("arms_level", 1), 1)
-		_:
-			count = 1
-	count = min(count, MAX_DICE_PER_ROLL)
-
+## Lance des dés d'exploration en proposant, à chaque dé restant, de dépenser
+## de la nourriture pour un dé supplémentaire (jusqu'à max_food_extra),
+## puis retourne le nombre total d'étoiles obtenues. Partagé par île
+## (ile_libre / voile_food_max1) et port périlleux (règle 9/10).
+func _roll_exploration_stars(base_count: int, max_food_extra: int) -> int:
+	var count: int = min(base_count, MAX_DICE_PER_ROLL)
 	var food_spent := 0
-	while can_add_food and food_spent < max_food_extra and count < MAX_DICE_PER_ROLL and _player["resources"]["food"] >= 1:
+	while food_spent < max_food_extra and count < MAX_DICE_PER_ROLL and _player["resources"]["food"] >= 1:
 		_board.narration_box.say_with_player(
 			tr("Tour de %s : lancer %d dé(s) d'exploration, ou dépenser 1 nourriture pour +1 dé ?"),
 			_player, [count]
@@ -563,18 +788,21 @@ func _roll_for_activity(activity: Dictionary, dice_rule: String) -> bool:
 		food_spent += 1
 		GameFlow.players_changed.emit()
 
-	var results: Array[String] = await _throw_dice(count, is_white)
+	var results: Array[String] = await _throw_dice(count, true)
+	var stars := 0
+	for r in results:
+		stars += {"vide": 0, "un": 1, "double": 2}.get(r, 0)
+	return stars
 
-	if is_white:
-		var stars := 0
-		for r in results:
-			stars += {"vide": 0, "un": 1, "double": 2}.get(r, 0)
-		var needed := 0
-		for c in activity.get("cost", []):
-			if c.get("icon", "") == "etoile":
-				needed = c.get("amount", 0)
-		return stars >= needed
 
+func _needed_stars(activity: Dictionary) -> int:
+	for c in activity.get("cost", []):
+		if c.get("icon", "") == "etoile":
+			return c.get("amount", 0)
+	return 0
+
+
+func _meets_combat_requirement(results: Array[String], cost: Array) -> bool:
 	var canons := 0
 	var abordages := 0
 	for r in results:
@@ -582,7 +810,7 @@ func _roll_for_activity(activity: Dictionary, dice_rule: String) -> bool:
 			canons += 1
 		elif r == "abordage":
 			abordages += 1
-	for c in activity.get("cost", []):
+	for c in cost:
 		var icon: String = c.get("icon", "")
 		var amt: int = c.get("amount", 0)
 		if icon == "canon" and canons < amt:
@@ -592,6 +820,29 @@ func _roll_for_activity(activity: Dictionary, dice_rule: String) -> bool:
 		elif icon == "reussite" and (canons + abordages) < amt:
 			return false
 	return true
+
+
+## Lance les dés adaptés à dice_rule et compare au(x) coût(s) requis :
+## - "ile_libre" (île) : dés d'exploration, 1er gratuit, +1 par nourriture
+##   dépensée (pas de max autre que MAX_DICE_PER_ROLL).
+## - "voile_food_max1" (port périlleux / rencontres météo-créature) : dés
+##   d'exploration = niveau de voile, +1 dé si 1 nourriture dépensée (max +1).
+## - "armes" (combat) : dés de combat = niveau d'armes, pas de dé bonus.
+func _roll_for_activity(activity: Dictionary, dice_rule: String) -> bool:
+	match dice_rule:
+		"ile_libre":
+			var stars: int = await _roll_exploration_stars(1, MAX_DICE_PER_ROLL)
+			return stars >= _needed_stars(activity)
+		"voile_food_max1":
+			var base: int = max(_player.get("sail_level", 1), 1)
+			var stars: int = await _roll_exploration_stars(base, 1)
+			return stars >= _needed_stars(activity)
+		"armes":
+			var count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
+			var results: Array[String] = await _throw_dice(count, false)
+			return _meets_combat_requirement(results, activity.get("cost", []))
+		_:
+			return true
 
 
 ## Instancie et lance count dés du même type (via le sous-système 3D déjà
@@ -620,7 +871,15 @@ func _grant_activity_success(card: GameCard, activity_key: String, activity: Dic
 	for reward in activity.get("reward", []):
 		await _grant_reward_entry(reward)
 	await _check_overload()
+	await _finalize_success(card, activity_key)
 
+
+## Partie commune à toute activité réussie une fois les récompenses déjà
+## distribuées (île, port, rencontre) : rangement en piste + gemme/jeton
+## bonus (règle 10). Séparé de _grant_activity_success pour être réutilisé
+## par le port, dont les récompenses/coûts ont leurs propres subtilités
+## (substitution de ressources, malus de succès manquants...).
+func _finalize_success(card: GameCard, activity_key: String) -> void:
 	GameFlow.add_card_to_track(_player, activity_key, card)
 	var progress: String = GameFlow.register_sea_progress(_player, card.sea_key)
 
