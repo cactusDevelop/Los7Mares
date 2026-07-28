@@ -109,7 +109,7 @@ func _choose_order(a: String, b: String) -> String:
 
 func _resolve_action(action: String) -> void:
 	var is_implemented: bool = action in IMPLEMENTED_ACTIONS and _can_do_action(action)
-	var action_text: String = _label_for(action) if is_implemented else _label_for(action) + tr(" (bientôt disponible)")
+	var action_text: String = _label_for(action) if is_implemented else _label_for(action) + _unavailable_reason(action)
 	_board.narration_box.say_with_player(
 		tr("Tour de %s : action ") + action_text + ".", _player
 	)
@@ -131,6 +131,28 @@ func _resolve_action(action: String) -> void:
 		await _run_port()
 	else:
 		await _run_decline()
+
+
+## Motif affiché entre parenthèses quand une action n'est pas jouable dans
+## l'état actuel du joueur (règle 9/12) : les 4 actions sont bien codées,
+## seule leur précondition n'est pas remplie ici — pas de texte laissant
+## croire qu'elles ne le sont pas ("bientôt disponible").
+func _unavailable_reason(action: String) -> String:
+	match action:
+		"ile":
+			return tr(" (aucune carte île sur cette mer)")
+		"port":
+			var sea_key: String = _player.get("boat_sea", "")
+			var card: GameCard = _board.card_draw_phase.get_current_revealed_card(sea_key)
+			if card == null or card.card_type != GameCard.CardType.PORT:
+				return tr(" (aucune carte port sur cette mer)")
+			return tr(" (ressources insuffisantes, même avec substitution)")
+		"reparation":
+			if not _is_strong:
+				return tr(" (coque déjà intacte)")
+			return tr(" (coque intacte et aucune amélioration abordable)")
+		_:
+			return ""
 
 
 ## Vérifie si l'action est réellement jouable dans l'état actuel du joueur
