@@ -37,6 +37,11 @@ var sea_key: String = ""
 var _radius: float = 0.0
 var _rotation_degrees: float = 0.0
 
+## Index des gemmes déjà prises (take_gem), à respecter par setup()/refresh()
+## pour ne pas les faire réapparaître au prochain recalcul de disposition
+## (cf GameFlow.players_changed -> board._refresh_gem_piles -> refresh()).
+var _taken: Dictionary = {}
+
 
 ## Positions d'un polygone régulier à count sommets, rayon spacing, avec un
 ## côté à plat toujours "en bas" (angle +90°) plutôt qu'un sommet : pour un
@@ -105,7 +110,7 @@ func setup(p_sea_key: String, p_texture: Texture2D, p_gem_scale: float, p_radius
 		gem.rotation_degrees = p_rotation_degrees
 		gem.position = offsets[i]
 		_apply_player_color(gem, GameFlow.players[i].get("color", ""))
-		gem.visible = true
+		gem.visible = not _taken.has(i)
 
 
 ## Recalcule le nombre de gemmes visibles, leur disposition et leur couleur
@@ -123,7 +128,7 @@ func refresh() -> void:
 			continue
 		gem.position = offsets[i]
 		_apply_player_color(gem, GameFlow.players[i].get("color", ""))
-		gem.visible = true
+		gem.visible = not _taken.has(i)
 
 
 ## Retire (cache) la gemme d'index donné sans toucher aux autres, laissant un
@@ -135,6 +140,7 @@ func take_gem(index: int) -> bool:
 	if not gem.visible:
 		return false
 	gem.visible = false
+	_taken[index] = true
 	return true
 
 
@@ -163,3 +169,4 @@ func restore_taken_indices(taken: Array) -> void:
 	for i in taken:
 		if i >= 0 and i < _gems.size():
 			_gems[i].visible = false
+			_taken[i] = true

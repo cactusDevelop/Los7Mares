@@ -268,6 +268,8 @@ func generate_debug_players(count: int) -> void:
 			players[0]["resources"][res_type] = 1
 		players[0]["special_resources"]["fortune"] = 3
 		players[0]["special_resources"]["treasure"] = 3
+		for sea_key in SeaDecks.SEA_KEYS:
+			players[0]["gems"][sea_key] = true
 		_debug_seed_card_tracks(players[0])
 	if players.size() >= 2:
 		players[1]["has_own_parrot"] = false

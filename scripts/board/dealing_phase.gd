@@ -93,7 +93,24 @@ func _flip_all_as_wave() -> void:
 	var total_delay := (_board._slot_order.size() - 1) * flip_wave_delay + Settings.anim_duration(FLIP_WAVE_TRAIL)
 	await get_tree().create_timer(total_delay).timeout
 	await _drop_card_piles()
+	if GameFlow.is_debug_mode:
+		_debug_take_first_player_gems()
 	finished.emit()
+
+
+## Mode DEBUG uniquement : le joueur 1 a déjà reçu ses 7 gemmes mers dans
+## GameFlow.generate_debug_players (données). Ici on retire visuellement ces
+## gemmes du plateau (une par mer, index du joueur 1 = 0), en le faisant
+## APRES la pose des piles (_drop_card_piles) pour que la disposition posée
+## par sea_gem_pile.setup()/refresh() ne soit pas écrasée par un take_gem()
+## trop précoce.
+func _debug_take_first_player_gems() -> void:
+	if GameFlow.players.is_empty():
+		return
+	for sea_key in SeaDecks.SEA_KEYS:
+		var gem_pile: Node2D = _board.get_gem_pile(sea_key)
+		if gem_pile != null:
+			gem_pile.take_gem(0)
 
 
 func _animate_token_piles_drop(token_piles: Array) -> void:
