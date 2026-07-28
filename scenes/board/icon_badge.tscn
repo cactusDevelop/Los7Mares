@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://scripts/board/icon_badge.gd" id="1_badge"]
 
 [node name="IconBadge" type="HBoxContainer"]
-script = ExtResource("1_badge")
 alignment = 1
+script = ExtResource("1_badge")
 
 [node name="Icon1" type="TextureRect" parent="."]
 custom_minimum_size = Vector2(32, 32)
@@ -16,6 +16,11 @@ custom_minimum_size = Vector2(32, 32)
 expand_mode = 1
 stretch_mode = 5
 visible = false
+
+[node name="KeyLabel" type="Label" parent="."]
+visible = false
+theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+theme_override_font_sizes/font_size = 14
 
 [node name="Amount" type="Label" parent="."]
 text = "x1"

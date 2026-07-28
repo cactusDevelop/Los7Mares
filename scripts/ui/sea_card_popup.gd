@@ -21,6 +21,7 @@ const TYPE_LABELS := {
 @onready var title_label: Label = $Padding/Margin/Content/DetailsColumn/TitleLabel
 @onready var type_label: Label = $Padding/Margin/Content/DetailsColumn/TypeLabel
 @onready var description_label: Label = $Padding/Margin/Content/DetailsColumn/DescriptionLabel
+@onready var negative_effect_label: Label = $Padding/Margin/Content/DetailsColumn/NegativeEffectLabel
 @onready var back_button: Button = $Padding/Margin/Content/DetailsColumn/BackButton
 
 var _current_card: GameCard
@@ -48,6 +49,8 @@ func show_card(card: GameCard, front_texture: Texture2D) -> void:
 	title_label.text = tr(card.title)
 	type_label.text = tr(TYPE_LABELS.get(card.card_type, ""))
 	description_label.text = tr(card.description)
+	negative_effect_label.visible = card.negative_effect != ""
+	negative_effect_label.text = tr("Effet négatif : ") + tr(card.negative_effect)
 
 	visible = true
 	await get_tree().process_frame
