@@ -627,7 +627,7 @@ func _setup_board_peek(row: Control, peek_pos: Vector2, full_pos: Vector2, hover
 	# l'appel du Callable, AVANT même l'exécution de notre code GDScript, donc
 	# qu'un simple is_instance_valid(row) ne suffit pas à supprimer) tout en
 	# restant sûr : get_ref() renvoie proprement null si row a été libéré.
-	var row_ref := weakref(row)
+	var row_ref: WeakRef = weakref(row)
 	var tween: Tween
 	var slide_to := func(target: Vector2) -> void:
 		var live_row: Control = row_ref.get_ref()
