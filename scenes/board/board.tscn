@@ -241,7 +241,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_debugskip")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_debugskip")
 theme_override_styles/hover = SubResource("StyleBoxFlat_debugskip")
 theme_override_styles/focus = SubResource("StyleBoxFlat_debugskip")
-text = "Piocher"
+text = "Vue debug"
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="UI" unique_id=1559393978]
 visible = false

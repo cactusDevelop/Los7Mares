@@ -120,7 +120,6 @@ var _camera_base_zoom: Vector2
 var _camera_tween: Tween
 
 var _debug_card_preview_active := false
-var _debug_selection_panel_was_visible := false
 
 
 func _ready() -> void:
@@ -147,20 +146,6 @@ func _ready() -> void:
 	
 	return_to_menu_button.pressed.connect(func(): return_to_menu_confirm.popup_centered())
 	return_to_menu_confirm.confirmed.connect(func(): GameFlow.go_to_title())
-
-	# Le bouton debug "Piocher"/"Reprendre" met tout l'arbre en pause pour
-	# geler la partie (cf _on_debug_draw_cards_button_pressed) : par défaut
-	# ça bloquerait aussi le retour au menu et les panneaux joueurs, qui ne
-	# font pas partie des "actions de jeu" à figer. PROCESS_MODE_ALWAYS les
-	# rend insensibles à cette pause (le plateau et narration_box, eux,
-	# restent PAUSABLE par défaut : c'est voulu, seuls eux doivent se
-	# bloquer).
-	for always_node in [
-		return_to_menu_button, return_to_menu_confirm,
-		player_boards_layout, dice_results_button, dice_results_popup,
-		player_board_expanded,
-	]:
-		always_node.process_mode = Node.PROCESS_MODE_ALWAYS
 
 	debug_skip_button.visible = false
 	debug_skip_button.pressed.connect(_on_debug_skip_button_pressed)
@@ -333,42 +318,21 @@ func tween_camera(target_position: Vector2, target_zoom: Vector2, duration: floa
 	return _camera_tween
 
 
-## Bouton debug "Piocher" / "Reprendre" (visible seulement en mode debug),
-## en toggle. Plutôt que de patcher caméra/panneau à la main par-dessus la
-## partie qui continue de tourner (source de tous les bugs précédents), la
-## preview est un état à part entière :
-## - 1er clic : met le SceneTree en pause (get_tree().paused = true), ce qui
-##   arrête d'un coup tout le reste de la partie (tweens, inputs, phases en
-##   cours) puisqu'ils ont tous le process_mode par défaut (PAUSABLE). Seuls
-##   les noeuds explicitement passés en process_mode ALWAYS dans board.tscn
-##   continuent de tourner "en parallèle" : DebugPreviewCamera, CardPiles,
-##   CardDrawPhase, SeaCardPopup et ce bouton lui-même. On bascule la vue
-##   sur DebugPreviewCamera (caméra dédiée, jamais touchée par le reste du
-##   jeu) et on révèle de nouvelles cartes SANS faire avancer la partie
-##   (start(self, false) : pas d'émission de "finished"). Le panneau de
-##   sélection de pièce (UI plein écran, indépendant de la caméra) est
-##   masqué le temps de la preview pour que ça ressemble vraiment à un
-##   changement d'écran, pas à un simple recadrage caméra par-dessus la
-##   partie en cours.
-## - 2e clic ("Reprendre") : rebascule sur la caméra principale (laissée
-##   telle quelle, elle n'a jamais bougé), redépause l'arbre, et restaure le
-##   panneau de sélection exactement dans l'état de visibilité qu'il avait
-##   avant le 1er clic : la partie reprend exactement où elle en était.
+## Bouton debug caméra (visible seulement en mode debug), en toggle simple :
+## - 1er clic : bascule sur DebugPreviewCamera (caméra dédiée, jamais
+##   touchée par le reste du jeu), sans rien mettre en pause ni toucher à
+##   l'état de la partie. Utilisable à n'importe quel moment.
+## - 2e clic ("Vue par défaut") : rebascule sur la caméra principale du
+##   plateau, telle qu'elle était.
 func _on_debug_draw_cards_button_pressed() -> void:
 	if not _debug_card_preview_active:
 		_debug_card_preview_active = true
-		debug_draw_cards_button.text = "Reprendre"
-		_debug_selection_panel_was_visible = pion_selection_panel.visible
-		pion_selection_panel.visible = false
+		debug_draw_cards_button.text = "Vue par défaut"
 		debug_preview_camera.make_current()
-		get_tree().paused = true
-		card_draw_phase.start(self, false)
 	else:
 		_debug_card_preview_active = false
-		debug_draw_cards_button.text = "Piocher"
-		get_tree().paused = false
+		debug_draw_cards_button.text = "Vue debug"
 		camera.make_current()
-		pion_selection_panel.visible = _debug_selection_panel_was_visible
 
 
 func _on_setup_player_confirmed(player_name: String, color: String) -> void:

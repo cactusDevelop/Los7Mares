@@ -300,6 +300,7 @@ func _debug_seed_card_tracks(player: Dictionary) -> void:
 
 
 func go_to_title() -> void:
+	save_players()
 	get_tree().change_scene_to_file(TITLE_SCENE_PATH)
 
 
