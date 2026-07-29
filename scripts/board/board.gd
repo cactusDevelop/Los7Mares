@@ -1114,15 +1114,13 @@ func _restore_from_save() -> void:
 	for p in GameFlow.players:
 		_update_boat_marker(p)
 
-	hideout_phase.finished.connect(func():
-		_start_round()
-		_autosave("cards")
-		card_draw_phase.start(self)
-	)
-	card_draw_phase.finished.connect(func():
-		_autosave("pions")
-		pion_placement_phase.start(self)
-	)
+	# hideout_phase.finished et card_draw_phase.finished sont déjà connectés
+	# de façon inconditionnelle dans _ready() (juste avant l'appel à cette
+	# fonction) : les reconnecter ici doublait les callbacks (donc appelait
+	# _start_round() deux fois d'affilée à la reprise d'une sauvegarde en
+	# pleine phase "hideout"/"cards", ce qui faisait sauter GameFlow.round_number
+	# d'un cran de trop et affichait "Manche 2" alors qu'on était encore en
+	# manche 1).
 
 	match data.get("phase", "cards"):
 		"hideout": hideout_phase.resume(self)
