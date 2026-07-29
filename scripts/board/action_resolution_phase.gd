@@ -157,6 +157,7 @@ func _resolve_action(action: String, allow_back: bool) -> String:
 			return ""
 		# result == "cancel" : le joueur s'est ravisé avant toute confirmation
 		# (aucun coût payé, aucun dé lancé) -> on réaffiche Faire/Décliner.
+	return ""  # jamais atteint (la boucle ne sort que via un return ci-dessus), imposé par l'analyseur statique de Godot
 
 
 ## Motif affiché entre parenthèses quand une action n'est pas jouable dans
