@@ -685,7 +685,7 @@ func _can_afford_port_cost(cost: Array) -> bool:
 			if key == "rum" or ICON_TO_RESOURCE.get(icon, "") == key:
 				continue
 			other_total += _player["resources"].get(key, 0)
-		if int(other_total / 2) < missing:
+		if int(other_total / 2.0) < missing:
 			return false
 	return true
 
@@ -1071,7 +1071,7 @@ func _capsize() -> void:
 	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
 	await _board.narration_box.option_selected
 
-	var to_lose: int = int(_total_resources() / 2)
+	var to_lose: int = int(_total_resources() / 2.0)
 	await _lose_resources(to_lose)
 	_turn_ended = true
 	GameFlow.players_changed.emit()

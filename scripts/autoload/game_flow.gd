@@ -388,7 +388,7 @@ func compute_final_score_breakdown(player: Dictionary) -> Dictionary:
 	var total_resources := 0
 	for r in RESOURCE_TYPES:
 		total_resources += player["resources"].get(r, 0)
-	breakdown["resources"] = int(total_resources / 3)
+	breakdown["resources"] = int(total_resources / 3.0)
 
 	var parrot_points := 0
 	if player.get("has_own_parrot", true):

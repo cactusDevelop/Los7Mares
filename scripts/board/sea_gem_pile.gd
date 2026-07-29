@@ -69,7 +69,7 @@ func _ready() -> void:
 ## sommet-en-haut classique laisse déjà un côté à plat en bas. L'ensemble
 ## est ensuite pivoté de rotation_degrees pour suivre l'orientation de la
 ## mer sur le plateau (même logique que la rotation des jetons/bateaux).
-func _layout_offsets(count: int, spacing: float, rotation_degrees: float) -> Array[Vector2]:
+func _layout_offsets(count: int, spacing: float, p_rotation_degrees: float) -> Array[Vector2]:
 	var offsets: Array[Vector2] = []
 	if count <= 0:
 		return offsets
@@ -86,7 +86,7 @@ func _layout_offsets(count: int, spacing: float, rotation_degrees: float) -> Arr
 			var angle := start_angle + i * (TAU / count)
 			offsets.append(Vector2(cos(angle), sin(angle)) * spacing)
 
-	var rot_rad := deg_to_rad(rotation_degrees)
+	var rot_rad := deg_to_rad(p_rotation_degrees)
 	for i in range(offsets.size()):
 		offsets[i] = offsets[i].rotated(rot_rad)
 	return offsets

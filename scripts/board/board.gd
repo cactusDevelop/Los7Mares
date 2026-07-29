@@ -628,15 +628,22 @@ func _setup_board_peek(row: Control, peek_pos: Vector2, full_pos: Vector2, hover
 	# qu'un simple is_instance_valid(row) ne suffit pas à supprimer) tout en
 	# restant sûr : get_ref() renvoie proprement null si row a été libéré.
 	var row_ref: WeakRef = weakref(row)
-	var tween: Tween
+	# Holder à 1 élément plutôt qu'une simple "var tween: Tween" : un tableau
+	# est capturé PAR RÉFÉRENCE par la lambda slide_to, donc le muter (au lieu
+	# de réassigner directement une variable capturée, qui ne modifierait
+	# qu'une copie locale à la fermeture sans jamais toucher la variable
+	# extérieure, cf warning CONFUSABLE_CAPTURE_REASSIGNMENT) fonctionne
+	# correctement d'un appel à l'autre de slide_to.
+	var tween_holder: Array[Tween] = [null]
 	var slide_to := func(target: Vector2) -> void:
 		var live_row: Control = row_ref.get_ref()
 		if live_row == null:
 			return
-		if tween and tween.is_valid():
-			tween.kill()
-		tween = live_row.create_tween()
-		tween.tween_property(live_row, "position", target, BOARD_HOVER_SLIDE_DURATION)\
+		var current_tween: Tween = tween_holder[0]
+		if current_tween and current_tween.is_valid():
+			current_tween.kill()
+		tween_holder[0] = live_row.create_tween()
+		tween_holder[0].tween_property(live_row, "position", target, BOARD_HOVER_SLIDE_DURATION)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	hover_zone.mouse_entered.connect(func(): slide_to.call(full_pos))
 	hover_zone.mouse_exited.connect(func(): slide_to.call(peek_pos))
