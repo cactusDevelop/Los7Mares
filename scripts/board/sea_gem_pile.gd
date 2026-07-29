@@ -55,6 +55,12 @@ var _rotation_degrees: float = 0.0
 var _taken: Dictionary = {}
 
 
+func _ready() -> void:
+	_gem_layers.resize(_gems.size())
+	for i in range(_gem_layers.size()):
+		_gem_layers[i] = []
+
+
 ## Positions d'un polygone régulier à count sommets, rayon spacing, avec un
 ## côté à plat toujours "en bas" (angle +90°) plutôt qu'un sommet : pour un
 ## nombre de côtés pair, on décale le premier sommet d'un demi-pas par
@@ -168,7 +174,8 @@ func setup(p_sea_key: String, p_texture: Texture2D, p_gem_scale: float, p_radius
 		gem.scale = Vector2.ONE * p_gem_scale
 		gem.rotation_degrees = p_rotation_degrees
 		gem.position = offsets[i]
-		_apply_player_color(gem, GameFlow.players[i].get("color", ""))
+		_ensure_thickness_layers(i, gem)
+		_apply_player_color(i, GameFlow.players[i].get("color", ""))
 		gem.visible = not _taken.has(i)
 
 
@@ -186,7 +193,7 @@ func refresh() -> void:
 			gem.visible = false
 			continue
 		gem.position = offsets[i]
-		_apply_player_color(gem, GameFlow.players[i].get("color", ""))
+		_apply_player_color(i, GameFlow.players[i].get("color", ""))
 		gem.visible = not _taken.has(i)
 
 
