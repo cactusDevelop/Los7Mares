@@ -2,7 +2,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
     "tracks": [
@@ -52,7 +52,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -89,7 +89,7 @@
   {
     "sea": "abondance",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -134,7 +134,7 @@
   {
     "sea": "abondance",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bois",
     "tracks": [
@@ -163,7 +163,7 @@
   {
     "sea": "abondance",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -246,7 +246,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -279,7 +279,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -329,7 +329,7 @@
   {
     "sea": "abondance",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -358,7 +358,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
     "tracks": [
@@ -445,7 +445,7 @@
   {
     "sea": "abondance",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
     "tracks": [
@@ -474,7 +474,7 @@
   {
     "sea": "abondance",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
     "tracks": [
@@ -507,7 +507,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -540,7 +540,7 @@
   {
     "sea": "abondance",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 2 aciers -> 3 bois",
     "tracks": [
@@ -569,7 +569,7 @@
   {
     "sea": "abondance",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
     "tracks": [
@@ -598,7 +598,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -672,7 +672,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -705,7 +705,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -778,7 +778,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -811,7 +811,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
     "tracks": [
@@ -844,7 +844,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -881,7 +881,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -914,7 +914,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -947,7 +947,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
     "tracks": [
@@ -980,7 +980,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
     "tracks": [
@@ -1013,7 +1013,7 @@
   {
     "sea": "abondance",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "rouge_gris",
     "title": "Géant des mers",
     "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -1042,7 +1042,7 @@
   {
     "sea": "abondance",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -1087,7 +1087,7 @@
   {
     "sea": "abondance",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
     "tracks": [
@@ -1144,7 +1144,7 @@
   {
     "sea": "abondance",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
     "tracks": [
@@ -1285,7 +1285,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
     "tracks": [
@@ -1335,7 +1335,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -1372,7 +1372,7 @@
   {
     "sea": "azur",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -1417,7 +1417,7 @@
   {
     "sea": "azur",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bois",
     "tracks": [
@@ -1446,7 +1446,7 @@
   {
     "sea": "azur",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -1529,7 +1529,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -1562,7 +1562,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -1612,7 +1612,7 @@
   {
     "sea": "azur",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -1641,7 +1641,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
     "tracks": [
@@ -1728,7 +1728,7 @@
   {
     "sea": "azur",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
     "tracks": [
@@ -1757,7 +1757,7 @@
   {
     "sea": "azur",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
     "tracks": [
@@ -1790,7 +1790,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -1823,7 +1823,7 @@
   {
     "sea": "azur",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 2 aciers -> 3 bois",
     "tracks": [
@@ -1852,7 +1852,7 @@
   {
     "sea": "azur",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
     "tracks": [
@@ -1881,7 +1881,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -1955,7 +1955,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -1988,7 +1988,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -2061,7 +2061,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -2094,7 +2094,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
     "tracks": [
@@ -2127,7 +2127,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -2164,7 +2164,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -2197,7 +2197,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -2230,7 +2230,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
     "tracks": [
@@ -2263,7 +2263,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
     "tracks": [
@@ -2296,7 +2296,7 @@
   {
     "sea": "azur",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "rouge_gris",
     "title": "Géant des mers",
     "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -2325,7 +2325,7 @@
   {
     "sea": "azur",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -2370,7 +2370,7 @@
   {
     "sea": "azur",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
     "tracks": [
@@ -2427,7 +2427,7 @@
   {
     "sea": "azur",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
     "tracks": [
@@ -2568,7 +2568,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
     "tracks": [
@@ -2618,7 +2618,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -2655,7 +2655,7 @@
   {
     "sea": "feu",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -2700,7 +2700,7 @@
   {
     "sea": "feu",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bois",
     "tracks": [
@@ -2729,7 +2729,7 @@
   {
     "sea": "feu",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -2812,7 +2812,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -2845,7 +2845,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -2895,7 +2895,7 @@
   {
     "sea": "feu",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -2924,7 +2924,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
     "tracks": [
@@ -3011,7 +3011,7 @@
   {
     "sea": "feu",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
     "tracks": [
@@ -3040,7 +3040,7 @@
   {
     "sea": "feu",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
     "tracks": [
@@ -3073,7 +3073,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -3106,7 +3106,7 @@
   {
     "sea": "feu",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 2 aciers -> 3 bois",
     "tracks": [
@@ -3135,7 +3135,7 @@
   {
     "sea": "feu",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
     "tracks": [
@@ -3164,7 +3164,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -3238,7 +3238,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -3271,7 +3271,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -3344,7 +3344,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -3377,7 +3377,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
     "tracks": [
@@ -3410,7 +3410,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -3447,7 +3447,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -3480,7 +3480,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -3513,7 +3513,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
     "tracks": [
@@ -3546,7 +3546,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
     "tracks": [
@@ -3579,7 +3579,7 @@
   {
     "sea": "feu",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "rouge_gris",
     "title": "Géant des mers",
     "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -3608,7 +3608,7 @@
   {
     "sea": "feu",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -3653,7 +3653,7 @@
   {
     "sea": "feu",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
     "tracks": [
@@ -3710,7 +3710,7 @@
   {
     "sea": "feu",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
     "tracks": [
@@ -3851,7 +3851,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
     "tracks": [
@@ -3901,7 +3901,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -3938,7 +3938,7 @@
   {
     "sea": "glace",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -3983,7 +3983,7 @@
   {
     "sea": "glace",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bois",
     "tracks": [
@@ -4012,7 +4012,7 @@
   {
     "sea": "glace",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -4095,7 +4095,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -4128,7 +4128,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -4178,7 +4178,7 @@
   {
     "sea": "glace",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -4207,7 +4207,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
     "tracks": [
@@ -4294,7 +4294,7 @@
   {
     "sea": "glace",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
     "tracks": [
@@ -4323,7 +4323,7 @@
   {
     "sea": "glace",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
     "tracks": [
@@ -4356,7 +4356,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -4389,7 +4389,7 @@
   {
     "sea": "glace",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 2 aciers -> 3 bois",
     "tracks": [
@@ -4418,7 +4418,7 @@
   {
     "sea": "glace",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
     "tracks": [
@@ -4447,7 +4447,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -4521,7 +4521,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -4554,7 +4554,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -4627,7 +4627,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -4660,7 +4660,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
     "tracks": [
@@ -4693,7 +4693,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -4730,7 +4730,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -4763,7 +4763,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -4796,7 +4796,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
     "tracks": [
@@ -4829,7 +4829,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
     "tracks": [
@@ -4862,7 +4862,7 @@
   {
     "sea": "glace",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "rouge_gris",
     "title": "Géant des mers",
     "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -4891,7 +4891,7 @@
   {
     "sea": "glace",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -4936,7 +4936,7 @@
   {
     "sea": "glace",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
     "tracks": [
@@ -4993,7 +4993,7 @@
   {
     "sea": "glace",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
     "tracks": [
@@ -5134,7 +5134,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
     "tracks": [
@@ -5184,7 +5184,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -5221,7 +5221,7 @@
   {
     "sea": "jade",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -5266,7 +5266,7 @@
   {
     "sea": "jade",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bois",
     "tracks": [
@@ -5295,7 +5295,7 @@
   {
     "sea": "jade",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -5378,7 +5378,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -5411,7 +5411,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -5461,7 +5461,7 @@
   {
     "sea": "jade",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -5490,7 +5490,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
     "tracks": [
@@ -5577,7 +5577,7 @@
   {
     "sea": "jade",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
     "tracks": [
@@ -5606,7 +5606,7 @@
   {
     "sea": "jade",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
     "tracks": [
@@ -5639,7 +5639,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -5672,7 +5672,7 @@
   {
     "sea": "jade",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 2 aciers -> 3 bois",
     "tracks": [
@@ -5701,7 +5701,7 @@
   {
     "sea": "jade",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
     "tracks": [
@@ -5730,7 +5730,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -5804,7 +5804,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -5837,7 +5837,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -5910,7 +5910,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -5943,7 +5943,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
     "tracks": [
@@ -5976,7 +5976,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -6013,7 +6013,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -6046,7 +6046,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -6079,7 +6079,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
     "tracks": [
@@ -6112,7 +6112,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
     "tracks": [
@@ -6145,7 +6145,7 @@
   {
     "sea": "jade",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "rouge_gris",
     "title": "Géant des mers",
     "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -6174,7 +6174,7 @@
   {
     "sea": "jade",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -6219,7 +6219,7 @@
   {
     "sea": "jade",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
     "tracks": [
@@ -6276,7 +6276,7 @@
   {
     "sea": "jade",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
     "tracks": [
@@ -6417,7 +6417,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
     "tracks": [
@@ -6467,7 +6467,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -6504,7 +6504,7 @@
   {
     "sea": "maudite",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -6549,7 +6549,7 @@
   {
     "sea": "maudite",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bois",
     "tracks": [
@@ -6578,7 +6578,7 @@
   {
     "sea": "maudite",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -6661,7 +6661,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -6694,7 +6694,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -6744,7 +6744,7 @@
   {
     "sea": "maudite",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -6773,7 +6773,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
     "tracks": [
@@ -6860,7 +6860,7 @@
   {
     "sea": "maudite",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
     "tracks": [
@@ -6889,7 +6889,7 @@
   {
     "sea": "maudite",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
     "tracks": [
@@ -6922,7 +6922,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -6955,7 +6955,7 @@
   {
     "sea": "maudite",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 2 aciers -> 3 bois",
     "tracks": [
@@ -6984,7 +6984,7 @@
   {
     "sea": "maudite",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
     "tracks": [
@@ -7013,7 +7013,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -7087,7 +7087,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -7120,7 +7120,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -7193,7 +7193,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -7226,7 +7226,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
     "tracks": [
@@ -7259,7 +7259,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -7296,7 +7296,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -7329,7 +7329,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -7362,7 +7362,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
     "tracks": [
@@ -7395,7 +7395,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
     "tracks": [
@@ -7428,7 +7428,7 @@
   {
     "sea": "maudite",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "rouge_gris",
     "title": "Géant des mers",
     "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -7457,7 +7457,7 @@
   {
     "sea": "maudite",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -7502,7 +7502,7 @@
   {
     "sea": "maudite",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
     "tracks": [
@@ -7559,7 +7559,7 @@
   {
     "sea": "maudite",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
     "tracks": [
@@ -7700,7 +7700,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 acier -> 2 bois",
     "tracks": [
@@ -7750,7 +7750,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -7787,7 +7787,7 @@
   {
     "sea": "sauvage",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -7832,7 +7832,7 @@
   {
     "sea": "sauvage",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bois",
     "tracks": [
@@ -7861,7 +7861,7 @@
   {
     "sea": "sauvage",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -7944,7 +7944,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -7977,7 +7977,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleue_brune",
     "title": "Île amicale",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe | Commerce : 1 toile -> 2 bouffe",
     "tracks": [
@@ -8027,7 +8027,7 @@
   {
     "sea": "sauvage",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -8056,7 +8056,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bois + 1 bouffe",
     "tracks": [
@@ -8143,7 +8143,7 @@
   {
     "sea": "sauvage",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 3 planches et 2 ressources",
     "tracks": [
@@ -8172,7 +8172,7 @@
   {
     "sea": "sauvage",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 3 toiles -> 1 bois + 1 trésor",
     "tracks": [
@@ -8205,7 +8205,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -8238,7 +8238,7 @@
   {
     "sea": "sauvage",
     "type": "port",
-    "planche": "bleue_brune",
+    "planche": "brune",
     "title": "Port ordinaire",
     "description": "Commerce : 2 aciers -> 3 bois",
     "tracks": [
@@ -8267,7 +8267,7 @@
   {
     "sea": "sauvage",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 4 planches et 1 ressource",
     "tracks": [
@@ -8296,7 +8296,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -8370,7 +8370,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 3 bouffe + 1 bois",
     "tracks": [
@@ -8403,7 +8403,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -8476,7 +8476,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -8509,7 +8509,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bouffe + 1 bois",
     "tracks": [
@@ -8542,7 +8542,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 4 étoiles -> 1 bouffe + 1 bois + 1 trésor",
     "tracks": [
@@ -8579,7 +8579,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -8612,7 +8612,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 1 étoile -> 1 bois + 1 bouffe",
     "tracks": [
@@ -8645,7 +8645,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 2 étoiles -> 2 bois + 1 bouffe",
     "tracks": [
@@ -8678,7 +8678,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 2 bois + 2 bouffe",
     "tracks": [
@@ -8711,7 +8711,7 @@
   {
     "sea": "sauvage",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "rouge_gris",
     "title": "Géant des mers",
     "description": "Combat : 3 canons -> 3 fortunes | Effet négatif : Perdez 5 planches",
     "tracks": [
@@ -8740,7 +8740,7 @@
   {
     "sea": "sauvage",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_rouge_gris",
     "title": "Créature des mers",
     "description": "Exploration : 1 étoile | Combat : 1 canon + 1 abordage -> 2 fortunes | Effet négatif : Vous ne pouvez plus effectuer d'action ce tour-ci.",
     "tracks": [
@@ -8785,7 +8785,7 @@
   {
     "sea": "sauvage",
     "type": "rencontre",
-    "planche": "rouge",
+    "planche": "bleu_gris",
     "title": "Menace météo",
     "description": "Exploration : 4 étoiles -> 1 trésor | Effet négatif : Perdez 2 planches et 3 ressources",
     "tracks": [
@@ -8842,7 +8842,7 @@
   {
     "sea": "sauvage",
     "type": "ile",
-    "planche": "brune",
+    "planche": "bleu",
     "title": "Île sauvage",
     "description": "Exploration : 3 étoiles -> 1 bouffe + 3 bois",
     "tracks": [
@@ -8976,6 +8976,98 @@
         ],
         "raw": "3 acier/toile -> 3 bouffe/bois",
         "dice_rule": null
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau marchand",
+    "description": "Commerce : 2 bois -> 3 bouffe | Combat : 2 réussites -> 1 bouffe",
+    "tracks": [
+      "commerce",
+      "combat"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "bois"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 bois -> 3 bouffe",
+        "dice_rule": null
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 réussites -> 1 bouffe",
+        "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau marchand",
+    "description": "Commerce : 2 aciers -> 3 toiles | Combat : 2 réussites -> 1 toile",
+    "tracks": [
+      "commerce",
+      "combat"
+    ],
+    "activities": {
+      "commerce": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "acier"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "toile"
+          }
+        ],
+        "raw": "2 aciers -> 3 toiles",
+        "dice_rule": null
+      },
+      "combat": {
+        "cost": [
+          {
+            "amount": 2,
+            "icon": "reussite"
+          }
+        ],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "raw": "2 réussites -> 1 toile",
+        "dice_rule": "armes"
       }
     },
     "negative_effect": null

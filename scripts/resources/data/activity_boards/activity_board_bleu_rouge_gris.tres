@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ActivityBoard" format=3]
+
+[ext_resource type="Script" uid="uid://c35kddoarri0x" path="res://scripts/resources/activity_board.gd" id="1_brg"]
+[ext_resource type="Texture2D" uid="uid://dqgxyt5j11agd" path="res://assets/art/cards/planche-bleu-rouge-gris.png" id="2_brg"]
+
+[resource]
+script = ExtResource("1_brg")
+id = "bleu_rouge_gris"
+texture = ExtResource("2_brg")
+metadata/_custom_type_script = "uid://c35kddoarri0x"

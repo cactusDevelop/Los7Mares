@@ -24,6 +24,10 @@ const ACTIVITY_BOARDS := {
 	"rouge": "res://scripts/resources/data/activity_boards/activity_board_rouge.tres",
 	"brune": "res://scripts/resources/data/activity_boards/activity_board_brune.tres",
 	"bleue_brune": "res://scripts/resources/data/activity_boards/activity_board_bleue_brune.tres",
+	"bleu": "res://scripts/resources/data/activity_boards/activity_board_bleu.tres",
+	"bleu_gris": "res://scripts/resources/data/activity_boards/activity_board_bleu_gris.tres",
+	"rouge_gris": "res://scripts/resources/data/activity_boards/activity_board_rouge_gris.tres",
+	"bleu_rouge_gris": "res://scripts/resources/data/activity_boards/activity_board_bleu_rouge_gris.tres",
 }
 
 const TYPE_STRINGS := {

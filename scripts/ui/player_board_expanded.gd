@@ -369,7 +369,9 @@ func _refresh_card_tracks(player: Dictionary) -> void:
 			var entry: Dictionary = cards[i]
 			var card_type: int = entry.get("card_type", GameCard.CardType.RENCONTRE)
 			var texture: Texture2D = null
-			var pool := CardArt.get_background_pool(entry.get("sea_key", ""), card_type)
+			var pool := CardArt.get_background_pool(
+				entry.get("sea_key", ""), card_type, entry.get("title", "")
+			)
 			if not pool.is_empty():
 				texture = pool[0]
 

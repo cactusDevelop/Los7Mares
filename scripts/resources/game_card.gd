@@ -51,7 +51,7 @@ func get_icon() -> Texture2D:
 
 
 func get_random_background() -> Texture2D:
-	return CardArt.get_random_background(sea_key, card_type)
+	return CardArt.get_random_background(sea_key, card_type, title)
 
 
 func get_planche_texture() -> Texture2D:

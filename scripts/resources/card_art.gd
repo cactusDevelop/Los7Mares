@@ -17,12 +17,24 @@ const TYPE_ICON_PATHS := {
 	GameCard.CardType.RENCONTRE: CARDS_DIR + "icon-rencontre.png",
 }
 
-## Bases de nom de fichier possibles pour chaque type de carte. "recontre"
-## reprend l'orthographe déjà utilisée dans les assets du dépôt.
+## Bases de nom de fichier possibles pour chaque type de carte.
 const TYPE_NAME_BASES := {
 	GameCard.CardType.ILE: ["ile"],
-	GameCard.CardType.PORT: ["port", "marchand"],
-	GameCard.CardType.RENCONTRE: ["recontre"],
+	GameCard.CardType.PORT: ["port"],
+}
+
+## Les cartes RENCONTRE n'ont plus un nom de fichier générique ("recontre1..5")
+## depuis leur renommage : chaque titre a maintenant son propre suffixe
+## (ex: carte-glace-creature1.png, carte-glace-creature2.png). On résout donc
+## la base à partir du titre de la carte plutôt que de son seul type.
+const RENCONTRE_TITLE_BASES := {
+	"Bateau pirate": ["pirate"],
+	"Bateau marchand": ["marchand"],
+	"Capitaine pirate": ["capitaine"],
+	"Créature des mers": ["creature"],
+	"Géant des mers": ["geant"],
+	"Menace météo": ["meteo"],
+	"Flotte marchande": ["flotte"],
 }
 
 
@@ -34,12 +46,19 @@ static func get_icon(card_type: GameCard.CardType) -> Texture2D:
 
 
 ## Retourne toutes les images de fond disponibles pour une mer + un type de
-## carte donnés (ex: "sauvage" + RENCONTRE -> carte-sauvage-recontre1..5.png).
-static func get_background_pool(sea_key: String, card_type: GameCard.CardType) -> Array[Texture2D]:
+## carte donnés (ex: "glace" + RENCONTRE + "Créature des mers" ->
+## carte-glace-creature1.png, carte-glace-creature2.png). Le titre n'est
+## nécessaire que pour les cartes RENCONTRE (ile/port n'en ont pas besoin).
+static func get_background_pool(
+	sea_key: String, card_type: GameCard.CardType, title: String = ""
+) -> Array[Texture2D]:
 	var pool: Array[Texture2D] = []
 	if sea_key == "":
 		return pool
-	for base in TYPE_NAME_BASES.get(card_type, []):
+	var bases: Array = TYPE_NAME_BASES.get(card_type, [])
+	if card_type == GameCard.CardType.RENCONTRE:
+		bases = RENCONTRE_TITLE_BASES.get(title, [])
+	for base in bases:
 		var single_path := "%scarte-%s-%s.png" % [CARDS_DIR, sea_key, base]
 		if ResourceLoader.exists(single_path):
 			pool.append(load(single_path))
@@ -52,8 +71,10 @@ static func get_background_pool(sea_key: String, card_type: GameCard.CardType) -
 
 ## Choisit une image de fond au hasard parmi celles disponibles. Retourne
 ## null si aucun asset ne correspond encore (mer/type pas encore illustré).
-static func get_random_background(sea_key: String, card_type: GameCard.CardType) -> Texture2D:
-	var pool := get_background_pool(sea_key, card_type)
+static func get_random_background(
+	sea_key: String, card_type: GameCard.CardType, title: String = ""
+) -> Texture2D:
+	var pool := get_background_pool(sea_key, card_type, title)
 	if pool.is_empty():
 		return null
 	return pool[randi() % pool.size()]
