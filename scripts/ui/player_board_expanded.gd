@@ -74,15 +74,20 @@ const CARD_TRACK_COUNT_OUTLINE_SIZE := 6
 const CARD_TRACK_HOVER_ANIM_DURATION := 0.1
 
 ## Positions (centre, pixels image du plateau) des 7 emplacements de gemmes
-## sur le plateau joueur (rose des gemmes), une par mer.
+## sur le plateau joueur (rose des gemmes), une par mer. Heptagone RÉGULIER
+## (centre (440, 485), rayon 260 = distance centre -> "glace" dans le layout
+## d'origine, qui était déjà approximativement régulier) : sommet "glace" en
+## haut (angle -90°), puis les 6 autres dans le sens horaire à l'écran, pas
+## de 360/7° (~51.43°), même convention que sea_gem_pile._layout_offsets
+## (sommet en haut pour un nombre de côtés impair).
 const GEM_SLOT_PIXELS: Dictionary = {
 	"glace": Vector2(440, 225),
-	"jade": Vector2(640, 325),
-	"abondance": Vector2(690, 550),
-	"feu": Vector2(550, 725),
-	"maudite": Vector2(330, 725),
-	"azur": Vector2(200, 550),
-	"sauvage": Vector2(250, 350),
+	"jade": Vector2(643, 323),
+	"abondance": Vector2(693, 543),
+	"feu": Vector2(553, 719),
+	"maudite": Vector2(327, 719),
+	"azur": Vector2(187, 543),
+	"sauvage": Vector2(237, 323),
 }
 const GEM_ICON_SIZE := Vector2(175, 175)
 const GEM_RECOLOR_SHADER := preload("res://shaders/white_recolor.gdshader")

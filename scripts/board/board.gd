@@ -620,14 +620,23 @@ func _setup_board_peek(row: Control, peek_pos: Vector2, full_pos: Vector2, hover
 	hover_zone.size = hover_zone_rect.size
 	player_boards_layout.add_child(hover_zone)
 
+	# row peut être libéré (queue_free lors d'un rebuild du layout) avant que
+	# hover_zone (qui suit son propre cycle de vie, cf plus bas) ne le soit à
+	# son tour : capturer une WeakRef plutôt que row directement évite
+	# l'avertissement moteur "Lambda capture ... was freed" (déclenché dès
+	# l'appel du Callable, AVANT même l'exécution de notre code GDScript, donc
+	# qu'un simple is_instance_valid(row) ne suffit pas à supprimer) tout en
+	# restant sûr : get_ref() renvoie proprement null si row a été libéré.
+	var row_ref := weakref(row)
 	var tween: Tween
 	var slide_to := func(target: Vector2) -> void:
-		if not is_instance_valid(row):
+		var live_row: Control = row_ref.get_ref()
+		if live_row == null:
 			return
 		if tween and tween.is_valid():
 			tween.kill()
-		tween = row.create_tween()
-		tween.tween_property(row, "position", target, BOARD_HOVER_SLIDE_DURATION)\
+		tween = live_row.create_tween()
+		tween.tween_property(live_row, "position", target, BOARD_HOVER_SLIDE_DURATION)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	hover_zone.mouse_entered.connect(func(): slide_to.call(full_pos))
 	hover_zone.mouse_exited.connect(func(): slide_to.call(peek_pos))
@@ -640,7 +649,9 @@ func _setup_board_peek(row: Control, peek_pos: Vector2, full_pos: Vector2, hover
 	# idempotent (réaffiche juste le même popup).
 	hover_zone.gui_input.connect(func(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			row.pressed.emit(row.get_player_id())
+			var live_row: Control = row_ref.get_ref()
+			if live_row != null:
+				live_row.pressed.emit(live_row.get_player_id())
 	)
 
 

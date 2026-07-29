@@ -17,5 +17,10 @@ void fragment() {
 	vec4 tex_color = texture(TEXTURE, UV);
 	float min_channel = min(tex_color.r, min(tex_color.g, tex_color.b));
 	vec3 rgb = min_channel > white_threshold ? replace_color.rgb : tex_color.rgb;
-	COLOR = vec4(rgb, tex_color.a);
+	// * COLOR : respecte le modulate du node (ex. assombrissement des
+	// couches d'ombre de l'effet 3D, cf sea_gem_pile.gd/PionThickness) au
+	// lieu de l'ignorer complètement. Sans ça, COLOR (blanc, alpha 1, par
+	// défaut) ne change rien pour un modulate neutre (multiplication par
+	// 1), donc aucune régression sur les usages existants.
+	COLOR = vec4(rgb, tex_color.a) * COLOR;
 }
