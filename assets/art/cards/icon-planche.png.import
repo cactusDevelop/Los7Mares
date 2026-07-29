@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bxcbuxqyep06s"
-path.s3tc="res://.godot/imported/carte-sauvage-recontre1.png-2d079af82dfa0218ccbbea8c4e2741cf.s3tc.ctex"
+uid="uid://coo6017u23gje"
+path.s3tc="res://.godot/imported/icon-planche.png-073889eaf714ec8020dabbbbbabdbe3a.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/cards/carte-sauvage-recontre1.png"
-dest_files=["res://.godot/imported/carte-sauvage-recontre1.png-2d079af82dfa0218ccbbea8c4e2741cf.s3tc.ctex"]
+source_file="res://assets/art/cards/icon-planche.png"
+dest_files=["res://.godot/imported/icon-planche.png-073889eaf714ec8020dabbbbbabdbe3a.s3tc.ctex"]
 
 [params]
 

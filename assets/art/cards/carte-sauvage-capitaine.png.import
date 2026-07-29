@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bsikjejqy3eqp"
-path.s3tc="res://.godot/imported/planche-bleue-brune.png-32e7e88ea2191f848e43939bd51185f4.s3tc.ctex"
+uid="uid://dplg10ef70y14"
+path.s3tc="res://.godot/imported/carte-sauvage-capitaine.png-314e5ba8500ef9c266681adc03ecc10a.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/cards/planche-bleue-brune.png"
-dest_files=["res://.godot/imported/planche-bleue-brune.png-32e7e88ea2191f848e43939bd51185f4.s3tc.ctex"]
+source_file="res://assets/art/cards/carte-sauvage-capitaine.png"
+dest_files=["res://.godot/imported/carte-sauvage-capitaine.png-314e5ba8500ef9c266681adc03ecc10a.s3tc.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dhka8d0v5yolt"
-path.s3tc="res://.godot/imported/carte-sauvage-recontre3.png-c650571c89633f2fda09361e2d429761.s3tc.ctex"
+uid="uid://cmym2pn7inviw"
+path.s3tc="res://.godot/imported/carte-sauvage-pirate.png-a27c6fd365b4dcec8a04508748507865.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/cards/carte-sauvage-recontre3.png"
-dest_files=["res://.godot/imported/carte-sauvage-recontre3.png-c650571c89633f2fda09361e2d429761.s3tc.ctex"]
+source_file="res://assets/art/cards/carte-sauvage-pirate.png"
+dest_files=["res://.godot/imported/carte-sauvage-pirate.png-a27c6fd365b4dcec8a04508748507865.s3tc.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://du3sd3kfbtu5a"
-path.s3tc="res://.godot/imported/carte-sauvage-recontre2.png-818394be89a608ab159fb358609b9ea9.s3tc.ctex"
+uid="uid://bko3ha7ikao7v"
+path.s3tc="res://.godot/imported/carte-glace-creature1.png-d7a13b1d3f75f9171c814920d7593d9c.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/cards/carte-sauvage-recontre2.png"
-dest_files=["res://.godot/imported/carte-sauvage-recontre2.png-818394be89a608ab159fb358609b9ea9.s3tc.ctex"]
+source_file="res://assets/art/cards/carte-glace-creature1.png"
+dest_files=["res://.godot/imported/carte-glace-creature1.png-d7a13b1d3f75f9171c814920d7593d9c.s3tc.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b60ggsgvtxg66"
-path.s3tc="res://.godot/imported/carte-sauvage-recontre4.png-922a17c9c6d6ddf1642497468fa3e5e5.s3tc.ctex"
+uid="uid://cf8nwigaesceh"
+path.s3tc="res://.godot/imported/icon-etoile-voile.png-1fe8c6cd218b12bb0416f5288835a9ba.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/cards/carte-sauvage-recontre4.png"
-dest_files=["res://.godot/imported/carte-sauvage-recontre4.png-922a17c9c6d6ddf1642497468fa3e5e5.s3tc.ctex"]
+source_file="res://assets/art/cards/icon-etoile-voile.png"
+dest_files=["res://.godot/imported/icon-etoile-voile.png-1fe8c6cd218b12bb0416f5288835a9ba.s3tc.ctex"]
 
 [params]
 

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://chjci3kc3hntp"
-path.s3tc="res://.godot/imported/carte-sauvage-marchand.png-61bf610cc453b91ced9f3484a493753b.s3tc.ctex"
+uid="uid://b2rxrv1q1qkre"
+path.s3tc="res://.godot/imported/icon-abordage.png-7dd47ed707177a4d981d64aa1d516796.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/cards/carte-sauvage-marchand.png"
-dest_files=["res://.godot/imported/carte-sauvage-marchand.png-61bf610cc453b91ced9f3484a493753b.s3tc.ctex"]
+source_file="res://assets/art/cards/icon-abordage.png"
+dest_files=["res://.godot/imported/icon-abordage.png-7dd47ed707177a4d981d64aa1d516796.s3tc.ctex"]
 
 [params]
 

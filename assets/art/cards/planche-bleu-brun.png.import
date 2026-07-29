@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dd70movdt8rfq"
-path.s3tc="res://.godot/imported/icon-rencontre.png-fee091b551a701359614638e500cacba.s3tc.ctex"
+uid="uid://ck1pcmebcd276"
+path.s3tc="res://.godot/imported/planche-bleu-brun.png-ba78feb158d3c025b0fc7274b4cec820.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/cards/icon-rencontre.png"
-dest_files=["res://.godot/imported/icon-rencontre.png-fee091b551a701359614638e500cacba.s3tc.ctex"]
+source_file="res://assets/art/cards/planche-bleu-brun.png"
+dest_files=["res://.godot/imported/planche-bleu-brun.png-ba78feb158d3c025b0fc7274b4cec820.s3tc.ctex"]
 
 [params]
 

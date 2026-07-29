@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dd70movdt8rfq"
-path.s3tc="res://.godot/imported/icon-rencontre.png-fee091b551a701359614638e500cacba.s3tc.ctex"
+uid="uid://7e4vj08d184y"
+path.s3tc="res://.godot/imported/carte-glace-pirate.png-eb59e8cc72b932d4d8ce74748cff9f9c.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/cards/icon-rencontre.png"
-dest_files=["res://.godot/imported/icon-rencontre.png-fee091b551a701359614638e500cacba.s3tc.ctex"]
+source_file="res://assets/art/cards/carte-glace-pirate.png"
+dest_files=["res://.godot/imported/carte-glace-pirate.png-eb59e8cc72b932d4d8ce74748cff9f9c.s3tc.ctex"]
 
 [params]
 

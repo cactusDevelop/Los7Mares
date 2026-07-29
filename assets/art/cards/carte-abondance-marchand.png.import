@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dd70movdt8rfq"
-path.s3tc="res://.godot/imported/icon-rencontre.png-fee091b551a701359614638e500cacba.s3tc.ctex"
+uid="uid://cm73r1ah6qtia"
+path.s3tc="res://.godot/imported/carte-abondance-marchand.png-8dfebeb047c7e6b466d204cb4e5c5c4f.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/cards/icon-rencontre.png"
-dest_files=["res://.godot/imported/icon-rencontre.png-fee091b551a701359614638e500cacba.s3tc.ctex"]
+source_file="res://assets/art/cards/carte-abondance-marchand.png"
+dest_files=["res://.godot/imported/carte-abondance-marchand.png-8dfebeb047c7e6b466d204cb4e5c5c4f.s3tc.ctex"]
 
 [params]
 
