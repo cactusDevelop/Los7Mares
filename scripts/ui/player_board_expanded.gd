@@ -142,6 +142,27 @@ const RESOURCE_CUBE_COLORS := {
 const FORTUNE_TEXTURE := preload("res://assets/art/tokens/fortune.png")
 const TREASURE_TEXTURE := preload("res://assets/art/tokens/tresor.png")
 
+## --- Traces visuelles des améliorations voile/armes (règle 9) ---
+## Une icône apparaît, et reste affichée en permanence, pour chaque niveau
+## d'amélioration atteint (niveaux 2 à 5, le niveau 1 étant le bateau de
+## base sans icône). Contrairement aux jetons Fortune/Trésor, ces icônes ne
+## sont pas des objets d'inventaire déplaçables : leur position est fixe et
+## directement déduite de sail_level/arms_level (règle 9), pas de
+## player["inventory_layout"].
+const SAIL_UPGRADE_TEXTURE := preload("res://assets/art/tokens/upgrade-voile.png")
+const ARMS_UPGRADE_TEXTURE := preload("res://assets/art/tokens/upgrade-arme.png")
+const SAIL_UPGRADE_PIXELS: Array[Vector2] = [
+	Vector2(1350, 280), Vector2(1675, 280), Vector2(2000, 280), Vector2(2325, 280),
+]  # niveaux 2, 3, 4, 5
+const ARMS_UPGRADE_PIXELS: Array[Vector2] = [
+	Vector2(1350, 850), Vector2(1675, 850), Vector2(2000, 850), Vector2(2325, 850),
+]  # niveaux 2, 3, 4, 5
+const UPGRADE_ICON_SIZE := Vector2(310, 310)
+## Épaisseur 3D un peu plus marquée que celle des jetons Fortune/Trésor
+## (TOKEN_THICKNESS_PX = 3px) : demande explicite du joueur.
+const UPGRADE_TOKEN_THICKNESS_PX := 6.0
+const UPGRADE_TOKEN_THICKNESS_LAYERS := 4
+
 ## Planches de coque (= points de vie), verticales. Position initiale
 ## aléatoire dans PLANK_RECT (comme les jetons Fortune/Trésor) ; ensuite la
 ## position réelle vient de player["inventory_layout"]["plank_pos"].
@@ -253,6 +274,7 @@ func _refresh_resource_display(player: Dictionary) -> void:
 
 	_place_special_tokens("treasure", TREASURE_TEXTURE, layout, "treasure_pos")
 	_place_special_tokens("fortune", FORTUNE_TEXTURE, layout, "fortune_pos")
+	_refresh_upgrade_icons(player)
 	_place_hull_planks_from_layout(layout)
 	_refresh_gems(player)
 	_refresh_card_tracks(player)
@@ -602,14 +624,48 @@ func _place_special_tokens(kind: String, texture: Texture2D, layout: Dictionary,
 		})
 
 
+## Affiche une icône fixe pour chaque niveau d'amélioration voile/armes
+## atteint (règle 9) : niveau 2 -> 1ère icône de la piste, niveau 3 -> 1ère
+## + 2e, etc. (trace visuelle cumulative, pas seulement le dernier niveau).
+## Non déplaçable (position fixe déduite du niveau, pas un objet
+## d'inventaire) : pas d'ajout à _draggable_items.
+func _refresh_upgrade_icons(player: Dictionary) -> void:
+	var icon_size_local: Vector2 = _texture_size_to_local(UPGRADE_ICON_SIZE)
+	var sail_level: int = player.get("sail_level", 1)
+	for i in range(sail_level - 1):
+		if i >= SAIL_UPGRADE_PIXELS.size():
+			break
+		var anchor: Vector2 = _texture_to_local(SAIL_UPGRADE_PIXELS[i]) - icon_size_local / 2.0
+		_add_token_with_thickness(
+			SAIL_UPGRADE_TEXTURE, anchor, icon_size_local,
+			UPGRADE_TOKEN_THICKNESS_PX, UPGRADE_TOKEN_THICKNESS_LAYERS
+		)
+
+	var arms_level: int = player.get("arms_level", 1)
+	for i in range(arms_level - 1):
+		if i >= ARMS_UPGRADE_PIXELS.size():
+			break
+		var anchor: Vector2 = _texture_to_local(ARMS_UPGRADE_PIXELS[i]) - icon_size_local / 2.0
+		_add_token_with_thickness(
+			ARMS_UPGRADE_TEXTURE, anchor, icon_size_local,
+			UPGRADE_TOKEN_THICKNESS_PX, UPGRADE_TOKEN_THICKNESS_LAYERS
+		)
+
+
 ## Empile plusieurs copies assombries du jeton, décalées vers le bas-gauche
 ## (DEPTH_DIRECTION), puis la copie en couleur normale au-dessus : donne une
 ## petite épaisseur au jeton au lieu d'un sprite plat. Retourne la liste des
 ## nodes créés (utile pour les déplacer ensemble pendant un glisser-déposer).
-func _add_token_with_thickness(texture: Texture2D, anchor: Vector2, icon_size: Vector2) -> Array:
+## thickness_px/layers sont réglables (par défaut ceux des jetons Fortune/
+## Trésor) pour permettre une épaisseur différente ailleurs (ex : icônes
+## d'amélioration voile/armes, un peu plus épaisses).
+func _add_token_with_thickness(
+	texture: Texture2D, anchor: Vector2, icon_size: Vector2,
+	thickness_px: float = TOKEN_THICKNESS_PX, layers: int = TOKEN_THICKNESS_LAYERS
+) -> Array:
 	var nodes: Array = []
-	var step: Vector2 = UiTheme.DEPTH_DIRECTION * (TOKEN_THICKNESS_PX / float(TOKEN_THICKNESS_LAYERS))
-	for layer in range(TOKEN_THICKNESS_LAYERS, 0, -1):
+	var step: Vector2 = UiTheme.DEPTH_DIRECTION * (thickness_px / float(layers))
+	for layer in range(layers, 0, -1):
 		var edge := TextureRect.new()
 		edge.texture = texture
 		edge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
