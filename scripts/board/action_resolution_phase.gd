@@ -82,12 +82,17 @@ func start(board: Board, player: Dictionary, spot_index: int, is_strong: bool = 
 	_turn_ended = false
 	var actions: Array = ACTIONS_BY_SPOT[spot_index]
 
-	var first: String = await _choose_order(actions[0], actions[1])
-	var second: String = actions[1] if first == actions[0] else actions[0]
+	var first: String
+	var second: String
+	while true:
+		first = await _choose_order(actions[0], actions[1])
+		second = actions[1] if first == actions[0] else actions[0]
+		var outcome: String = await _resolve_action(first, true)
+		if outcome != "back":
+			break
 
-	await _resolve_action(first)
 	if not _turn_ended:
-		await _resolve_action(second)
+		await _resolve_action(second, false)
 
 	_board.narration_box.hide_box()
 	finished.emit()
@@ -107,30 +112,51 @@ func _choose_order(a: String, b: String) -> String:
 	return chosen
 
 
-func _resolve_action(action: String) -> void:
-	var is_implemented: bool = action in IMPLEMENTED_ACTIONS and _can_do_action(action)
-	var action_text: String = _label_for(action) if is_implemented else _label_for(action) + _unavailable_reason(action)
-	_board.narration_box.say_with_player(
-		tr("Tour de %s : action ") + action_text + ".", _player
-	)
+## allow_back : si vrai, un bouton "Retour" permet de revenir au choix de
+## l'ordre des 2 actions (uniquement pertinent pour la 1ère action du tour,
+## tant qu'elle n'est pas confirmée - règle 6.3 "impossible de revenir à la
+## précédente [action] une fois commencée", donc seulement AVANT ce point).
+## Retourne "back" si le joueur est remonté jusqu'au choix d'ordre, sinon "".
+## Si le joueur choisit "Faire l'action" puis se ravise avant tout coût payé
+## ou dé lancé (cf _run_xxx qui renvoient "cancel"), on réaffiche ce même
+## menu Faire/Décliner/Retour plutôt que d'imposer un choix.
+func _resolve_action(action: String, allow_back: bool) -> String:
+	while true:
+		var is_implemented: bool = action in IMPLEMENTED_ACTIONS and _can_do_action(action)
+		var action_text: String = _label_for(action) if is_implemented else _label_for(action) + _unavailable_reason(action)
+		_board.narration_box.say_with_player(
+			tr("Tour de %s : action ") + action_text + ".", _player
+		)
 
-	var options: Array = []
-	if is_implemented:
-		options.append({"id": "do", "label": tr("Faire l'action")})
-	options.append({"id": "decline", "label": tr("Décliner")})
-	_board.narration_box.set_options(options)
-	var choice: String = await _board.narration_box.option_selected
+		var options: Array = []
+		if is_implemented:
+			options.append({"id": "do", "label": tr("Faire l'action")})
+		options.append({"id": "decline", "label": tr("Décliner")})
+		if allow_back:
+			options.append({"id": "back", "label": tr("↩ Retour (changer l'ordre)")})
+		_board.narration_box.set_options(options)
+		var choice: String = await _board.narration_box.option_selected
 
-	if choice == "do" and action == "deplacement":
-		await _run_deplacement()
-	elif choice == "do" and action == "reparation":
-		await _run_renovation()
-	elif choice == "do" and action == "ile":
-		await _run_ile()
-	elif choice == "do" and action == "port":
-		await _run_port()
-	else:
-		await _run_decline()
+		if choice == "back":
+			return "back"
+
+		var result: String = ""
+		if choice == "do" and action == "deplacement":
+			result = await _run_deplacement()
+		elif choice == "do" and action == "reparation":
+			result = await _run_renovation()
+		elif choice == "do" and action == "ile":
+			result = await _run_ile()
+		elif choice == "do" and action == "port":
+			result = await _run_port()
+		else:
+			await _run_decline()
+			return ""
+
+		if result != "cancel":
+			return ""
+		# result == "cancel" : le joueur s'est ravisé avant toute confirmation
+		# (aucun coût payé, aucun dé lancé) -> on réaffiche Faire/Décliner.
 
 
 ## Motif affiché entre parenthèses quand une action n'est pas jouable dans
@@ -236,11 +262,12 @@ func _run_decline() -> void:
 ## Rénover son bateau (fort) : Améliorer OU Réparer, ou les deux en dépensant
 ## 1 rhum (règle 9). Rabibocher (faible) : uniquement +1 planche gratuite,
 ## sans amélioration ni planche supplémentaire (règle 12).
-func _run_renovation() -> void:
+func _run_renovation() -> String:
 	if not _is_strong:
-		await _run_rabibochage()
-		_board._autosave("pions")
-		return
+		var r: String = await _run_rabibochage()
+		if r != "cancel":
+			_board._autosave("pions")
+		return r
 
 	var can_ameliorer: bool = _can_upgrade(_player["sail_level"], "wool") \
 		or _can_upgrade(_player["arms_level"], "steel")
@@ -251,10 +278,13 @@ func _run_renovation() -> void:
 		options.append({"id": "ameliorer", "label": tr("Améliorer (voile ou armes)")})
 	if can_ameliorer and has_rum:
 		options.append({"id": "both", "label": tr("Les deux (dépenser 1 rhum)")})
+	options.append({"id": "back", "label": tr("↩ Retour")})
 
 	_board.narration_box.say_with_player(tr("Tour de %s : Rénover son bateau, que veux-tu faire ?"), _player)
 	_board.narration_box.set_options(options)
 	var choice: String = await _board.narration_box.option_selected
+	if choice == "back":
+		return "cancel"
 
 	if choice == "both":
 		_player["resources"]["rum"] -= 1
@@ -267,14 +297,25 @@ func _run_renovation() -> void:
 
 	GameFlow.players_changed.emit()
 	_board._autosave("pions")
+	return ""
 
 
-func _run_rabibochage() -> void:
+func _run_rabibochage() -> String:
+	_board.narration_box.say_with_player(tr("Tour de %s : rabibocher son bateau (+1 planche gratuite). Confirmer ?"), _player)
+	_board.narration_box.set_options([
+		{"id": "confirm", "label": tr("Confirmer")},
+		{"id": "back", "label": tr("↩ Retour")},
+	])
+	var choice: String = await _board.narration_box.option_selected
+	if choice == "back":
+		return "cancel"
+
 	_player["hull_planks"] = min(_player["hull_planks"] + 1, GameFlow.HULL_PLANKS_START)
 	_board.narration_box.say_with_player(tr("Tour de %s : rabibocle son bateau (+1 planche gratuite)."), _player)
 	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
 	await _board.narration_box.option_selected
 	GameFlow.players_changed.emit()
+	return ""
 
 
 ## Améliorer : choisit voile ou armes, paie le coût de l'emplacement vide le
@@ -351,10 +392,11 @@ func _do_reparer() -> void:
 ## (qu'il y soit explicitement retourné ou qu'il y soit resté sans bouger),
 ## le joueur reçoit une planche de coque (si moins de 7) et une ressource
 ## au choix.
-func _run_deplacement() -> void:
+func _run_deplacement() -> String:
 	# Fort -> Naviguer en mer (points = niveau de voile).
 	# Faible -> Caboter en mer (1 seul point, quel que soit le niveau de voile).
 	var points: int = _player.get("sail_level", 1) if _is_strong else 1
+	var can_cancel := true
 
 	while points > 0:
 		var current_sea: String = _player.get("boat_sea", "")
@@ -374,6 +416,8 @@ func _run_deplacement() -> void:
 		if current_sea != "":
 			options.append({"id": "draw", "label": tr("Rester ici et piocher une nouvelle carte")})
 		options.append({"id": "stop", "label": tr("Terminer le déplacement")})
+		if can_cancel:
+			options.append({"id": "back", "label": tr("↩ Retour")})
 
 		_board.narration_box.say_with_player(
 			tr("Tour de %s : clique sur une mer voisine pour t'y déplacer (points restants : %d)."),
@@ -414,23 +458,29 @@ func _run_deplacement() -> void:
 			hideout_spot.set_hover_label("POSER")
 			hideout_spot.spot_clicked.disconnect(_on_hideout_spot_clicked)
 
-		if choice == "stop":
+		if choice == "back":
+			return "cancel"
+		elif choice == "stop":
 			break
 		elif choice == "draw":
 			_board.card_draw_phase.redraw_card_for_sea(current_sea)
 			points -= 1
+			can_cancel = false
 		elif choice == "hideout":
 			_board.move_boat_to_hideout(_player)
 			points -= 1
+			can_cancel = false
 		elif choice.begins_with("move:"):
 			var dest: String = choice.substr(5)
 			_board.move_player_boat(_player, dest)
 			points -= 1
+			can_cancel = false
 
 	if _player.get("boat_sea", "") == "":
 		_grant_hideout_reward()
 
 	_board._autosave("pions")
+	return ""
 
 
 ## Récompense de retour à la cachette (règle 6a) : +1 planche de coque
@@ -470,22 +520,33 @@ func _on_panel_choice(id: String) -> void:
 ## OU Commerce si île amicale, Exploration OU Combat si île hostile - ces
 ## choix viennent directement des clés de card.activities, alimentées par
 ## card_catalog.json) puis la résout (dés / paiement, règle 10).
-func _run_ile() -> void:
+func _run_ile() -> String:
 	if not _is_strong:
-		await _run_ile_collect()
-		_board._autosave("pions")
-		return
+		var r: String = await _run_ile_collect()
+		if r != "cancel":
+			_board._autosave("pions")
+		return r
 
 	var sea_key: String = _player.get("boat_sea", "")
 	var card: GameCard = _board.card_draw_phase.get_current_revealed_card(sea_key)
 	if card == null or card.card_type != GameCard.CardType.ILE:
 		await _run_decline()
-		return
+		return ""
 
 	var choices: Array = card.activities.keys()
-	var activity_key: String
+	var activity_key: String = ""
 	if choices.size() <= 1:
 		activity_key = choices[0] if not choices.is_empty() else "exploration"
+		_board.narration_box.say_with_player(
+			tr("Tour de %s : ") + tr(card.title) + tr(" — ") + _activity_label(activity_key) + tr(". Confirmer ?"), _player
+		)
+		_board.narration_box.set_options([
+			{"id": "confirm", "label": tr("Confirmer")},
+			{"id": "back", "label": tr("↩ Retour")},
+		])
+		var confirm: String = await _board.narration_box.option_selected
+		if confirm == "back":
+			return "cancel"
 	else:
 		_board.narration_box.say_with_player(
 			tr("Tour de %s : ") + tr(card.title) + tr(" — comment débarquer ?"), _player
@@ -493,22 +554,26 @@ func _run_ile() -> void:
 		var options: Array = []
 		for c in choices:
 			options.append({"id": c, "label": _activity_label(c)})
+		options.append({"id": "back", "label": tr("↩ Retour")})
 		_board.narration_box.set_options(options)
 		activity_key = await _board.narration_box.option_selected
+		if activity_key == "back":
+			return "cancel"
 
 	await _resolve_activity(card, activity_key)
 	_board._autosave("pions")
+	return ""
 
 
 ## Faible (règle 12) : 1 ressource au choix parmi bois/nourriture indiquées
 ## sur l'activité exploration de la carte, sans dé, sans trésor, la carte
 ## reste en place.
-func _run_ile_collect() -> void:
+func _run_ile_collect() -> String:
 	var sea_key: String = _player.get("boat_sea", "")
 	var card: GameCard = _board.card_draw_phase.get_current_revealed_card(sea_key)
 	if card == null or card.card_type != GameCard.CardType.ILE:
 		await _run_decline()
-		return
+		return ""
 
 	var exploration: Dictionary = card.activities.get("exploration", {})
 	var choices: Array = []
@@ -524,10 +589,14 @@ func _run_ile_collect() -> void:
 	var options: Array = []
 	for c in choices:
 		options.append({"id": c, "label": _icon_label(c)})
+	options.append({"id": "back", "label": tr("↩ Retour")})
 	_board.narration_box.set_options(options)
 	var choice: String = await _board.narration_box.option_selected
+	if choice == "back":
+		return "cancel"
 	_add_icon_amount(choice, 1)
 	GameFlow.players_changed.emit()
+	return ""
 
 
 func _activity_label(key: String) -> String:
@@ -545,34 +614,38 @@ func _activity_label(key: String) -> String:
 ## Fort : détermine la variante depuis dice_rule de l'activité "commerce"
 ## (null -> ordinaire, "voile_food_max1" -> périlleux, "armes" -> malfamé)
 ## et la résout (règle 9).
-func _run_port() -> void:
+func _run_port() -> String:
 	if not _is_strong:
-		await _run_port_work()
-		_board._autosave("pions")
-		return
+		var r: String = await _run_port_work()
+		if r != "cancel":
+			_board._autosave("pions")
+		return r
 
 	var sea_key: String = _player.get("boat_sea", "")
 	var card: GameCard = _board.card_draw_phase.get_current_revealed_card(sea_key)
 	if card == null or card.card_type != GameCard.CardType.PORT:
 		await _run_decline()
-		return
+		return ""
 
 	var activity: Dictionary = card.activities.get("commerce", {})
+	var result: String = ""
 	match activity.get("dice_rule", ""):
 		"voile_food_max1":
-			await _run_port_perilleux(card, activity)
+			result = await _run_port_perilleux(card, activity)
 		"armes":
-			await _run_port_malfame(card, activity)
+			result = await _run_port_malfame(card, activity)
 		_:
-			await _run_port_ordinaire(card, activity)
+			result = await _run_port_ordinaire(card, activity)
 
-	_board._autosave("pions")
+	if result != "cancel":
+		_board._autosave("pions")
+	return result
 
 
 ## Port ordinaire : payer les ressources demandées, avec substitution
 ## possible (1 rhum pour n'importe quelle ressource, ou 2 ressources d'un
 ## autre type pour 1) puis recevoir la récompense (règle 9).
-func _run_port_ordinaire(card: GameCard, activity: Dictionary) -> void:
+func _run_port_ordinaire(card: GameCard, activity: Dictionary) -> String:
 	var cost: Array = activity.get("cost", [])
 	if not _can_afford_port_cost(cost):
 		_board.narration_box.say_with_player(
@@ -581,13 +654,23 @@ func _run_port_ordinaire(card: GameCard, activity: Dictionary) -> void:
 		_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
 		await _board.narration_box.option_selected
 		await _run_decline()
-		return
+		return ""
+
+	_board.narration_box.say_with_player(tr("Tour de %s : accéder au port, confirmer le paiement ?"), _player)
+	_board.narration_box.set_options([
+		{"id": "confirm", "label": tr("Payer et continuer")},
+		{"id": "back", "label": tr("↩ Retour")},
+	])
+	var confirm: String = await _board.narration_box.option_selected
+	if confirm == "back":
+		return "cancel"
 
 	await _pay_port_cost_interactive(cost)
 	for reward in activity.get("reward", []):
 		await _grant_reward_entry(reward)
 	await _check_overload()
 	await _finalize_success(card, "commerce")
+	return ""
 
 
 ## Port périlleux : dés d'exploration = niveau de voile (+1 nourriture pour
@@ -595,7 +678,16 @@ func _run_port_ordinaire(card: GameCard, activity: Dictionary) -> void:
 ## autant de planches que d'étoiles manquantes (règle 9), sans fortune de
 ## compensation ni carte défaussée (pas la même mécanique qu'échouer une
 ## activité classique).
-func _run_port_perilleux(card: GameCard, activity: Dictionary) -> void:
+func _run_port_perilleux(card: GameCard, activity: Dictionary) -> String:
+	_board.narration_box.say_with_player(tr("Tour de %s : port périlleux, lancer les dés d'exploration ?"), _player)
+	_board.narration_box.set_options([
+		{"id": "confirm", "label": tr("Lancer les dés")},
+		{"id": "back", "label": tr("↩ Retour")},
+	])
+	var confirm: String = await _board.narration_box.option_selected
+	if confirm == "back":
+		return "cancel"
+
 	var base: int = max(_player.get("sail_level", 1), 1)
 	var stars: int = await _roll_exploration_stars(base, 1)
 	var needed: int = _needed_stars(activity)
@@ -605,7 +697,7 @@ func _run_port_perilleux(card: GameCard, activity: Dictionary) -> void:
 			await _grant_reward_entry(reward)
 		await _check_overload()
 		await _finalize_success(card, "commerce")
-		return
+		return ""
 
 	var missing: int = needed - stars
 	_board.narration_box.say_with_player(
@@ -615,13 +707,23 @@ func _run_port_perilleux(card: GameCard, activity: Dictionary) -> void:
 	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
 	await _board.narration_box.option_selected
 	await _lose_planks(missing)
+	return ""
 
 
 ## Port malfamé : dés de combat = niveau d'armes pour atteindre le nombre
 ## de succès requis (canon OU abordage). Réussite -> Commerce normal.
 ## Échec -> Commerce quand même, mais récompense réduite du nombre de
 ## succès manquants (règle 9).
-func _run_port_malfame(card: GameCard, activity: Dictionary) -> void:
+func _run_port_malfame(card: GameCard, activity: Dictionary) -> String:
+	_board.narration_box.say_with_player(tr("Tour de %s : port malfamé, lancer les dés de combat ?"), _player)
+	_board.narration_box.set_options([
+		{"id": "confirm", "label": tr("Lancer les dés")},
+		{"id": "back", "label": tr("↩ Retour")},
+	])
+	var confirm: String = await _board.narration_box.option_selected
+	if confirm == "back":
+		return "cancel"
+
 	var count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
 	var results: Array[String] = await _throw_dice(count, false)
 
@@ -649,6 +751,7 @@ func _run_port_malfame(card: GameCard, activity: Dictionary) -> void:
 		await _grant_reward_entry(entry)
 	await _check_overload()
 	await _finalize_success(card, "commerce")
+	return ""
 
 
 ## Réduit une liste de récompenses de "missing" unités au total (règle 9,
@@ -728,12 +831,12 @@ func _pay_port_cost_interactive(cost: Array) -> void:
 
 ## Faible (règle 12) : 1 ressource au choix parmi celles à droite de la
 ## flèche d'échange, sans dé, sans trésor, la carte reste en place.
-func _run_port_work() -> void:
+func _run_port_work() -> String:
 	var sea_key: String = _player.get("boat_sea", "")
 	var card: GameCard = _board.card_draw_phase.get_current_revealed_card(sea_key)
 	if card == null or card.card_type != GameCard.CardType.PORT:
 		await _run_decline()
-		return
+		return ""
 
 	var activity: Dictionary = card.activities.get("commerce", {})
 	var choices: Array = []
@@ -749,10 +852,14 @@ func _run_port_work() -> void:
 	var options: Array = []
 	for c in choices:
 		options.append({"id": c, "label": _icon_label(c)})
+	options.append({"id": "back", "label": tr("↩ Retour")})
 	_board.narration_box.set_options(options)
 	var choice: String = await _board.narration_box.option_selected
+	if choice == "back":
+		return "cancel"
 	_add_icon_amount(choice, 1)
 	GameFlow.players_changed.emit()
+	return ""
 
 
 # =========================================================================
