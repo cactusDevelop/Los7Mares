@@ -73,24 +73,36 @@ const CARD_TRACK_COUNT_OUTLINE_SIZE := 6
 ## au survol d'une piste, en secondes. Très rapide par défaut.
 const CARD_TRACK_HOVER_ANIM_DURATION := 0.1
 
-## Positions (centre, pixels image du plateau) des 7 emplacements de gemmes
-## sur le plateau joueur (rose des gemmes), une par mer. Heptagone RÉGULIER
-## (centre (440, 485), rayon 260 = distance centre -> "glace" dans le layout
-## d'origine, qui était déjà approximativement régulier) : sommet "glace" en
-## haut (angle -90°), puis les 6 autres dans le sens horaire à l'écran, pas
-## de 360/7° (~51.43°), même convention que sea_gem_pile._layout_offsets
-## (sommet en haut pour un nombre de côtés impair).
-const GEM_SLOT_PIXELS: Dictionary = {
-	"glace": Vector2(440, 225),
-	"jade": Vector2(643, 323),
-	"abondance": Vector2(693, 543),
-	"feu": Vector2(553, 719),
-	"maudite": Vector2(327, 719),
-	"azur": Vector2(187, 543),
-	"sauvage": Vector2(237, 323),
-}
-const GEM_ICON_SIZE := Vector2(175, 175)
+## Ordre des mers autour de la rose des gemmes (sommet du haut en premier,
+## puis sens horaire à l'écran), utilisé par _build_gem_slot_pixels().
+const GEM_SLOT_ORDER: Array[String] = [
+	"glace", "jade", "abondance", "feu", "maudite", "azur", "sauvage",
+]
+## Centre / rayon (pixels image du plateau) de l'heptagone régulier des 7
+## emplacements de gemmes. Exportés pour pouvoir les ajuster "à l'oeil" dans
+## l'Inspecteur (sélectionner PlayerBoardExpanded dans la scène, relancer
+## pour voir le résultat) sans toucher au code. gem_rose_start_angle_deg
+## oriente le premier sommet (glace) ; -90° = tout en haut (convention
+## écran : angle 0° = droite, sens horaire = angle croissant).
+@export var gem_rose_center := Vector2(462, 464)
+@export var gem_rose_radius := 254.0
+@export var gem_rose_start_angle_deg := -90.0
+const GEM_ICON_SIZE := Vector2(185, 185)
 const GEM_RECOLOR_SHADER := preload("res://shaders/white_recolor.gdshader")
+
+## Calcule les 7 positions (heptagone régulier autour de gem_rose_center,
+## rayon gem_rose_radius) à partir de GEM_SLOT_ORDER. Remplace un ancien
+## dictionnaire de positions codées en dur (approximatives) : recalculé à
+## chaque _refresh_gems() pour refléter les valeurs exportées immédiatement
+## si elles sont modifiées dans l'Inspecteur avant de rejouer.
+func _build_gem_slot_pixels() -> Dictionary:
+	var slots: Dictionary = {}
+	var step_deg: float = 360.0 / GEM_SLOT_ORDER.size()
+	for i in range(GEM_SLOT_ORDER.size()):
+		var angle_rad: float = deg_to_rad(gem_rose_start_angle_deg + i * step_deg)
+		var offset := Vector2(cos(angle_rad), sin(angle_rad)) * gem_rose_radius
+		slots[GEM_SLOT_ORDER[i]] = gem_rose_center + offset
+	return slots
 
 const RESOURCE_CUBE_EDGE := 120.0
 const SPECIAL_ICON_SIZE := Vector2(110, 110)
@@ -247,30 +259,29 @@ func _refresh_resource_display(player: Dictionary) -> void:
 
 
 ## Affiche les gemmes obtenues par le joueur (règle 3/10) sur la rose des
-## gemmes de son plateau (GEM_SLOT_PIXELS, une position fixe par mer), teintées
-## de sa couleur (même shader white_recolor que sea_gem_pile.gd pour la pile
-## de gemmes disponibles près des tuiles mer), avec la même épaisseur 3D que
-## les pions capitaine/second (PionThickness, cf scripts/common/pion_thickness.gd),
-## et tournées de sorte
+## gemmes de son plateau (heptagone régulier calculé par
+## _build_gem_slot_pixels(), cf gem_rose_center/gem_rose_radius exportés),
+## teintées de sa couleur (même shader white_recolor que sea_gem_pile.gd pour
+## la pile de gemmes disponibles près des tuiles mer), avec la même épaisseur
+## 3D que les pions capitaine/second (PionThickness, cf
+## scripts/common/pion_thickness.gd), et tournées de sorte
 ## que le bas de chaque gemme pointe vers le centre de la rose (heptagone),
 ## comme les tuiles mer (cf board.gd : rotation = angle_vers_l'extérieur + 90°,
 ## donc ici angle_vers_le_centre - 90°, équivalent). Non déplaçables (position
 ## fixe liée à la mer, pas d'inventaire libre comme les ressources/jetons).
 func _refresh_gems(player: Dictionary) -> void:
 	var icon_size_local: Vector2 = _texture_size_to_local(GEM_ICON_SIZE)
-	var rose_center: Vector2 = Vector2.ZERO
-	for pos in GEM_SLOT_PIXELS.values():
-		rose_center += pos
-	rose_center /= GEM_SLOT_PIXELS.size()
+	var gem_slot_pixels: Dictionary = _build_gem_slot_pixels()
+	var rose_center: Vector2 = gem_rose_center
 
 	var replace_color: Color = GameFlow.COLOR_VALUES.get(player["color"], Color.WHITE)
 	for sea_key in player.get("gems", {}).keys():
-		if not GEM_SLOT_PIXELS.has(sea_key):
+		if not gem_slot_pixels.has(sea_key):
 			continue
 		var path: String = GameFlow.GEM_TEXTURE_PATH % sea_key
 		if not ResourceLoader.exists(path):
 			continue
-		var pixel: Vector2 = GEM_SLOT_PIXELS[sea_key]
+		var pixel: Vector2 = gem_slot_pixels[sea_key]
 		var direction: Vector2 = pixel - rose_center
 		var rotation_deg: float = rad_to_deg(atan2(direction.y, direction.x)) + 90.0
 		var center: Vector2 = _texture_to_local(pixel)
