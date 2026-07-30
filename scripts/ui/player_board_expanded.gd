@@ -152,10 +152,10 @@ const TREASURE_TEXTURE := preload("res://assets/art/tokens/tresor.png")
 const SAIL_UPGRADE_TEXTURE := preload("res://assets/art/tokens/upgrade-voile.png")
 const ARMS_UPGRADE_TEXTURE := preload("res://assets/art/tokens/upgrade-arme.png")
 const SAIL_UPGRADE_PIXELS: Array[Vector2] = [
-	Vector2(1350, 280), Vector2(1675, 280), Vector2(2000, 280), Vector2(2325, 280),
+	Vector2(1370, 250), Vector2(1695, 250), Vector2(2020, 250), Vector2(2345, 250),
 ]  # niveaux 2, 3, 4, 5
 const ARMS_UPGRADE_PIXELS: Array[Vector2] = [
-	Vector2(1350, 850), Vector2(1675, 850), Vector2(2000, 850), Vector2(2325, 850),
+	Vector2(1370, 820), Vector2(1695, 820), Vector2(2020, 820), Vector2(2345, 820),
 ]  # niveaux 2, 3, 4, 5
 const UPGRADE_ICON_SIZE := Vector2(310, 310)
 ## Épaisseur 3D un peu plus marquée que celle des jetons Fortune/Trésor
