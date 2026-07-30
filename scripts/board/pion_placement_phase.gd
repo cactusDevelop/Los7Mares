@@ -185,6 +185,13 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 	pion.modulate = GameFlow.COLOR_VALUES[player["color"]]
 	pion.scale = Vector2.ONE * UiTheme.PION_SCALE
 	spot.add_pion(pion, player["color"], _selected_rank)
+
+	# Narration (règles mode avancé, règle 6) : emplacement fort = sang-froid,
+	# emplacement faible = équipage démotivé.
+	var placement_narration: String = tr("%s garde son sang-froid et motive son équipage !") if is_strong \
+		else tr("%s n'arrive pas à motiver son équipage...")
+	_board.narration_box.say_with_player(placement_narration, player)
+	await _board.narration_box.wait_for_click()
 	_board.narration_box.hide_box()
 
 	if _current_round == 0:
