@@ -339,8 +339,7 @@ func _run_rabibochage() -> String:
 
 	_player["hull_planks"] = min(_player["hull_planks"] + 1, GameFlow.HULL_PLANKS_START)
 	_board.narration_box.say_with_player(tr("Tour de %s : rabibocle son bateau (+1 planche gratuite)."), _player)
-	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
-	await _board.narration_box.option_selected
+	await _board.narration_box.wait_for_continue()
 	GameFlow.players_changed.emit()
 	return ""
 
@@ -696,8 +695,7 @@ func _run_port_ordinaire(card: GameCard, activity: Dictionary) -> String:
 		_board.narration_box.say_with_player(
 			tr("Tour de %s : ressources insuffisantes pour accéder au port (même avec substitution)."), _player
 		)
-		_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
-		await _board.narration_box.option_selected
+		await _board.narration_box.wait_for_continue()
 		await _run_decline()
 		return ""
 
@@ -749,8 +747,7 @@ func _run_port_perilleux(card: GameCard, activity: Dictionary) -> String:
 		tr(N_PORT_PERILLEUX_FAIL + "\n\nTour de %s : étoiles insuffisantes (%d/%d) au port périlleux, perd %d planche(s)."),
 		_player, [stars, needed, missing]
 	)
-	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
-	await _board.narration_box.option_selected
+	await _board.narration_box.wait_for_continue()
 	await _lose_planks(missing)
 	return ""
 
@@ -786,8 +783,7 @@ func _run_port_malfame(card: GameCard, activity: Dictionary) -> String:
 		tr("Tour de %s : %d succès obtenus sur %d requis au port malfamé."),
 		_player, [successes, needed]
 	)
-	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
-	await _board.narration_box.option_selected
+	await _board.narration_box.wait_for_continue()
 
 	var reward: Array = activity.get("reward", [])
 	if missing > 0:
@@ -923,8 +919,7 @@ func _resolve_activity(card: GameCard, activity_key: String) -> void:
 	if dice_rule == "":
 		if not _can_afford_cost(activity.get("cost", [])):
 			_board.narration_box.say_with_player(tr("Tour de %s : ressources insuffisantes pour commercer."), _player)
-			_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
-			await _board.narration_box.option_selected
+			await _board.narration_box.wait_for_continue()
 			await _run_decline()
 			return
 		_apply_cost(activity.get("cost", []))
@@ -1061,8 +1056,7 @@ func _finalize_success(card: GameCard, activity_key: String) -> void:
 		tr(N_SUCCESS + "\n\nTour de %s : activité réussie ! Carte rangée en piste ") + GameFlow.CARD_TRACK_LABELS.get(activity_key, activity_key) + ".",
 		_player
 	)
-	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
-	await _board.narration_box.option_selected
+	await _board.narration_box.wait_for_continue()
 
 	if progress == "gem":
 		var gem_pile: Node2D = _board.get_gem_pile(card.sea_key)
@@ -1073,8 +1067,7 @@ func _finalize_success(card: GameCard, activity_key: String) -> void:
 
 	if progress != "none":
 		_board.narration_box.say_with_player(_progress_message(progress), _player)
-		_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
-		await _board.narration_box.option_selected
+		await _board.narration_box.wait_for_continue()
 
 
 func _progress_message(progress: String) -> String:
@@ -1096,8 +1089,7 @@ func _grant_activity_failure(card: GameCard) -> void:
 	_board.narration_box.say_with_player(
 		tr(N_FAILURE + "\n\nTour de %s : activité échouée. Reçoit 1 fortune en compensation."), _player
 	)
-	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
-	await _board.narration_box.option_selected
+	await _board.narration_box.wait_for_continue()
 
 	if card.negative_effect != "":
 		await _apply_negative_effect(card.negative_effect)
@@ -1220,8 +1212,7 @@ func _lose_planks(n: int) -> void:
 ## à l'inférieur) et ne peut plus rien faire ce tour-ci.
 func _capsize() -> void:
 	_board.narration_box.say_with_player(tr(N_CAPSIZE + "\n\nTour de %s : le bateau chavire !"), _player)
-	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
-	await _board.narration_box.option_selected
+	await _board.narration_box.wait_for_continue()
 
 	_board.narration_box.say(tr(N_CAPSIZE_LOSE))
 	await _board.narration_box.wait_for_click()
@@ -1275,11 +1266,9 @@ func _apply_negative_effect(text: String) -> void:
 	if text.begins_with("Vous ne pouvez plus effectuer d'action"):
 		_turn_ended = true
 		_board.narration_box.say_with_player(tr("Tour de %s : ne peut plus effectuer d'action ce tour-ci."), _player)
-		_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
-		await _board.narration_box.option_selected
+		await _board.narration_box.wait_for_continue()
 		return
 
 	# Forme non encore reconnue : affichée telle quelle, sans effet mécanique.
 	_board.narration_box.say_with_player(tr("Tour de %s : effet — ") + text, _player)
-	_board.narration_box.set_options([{"id": "ok", "label": tr("Continuer")}])
-	await _board.narration_box.option_selected
+	await _board.narration_box.wait_for_continue()

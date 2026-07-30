@@ -135,10 +135,28 @@ func has_options() -> bool:
 ## messages "de lecture" qui n'attendent pas un choix précis (set_options)
 ## mais ne doivent pas non plus défiler tout seuls après un délai fixe -
 ## sans quoi rien ne garantit que le joueur ait eu le temps de les lire.
+## Si les animations sont désactivées (Settings.animations_enabled), ce
+## message n'apporte plus rien (il ne fait qu'attendre que le texte soit lu) :
+## on passe directement à la suite sans attendre de clic.
 func wait_for_click() -> void:
+	if not Settings.animations_enabled:
+		return
 	_awaiting_advance = true
 	await advance_requested
 	_awaiting_advance = false
+
+
+## Équivalent de wait_for_click() pour les messages affichés avec un unique
+## bouton "Continuer"/"ok" (aucun choix réel, juste un accusé de lecture) :
+## posé une fois pour tous ces appels au lieu de dupliquer set_options([...])
+## + await option_selected partout. Sauté automatiquement, comme
+## wait_for_click(), quand les animations sont désactivées.
+func wait_for_continue() -> void:
+	if not Settings.animations_enabled:
+		set_options([])
+		return
+	set_options([{"id": "ok", "label": tr("Continuer")}])
+	await option_selected
 
 
 ## Appelé par board._unhandled_input (clic sur le plateau) ou directement
@@ -196,6 +214,10 @@ func _reveal_after_layout() -> void:
 	label.visible_characters = 0
 	_layout()
 	if total_chars <= 0:
+		return
+
+	if not Settings.animations_enabled:
+		label.visible_characters = total_chars
 		return
 
 	# Chaque lettre passe individuellement de invisible à visible.
