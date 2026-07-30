@@ -98,6 +98,13 @@ var _is_strong: bool = true
 ## pouvoir effectuer d'action ce tour-ci" ou un chavirage (règle 10.2/10.4) :
 ## la 2e action du tour (si elle n'a pas encore commencé) est alors annulée.
 var _turn_ended: bool = false
+## Suivi pour la compensation de tour "stérile" (règle 6, étape 4b) : remis
+## à faux à chaque tour (start()), passe à vrai dès qu'une carte est
+## récupérée (_finalize_success) ou qu'une amélioration voile/armes est
+## payée (_do_ameliorer). Une simple réparation de coque NE compte PAS
+## comme "bateau amélioré" (ce sont deux choix distincts de la règle 9).
+var _card_retrieved_this_turn: bool = false
+var _ship_upgraded_this_turn: bool = false
 
 
 func start(board: Board, player: Dictionary, spot_index: int, is_strong: bool = true) -> void:
@@ -105,6 +112,8 @@ func start(board: Board, player: Dictionary, spot_index: int, is_strong: bool = 
 	_player = player
 	_is_strong = is_strong
 	_turn_ended = false
+	_card_retrieved_this_turn = false
+	_ship_upgraded_this_turn = false
 	var actions: Array = ACTIONS_BY_SPOT[spot_index]
 
 	var first: String
@@ -119,8 +128,28 @@ func start(board: Board, player: Dictionary, spot_index: int, is_strong: bool = 
 	if not _turn_ended:
 		await _resolve_action(second, false)
 
+	await _grant_barren_turn_compensation()
+
 	_board.narration_box.hide_box()
 	finished.emit()
+
+
+## Compensation de tour "stérile" (règle 6, étape 4b) : si aucune carte n'a
+## été récupérée ni aucune amélioration voile/armes payée pendant ce tour,
+## +1 fortune. Indépendante de la compensation d'échec d'activité
+## (_grant_activity_failure, règle 10), qui elle est déjà gérée ailleurs :
+## les deux peuvent se cumuler sur un même tour raté ET stérile.
+func _grant_barren_turn_compensation() -> void:
+	if _card_retrieved_this_turn or _ship_upgraded_this_turn:
+		return
+	_player["special_resources"]["fortune"] += 1
+	GameFlow.players_changed.emit()
+	_board.narration_box.say_with_player(
+		tr("Pas de chance cette fois-ci, mais le vent va bientôt tourner !") +
+		tr("\n\nTour de %s : aucune carte récupérée ni bateau amélioré ce tour, reçoit 1 fortune en compensation."),
+		_player
+	)
+	await _board.narration_box.wait_for_continue()
 
 
 func _label_for(action: String) -> String:
@@ -374,6 +403,7 @@ func _do_ameliorer() -> void:
 		_player["resources"]["steel"] -= cost2["other"]
 		_player["arms_level"] += 1
 
+	_ship_upgraded_this_turn = true
 	GameFlow.players_changed.emit()
 
 
@@ -767,7 +797,8 @@ func _run_port_malfame(card: GameCard, activity: Dictionary) -> String:
 		return "cancel"
 
 	var count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
-	var results: Array[String] = await _throw_dice(count, false)
+	count = await _offer_rhum_extra_die(count)
+	var results: Array[String] = await _offer_fortune_dice_fixing(count, false)
 
 	var successes := 0
 	for r in results:
@@ -939,6 +970,7 @@ func _resolve_activity(card: GameCard, activity_key: String) -> void:
 ## (ile_libre / voile_food_max1) et port périlleux (règle 9/10).
 func _roll_exploration_stars(base_count: int, max_food_extra: int) -> int:
 	var count: int = min(base_count, MAX_DICE_PER_ROLL)
+	count = await _offer_rhum_extra_die(count)
 	var food_spent := 0
 	while food_spent < max_food_extra and count < MAX_DICE_PER_ROLL and _player["resources"]["food"] >= 1:
 		_board.narration_box.say_with_player(
@@ -957,7 +989,7 @@ func _roll_exploration_stars(base_count: int, max_food_extra: int) -> int:
 		food_spent += 1
 		GameFlow.players_changed.emit()
 
-	var results: Array[String] = await _throw_dice(count, true)
+	var results: Array[String] = await _offer_fortune_dice_fixing(count, true)
 	var stars := 0
 	for r in results:
 		stars += {"vide": 0, "un": 1, "double": 2}.get(r, 0)
@@ -1008,10 +1040,84 @@ func _roll_for_activity(activity: Dictionary, dice_rule: String) -> bool:
 			return stars >= _needed_stars(activity)
 		"armes":
 			var count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
-			var results: Array[String] = await _throw_dice(count, false)
+			count = await _offer_rhum_extra_die(count)
+			var results: Array[String] = await _offer_fortune_dice_fixing(count, false)
 			return _meets_combat_requirement(results, activity.get("cost", []))
 		_:
 			return true
+
+
+## RHUM - "Motiver son équipage" (règle 10, mécanique transversale) : avant
+## un jet de dés (exploration OU combat, jamais le commerce qui ne lance pas
+## de dés), dépenser 1 rhum max PAR JET pour +1 dé additionnel. Distinct de
+## la dépense de nourriture (spécifique à l'exploration, cf
+## _roll_exploration_stars) : on ne propose donc qu'une seule fois, avant
+## tout autre choix de dé, et jamais au-delà de MAX_DICE_PER_ROLL.
+func _offer_rhum_extra_die(count: int) -> int:
+	if count >= MAX_DICE_PER_ROLL or _player["resources"].get("rum", 0) < 1:
+		return count
+	_board.narration_box.say_with_player(
+		tr("Tour de %s : dépenser 1 rhum pour motiver l'équipage (+1 dé) avant de lancer ?"), _player
+	)
+	_board.narration_box.set_options([
+		{"id": "rhum", "label": tr("Dépenser 1 rhum (+1 dé)")},
+		{"id": "skip", "label": tr("Ne pas dépenser de rhum")},
+	])
+	var choice: String = await _board.narration_box.option_selected
+	if choice != "rhum":
+		return count
+	_player["resources"]["rum"] -= 1
+	GameFlow.players_changed.emit()
+	return count + 1
+
+
+## FORTUNE - "Fixer ses dés" (règle 10, mécanique transversale) : avant de
+## lancer, dépenser des fortunes pour fixer des faces au lieu de les
+## lancer : 1 fortune = 1 étoile (exploration) ou 1 canon (combat) ;
+## 2 fortunes = 1 double-étoile (exploration) ou 1 abordage (combat). On ne
+## fixe que des dés déjà comptés dans "count" (pas d'achat de dé
+## supplémentaire), et jamais après le lancer : les dés non fixés restants
+## sont ensuite lancés normalement via _throw_dice.
+func _offer_fortune_dice_fixing(count: int, is_white: bool) -> Array[String]:
+	var cheap_face: String = "un" if is_white else "canon"
+	var costly_face: String = "double" if is_white else "abordage"
+	var cheap_label: String = tr("1 étoile") if is_white else tr("Canon")
+	var costly_label: String = tr("2 étoiles") if is_white else tr("Abordage")
+
+	var fixed: Array[String] = []
+	while fixed.size() < count:
+		var fortune: int = _player["special_resources"].get("fortune", 0)
+		var options: Array = []
+		if fortune >= 1:
+			options.append({"id": "cheap", "label": tr("Fixer un dé à %s (1 fortune)") % cheap_label})
+		if fortune >= 2:
+			options.append({"id": "costly", "label": tr("Fixer un dé à %s (2 fortunes)") % costly_label})
+		if options.is_empty():
+			break
+		options.append({"id": "stop", "label": tr("Ne plus fixer, lancer les dés restants")})
+
+		_board.narration_box.say_with_player(
+			tr("Tour de %s : dépenser de la fortune pour fixer une face avant le lancer (%d/%d dé(s) fixé(s)) ?"),
+			_player, [fixed.size(), count]
+		)
+		_board.narration_box.set_options(options)
+		var choice: String = await _board.narration_box.option_selected
+		if choice == "stop":
+			break
+		if choice == "cheap":
+			_player["special_resources"]["fortune"] -= 1
+			fixed.append(cheap_face)
+		else:
+			_player["special_resources"]["fortune"] -= 2
+			fixed.append(costly_face)
+		GameFlow.players_changed.emit()
+
+	var remaining: int = count - fixed.size()
+	var rolled: Array[String] = await _throw_dice(remaining, is_white) if remaining > 0 else []
+	var results: Array[String] = []
+	results.append_array(fixed)
+	results.append_array(rolled)
+	return results
 
 
 ## Instancie et lance count dés du même type (via le sous-système 3D déjà
@@ -1049,6 +1155,7 @@ func _grant_activity_success(card: GameCard, activity_key: String, activity: Dic
 ## par le port, dont les récompenses/coûts ont leurs propres subtilités
 ## (substitution de ressources, malus de succès manquants...).
 func _finalize_success(card: GameCard, activity_key: String) -> void:
+	_card_retrieved_this_turn = true
 	GameFlow.add_card_to_track(_player, activity_key, card)
 	var progress: String = GameFlow.register_sea_progress(_player, card.sea_key)
 

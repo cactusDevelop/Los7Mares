@@ -93,6 +93,9 @@ func _begin_player_pion_turn() -> void:
 	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
 	_selected_rank = -1
 
+	if player.get("hull_planks", GameFlow.HULL_PLANKS_START) <= 0:
+		await _repair_capsized_boat(player)
+
 	if _current_round == 0:
 		_board.narration_box.say_with_player(tr("Tour de %s : choisis le pion à jouer (capitaine ou officier)."), player)
 		_board.pion_selection_panel.setup_for_player(color, -1)
@@ -101,6 +104,20 @@ func _begin_player_pion_turn() -> void:
 		var forced_rank: int = GameFlow.PionRank.OFFICER if placed_rank == GameFlow.PionRank.CAPTAIN else GameFlow.PionRank.CAPTAIN
 		_board.narration_box.say_with_player(tr("Tour de %s : place ta dernière pièce."), player)
 		_board.pion_selection_panel.setup_for_player(color, forced_rank)
+
+
+## Rafistoler son bateau (règle 6, étape 1) : "ssi chaviré" (0 planche), en
+## tout DÉBUT de tour, avant même de choisir son action. Redresse le bateau
+## et donne +3 planches automatiquement (aucun choix pour le joueur).
+func _repair_capsized_boat(player: Dictionary) -> void:
+	player["hull_planks"] = 3
+	GameFlow.players_changed.emit()
+	_board.narration_box.say_with_player(
+		tr("Contre toute attente, votre équipage maintient le bateau à flot !") +
+		tr("\n\nTour de %s : le bateau chaviré est redressé, +3 planches."),
+		player
+	)
+	await _board.narration_box.wait_for_continue()
 
 
 func _on_pion_selected(rank: int) -> void:
