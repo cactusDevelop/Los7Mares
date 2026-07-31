@@ -33,8 +33,6 @@ Commerce) et une ou deux ressources principales.
 - Mer d'Abondance   : Exploration 20% / Combat 20% / Commerce 60%  -> Nourriture & Toile
 
 Chaque paquet mer contient 36 cartes en mode avance.
-[A FAIRE] Chaque mer doit afficher sa tuile correspondante pour chaque
-joueur (visuel a placer).
 
 ------------------------------------------------------------
 3. PLATEAU JOUEUR
@@ -51,8 +49,7 @@ joueur (visuel a placer).
 - 3 pistes de cartes a droite du plateau :
   - Bleue   = Exploration
   - Rouge   = Combat
-  - Brune   = Commerce (actuellement appelee "claire" dans le code/assets,
-    [A FAIRE] renommer en "Commerce"/"brune" partout)
+  - Brune   = Commerce
   Une carte multi-couleur peut etre rangee dans n'importe laquelle de ses
   pistes correspondantes, au choix du joueur. Le decalage visuel des cartes
   dans une piste est purement cosmetique (permet aux autres joueurs de
@@ -419,18 +416,40 @@ ATTAQUER UN JOUEUR : choisir un adversaire dans la meme mer.
 ------------------------------------------------------------
 14. POINTS OUVERTS / A CLARIFIER (releves dans les notes d'origine)
 ------------------------------------------------------------
-- Renommer la piste "claire" en "Commerce" / couleur brune partout dans
-  le projet (UI, assets, code).
-- Afficher la tuile mer correspondante pour chaque joueur (visuel a
-  faire) lors du setup.
 - Detailler precisement, carte par carte, les icones d'effet negatif
-  (planche grise) dans le catalogue de cartes (card_catalog / game_card).
-- Verifier que la logique de "force d'emplacement" (fort/faible) au
-  placement des pions est bien implementee selon les regles exactes de
-  la section 4.
-- Verifier l'ordre exact des etapes de fin de tour (planche/cachette,
-  compensation fortune) par rapport a l'implementation actuelle du
-  game_flow / piece_placement_phase / action_resolution_phase.
+  (planche grise) dans le catalogue de cartes (card_catalog / game_card) :
+  seules 3 formes sont couvertes a ce jour ("Perdez X planches [et Y
+  ressources]", "Vous ne pouvez plus effectuer d'action ce tour-ci"),
+  alors que les notes d'origine en evoquent d'autres (perdre 1 planche par
+  ressource possedee, par niveau d'armes, perdre 1 planche + 1 amelioration
+  de voile, perdre 4 nourriture puis autant de planches que de nourriture
+  manquante) qui ne sont ni presentes dans les donnees ni gerees par
+  _apply_negative_effect().
+
+Points precedemment ouverts, verifies et resolus depuis :
+- Renommer la piste "claire" en "Commerce"/brune : fait (code, assets et
+  ce document).
+- Afficher la tuile mer correspondante pour chaque joueur au setup : gere
+  par sea_gem_pile.gd (gemmes de chaque joueur posees sur chaque tuile
+  mer, recuperees au fil des cartes collectees).
+- Logique de "force d'emplacement" (fort/faible) : verifiee conforme a la
+  section 4 (GameFlow.compute_placement_strength).
+- Ordre des etapes de fin de tour (rafistolage en debut de tour, planche/
+  cachette et compensation fortune en fin de tour) : verifie conforme a la
+  section 6 (pion_placement_phase.gd / action_resolution_phase.gd).
+
+------------------------------------------------------------
+15. RENVOIS VERS LA DOCUMENTATION D'ORIGINE
+------------------------------------------------------------
+Ce fichier reste une reference condensee pour l'implementation. Le
+document source complet ("Regles mode avance Los 7 Mares", fourni par
+l'auteur en PDF) contient en plus, pour memoire :
+- Les textes d'ambiance de chaque mer (non necessaires au code).
+- Le detail narratif complet de chaque etape (repris ici sous forme de
+  notes "Narration" dans le catalogue de cartes et les box de narration du
+  jeu, scripts/board/narration_box.gd et action_resolution_phase.gd).
+Toute divergence constatee entre ce fichier et le PDF source doit etre
+tranchee en faveur du PDF (source de verite), puis reportee ici.
 
 ============================================================================
 Fin du document. A mettre a jour si les regles evoluent.
