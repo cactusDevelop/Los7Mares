@@ -150,7 +150,9 @@ func _ready() -> void:
 	debug_skip_button.visible = false
 	debug_skip_button.pressed.connect(_on_debug_skip_button_pressed)
 
-	debug_draw_cards_button.visible = GameFlow.is_debug_mode
+	# Disponible dans tous les modes (pas seulement GameFlow.is_debug_mode) :
+	# c'est un simple outil de prévisualisation caméra, utile même hors debug.
+	debug_draw_cards_button.visible = true
 	debug_draw_cards_button.pressed.connect(_on_debug_draw_cards_button_pressed)
 
 	for child in seas_container.get_children():
@@ -386,10 +388,11 @@ const PLAYER_BOARD_SLOTS_BY_REMAINING: Dictionary = {
 	4: ["top", "top", "left", "right"],
 }
 
-## Rotation appliquée à l'image de chaque plateau (pas au nom du joueur) pour
-## que son "haut" pointe vers le centre de l'écran, quel que soit le côté où
-## il est affiché. Le plateau actif (bas) n'a pas besoin d'être tourné : son
-## haut pointe déjà naturellement vers le centre.
+## Rotation appliquée à TOUT le bloc de chaque plateau (image + jetons + nom
+## du joueur, tournés ensemble d'un coup, cf player_board_row.gd populate)
+## pour que son "haut" pointe vers le centre de l'écran, quel que soit le
+## côté où il est affiché. Le plateau actif (bas) n'a pas besoin d'être
+## tourné : son haut pointe déjà naturellement vers le centre.
 const ROTATION_BY_SLOT: Dictionary = {
 	"bottom": 0.0, "top": 180.0, "left": 90.0, "right": -90.0,
 }

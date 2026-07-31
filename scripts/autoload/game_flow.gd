@@ -301,11 +301,20 @@ func _debug_seed_card_tracks(player: Dictionary) -> void:
 
 func go_to_title() -> void:
 	save_players()
-	get_tree().change_scene_to_file(TITLE_SCENE_PATH)
+	call_deferred("_deferred_change_scene", TITLE_SCENE_PATH)
 
 
 func go_to_board() -> void:
-	get_tree().change_scene_to_file(BOARD_SCENE_PATH)
+	call_deferred("_deferred_change_scene", BOARD_SCENE_PATH)
+
+
+## Diffère change_scene_to_file (cf go_to_title/go_to_board) : évite de
+## libérer la scène courante (et ses éventuelles Window/ConfirmationDialog
+## encore en train de se fermer, elles-mêmes des Viewport) pendant qu'un
+## évènement d'input est encore en cours de propagation ce qui provoquait
+## "_push_unhandled_input_internal: Condition !is_inside_tree() is true".
+func _deferred_change_scene(path: String) -> void:
+	get_tree().change_scene_to_file(path)
 
 
 ## Détermine si la pose d'un pion sur un emplacement d'action rend l'action

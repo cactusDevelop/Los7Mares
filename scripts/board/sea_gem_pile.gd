@@ -193,6 +193,7 @@ func refresh() -> void:
 			gem.visible = false
 			continue
 		gem.position = offsets[i]
+		_ensure_thickness_layers(i, gem)
 		_apply_player_color(i, GameFlow.players[i].get("color", ""))
 		gem.visible = not _taken.has(i)
 

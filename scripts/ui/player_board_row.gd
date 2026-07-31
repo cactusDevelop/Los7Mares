@@ -1,61 +1,71 @@
 extends VBoxContainer
 signal pressed(player_id: int)
 
-@onready var name_label: Label = $NameLabel
-@onready var row: BoxContainer = $Row
-@onready var board_wrap: Control = $Row/BoardWrap
-@onready var board_texture: TextureRect = $Row/BoardWrap/BoardTexture
-@onready var tokens_wrap: Control = $Row/TokensWrap
-@onready var tokens_container: HBoxContainer = $Row/TokensWrap/TokensContainer
+@onready var wrap: Control = $Wrap
+@onready var spin_wrap: Control = $Wrap/SpinWrap
+@onready var name_label: Label = $Wrap/SpinWrap/NameLabel
+@onready var row: Control = $Wrap/SpinWrap/Row
+@onready var board_wrap: Control = $Wrap/SpinWrap/Row/BoardWrap
+@onready var board_texture: TextureRect = $Wrap/SpinWrap/Row/BoardWrap/BoardTexture
+@onready var tokens_wrap: Control = $Wrap/SpinWrap/Row/TokensWrap
+@onready var tokens_container: HBoxContainer = $Wrap/SpinWrap/Row/TokensWrap/TokensContainer
 
 const BOARD_THUMB_SIZE := Vector2(160, 107)
 const TOKEN_BASE_SIZE := Vector2(40, 40)
+## Espace vertical entre le nom du joueur et son plateau (dans le repère non
+## tourné de SpinWrap, cf populate ci-dessous).
+const NAME_ROW_SPACING := 4.0
+## Espace horizontal entre le plateau et ses jetons (perroquets, marqueur doré).
+const BOARD_TOKENS_SPACING := 8.0
 
 var _player_id: int = -1
 
 
 ## thumb_size permet d'afficher ce plateau plus grand que les autres (le
 ## joueur actif, en bas de l'écran, cf board.gd _layout_player_boards).
-## board_rotation_degrees fait pointer le "haut" du plateau vers le centre de
-## l'écran (0/90/180/-90 selon le côté, cf board.gd ROTATION_BY_SLOT) : le
-## plateau ET les jetons (perroquets, marqueur doré) tournent ensemble du
-## même angle. Seul le nom du joueur reste toujours droit.
+## board_rotation_degrees fait pointer le "haut" de TOUT le bloc (nom +
+## plateau + jetons) vers le centre de l'écran (0/90/180/-90 selon le côté,
+## cf board.gd ROTATION_BY_SLOT).
 ##
-## Note technique : on tourne board_texture (enfant de board_wrap) et
-## tokens_container (enfant de tokens_wrap), PAS Row, board_wrap ni
-## tokens_wrap eux-mêmes, car Row est un Container (BoxContainer) — Godot
-## réinitialise systématiquement la rotation des enfants directs d'un
-## Container à chaque passe de mise en page. board_texture/tokens_container y
-## échappent car leur parent direct (board_wrap/tokens_wrap) est un Control
-## simple, pas un Container.
+## Avant, seules l'image du plateau et les jetons étaient tournés (et
+## repositionnés/réordonnés au cas par cas selon le côté, cf
+## _layout_row_direction) tandis que le nom du joueur restait fixe à l'écran :
+## il ne suivait donc pas le plateau et ne pouvait pas être garanti "au-dessus"
+## de celui-ci une fois tourné. Désormais on tourne SpinWrap dans son
+## ensemble (nom + plateau + jetons en bloc), ce qui les fait tous tourner
+## d'un coup : le nom reste au-dessus du plateau dans le repère LOCAL (non
+## tourné) de ce bloc, donc toujours "au-dessus" du point de vue de ce joueur,
+## quel que soit le côté où son plateau est affiché à l'écran.
+##
+## Note technique : on tourne SpinWrap, qui n'est PAS l'enfant direct d'un
+## Container (son parent Wrap est un Control simple) : Godot réinitialise
+## systématiquement la rotation des enfants directs d'un Container à chaque
+## passe de mise en page (c'est pour ça que PlayerBoardRow lui-même, un
+## VBoxContainer, ne peut contenir qu'un seul enfant simple - Wrap - jamais
+## tourné directement). SpinWrap échappe à cette remise à zéro et garde donc
+## sa rotation. Row, BoardWrap et TokensWrap sont ensuite positionnés à la
+## main (Control simples, pas de Container) : plus besoin de réordonner quoi
+## que ce soit selon le côté (cf ancien _layout_row_direction, supprimé),
+## puisque c'est tout le bloc qui tourne désormais.
 func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE, board_rotation_degrees: float = 0.0) -> void:
 	_player_id = player["id"]
 	name_label.text = "%s — %d pts" % [player["name"], player["points"]]
 	name_label.add_theme_color_override("font_color", GameFlow.COLOR_VALUES[player["color"]])
+	name_label.rotation_degrees = 0.0
+	var name_size: Vector2 = name_label.get_combined_minimum_size()
+	name_label.size = name_size
 
 	board_texture.texture = load(GameFlow.PLAYER_BOARD_TEXTURES.get(player["color"], GameFlow.PLAYER_BOARD_TEXTURES["jaune"]))
 	board_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	board_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	board_texture.custom_minimum_size = thumb_size
 	board_texture.size = thumb_size
-	board_texture.pivot_offset = thumb_size / 2.0
-	board_texture.rotation_degrees = board_rotation_degrees
-	_layout_row_direction(board_rotation_degrees)
-
-	# À ±90°, le plateau occupe visuellement une boîte largeur/hauteur
-	# inversée à l'écran : on agrandit board_wrap en conséquence, sinon son
-	# clip_contents coupe l'image tournée. À 0°/180° la boîte ne change pas.
-	var swapped: bool = int(round(board_rotation_degrees)) % 180 != 0
-	var wrap_size: Vector2 = Vector2(thumb_size.y, thumb_size.x) if swapped else thumb_size
-	board_wrap.custom_minimum_size = wrap_size
-	board_wrap.size = wrap_size
-	board_wrap.clip_contents = true
+	board_texture.rotation_degrees = 0.0
+	board_texture.position = Vector2.ZERO
+	board_wrap.position = Vector2.ZERO
+	board_wrap.custom_minimum_size = thumb_size
+	board_wrap.size = thumb_size
 	board_wrap.mouse_filter = Control.MOUSE_FILTER_STOP
-	board_wrap.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	board_wrap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	tokens_wrap.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	tokens_wrap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	board_texture.position = (wrap_size - thumb_size) / 2.0
 	if not board_wrap.gui_input.is_connected(_on_board_wrap_gui_input):
 		board_wrap.gui_input.connect(_on_board_wrap_gui_input)
 
@@ -71,49 +81,40 @@ func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE, board_
 	if player.get("is_first_player", false):
 		tokens_container.add_child(_build_marker_token(token_size))
 
-	# Les jetons tournent avec le plateau (même angle), pour la même raison
-	# que board_texture : tokens_container est un enfant de tokens_wrap (un
-	# Control simple, pas un Container), donc sa rotation n'est pas
-	# réinitialisée par une passe de layout.
 	var tokens_min: Vector2 = tokens_container.get_combined_minimum_size()
+	tokens_container.position = Vector2.ZERO
 	tokens_container.size = tokens_min
-	tokens_container.pivot_offset = tokens_min / 2.0
-	tokens_container.rotation_degrees = board_rotation_degrees
+	tokens_wrap.custom_minimum_size = tokens_min
+	tokens_wrap.size = tokens_min
+	tokens_wrap.position = Vector2(thumb_size.x + BOARD_TOKENS_SPACING, (thumb_size.y - tokens_min.y) / 2.0)
 
-	var tokens_wrap_size: Vector2 = Vector2(tokens_min.y, tokens_min.x) if swapped else tokens_min
-	tokens_wrap.custom_minimum_size = tokens_wrap_size
-	tokens_wrap.size = tokens_wrap_size
-	tokens_wrap.clip_contents = true
-	tokens_container.position = (tokens_wrap_size - tokens_min) / 2.0
+	# Plateau + jetons toujours côte à côte dans cet ordre, dans le repère
+	# NON tourné du bloc (plus besoin de réordonner selon le côté : c'est
+	# tout le bloc, nom compris, qui tourne désormais).
+	var row_size := Vector2(thumb_size.x + BOARD_TOKENS_SPACING + tokens_min.x, maxf(thumb_size.y, tokens_min.y))
+	row.position = Vector2(0, name_size.y + NAME_ROW_SPACING)
+	row.size = row_size
+	name_label.position = Vector2((row_size.x - name_size.x) / 2.0, 0)
 
+	# Taille du bloc complet (nom + plateau/jetons) dans son propre repère non
+	# tourné, puis rotation autour de son centre (pivot_offset).
+	var unrotated_size := Vector2(maxf(name_size.x, row_size.x), name_size.y + NAME_ROW_SPACING + row_size.y)
+	spin_wrap.size = unrotated_size
+	spin_wrap.pivot_offset = unrotated_size / 2.0
+	spin_wrap.rotation_degrees = board_rotation_degrees
 
-## Oriente Row (BoxContainer) et l'ordre de BoardWrap/TokensContainer pour
-## que perroquets + marqueur doré restent "à droite du plateau" dans le
-## repère de RÉFÉRENCE du plateau (non tourné), même quand l'image affichée
-## est tournée (cf ROTATION_BY_SLOT dans board.gd : slot "left" = 90°,
-## "right" = -90°, "top" = 180°, "bottom" = 0°).
-## Une direction "à droite" tournée du même angle que le plateau donne :
-## à droite à 0° (bas), en dessous à 90° (gauche), au-dessus à -90° (droite),
-## à gauche à 180° (haut). Ici on ne fait que choisir l'axe (vertical/
-## horizontal) et l'ordre des deux enfants de Row ; la rotation des jetons
-## eux-mêmes est gérée plus haut dans populate().
-func _layout_row_direction(board_rotation_degrees: float) -> void:
-	var angle: int = int(round(board_rotation_degrees)) % 360
-	if angle < 0:
-		angle += 360
-	match angle:
-		90: # slot "left" : jetons en dessous du plateau
-			row.vertical = true
-			row.move_child(board_wrap, 0)
-		270: # slot "right" (-90°) : jetons au-dessus du plateau
-			row.vertical = true
-			row.move_child(tokens_wrap, 0)
-		180: # slot "top" : jetons à gauche du plateau
-			row.vertical = false
-			row.move_child(tokens_wrap, 0)
-		_: # 0°, slot "bottom" : jetons à droite du plateau
-			row.vertical = false
-			row.move_child(board_wrap, 0)
+	# À ±90°, le bloc tourné occupe une boîte largeur/hauteur inversée à
+	# l'écran : Wrap (dont dépend get_combined_minimum_size() de ce
+	# VBoxContainer, cf board.gd) doit refléter cette boîte tournée, pas la
+	# taille non tournée de SpinWrap.
+	var swapped: bool = int(round(board_rotation_degrees)) % 180 != 0
+	var wrap_size: Vector2 = Vector2(unrotated_size.y, unrotated_size.x) if swapped else unrotated_size
+	wrap.custom_minimum_size = wrap_size
+	wrap.size = wrap_size
+	# Centre SpinWrap dans Wrap : comme la rotation se fait autour de son
+	# propre centre (pivot_offset ci-dessus), ce centrage reste correct quel
+	# que soit l'angle.
+	spin_wrap.position = (wrap_size - unrotated_size) / 2.0
 
 
 func _on_board_wrap_gui_input(event: InputEvent) -> void:

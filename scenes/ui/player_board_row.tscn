@@ -7,24 +7,30 @@ offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("1_7o0go")
 
-[node name="NameLabel" type="Label" parent="." unique_id=1357488389]
+[node name="Wrap" type="Control" parent="." unique_id=2867011223]
 layout_mode = 2
 
-[node name="Row" type="BoxContainer" parent="." unique_id=557536943]
-layout_mode = 2
+[node name="SpinWrap" type="Control" parent="Wrap" unique_id=2867011224]
+layout_mode = 0
 
-[node name="BoardWrap" type="Control" parent="Row" unique_id=810857309]
-layout_mode = 2
+[node name="NameLabel" type="Label" parent="Wrap/SpinWrap" unique_id=1357488389]
+layout_mode = 0
 
-[node name="BoardTexture" type="TextureRect" parent="Row/BoardWrap" unique_id=655434736]
+[node name="Row" type="Control" parent="Wrap/SpinWrap" unique_id=557536943]
+layout_mode = 0
+
+[node name="BoardWrap" type="Control" parent="Wrap/SpinWrap/Row" unique_id=810857309]
+layout_mode = 0
+
+[node name="BoardTexture" type="TextureRect" parent="Wrap/SpinWrap/Row/BoardWrap" unique_id=655434736]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="TokensWrap" type="Control" parent="Row" unique_id=1216573271]
-layout_mode = 2
+[node name="TokensWrap" type="Control" parent="Wrap/SpinWrap/Row" unique_id=1216573271]
+layout_mode = 0
 
-[node name="TokensContainer" type="HBoxContainer" parent="Row/TokensWrap" unique_id=1216573272]
+[node name="TokensContainer" type="HBoxContainer" parent="Wrap/SpinWrap/Row/TokensWrap" unique_id=1216573272]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
