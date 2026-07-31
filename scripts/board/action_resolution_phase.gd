@@ -74,6 +74,7 @@ const N_CAPSIZE_LOSE := "Capitaine ! Nous prenons l'eau rapidement... Nous devon
 const N_RENCONTRE_AMICALE := "Une voile à l'horizon... Elle ne semble pas hostile, Capitaine."
 const N_RENCONTRE_DANGEREUSE := "Alerte, Capitaine ! Quelque chose approche, et ça n'annonce rien de bon !"
 const N_RENCONTRE_EVITEE := "Vous manœuvrez habilement pour laisser cette rencontre derrière vous."
+const N_RENCONTRE_PIRATE := "Un drapeau noir ! Préparez-vous à l'abordage, Capitaine !"
 const N_RENCONTRE_METEO := "Le ciel s'assombrit, la mer se soulève : la tempête est sur nous !"
 const N_RENCONTRE_GEANT := "Une ombre colossale surgit des profondeurs !"
 const N_RENCONTRE_CREATURE := "Des tentacules jaillissent des flots autour du bateau !"
@@ -631,18 +632,9 @@ func _current_rencontre_card() -> GameCard:
 ## 9 dit que l'action Naviguer se termine immédiatement) ; false si évitée
 ## ou échouée (la navigation continue s'il reste des points, sauf chavirage
 ## qui est déjà géré via _turn_ended par _lose_planks/_capsize).
-##
-## TODO Bateau pirate / Capitaine pirate : la mécanique (règle 9) nécessite
-## de connaître, pour chaque variante de carte, la répartition de ses dés
-## entre boulets/abordages/faces "inconnues" (celles-ci sont relancées par
-## un autre joueur, cf règle) - donnée absente de card_catalog.json (seuls
-## le nb de planches du pirate et le nb total de dés y figurent). Tant que
-## cette donnée n'est pas fournie, ces 2 titres ne sont PAS interceptés ici
-## (comportement inchangé : la carte reste en place jusqu'à la défausse de
-## maintenance en tout début de tour suivant, card_draw_phase.start()).
 func _handle_rencontre(card: GameCard) -> bool:
 	var kind: String = RENCONTRE_KIND.get(card.title, "")
-	if kind == "" or kind == "pirate":
+	if kind == "":
 		return false
 
 	var dangerous: bool = RENCONTRE_DANGEROUS.get(kind, true)
@@ -674,6 +666,10 @@ func _handle_rencontre(card: GameCard) -> bool:
 		return false
 
 	match kind:
+		"pirate":
+			_board.narration_box.say(tr(N_RENCONTRE_PIRATE))
+			await _board.narration_box.wait_for_click()
+			return await _run_rencontre_pirate(card)
 		"meteo":
 			_board.narration_box.say(tr(N_RENCONTRE_METEO))
 			await _board.narration_box.wait_for_click()
@@ -771,6 +767,103 @@ func _run_rencontre_creature(card: GameCard) -> bool:
 
 	_board.card_draw_phase.discard_revealed_card_for_sea(card.sea_key)
 	return success
+
+
+## Bateau pirate / Capitaine pirate (dangereuse, règle 9) : combat en 2
+## phases contre un pirate dont les stats (planches / faces connues /
+## nombre de dés "inconnus") viennent de card.activities.combat
+## (pirate_planks / known_faces / unknown_dice, cf card_catalog.json).
+## 1. Jet de dés : faces connues du pirate + un AUTRE joueur (celui à
+##    gauche) lance unknown_dice dés de combat pour les faces inconnues,
+##    ajoutés au jet du pirate ; le joueur actif lance ses propres dés de
+##    combat (niveau d'armes, avec rhum/fortune comme d'habitude).
+## 2. Phase canons : les 2 camps perdent des planches = boulets adverses.
+##    Pirate à 0 planche (boulets joueur >= planches pirate) et joueur
+##    encore à flot -> victoire. Joueur chaviré -> échec. Sinon -> abordage.
+## 3. Phase abordage : joueur strictement plus d'abordages -> victoire.
+##    Sinon défaite : le pirate vole 1 ressource par abordage en excès.
+func _run_rencontre_pirate(card: GameCard) -> bool:
+	var combat: Dictionary = card.activities.get("combat", {})
+	var pirate_planks: int = combat.get("pirate_planks", 0)
+	var known_faces: Array = combat.get("known_faces", [])
+	var unknown_dice: int = combat.get("unknown_dice", 0)
+
+	var pirate_canons: int = known_faces.count("canon")
+	var pirate_abordages: int = known_faces.count("abordage")
+
+	if unknown_dice > 0:
+		var other_results: Array[String] = await _roll_dice_for_other_player(unknown_dice)
+		for r in other_results:
+			if r == "canon":
+				pirate_canons += 1
+			elif r == "abordage":
+				pirate_abordages += 1
+
+	var count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
+	count = await _offer_rhum_extra_die(count)
+	var player_results: Array[String] = await _offer_fortune_dice_fixing(count, false)
+	var player_canons: int = player_results.count("canon")
+	var player_abordages: int = player_results.count("abordage")
+
+	_board.narration_box.say_with_player(
+		tr("Tour de %s : le pirate a %d boulet(s) et %d abordage(s) (pour %d planche(s)) ; vous avez %d boulet(s) et %d abordage(s)."),
+		_player, [pirate_canons, pirate_abordages, pirate_planks, player_canons, player_abordages]
+	)
+	await _board.narration_box.wait_for_continue()
+
+	# Phase des canons.
+	if pirate_canons > 0:
+		await _lose_planks(pirate_canons)
+	var pirate_sunk: bool = player_canons >= pirate_planks
+
+	if _turn_ended:
+		await _grant_activity_failure(card)
+		_board.card_draw_phase.discard_revealed_card_for_sea(card.sea_key)
+		return false
+
+	if pirate_sunk:
+		_board.narration_box.say_with_player(tr("Tour de %s : le bateau pirate est coulé !"), _player)
+		await _board.narration_box.wait_for_continue()
+		await _grant_activity_success(card, "combat", combat)
+		_board.card_draw_phase.discard_revealed_card_for_sea(card.sea_key)
+		return true
+
+	# Phase d'abordage.
+	if player_abordages > pirate_abordages:
+		_board.narration_box.say_with_player(tr("Tour de %s : victoire à l'abordage !"), _player)
+		await _board.narration_box.wait_for_continue()
+		await _grant_activity_success(card, "combat", combat)
+		_board.card_draw_phase.discard_revealed_card_for_sea(card.sea_key)
+		return true
+
+	var excess: int = max(pirate_abordages - player_abordages, 0)
+	if excess > 0:
+		_board.narration_box.say_with_player(
+			tr("Tour de %s : repoussé à l'abordage, le pirate vole %d ressource(s)."), _player, [excess]
+		)
+		await _board.narration_box.wait_for_continue()
+		await _lose_resources(excess)
+	await _grant_activity_failure(card)
+	_board.card_draw_phase.discard_revealed_card_for_sea(card.sea_key)
+	return false
+
+
+## Fait lancer count dés de combat par un AUTRE joueur que le joueur actif
+## (règle 9, "faces inconnues" du pirate) : en principe celui à gauche, ici
+## le joueur suivant dans GameFlow.players (ordre de jeu), avec repli sur le
+## joueur actif lui-même en partie solo (1 seul joueur).
+func _roll_dice_for_other_player(count: int) -> Array[String]:
+	var idx: int = GameFlow.get_player_index(_player)
+	var other: Dictionary = _player
+	if idx != -1 and GameFlow.players.size() > 1:
+		other = GameFlow.players[(idx + 1) % GameFlow.players.size()]
+
+	_board.narration_box.say_with_player(
+		tr("Tour de %s : ") + str(other.get("name", "")) + tr(" lance %d dé(s) pour les faces inconnues du pirate."),
+		_player, [count]
+	)
+	await _board.narration_box.wait_for_click()
+	return await _throw_dice(count, false)
 
 
 func _on_sea_tile_clicked(tile: Node2D) -> void:

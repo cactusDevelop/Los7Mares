@@ -741,42 +741,6 @@
   },
   {
     "sea": "abondance",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 3,
-            "icon": "planche"
-          },
-          {
-            "amount": 4,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "bouffe"
-          },
-          {
-            "amount": 1,
-            "icon": "bois"
-          }
-        ],
-        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "abondance",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -1115,34 +1079,6 @@
   },
   {
     "sea": "abondance",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 2 planches, 2 dés à lancer",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 2,
-            "icon": "planche"
-          },
-          {
-            "amount": 2,
-            "icon": "de"
-          }
-        ],
-        "raw": "2 planches, 2 dés à lancer",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "abondance",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -1170,38 +1106,6 @@
         ],
         "raw": "3 étoiles -> 1 bouffe + 3 bois",
         "dice_rule": "ile_libre"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "abondance",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Capitaine pirate",
-    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 4,
-            "icon": "planche"
-          },
-          {
-            "amount": 5,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "tresor"
-          }
-        ],
-        "raw": "4 planches, 5 dés à lancer, 1 trésor",
-        "dice_rule": "armes"
       }
     },
     "negative_effect": null
@@ -2024,42 +1928,6 @@
   },
   {
     "sea": "azur",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 3,
-            "icon": "planche"
-          },
-          {
-            "amount": 4,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "bouffe"
-          },
-          {
-            "amount": 1,
-            "icon": "bois"
-          }
-        ],
-        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "azur",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -2398,34 +2266,6 @@
   },
   {
     "sea": "azur",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 2 planches, 2 dés à lancer",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 2,
-            "icon": "planche"
-          },
-          {
-            "amount": 2,
-            "icon": "de"
-          }
-        ],
-        "raw": "2 planches, 2 dés à lancer",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "azur",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -2453,38 +2293,6 @@
         ],
         "raw": "3 étoiles -> 1 bouffe + 3 bois",
         "dice_rule": "ile_libre"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "azur",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Capitaine pirate",
-    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 4,
-            "icon": "planche"
-          },
-          {
-            "amount": 5,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "tresor"
-          }
-        ],
-        "raw": "4 planches, 5 dés à lancer, 1 trésor",
-        "dice_rule": "armes"
       }
     },
     "negative_effect": null
@@ -3307,42 +3115,6 @@
   },
   {
     "sea": "feu",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 3,
-            "icon": "planche"
-          },
-          {
-            "amount": 4,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "bouffe"
-          },
-          {
-            "amount": 1,
-            "icon": "bois"
-          }
-        ],
-        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "feu",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -3681,34 +3453,6 @@
   },
   {
     "sea": "feu",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 2 planches, 2 dés à lancer",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 2,
-            "icon": "planche"
-          },
-          {
-            "amount": 2,
-            "icon": "de"
-          }
-        ],
-        "raw": "2 planches, 2 dés à lancer",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "feu",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -3736,38 +3480,6 @@
         ],
         "raw": "3 étoiles -> 1 bouffe + 3 bois",
         "dice_rule": "ile_libre"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "feu",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Capitaine pirate",
-    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 4,
-            "icon": "planche"
-          },
-          {
-            "amount": 5,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "tresor"
-          }
-        ],
-        "raw": "4 planches, 5 dés à lancer, 1 trésor",
-        "dice_rule": "armes"
       }
     },
     "negative_effect": null
@@ -4590,42 +4302,6 @@
   },
   {
     "sea": "glace",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 3,
-            "icon": "planche"
-          },
-          {
-            "amount": 4,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "bouffe"
-          },
-          {
-            "amount": 1,
-            "icon": "bois"
-          }
-        ],
-        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "glace",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -4964,34 +4640,6 @@
   },
   {
     "sea": "glace",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 2 planches, 2 dés à lancer",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 2,
-            "icon": "planche"
-          },
-          {
-            "amount": 2,
-            "icon": "de"
-          }
-        ],
-        "raw": "2 planches, 2 dés à lancer",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "glace",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -5019,38 +4667,6 @@
         ],
         "raw": "3 étoiles -> 1 bouffe + 3 bois",
         "dice_rule": "ile_libre"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "glace",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Capitaine pirate",
-    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 4,
-            "icon": "planche"
-          },
-          {
-            "amount": 5,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "tresor"
-          }
-        ],
-        "raw": "4 planches, 5 dés à lancer, 1 trésor",
-        "dice_rule": "armes"
       }
     },
     "negative_effect": null
@@ -5873,42 +5489,6 @@
   },
   {
     "sea": "jade",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 3,
-            "icon": "planche"
-          },
-          {
-            "amount": 4,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "bouffe"
-          },
-          {
-            "amount": 1,
-            "icon": "bois"
-          }
-        ],
-        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "jade",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -6247,34 +5827,6 @@
   },
   {
     "sea": "jade",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 2 planches, 2 dés à lancer",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 2,
-            "icon": "planche"
-          },
-          {
-            "amount": 2,
-            "icon": "de"
-          }
-        ],
-        "raw": "2 planches, 2 dés à lancer",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "jade",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -6302,38 +5854,6 @@
         ],
         "raw": "3 étoiles -> 1 bouffe + 3 bois",
         "dice_rule": "ile_libre"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "jade",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Capitaine pirate",
-    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 4,
-            "icon": "planche"
-          },
-          {
-            "amount": 5,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "tresor"
-          }
-        ],
-        "raw": "4 planches, 5 dés à lancer, 1 trésor",
-        "dice_rule": "armes"
       }
     },
     "negative_effect": null
@@ -7156,42 +6676,6 @@
   },
   {
     "sea": "maudite",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 3,
-            "icon": "planche"
-          },
-          {
-            "amount": 4,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "bouffe"
-          },
-          {
-            "amount": 1,
-            "icon": "bois"
-          }
-        ],
-        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "maudite",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -7530,34 +7014,6 @@
   },
   {
     "sea": "maudite",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 2 planches, 2 dés à lancer",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 2,
-            "icon": "planche"
-          },
-          {
-            "amount": 2,
-            "icon": "de"
-          }
-        ],
-        "raw": "2 planches, 2 dés à lancer",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "maudite",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -7585,38 +7041,6 @@
         ],
         "raw": "3 étoiles -> 1 bouffe + 3 bois",
         "dice_rule": "ile_libre"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "maudite",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Capitaine pirate",
-    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 4,
-            "icon": "planche"
-          },
-          {
-            "amount": 5,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "tresor"
-          }
-        ],
-        "raw": "4 planches, 5 dés à lancer, 1 trésor",
-        "dice_rule": "armes"
       }
     },
     "negative_effect": null
@@ -8439,42 +7863,6 @@
   },
   {
     "sea": "sauvage",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 3,
-            "icon": "planche"
-          },
-          {
-            "amount": 4,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "bouffe"
-          },
-          {
-            "amount": 1,
-            "icon": "bois"
-          }
-        ],
-        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "sauvage",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -8813,34 +8201,6 @@
   },
   {
     "sea": "sauvage",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Bateau pirate",
-    "description": "Combat : 2 planches, 2 dés à lancer",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 2,
-            "icon": "planche"
-          },
-          {
-            "amount": 2,
-            "icon": "de"
-          }
-        ],
-        "raw": "2 planches, 2 dés à lancer",
-        "dice_rule": "armes"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "sauvage",
     "type": "ile",
     "planche": "bleu",
     "title": "Île sauvage",
@@ -8868,38 +8228,6 @@
         ],
         "raw": "3 étoiles -> 1 bouffe + 3 bois",
         "dice_rule": "ile_libre"
-      }
-    },
-    "negative_effect": null
-  },
-  {
-    "sea": "sauvage",
-    "type": "rencontre",
-    "planche": "rouge",
-    "title": "Capitaine pirate",
-    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
-    "tracks": [
-      "combat"
-    ],
-    "activities": {
-      "combat": {
-        "cost": [],
-        "reward": [
-          {
-            "amount": 4,
-            "icon": "planche"
-          },
-          {
-            "amount": 5,
-            "icon": "de"
-          },
-          {
-            "amount": 1,
-            "icon": "tresor"
-          }
-        ],
-        "raw": "4 planches, 5 dés à lancer, 1 trésor",
-        "dice_rule": "armes"
       }
     },
     "negative_effect": null
@@ -9068,6 +8396,775 @@
         ],
         "raw": "2 réussites -> 1 toile",
         "dice_rule": "armes"
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+        "dice_rule": "pirate",
+        "pirate_planks": 3,
+        "known_faces": [],
+        "unknown_dice": 4
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 dés à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [],
+        "raw": "2 planches, 2 dés à lancer",
+        "dice_rule": "pirate",
+        "pirate_planks": 2,
+        "known_faces": [],
+        "unknown_dice": 2
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "sauvage",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 5 dés à lancer, 1 trésor",
+        "dice_rule": "pirate",
+        "pirate_planks": 4,
+        "known_faces": [],
+        "unknown_dice": 5
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 4 abordages, 3 bouffe",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 3,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 planches, 4 abordages, 3 bouffe",
+        "dice_rule": "pirate",
+        "pirate_planks": 2,
+        "known_faces": [
+          "abordage",
+          "abordage",
+          "abordage",
+          "abordage"
+        ],
+        "unknown_dice": 0
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 1 planche, 3 abordages, 1 bouffe",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "1 planche, 3 abordages, 1 bouffe",
+        "dice_rule": "pirate",
+        "pirate_planks": 1,
+        "known_faces": [
+          "abordage",
+          "abordage",
+          "abordage"
+        ],
+        "unknown_dice": 0
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 3 abordages, 2 bouffe",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 planches, 3 abordages, 2 bouffe",
+        "dice_rule": "pirate",
+        "pirate_planks": 2,
+        "known_faces": [
+          "abordage",
+          "abordage",
+          "abordage"
+        ],
+        "unknown_dice": 0
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 abordages, 1 bouffe",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 planches, 2 abordages, 1 bouffe",
+        "dice_rule": "pirate",
+        "pirate_planks": 2,
+        "known_faces": [
+          "abordage",
+          "abordage"
+        ],
+        "unknown_dice": 0
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 1 planche, 2 abordages",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [],
+        "raw": "1 planche, 2 abordages",
+        "dice_rule": "pirate",
+        "pirate_planks": 1,
+        "known_faces": [
+          "abordage",
+          "abordage"
+        ],
+        "unknown_dice": 0
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 4 abordages, 2 bouffe",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "bouffe"
+          }
+        ],
+        "raw": "2 planches, 4 abordages, 2 bouffe",
+        "dice_rule": "pirate",
+        "pirate_planks": 2,
+        "known_faces": [
+          "abordage",
+          "abordage",
+          "abordage",
+          "abordage"
+        ],
+        "unknown_dice": 0
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 3 planches, 5 abordages, 1 bouffe + 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "3 planches, 5 abordages, 1 bouffe + 1 trésor",
+        "dice_rule": "pirate",
+        "pirate_planks": 3,
+        "known_faces": [
+          "abordage",
+          "abordage",
+          "abordage",
+          "abordage",
+          "abordage"
+        ],
+        "unknown_dice": 0
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "glace",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 3 planches, 4 abordages + 1 dé à lancer, 1 bouffe + 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "3 planches, 4 abordages + 1 dé à lancer, 1 bouffe + 1 trésor",
+        "dice_rule": "pirate",
+        "pirate_planks": 3,
+        "known_faces": [
+          "abordage",
+          "abordage",
+          "abordage",
+          "abordage"
+        ],
+        "unknown_dice": 1
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 2 canons + 2 dés à lancer, 2 toiles",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 2,
+            "icon": "toile"
+          }
+        ],
+        "raw": "3 planches, 2 canons + 2 dés à lancer, 2 toiles",
+        "dice_rule": "pirate",
+        "pirate_planks": 3,
+        "known_faces": [
+          "canon",
+          "canon"
+        ],
+        "unknown_dice": 2
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 canons + 1 dé à lancer, 1 toile",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "toile"
+          }
+        ],
+        "raw": "2 planches, 2 canons + 1 dé à lancer, 1 toile",
+        "dice_rule": "pirate",
+        "pirate_planks": 2,
+        "known_faces": [
+          "canon",
+          "canon"
+        ],
+        "unknown_dice": 1
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 1 planche, 1 canon + 1 dé à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [],
+        "raw": "1 planche, 1 canon + 1 dé à lancer",
+        "dice_rule": "pirate",
+        "pirate_planks": 1,
+        "known_faces": [
+          "canon"
+        ],
+        "unknown_dice": 1
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "abondance",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 3 canons + 2 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 3 canons + 2 dés à lancer, 1 trésor",
+        "dice_rule": "pirate",
+        "pirate_planks": 4,
+        "known_faces": [
+          "canon",
+          "canon",
+          "canon"
+        ],
+        "unknown_dice": 2
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+        "dice_rule": "pirate",
+        "pirate_planks": 3,
+        "known_faces": [],
+        "unknown_dice": 4
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 dés à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [],
+        "raw": "2 planches, 2 dés à lancer",
+        "dice_rule": "pirate",
+        "pirate_planks": 2,
+        "known_faces": [],
+        "unknown_dice": 2
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "azur",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 5 dés à lancer, 1 trésor",
+        "dice_rule": "pirate",
+        "pirate_planks": 4,
+        "known_faces": [],
+        "unknown_dice": 5
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+        "dice_rule": "pirate",
+        "pirate_planks": 3,
+        "known_faces": [],
+        "unknown_dice": 4
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 dés à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [],
+        "raw": "2 planches, 2 dés à lancer",
+        "dice_rule": "pirate",
+        "pirate_planks": 2,
+        "known_faces": [],
+        "unknown_dice": 2
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "feu",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 5 dés à lancer, 1 trésor",
+        "dice_rule": "pirate",
+        "pirate_planks": 4,
+        "known_faces": [],
+        "unknown_dice": 5
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+        "dice_rule": "pirate",
+        "pirate_planks": 3,
+        "known_faces": [],
+        "unknown_dice": 4
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 dés à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [],
+        "raw": "2 planches, 2 dés à lancer",
+        "dice_rule": "pirate",
+        "pirate_planks": 2,
+        "known_faces": [],
+        "unknown_dice": 2
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "jade",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 5 dés à lancer, 1 trésor",
+        "dice_rule": "pirate",
+        "pirate_planks": 4,
+        "known_faces": [],
+        "unknown_dice": 5
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "bouffe"
+          },
+          {
+            "amount": 1,
+            "icon": "bois"
+          }
+        ],
+        "raw": "3 planches, 4 dés à lancer, 1 bouffe + 1 bois",
+        "dice_rule": "pirate",
+        "pirate_planks": 3,
+        "known_faces": [],
+        "unknown_dice": 4
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Bateau pirate",
+    "description": "Combat : 2 planches, 2 dés à lancer",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [],
+        "raw": "2 planches, 2 dés à lancer",
+        "dice_rule": "pirate",
+        "pirate_planks": 2,
+        "known_faces": [],
+        "unknown_dice": 2
+      }
+    },
+    "negative_effect": null
+  },
+  {
+    "sea": "maudite",
+    "type": "rencontre",
+    "planche": "rouge",
+    "title": "Capitaine pirate",
+    "description": "Combat : 4 planches, 5 dés à lancer, 1 trésor",
+    "tracks": [
+      "combat"
+    ],
+    "activities": {
+      "combat": {
+        "cost": [],
+        "reward": [
+          {
+            "amount": 1,
+            "icon": "tresor"
+          }
+        ],
+        "raw": "4 planches, 5 dés à lancer, 1 trésor",
+        "dice_rule": "pirate",
+        "pirate_planks": 4,
+        "known_faces": [],
+        "unknown_dice": 5
       }
     },
     "negative_effect": null
