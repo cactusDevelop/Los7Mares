@@ -116,6 +116,26 @@ func _finish_phase(emit_finished: bool = true) -> void:
 		finished.emit()
 
 
+## Utilisé après résolution d'une rencontre (Gérer OU Éviter, cf
+## action_resolution_phase._handle_rencontre) : défausse la carte révélée
+## de cette mer SANS en repiocher une nouvelle à la place (contrairement à
+## redraw_card_for_sea). La case reste vide jusqu'à ce qu'un joueur choisisse
+## explicitement de piocher à nouveau ici (règle 9 "Révéler une carte mer").
+func discard_revealed_card_for_sea(sea_key: String) -> void:
+	var pile: Node2D = null
+	for p in _board.card_piles_container.get_children():
+		if p.sea_key == sea_key:
+			pile = p
+			break
+	if pile == null or not _revealed_cards.has(pile):
+		return
+	pile.pop_top_card()
+	pile.hide_id()
+	SeaDecks.discard_card(_revealed_cards[pile])
+	_revealed_cards.erase(pile)
+	_revealed_textures.erase(pile)
+
+
 ## Utilisé par l'action "déplacement" (action_resolution_phase.gd) quand un
 ## joueur reste sur sa mer actuelle pour piocher une nouvelle carte : défausse
 ## la carte révélée de cette mer et en révèle une nouvelle à sa place.

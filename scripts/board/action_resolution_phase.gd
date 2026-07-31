@@ -6,11 +6,13 @@ extends Node
 ## action (déclin = 1 ressource nourriture OU 1 jeton fortune au choix).
 ## Les 4 actions (déplacement, réparation, île, port) sont implémentées avec
 ## leurs variantes principale/réduite (règles 9/11/12). "Gérer une
-## rencontre" (bateau pirate, menace météo, etc. - règle 9) n'est pas
-## encore résolu au sens strict : les cartes rencontre passent aujourd'hui
-## par le même moteur générique que les îles (dés + coût/récompense), sans
-## les phases dédiées (canons/abordage) ni les cartes pirate/malfamé
-## distinctes du catalogue actuel.
+## rencontre" (règle 9) est résolue depuis _run_deplacement dès qu'une carte
+## rencontre est révélée : Menace météo / Géant des mers / Créature des mers
+## / Bateau marchand / Flotte marchande ont leurs mécaniques dédiées
+## (cf _handle_rencontre et suivants). Bateau pirate / Capitaine pirate
+## (phases canons/abordage) ne sont PAS ENCORE gérés : il manque la donnée
+## de répartition boulets/abordages/faces inconnues par carte, absente de
+## card_catalog.json - cf TODO sur _handle_rencontre.
 ##
 ## Tous les choix (ordre des actions, faire/décliner, ressources,
 ## déplacement...) se font via la narration_box : le paragraphe explique la
@@ -68,6 +70,37 @@ const N_TOKEN_REFRESH := "Capitaine, nos amis sont de retour !"
 const N_OVERLOAD := "Votre bateau est trop chargé. Vous devez l'alléger."
 const N_CAPSIZE := "Votre bateau est en mauvais état !"
 const N_CAPSIZE_LOSE := "Capitaine ! Nous prenons l'eau rapidement... Nous devons alléger notre charge !"
+
+const N_RENCONTRE_AMICALE := "Une voile à l'horizon... Elle ne semble pas hostile, Capitaine."
+const N_RENCONTRE_DANGEREUSE := "Alerte, Capitaine ! Quelque chose approche, et ça n'annonce rien de bon !"
+const N_RENCONTRE_EVITEE := "Vous manœuvrez habilement pour laisser cette rencontre derrière vous."
+const N_RENCONTRE_METEO := "Le ciel s'assombrit, la mer se soulève : la tempête est sur nous !"
+const N_RENCONTRE_GEANT := "Une ombre colossale surgit des profondeurs !"
+const N_RENCONTRE_CREATURE := "Des tentacules jaillissent des flots autour du bateau !"
+const N_RENCONTRE_MARCHAND := "Un navire marchand isolé croise votre route."
+const N_RENCONTRE_FLOTTE := "Une flotte marchande bat pavillon amical à l'horizon."
+
+## Sous-type de rencontre déduit du titre de la carte (règle 9 "Gérer une
+## rencontre") : détermine la mécanique de résolution à appliquer. "pirate"
+## regroupe Bateau pirate ET Capitaine pirate (même mécanique de phases
+## canons/abordage, cf GAME_RULES.txt) — PAS ENCORE IMPLÉMENTÉ : il manque
+## la répartition boulets/abordages/faces inconnues par variante de carte,
+## absente de card_catalog.json (cf note en tête de _handle_rencontre).
+const RENCONTRE_KIND: Dictionary = {
+	"Bateau pirate": "pirate",
+	"Capitaine pirate": "pirate",
+	"Menace météo": "meteo",
+	"Géant des mers": "geant",
+	"Créature des mers": "creature",
+	"Bateau marchand": "marchand",
+	"Flotte marchande": "flotte",
+}
+## Amicale/Dangereuse (règle 9) : détermine le coût d'Éviter (gratuit vs
+## 1 fortune + la carte).
+const RENCONTRE_DANGEROUS: Dictionary = {
+	"pirate": true, "meteo": true, "geant": true, "creature": true,
+	"marchand": false, "flotte": false,
+}
 
 ## Dés physiques réutilisés depuis first_player_dice_phase.gd : noir = combat
 ## (vide/abordage/canon), blanc = exploration (vide/un/double étoile).
@@ -453,6 +486,15 @@ func _run_deplacement() -> String:
 		_board.narration_box.say(tr(N_NAVIGUER))
 		await _board.narration_box.wait_for_click()
 
+	# Cas spécial (règle 9) : une rencontre est déjà présente sur la mer du
+	# joueur en tout début d'action -> la résoudre avant toute autre chose.
+	var pending_rencontre: GameCard = _current_rencontre_card()
+	if pending_rencontre != null:
+		var resolved: bool = await _handle_rencontre(pending_rencontre)
+		if resolved or _turn_ended:
+			_board._autosave("pions")
+			return ""
+
 	# Fort -> Naviguer en mer (points = niveau de voile).
 	# Faible -> Caboter en mer (1 seul point, quel que soit le niveau de voile).
 	var points: int = _player.get("sail_level", 1) if _is_strong else 1
@@ -536,6 +578,13 @@ func _run_deplacement() -> String:
 			points -= 1
 			can_cancel = false
 
+		if choice == "draw" or choice.begins_with("move:"):
+			var revealed: GameCard = _current_rencontre_card()
+			if revealed != null:
+				var success: bool = await _handle_rencontre(revealed)
+				if success or _turn_ended:
+					break
+
 	if _player.get("boat_sea", "") == "":
 		_grant_hideout_reward()
 
@@ -556,6 +605,172 @@ func _grant_hideout_reward() -> void:
 		tr(N_HIDEOUT_RETURN + "\n\nTour de %s : de retour à la cachette, +1 planche, +1 nourriture, +1 bois."), _player
 	)
 	GameFlow.players_changed.emit()
+
+
+# =========================================================================
+# GÉRER UNE RENCONTRE (règle 9)
+# =========================================================================
+
+## Renvoie la carte rencontre actuellement révélée sur la mer du joueur, ou
+## null (aucune carte / une carte île ou port, qui elle ne force rien).
+func _current_rencontre_card() -> GameCard:
+	var sea_key: String = _player.get("boat_sea", "")
+	if sea_key == "":
+		return null
+	var card: GameCard = _board.card_draw_phase.get_current_revealed_card(sea_key)
+	if card != null and card.card_type == GameCard.CardType.RENCONTRE:
+		return card
+	return null
+
+
+## Point d'entrée appelé par _run_deplacement dès qu'une rencontre est
+## révélée (ou déjà présente en tout début d'action) : détermine
+## Amicale/Dangereuse, propose Éviter (gratuit si amicale, 1 fortune si
+## dangereuse) ou Gérer, puis dispatch vers la mécanique du sous-type.
+## Renvoie true si la rencontre a été résolue en SUCCÈS (auquel cas la règle
+## 9 dit que l'action Naviguer se termine immédiatement) ; false si évitée
+## ou échouée (la navigation continue s'il reste des points, sauf chavirage
+## qui est déjà géré via _turn_ended par _lose_planks/_capsize).
+##
+## TODO Bateau pirate / Capitaine pirate : la mécanique (règle 9) nécessite
+## de connaître, pour chaque variante de carte, la répartition de ses dés
+## entre boulets/abordages/faces "inconnues" (celles-ci sont relancées par
+## un autre joueur, cf règle) - donnée absente de card_catalog.json (seuls
+## le nb de planches du pirate et le nb total de dés y figurent). Tant que
+## cette donnée n'est pas fournie, ces 2 titres ne sont PAS interceptés ici
+## (comportement inchangé : la carte reste en place jusqu'à la défausse de
+## maintenance en tout début de tour suivant, card_draw_phase.start()).
+func _handle_rencontre(card: GameCard) -> bool:
+	var kind: String = RENCONTRE_KIND.get(card.title, "")
+	if kind == "" or kind == "pirate":
+		return false
+
+	var dangerous: bool = RENCONTRE_DANGEROUS.get(kind, true)
+	_board.narration_box.say_with_player(
+		(tr(N_RENCONTRE_DANGEREUSE) if dangerous else tr(N_RENCONTRE_AMICALE)) +
+		tr("\n\nTour de %s : rencontre — ") + tr(card.title) +
+		(tr(" (dangereuse).") if dangerous else tr(" (amicale).")),
+		_player
+	)
+	await _board.narration_box.wait_for_click()
+
+	var can_avoid: bool = not dangerous or _player["special_resources"].get("fortune", 0) >= 1
+	var options: Array = [{"id": "gerer", "label": tr("Gérer la rencontre")}]
+	if can_avoid:
+		options.append({
+			"id": "eviter",
+			"label": tr("Éviter (défausser 1 fortune + la carte)") if dangerous else tr("Éviter (défausser la carte)"),
+		})
+	_board.narration_box.set_options(options)
+	var choice: String = await _board.narration_box.option_selected
+
+	if choice == "eviter":
+		if dangerous:
+			_player["special_resources"]["fortune"] -= 1
+			GameFlow.players_changed.emit()
+		_board.narration_box.say_with_player(tr(N_RENCONTRE_EVITEE + "\n\nTour de %s : rencontre évitée, carte défaussée."), _player)
+		await _board.narration_box.wait_for_continue()
+		_board.card_draw_phase.discard_revealed_card_for_sea(card.sea_key)
+		return false
+
+	match kind:
+		"meteo":
+			_board.narration_box.say(tr(N_RENCONTRE_METEO))
+			await _board.narration_box.wait_for_click()
+			return await _resolve_rencontre_activity(card, "exploration")
+		"geant":
+			_board.narration_box.say(tr(N_RENCONTRE_GEANT))
+			await _board.narration_box.wait_for_click()
+			return await _resolve_rencontre_activity(card, "combat")
+		"creature":
+			_board.narration_box.say(tr(N_RENCONTRE_CREATURE))
+			await _board.narration_box.wait_for_click()
+			return await _run_rencontre_creature(card)
+		"flotte":
+			_board.narration_box.say(tr(N_RENCONTRE_FLOTTE))
+			await _board.narration_box.wait_for_click()
+			return await _resolve_rencontre_activity(card, "commerce")
+		"marchand":
+			_board.narration_box.say(tr(N_RENCONTRE_MARCHAND))
+			await _board.narration_box.wait_for_click()
+			return await _run_rencontre_marchand(card)
+		_:
+			return false
+
+
+## Résolution générique d'une seule piste d'activité de rencontre (règle 10,
+## réutilise le même moteur coût/dés/récompense que île/port), puis défausse
+## systématiquement la carte (contrairement à île/port qui restent en
+## place) : c'est la seule différence de traitement pour ces sous-types.
+func _resolve_rencontre_activity(card: GameCard, activity_key: String) -> bool:
+	var activity: Dictionary = card.activities.get(activity_key, {})
+	var dice_rule: String = activity.get("dice_rule", "")
+	var success: bool
+	if dice_rule == "":
+		if _can_afford_cost(activity.get("cost", [])):
+			_apply_cost(activity.get("cost", []))
+			success = true
+		else:
+			success = false
+	else:
+		success = await _roll_for_activity(activity, dice_rule)
+
+	if success:
+		await _grant_activity_success(card, activity_key, activity)
+	else:
+		await _grant_activity_failure(card)
+
+	_board.card_draw_phase.discard_revealed_card_for_sea(card.sea_key)
+	return success
+
+
+## Bateau marchand (amicale, règle 9) : choix entre Commerce ou Attaquer
+## (dés de combat), chacun résolu via le moteur générique ci-dessus.
+func _run_rencontre_marchand(card: GameCard) -> bool:
+	_board.narration_box.say_with_player(tr("Tour de %s : ") + tr(card.title) + tr(" — commercer ou l'attaquer ?"), _player)
+	_board.narration_box.set_options([
+		{"id": "commerce", "label": tr("Commercer (payer des ressources)")},
+		{"id": "combat", "label": tr("Attaquer (dés de combat)")},
+	])
+	var choice: String = await _board.narration_box.option_selected
+	return await _resolve_rencontre_activity(card, choice)
+
+
+## Créature des mers (dangereuse, règle 9) : lancer SIMULTANÉMENT des dés
+## d'exploration (niveau de voile, +1 nourriture -> +1 dé max) ET des dés de
+## combat (niveau d'armes) ; succès uniquement si les 2 seuils sont atteints
+## en même temps. Ne peut pas passer par _resolve_rencontre_activity (une
+## seule piste à la fois) : orchestration dédiée, mais réutilise les mêmes
+## briques de lancer de dés (rhum/fortune inclus).
+func _run_rencontre_creature(card: GameCard) -> bool:
+	var exploration: Dictionary = card.activities.get("exploration", {})
+	var combat: Dictionary = card.activities.get("combat", {})
+
+	var base: int = max(_player.get("sail_level", 1), 1)
+	var stars: int = await _roll_exploration_stars(base, 1)
+	var explo_ok: bool = stars >= _needed_stars(exploration)
+
+	var count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
+	count = await _offer_rhum_extra_die(count)
+	var results: Array[String] = await _offer_fortune_dice_fixing(count, false)
+	var combat_ok: bool = _meets_combat_requirement(results, combat.get("cost", []))
+
+	var success: bool = explo_ok and combat_ok
+	if success:
+		var activity_key: String = "combat"
+		if card.possible_tracks.size() > 1:
+			_board.narration_box.say_with_player(tr("Tour de %s : dans quelle piste ranger cette carte ?"), _player)
+			var track_options: Array = []
+			for t in card.possible_tracks:
+				track_options.append({"id": t, "label": GameFlow.CARD_TRACK_LABELS.get(t, t)})
+			_board.narration_box.set_options(track_options)
+			activity_key = await _board.narration_box.option_selected
+		await _grant_activity_success(card, activity_key, combat)
+	else:
+		await _grant_activity_failure(card)
+
+	_board.card_draw_phase.discard_revealed_card_for_sea(card.sea_key)
+	return success
 
 
 func _on_sea_tile_clicked(tile: Node2D) -> void:
