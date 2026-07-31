@@ -139,6 +139,11 @@ var _turn_ended: bool = false
 ## comme "bateau amélioré" (ce sont deux choix distincts de la règle 9).
 var _card_retrieved_this_turn: bool = false
 var _ship_upgraded_this_turn: bool = false
+## Règle 13 : 1 action optionnelle max par tour (Commercer/Attaquer un
+## joueur), remise à faux à chaque tour (start()). Un refus de commerce ne
+## consomme PAS ce jeton (règle : "on peut retenter"), seule une
+## négociation aboutie ou une attaque effectivement lancée le fait.
+var _optional_action_used_this_turn: bool = false
 
 
 func start(board: Board, player: Dictionary, spot_index: int, is_strong: bool = true) -> void:
@@ -148,7 +153,10 @@ func start(board: Board, player: Dictionary, spot_index: int, is_strong: bool = 
 	_turn_ended = false
 	_card_retrieved_this_turn = false
 	_ship_upgraded_this_turn = false
+	_optional_action_used_this_turn = false
 	var actions: Array = ACTIONS_BY_SPOT[spot_index]
+
+	await _offer_optional_action()
 
 	var first: String
 	var second: String
@@ -159,8 +167,12 @@ func start(board: Board, player: Dictionary, spot_index: int, is_strong: bool = 
 		if outcome != "back":
 			break
 
+	await _offer_optional_action()
+
 	if not _turn_ended:
 		await _resolve_action(second, false)
+
+	await _offer_optional_action()
 
 	await _grant_barren_turn_compensation()
 
@@ -184,6 +196,322 @@ func _grant_barren_turn_compensation() -> void:
 		_player
 	)
 	await _board.narration_box.wait_for_continue()
+
+
+# =========================================================================
+# ACTIONS OPTIONNELLES (règle 13, 1 max par tour, avant/après une action
+# principale/réduite, non remplaçable par une action par défaut)
+# =========================================================================
+
+## Propose Commercer/Attaquer un joueur si le jeton du tour n'est pas déjà
+## consommé et qu'au moins un autre joueur partage la mer du joueur actif.
+## Appelée à 3 reprises dans start() (avant la 1ère action, entre les deux,
+## après la 2e) pour couvrir "avant/après" n'importe laquelle des 2 actions
+## du tour. Reboucle sur elle-même après un refus de commerce (règle :
+## "action annulée, on peut retenter"), qui ne consomme donc pas le jeton.
+func _offer_optional_action() -> void:
+	if _optional_action_used_this_turn or _turn_ended:
+		return
+	var sea_key: String = _player.get("boat_sea", "")
+	if sea_key == "":
+		return
+
+	while true:
+		var candidates: Array = []
+		for p in GameFlow.players:
+			if p["id"] != _player["id"] and p.get("boat_sea", "") == sea_key:
+				candidates.append(p)
+		if candidates.is_empty():
+			return
+
+		_board.narration_box.say_with_player(
+			tr("Tour de %s : un autre bateau se trouve sur cette mer. Action optionnelle ?"), _player
+		)
+		_board.narration_box.set_options([
+			{"id": "commerce", "label": tr("Commercer avec un joueur")},
+			{"id": "attaquer", "label": tr("Attaquer un joueur")},
+			{"id": "skip", "label": tr("Ne rien faire")},
+		])
+		var choice: String = await _board.narration_box.option_selected
+		if choice == "skip":
+			return
+
+		var target: Dictionary = await _choose_target_player(candidates)
+		if target.is_empty():
+			return
+
+		if choice == "commerce":
+			var accepted: bool = await _run_commerce_avec_joueur(target)
+			if accepted:
+				_optional_action_used_this_turn = true
+				return
+			# Refusé : ne consomme pas le jeton, on reboucle (retenter un
+			# autre joueur, ou changer pour Attaquer, ou abandonner).
+		else:
+			await _run_attaquer_joueur(target)
+			_optional_action_used_this_turn = true
+			return
+
+
+func _choose_target_player(candidates: Array) -> Dictionary:
+	if candidates.size() == 1:
+		return candidates[0]
+	var options: Array = []
+	for p in candidates:
+		options.append({"id": str(p["id"]), "label": str(p.get("name", ""))})
+	options.append({"id": "cancel", "label": tr("Annuler")})
+	_board.narration_box.say_with_player(tr("Tour de %s : choisis un joueur sur cette mer."), _player)
+	_board.narration_box.set_options(options)
+	var choice: String = await _board.narration_box.option_selected
+	if choice == "cancel":
+		return {}
+	for p in candidates:
+		if str(p["id"]) == choice:
+			return p
+	return {}
+
+
+## Commercer avec un joueur (règle 13) : le joueur ciblé accepte ou refuse
+## (décision prise en personne, hotseat) ; s'il accepte, échange libre sans
+## limite de quantité. Renvoie true si l'échange a eu lieu (accepté).
+func _run_commerce_avec_joueur(target: Dictionary) -> bool:
+	_board.narration_box.say_with_player(
+		tr("Tour de %s : propose de commercer avec ") + str(target.get("name", "")) + tr(". Accepte-t-il ?"),
+		_player
+	)
+	_board.narration_box.set_options([
+		{"id": "accept", "label": tr("Accepter l'échange")},
+		{"id": "refuse", "label": tr("Refuser l'échange")},
+	])
+	var answer: String = await _board.narration_box.option_selected
+	if answer == "refuse":
+		_board.narration_box.say(tr("L'échange est refusé."))
+		await _board.narration_box.wait_for_click()
+		return false
+
+	await _run_free_trade(_player, target)
+	return true
+
+
+## Échange libre (règle 13) : ressources/fortunes/trésors/perroquets, sans
+## limite de quantité, dans les 2 sens. Les 2 joueurs négocient en personne
+## (jeu en local/hotseat) ; l'appli ne fait qu'appliquer les transferts
+## déclarés un par un jusqu'à ce qu'un des deux mette fin à l'échange.
+func _run_free_trade(a: Dictionary, b: Dictionary) -> void:
+	while true:
+		_board.narration_box.say(
+			tr("Échange libre entre ") + str(a.get("name", "")) + tr(" et ") + str(b.get("name", "")) + tr(" : que transférer ?")
+		)
+		_board.narration_box.set_options([
+			{"id": "a_to_b", "label": str(a.get("name", "")) + tr(" donne à ") + str(b.get("name", ""))},
+			{"id": "b_to_a", "label": str(b.get("name", "")) + tr(" donne à ") + str(a.get("name", ""))},
+			{"id": "done", "label": tr("Terminer l'échange")},
+		])
+		var choice: String = await _board.narration_box.option_selected
+		if choice == "done":
+			break
+		if choice == "a_to_b":
+			await _transfer_one_item(a, b)
+		else:
+			await _transfer_one_item(b, a)
+	GameFlow.players_changed.emit()
+
+
+## Transfère 1 unité d'un item choisi par "giver" vers "receiver" :
+## ressource, fortune, trésor, ou perroquet actuellement en sa possession
+## (le sien propre s'il n'est pas déjà capturé, ou un perroquet d'un tiers
+## qu'il détient en cage). Rappelée en boucle par _run_free_trade.
+func _transfer_one_item(giver: Dictionary, receiver: Dictionary) -> void:
+	var options: Array = []
+	for r in GameFlow.RESOURCE_TYPES:
+		if giver["resources"].get(r, 0) > 0:
+			options.append({"id": "res:" + r, "label": GameFlow.RESOURCE_LABELS[r]})
+	if giver["special_resources"].get("fortune", 0) > 0:
+		options.append({"id": "fortune", "label": tr("Fortune")})
+	if giver["special_resources"].get("treasure", 0) > 0:
+		options.append({"id": "treasure", "label": tr("Trésor")})
+	for p in GameFlow.players:
+		var held_by_giver: bool = p.get("parrot_captured_by", -1) == giver.get("id", -1)
+		var is_own_free: bool = p["id"] == giver["id"] and p.get("parrot_captured_by", -1) == -1
+		if held_by_giver or is_own_free:
+			options.append({"id": "parrot:" + str(p["id"]), "label": tr("Perroquet de ") + str(p.get("name", ""))})
+
+	if options.is_empty():
+		_board.narration_box.say(str(giver.get("name", "")) + tr(" n'a rien à donner."))
+		await _board.narration_box.wait_for_click()
+		return
+
+	_board.narration_box.say_with_player(tr("Tour de %s : que donne ") + str(giver.get("name", "")) + tr(" ?"), giver)
+	_board.narration_box.set_options(options)
+	var choice: String = await _board.narration_box.option_selected
+
+	if choice.begins_with("res:"):
+		var res: String = choice.substr(4)
+		giver["resources"][res] -= 1
+		receiver["resources"][res] = receiver["resources"].get(res, 0) + 1
+	elif choice == "fortune":
+		giver["special_resources"]["fortune"] -= 1
+		receiver["special_resources"]["fortune"] = receiver["special_resources"].get("fortune", 0) + 1
+	elif choice == "treasure":
+		giver["special_resources"]["treasure"] -= 1
+		receiver["special_resources"]["treasure"] = receiver["special_resources"].get("treasure", 0) + 1
+	elif choice.begins_with("parrot:"):
+		var victim_id: int = int(choice.substr(7))
+		GameFlow.capture_parrot(receiver["id"], victim_id)
+
+	GameFlow.players_changed.emit()
+
+
+## Attaquer un joueur (règle 13) : tentative d'évasion optionnelle de la
+## cible (dés d'exploration = son niveau de voile, sans bonus possible),
+## puis si elle échoue ou n'est pas tentée, combat à 2 phases similaire à
+## celui d'un bateau pirate (cf _run_rencontre_pirate) mais symétrique.
+func _run_attaquer_joueur(target: Dictionary) -> void:
+	_board.narration_box.say_with_player(
+		tr("Tour de %s : attaque ") + str(target.get("name", "")) + tr(" !"), _player
+	)
+	_board.narration_box.set_options([
+		{"id": "flee", "label": str(target.get("name", "")) + tr(" tente de fuir")},
+		{"id": "fight", "label": str(target.get("name", "")) + tr(" fait face")},
+	])
+	var reaction: String = await _board.narration_box.option_selected
+
+	if reaction == "flee":
+		var sail: int = max(target.get("sail_level", 1), 1)
+		_board.narration_box.say_with_player(
+			tr("Tour de %s : ") + str(target.get("name", "")) + tr(" tente de fuir (%d dé(s) d'exploration, sans bonus)."),
+			target, [sail]
+		)
+		await _board.narration_box.wait_for_click()
+		var results: Array[String] = await _throw_dice(sail, true)
+		var stars := 0
+		for r in results:
+			stars += 2 if r == "double" else (1 if r == "un" else 0)
+		if stars > max(_player.get("sail_level", 1), 1):
+			_board.narration_box.say_with_player(tr("Tour de %s : évasion réussie, l'attaque n'a pas lieu."), target)
+			await _board.narration_box.wait_for_continue()
+			return
+		_board.narration_box.say(tr("Évasion manquée : le combat commence."))
+		await _board.narration_box.wait_for_click()
+
+	# Phase jet de dés.
+	var attacker_count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
+	attacker_count = await _offer_rhum_extra_die_for(_player, attacker_count)
+	var attacker_results: Array[String] = await _offer_fortune_dice_fixing_for(_player, attacker_count, false)
+	var attacker_canons: int = attacker_results.count("canon")
+	var attacker_abordages: int = attacker_results.count("abordage")
+
+	var defender_count: int = min(max(target.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
+	defender_count = await _offer_rhum_extra_die_for(target, defender_count)
+	var defender_results: Array[String] = await _offer_fortune_dice_fixing_for(target, defender_count, false)
+	var defender_canons: int = defender_results.count("canon")
+	var defender_abordages: int = defender_results.count("abordage")
+
+	_board.narration_box.say(
+		tr("Tour de %s : ") % str(_player.get("name", "")) +
+		tr("%d boulet(s)/%d abordage(s) contre %d boulet(s)/%d abordage(s) de ") % [attacker_canons, attacker_abordages, defender_canons, defender_abordages] +
+		str(target.get("name", "")) + "."
+	)
+	await _board.narration_box.wait_for_continue()
+
+	# Phase des canons.
+	_player["hull_planks"] = max(_player["hull_planks"] - defender_canons, 0)
+	target["hull_planks"] = max(target["hull_planks"] - attacker_canons, 0)
+	GameFlow.players_changed.emit()
+	var attacker_sunk: bool = _player["hull_planks"] <= 0
+	var defender_sunk: bool = target["hull_planks"] <= 0
+
+	if attacker_sunk and defender_sunk:
+		await _capsize_for(_player)
+		await _capsize_for(target)
+		_player["special_resources"]["fortune"] += 1
+		target["special_resources"]["fortune"] = target["special_resources"].get("fortune", 0) + 1
+		_turn_ended = true
+		GameFlow.players_changed.emit()
+		_board.narration_box.say(tr("Les deux bateaux chavirent ! Chacun reçoit 1 fortune."))
+		await _board.narration_box.wait_for_click()
+		return
+
+	if attacker_sunk or defender_sunk:
+		var plank_loser: Dictionary = _player if attacker_sunk else target
+		var plank_winner: Dictionary = target if attacker_sunk else _player
+		await _capsize_for(plank_loser, plank_winner)
+		plank_loser["special_resources"]["fortune"] = plank_loser["special_resources"].get("fortune", 0) + 1
+		GameFlow.capture_parrot(plank_winner["id"], plank_loser["id"])
+		if attacker_sunk:
+			_turn_ended = true
+		GameFlow.players_changed.emit()
+		_board.narration_box.say_with_player(
+			tr("Tour de %s : bateau coulé ! Reçoit 1 fortune ; l'adversaire vole son perroquet et les ressources perdues."),
+			plank_loser
+		)
+		await _board.narration_box.wait_for_click()
+		return
+
+	# Phase d'abordage.
+	if attacker_abordages == defender_abordages:
+		_player["special_resources"]["fortune"] += 1
+		target["special_resources"]["fortune"] = target["special_resources"].get("fortune", 0) + 1
+		GameFlow.players_changed.emit()
+		_board.narration_box.say(tr("Égalité à l'abordage ! Chacun reçoit 1 fortune."))
+		await _board.narration_box.wait_for_click()
+		return
+
+	var winner: Dictionary = _player if attacker_abordages > defender_abordages else target
+	var loser: Dictionary = target if attacker_abordages > defender_abordages else _player
+	var excess: int = abs(attacker_abordages - defender_abordages)
+	loser["special_resources"]["fortune"] = loser["special_resources"].get("fortune", 0) + 1
+	GameFlow.capture_parrot(winner["id"], loser["id"])
+	GameFlow.players_changed.emit()
+	_board.narration_box.say_with_player(
+		tr("Tour de %s : victoire à l'abordage ! Vole le perroquet adverse et 1 fortune de compensation pour le perdant."),
+		winner
+	)
+	await _board.narration_box.wait_for_continue()
+	await _offer_pvp_theft(winner, loser, excess)
+
+
+## Répartition du butin d'abordage (règle 13) : le gagnant choisit comment
+## dépenser ses faces d'abordage excédentaires : 1 face = 1 ressource
+## volée, 2 faces = 1 trésor volé, chaque face n'étant utilisée qu'une fois.
+func _offer_pvp_theft(winner: Dictionary, loser: Dictionary, excess_faces: int) -> void:
+	while excess_faces > 0:
+		var options: Array = []
+		var has_resource: bool = false
+		for r in GameFlow.RESOURCE_TYPES:
+			if loser["resources"].get(r, 0) > 0:
+				has_resource = true
+				break
+		if has_resource:
+			options.append({"id": "resource", "label": tr("Voler 1 ressource (1 face)")})
+		if excess_faces >= 2 and loser["special_resources"].get("treasure", 0) > 0:
+			options.append({"id": "treasure", "label": tr("Voler 1 trésor (2 faces)")})
+		options.append({"id": "stop", "label": tr("Ne rien voler de plus")})
+
+		_board.narration_box.say_with_player(
+			tr("Tour de %s : %d face(s) d'abordage en excès à dépenser."), winner, [excess_faces]
+		)
+		_board.narration_box.set_options(options)
+		var choice: String = await _board.narration_box.option_selected
+
+		if choice == "stop":
+			break
+		if choice == "treasure":
+			loser["special_resources"]["treasure"] -= 1
+			winner["special_resources"]["treasure"] = winner["special_resources"].get("treasure", 0) + 1
+			excess_faces -= 2
+		else:
+			var res_options: Array = []
+			for r in GameFlow.RESOURCE_TYPES:
+				if loser["resources"].get(r, 0) > 0:
+					res_options.append({"id": r, "label": GameFlow.RESOURCE_LABELS[r]})
+			_board.narration_box.say_with_player(tr("Tour de %s : quelle ressource voler ?"), winner)
+			_board.narration_box.set_options(res_options)
+			var res: String = await _board.narration_box.option_selected
+			loser["resources"][res] -= 1
+			winner["resources"][res] = winner["resources"].get(res, 0) + 1
+			excess_faces -= 1
+		GameFlow.players_changed.emit()
 
 
 func _label_for(action: String) -> String:
@@ -1362,10 +1690,14 @@ func _roll_for_activity(activity: Dictionary, dice_rule: String) -> bool:
 ## _roll_exploration_stars) : on ne propose donc qu'une seule fois, avant
 ## tout autre choix de dé, et jamais au-delà de MAX_DICE_PER_ROLL.
 func _offer_rhum_extra_die(count: int) -> int:
-	if count >= MAX_DICE_PER_ROLL or _player["resources"].get("rum", 0) < 1:
+	return await _offer_rhum_extra_die_for(_player, count)
+
+
+func _offer_rhum_extra_die_for(actor: Dictionary, count: int) -> int:
+	if count >= MAX_DICE_PER_ROLL or actor["resources"].get("rum", 0) < 1:
 		return count
 	_board.narration_box.say_with_player(
-		tr("Tour de %s : dépenser 1 rhum pour motiver l'équipage (+1 dé) avant de lancer ?"), _player
+		tr("Tour de %s : dépenser 1 rhum pour motiver l'équipage (+1 dé) avant de lancer ?"), actor
 	)
 	_board.narration_box.set_options([
 		{"id": "rhum", "label": tr("Dépenser 1 rhum (+1 dé)")},
@@ -1374,7 +1706,7 @@ func _offer_rhum_extra_die(count: int) -> int:
 	var choice: String = await _board.narration_box.option_selected
 	if choice != "rhum":
 		return count
-	_player["resources"]["rum"] -= 1
+	actor["resources"]["rum"] -= 1
 	GameFlow.players_changed.emit()
 	return count + 1
 
@@ -1387,6 +1719,10 @@ func _offer_rhum_extra_die(count: int) -> int:
 ## supplémentaire), et jamais après le lancer : les dés non fixés restants
 ## sont ensuite lancés normalement via _throw_dice.
 func _offer_fortune_dice_fixing(count: int, is_white: bool) -> Array[String]:
+	return await _offer_fortune_dice_fixing_for(_player, count, is_white)
+
+
+func _offer_fortune_dice_fixing_for(actor: Dictionary, count: int, is_white: bool) -> Array[String]:
 	var cheap_face: String = "un" if is_white else "canon"
 	var costly_face: String = "double" if is_white else "abordage"
 	var cheap_label: String = tr("1 étoile") if is_white else tr("Canon")
@@ -1394,7 +1730,7 @@ func _offer_fortune_dice_fixing(count: int, is_white: bool) -> Array[String]:
 
 	var fixed: Array[String] = []
 	while fixed.size() < count:
-		var fortune: int = _player["special_resources"].get("fortune", 0)
+		var fortune: int = actor["special_resources"].get("fortune", 0)
 		var options: Array = []
 		if fortune >= 1:
 			options.append({"id": "cheap", "label": tr("Fixer un dé à %s (1 fortune)") % cheap_label})
@@ -1406,17 +1742,17 @@ func _offer_fortune_dice_fixing(count: int, is_white: bool) -> Array[String]:
 
 		_board.narration_box.say_with_player(
 			tr("Tour de %s : dépenser de la fortune pour fixer une face avant le lancer (%d/%d dé(s) fixé(s)) ?"),
-			_player, [fixed.size(), count]
+			actor, [fixed.size(), count]
 		)
 		_board.narration_box.set_options(options)
 		var choice: String = await _board.narration_box.option_selected
 		if choice == "stop":
 			break
 		if choice == "cheap":
-			_player["special_resources"]["fortune"] -= 1
+			actor["special_resources"]["fortune"] -= 1
 			fixed.append(cheap_face)
 		else:
-			_player["special_resources"]["fortune"] -= 2
+			actor["special_resources"]["fortune"] -= 2
 			fixed.append(costly_face)
 		GameFlow.players_changed.emit()
 
@@ -1617,43 +1953,69 @@ func _total_resources() -> int:
 
 ## "Perdre X planches" (règle 10) : retire X planches, chavire à 0.
 func _lose_planks(n: int) -> void:
-	_player["hull_planks"] = max(_player["hull_planks"] - n, 0)
+	await _lose_planks_for(_player, n)
+
+
+func _lose_planks_for(actor: Dictionary, n: int) -> void:
+	actor["hull_planks"] = max(actor["hull_planks"] - n, 0)
 	GameFlow.players_changed.emit()
-	if _player["hull_planks"] <= 0:
-		await _capsize()
+	if actor["hull_planks"] <= 0:
+		await _capsize_for(actor)
+		if actor.get("id") == _player.get("id"):
+			_turn_ended = true
 
 
 ## "Bateau chavire" (règle 10) : perd la moitié de ses ressources (arrondi
 ## à l'inférieur) et ne peut plus rien faire ce tour-ci.
 func _capsize() -> void:
-	_board.narration_box.say_with_player(tr(N_CAPSIZE + "\n\nTour de %s : le bateau chavire !"), _player)
+	await _capsize_for(_player)
+	_turn_ended = true
+
+
+## Variante générique (combat entre joueurs, règle 13) : n'importe quel
+## joueur peut chavirer, pas seulement le joueur actif (_player). Ne force
+## _turn_ended que si c'est bien _player qui chavire (sinon ça n'a pas de
+## sens : l'autre joueur n'est pas en train de jouer son tour). Si
+## loot_recipient est fourni, les ressources perdues lui reviennent au lieu
+## d'être simplement défaussées (règle 13, "le gagnant vole les ressources
+## défaussées par le perdant").
+func _capsize_for(actor: Dictionary, loot_recipient: Dictionary = {}) -> void:
+	_board.narration_box.say_with_player(tr(N_CAPSIZE + "\n\nTour de %s : le bateau chavire !"), actor)
 	await _board.narration_box.wait_for_continue()
 
 	_board.narration_box.say(tr(N_CAPSIZE_LOSE))
 	await _board.narration_box.wait_for_click()
 
-	var to_lose: int = int(_total_resources() / 2.0)
-	await _lose_resources(to_lose)
-	_turn_ended = true
+	var total := 0
+	for r in GameFlow.RESOURCE_TYPES:
+		total += actor["resources"].get(r, 0)
+	var to_lose: int = int(total / 2.0)
+	await _lose_resources_for(actor, to_lose, loot_recipient)
 	GameFlow.players_changed.emit()
 
 
 ## "Perdre X ressources" (règle 10) : le joueur choisit lesquelles défausser
 ## (simplification de la règle physique "les plus éloignées du joueur").
 func _lose_resources(n: int) -> void:
+	await _lose_resources_for(_player, n)
+
+
+func _lose_resources_for(actor: Dictionary, n: int, loot_recipient: Dictionary = {}) -> void:
 	for i in range(n):
 		var options: Array = []
 		for r in GameFlow.RESOURCE_TYPES:
-			if _player["resources"].get(r, 0) > 0:
+			if actor["resources"].get(r, 0) > 0:
 				options.append({"id": r, "label": GameFlow.RESOURCE_LABELS[r]})
 		if options.is_empty():
 			break
 		_board.narration_box.say_with_player(
-			tr("Tour de %s : choisis une ressource à perdre (%d restante(s) à perdre)."), _player, [n - i]
+			tr("Tour de %s : choisis une ressource à perdre (%d restante(s) à perdre)."), actor, [n - i]
 		)
 		_board.narration_box.set_options(options)
 		var choice: String = await _board.narration_box.option_selected
-		_player["resources"][choice] -= 1
+		actor["resources"][choice] -= 1
+		if not loot_recipient.is_empty():
+			loot_recipient["resources"][choice] = loot_recipient["resources"].get(choice, 0) + 1
 	GameFlow.players_changed.emit()
 
 
