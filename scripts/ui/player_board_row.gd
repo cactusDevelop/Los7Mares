@@ -1,7 +1,7 @@
 extends VBoxContainer
 signal pressed(player_id: int)
 
-@onready var wrap: Control = $Wrap
+@onready var outer_wrap: Control = $Wrap
 @onready var spin_wrap: Control = $Wrap/SpinWrap
 @onready var name_label: Label = $Wrap/SpinWrap/NameLabel
 @onready var row: Control = $Wrap/SpinWrap/Row
@@ -109,8 +109,8 @@ func populate(player: Dictionary, thumb_size: Vector2 = BOARD_THUMB_SIZE, board_
 	# taille non tournée de SpinWrap.
 	var swapped: bool = int(round(board_rotation_degrees)) % 180 != 0
 	var wrap_size: Vector2 = Vector2(unrotated_size.y, unrotated_size.x) if swapped else unrotated_size
-	wrap.custom_minimum_size = wrap_size
-	wrap.size = wrap_size
+	outer_wrap.custom_minimum_size = wrap_size
+	outer_wrap.size = wrap_size
 	# Centre SpinWrap dans Wrap : comme la rotation se fait autour de son
 	# propre centre (pivot_offset ci-dessus), ce centrage reste correct quel
 	# que soit l'angle.

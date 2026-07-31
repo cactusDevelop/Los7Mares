@@ -320,20 +320,20 @@ func tween_camera(target_position: Vector2, target_zoom: Vector2, duration: floa
 	return _camera_tween
 
 
-## Bouton debug caméra (visible seulement en mode debug), en toggle simple :
-## - 1er clic : bascule sur DebugPreviewCamera (caméra dédiée, jamais
-##   touchée par le reste du jeu), sans rien mettre en pause ni toucher à
-##   l'état de la partie. Utilisable à n'importe quel moment.
-## - 2e clic ("Vue par défaut") : rebascule sur la caméra principale du
-##   plateau, telle qu'elle était.
+## Bouton caméra (disponible dans tous les modes), en toggle simple :
+## - 1er clic ("Vue plateau") : bascule sur DebugPreviewCamera (caméra
+##   dédiée, jamais touchée par le reste du jeu), sans rien mettre en pause
+##   ni toucher à l'état de la partie. Utilisable à n'importe quel moment.
+## - 2e clic ("Vue auto") : rebascule sur la caméra principale du plateau,
+##   telle qu'elle était.
 func _on_debug_draw_cards_button_pressed() -> void:
 	if not _debug_card_preview_active:
 		_debug_card_preview_active = true
-		debug_draw_cards_button.text = "Vue par défaut"
+		debug_draw_cards_button.text = "Vue auto"
 		debug_preview_camera.make_current()
 	else:
 		_debug_card_preview_active = false
-		debug_draw_cards_button.text = "Vue debug"
+		debug_draw_cards_button.text = "Vue plateau"
 		camera.make_current()
 
 
