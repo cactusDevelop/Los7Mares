@@ -132,6 +132,11 @@ var _is_strong: bool = true
 ## pouvoir effectuer d'action ce tour-ci" ou un chavirage (règle 10.2/10.4) :
 ## la 2e action du tour (si elle n'a pas encore commencé) est alors annulée.
 var _turn_ended: bool = false
+## Distinct de _turn_ended : "Vous ne pouvez plus effectuer les actions
+## indiquées sur la carte ce tour-ci" (livret, page "Subir l'effet négatif")
+## n'arrête que l'action principale en cours (ex: le déplacement en cours
+## pendant Naviguer), pas tout le tour du joueur.
+var _action_ended: bool = false
 ## Suivi pour la compensation de tour "stérile" (règle 6, étape 4b) : remis
 ## à faux à chaque tour (start()), passe à vrai dès qu'une carte est
 ## récupérée (_finalize_success) ou qu'une amélioration voile/armes est
@@ -151,6 +156,7 @@ func start(board: Board, player: Dictionary, spot_index: int, is_strong: bool = 
 	_player = player
 	_is_strong = is_strong
 	_turn_ended = false
+	_action_ended = false
 	_card_retrieved_this_turn = false
 	_ship_upgraded_this_turn = false
 	_optional_action_used_this_turn = false
@@ -537,6 +543,7 @@ func _choose_order(a: String, b: String) -> String:
 ## ou dé lancé (cf _run_xxx qui renvoient "cancel"), on réaffiche ce même
 ## menu Faire/Décliner/Retour plutôt que d'imposer un choix.
 func _resolve_action(action: String, allow_back: bool) -> String:
+	_action_ended = false
 	while true:
 		var is_implemented: bool = action in IMPLEMENTED_ACTIONS and _can_do_action(action)
 		var action_text: String = _label_for(action) if is_implemented else _label_for(action) + _unavailable_reason(action)
@@ -820,7 +827,7 @@ func _run_deplacement() -> String:
 	var pending_rencontre: GameCard = _current_rencontre_card()
 	if pending_rencontre != null:
 		var resolved: bool = await _handle_rencontre(pending_rencontre)
-		if resolved or _turn_ended:
+		if resolved or _turn_ended or _action_ended:
 			_board._autosave("pions")
 			return ""
 
@@ -911,7 +918,7 @@ func _run_deplacement() -> String:
 			var revealed: GameCard = _current_rencontre_card()
 			if revealed != null:
 				var success: bool = await _handle_rencontre(revealed)
-				if success or _turn_ended:
+				if success or _turn_ended or _action_ended:
 					break
 
 	if _player.get("boat_sea", "") == "":
@@ -2019,11 +2026,29 @@ func _lose_resources_for(actor: Dictionary, n: int, loot_recipient: Dictionary =
 	GameFlow.players_changed.emit()
 
 
-## Applique l'effet négatif (planche grise) d'une carte échouée. Les icônes
-## précises ne sont pas encore formalisées (GAME_RULES.txt section 14
-## [A FAIRE]) : on parse donc le texte negative_effect du catalogue, qui ne
-## couvre pour l'instant que les 3 formes déjà présentes dans les données.
+## Applique le(s) effet(s) négatif(s) (planche grise) d'une carte échouée.
+## Livret officiel, page "Subir l'effet négatif" : une carte peut cumuler
+## PLUSIEURS effets à la fois (plusieurs icônes) ; le texte negative_effect
+## du catalogue est donc découpé en fragments (séparés par ".") et chaque
+## fragment reconnu est appliqué à son tour, dans l'ordre. On s'arrête tôt
+## uniquement si le tour ou l'action en cours se termine (chavirage, etc.).
 func _apply_negative_effect(text: String) -> void:
+	for raw_fragment in text.split(".", false):
+		var fragment: String = raw_fragment.strip_edges()
+		if fragment == "":
+			continue
+		await _apply_negative_effect_fragment(fragment)
+		if _turn_ended or _action_ended:
+			return
+
+
+## Reconnaît et applique une seule clause d'effet négatif. Formes couvertes
+## (livret "Subir l'effet négatif") : cf. GAME_RULES.txt section 14.
+## IMPORTANT : les formes spécifiques ("par ressource", "par niveau
+## d'armes", etc.) sont vérifiées AVANT les regex génériques de "Perdez X
+## planches"/"Perdez X ressources", qui matcheraient sinon par erreur (ex :
+## "Perdez 1 planche par ressource possédée" contient "Perdez 1 planche").
+func _apply_negative_effect_fragment(text: String) -> void:
 	var re_both := RegEx.new()
 	re_both.compile("Perdez (\\d+) planches? et (\\d+) ressources?")
 	var m := re_both.search(text)
@@ -2033,6 +2058,39 @@ func _apply_negative_effect(text: String) -> void:
 			await _lose_resources(int(m.get_string(2)))
 		return
 
+	# "Perdez 1 planche par ressource possédée" (livret).
+	if text.begins_with("Perdez 1 planche par ressource"):
+		await _lose_planks(_total_resources())
+		return
+
+	# "Perdez 1 planche par niveau d'armes" (livret).
+	if text.begins_with("Perdez 1 planche par niveau d'armes"):
+		await _lose_planks(max(_player.get("arms_level", 1), 1))
+		return
+
+	# "Perdez 1 planche et 1 amélioration de voile" (livret) : 1 planche,
+	# puis régression d'un niveau de voile (jamais sous le niveau 1).
+	if text.begins_with("Perdez 1 planche et 1 amélioration de voile") \
+			or text.begins_with("Perdez 1 planche + 1 amélioration de voile"):
+		await _lose_planks(1)
+		if not _turn_ended:
+			_player["sail_level"] = max(_player.get("sail_level", 1) - 1, 1)
+			GameFlow.players_changed.emit()
+		return
+
+	# "Perdez 4 nourriture(s), puis autant de planches que de nourriture que
+	# vous ne pouvez pas défausser" (livret) : perd jusqu'à 4 nourriture ;
+	# chaque unité manquante (si moins de 4 en stock) coûte 1 planche.
+	if text.begins_with("Perdez 4 nourriture"):
+		var food: int = _player["resources"].get("food", 0)
+		var lost_food: int = min(food, 4)
+		_player["resources"]["food"] = food - lost_food
+		GameFlow.players_changed.emit()
+		var missing: int = 4 - lost_food
+		if missing > 0:
+			await _lose_planks(missing)
+		return
+
 	var re_planks := RegEx.new()
 	re_planks.compile("Perdez (\\d+) planches?")
 	m = re_planks.search(text)
@@ -2040,6 +2098,29 @@ func _apply_negative_effect(text: String) -> void:
 		await _lose_planks(int(m.get_string(1)))
 		return
 
+	# "Perdez X ressources" (seule, sans planches) : livret "Subir l'effet
+	# négatif", exemple "Perdez 3 ressources".
+	var re_resources := RegEx.new()
+	re_resources.compile("Perdez (\\d+) ressources?")
+	m = re_resources.search(text)
+	if m:
+		await _lose_resources(int(m.get_string(1)))
+		return
+
+	# "Vous ne pouvez plus effectuer les actions indiquées sur la carte ce
+	# tour-ci" (livret) : NE PAS confondre avec le blocage total ci-dessous.
+	# N'arrête que l'action principale/réduite en cours (ex: le déplacement
+	# de Naviguer), le joueur garde son 2e pion. [SIMPLIFICATION] Les icônes
+	# précises d'actions visées ne sont pas modélisées dans les données de
+	# carte : on interrompt donc l'action en cours dans son ensemble.
+	if text.begins_with("Vous ne pouvez plus effectuer les actions indiquées"):
+		_action_ended = true
+		_board.narration_box.say_with_player(tr("Tour de %s : ne peut plus effectuer les actions indiquées sur la carte ce tour-ci."), _player)
+		await _board.narration_box.wait_for_continue()
+		return
+
+	# "Vous ne pouvez plus effectuer d'action ce tour-ci" (livret) : fin de
+	# tour immédiate (les 2 pions du tour sont considérés joués).
 	if text.begins_with("Vous ne pouvez plus effectuer d'action"):
 		_turn_ended = true
 		_board.narration_box.say_with_player(tr("Tour de %s : ne peut plus effectuer d'action ce tour-ci."), _player)

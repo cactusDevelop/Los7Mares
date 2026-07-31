@@ -303,14 +303,15 @@ REUSSIR UNE ACTIVITE :
 
 ECHOUER UNE ACTIVITE :
 1. Recevoir 1 fortune en compensation.
-2. Si la carte a un effet negatif (planche grise) -> le subir. Exemples
-   d'effets negatifs : perdre X ressources, perdre X planches, perdre 1
-   planche par ressource possedee, perdre 1 planche par niveau d'armes,
-   ne plus pouvoir agir ce tour, ne plus pouvoir faire certaines actions
-   indiquees ce tour, perdre 1 planche + 1 amelioration de voile, perdre
-   4 nourriture puis autant de planches que de nourriture manquante.
-   [A FAIRE] Detailler/lister precisement les icones d'effet negatif pour
-   chaque carte (icones a formaliser dans les donnees de carte / catalog).
+2. Si la carte a un effet negatif (planche grise) -> le subir. La carte
+   peut cumuler plusieurs effets negatifs a la fois (plusieurs icones).
+   Exemples d'effets negatifs : perdre X ressources, perdre X planches,
+   perdre 1 planche par ressource possedee, perdre 1 planche par niveau
+   d'armes, ne plus pouvoir agir ce tour, ne plus pouvoir faire les actions
+   indiquees sur la carte ce tour-ci, perdre 1 planche + 1 amelioration de
+   voile, perdre 4 nourriture(s) puis autant de planches que de nourriture
+   que le joueur ne peut pas defausser (nourriture manquante). Reference :
+   livret officiel, page "Subir l'effet negatif".
 3. Defausser la carte si c'est une rencontre ; sinon la laisser en place.
 4. Verifier l'etat : si bateau chavire -> fin de tour immediate. Sinon si
    mouvement restant -> reprendre la navigation. Sinon -> fin de l'action.
@@ -416,15 +417,32 @@ ATTAQUER UN JOUEUR : choisir un adversaire dans la meme mer.
 ------------------------------------------------------------
 14. POINTS OUVERTS / A CLARIFIER (releves dans les notes d'origine)
 ------------------------------------------------------------
-- Detailler precisement, carte par carte, les icones d'effet negatif
-  (planche grise) dans le catalogue de cartes (card_catalog / game_card) :
-  seules 3 formes sont couvertes a ce jour ("Perdez X planches [et Y
-  ressources]", "Vous ne pouvez plus effectuer d'action ce tour-ci"),
-  alors que les notes d'origine en evoquent d'autres (perdre 1 planche par
-  ressource possedee, par niveau d'armes, perdre 1 planche + 1 amelioration
-  de voile, perdre 4 nourriture puis autant de planches que de nourriture
-  manquante) qui ne sont ni presentes dans les donnees ni gerees par
-  _apply_negative_effect().
+- Effets negatifs (planche grise) desormais geres precisement d'apres le
+  livret officiel (page "Subir l'effet negatif") : une carte peut cumuler
+  PLUSIEURS effets negatifs a la fois (plusieurs icones sur la meme carte).
+  Formes couvertes par _apply_negative_effect(), chacune applicable seule ou
+  combinee sur une carte :
+  - "Vous ne pouvez plus effectuer d'action ce tour-ci." (fin de tour).
+  - "Vous ne pouvez plus effectuer les actions indiquees sur la carte ce
+    tour-ci." (fin de l'action en cours uniquement, pas du tour ; le
+    joueur garde son 2e pion/action). [SIMPLIFICATION] Comme les icones
+    d'actions precises ne sont pas modelisees dans les donnees de carte,
+    l'implementation actuelle interrompt l'action principale en cours
+    (ex: arrete le deplacement en Naviguer) plutot que de cibler les
+    actions precisement indiquees sur l'icone.
+  - "Perdez X ressources".
+  - "Perdez X planches" (et variante combinee "Perdez X planches et Y
+    ressources").
+  - "Perdez 1 planche par ressource possedee".
+  - "Perdez 1 planche par niveau d'armes".
+  - "Perdez 1 planche et 1 amelioration de voile".
+  - "Perdez 4 nourriture(s), puis autant de planches que de nourriture
+    que vous ne pouvez pas defausser" (perd jusqu'a 4 nourriture ; chaque
+    unite manquante coute 1 planche).
+  [A FAIRE] Aucune carte de card_catalog.json n'utilise encore les formes
+  au-dela de "Perdez X planches [et Y ressources]" et "Vous ne pouvez plus
+  effectuer d'action" : il reste a saisir, carte par carte depuis le PDF
+  source, les textes negative_effect exacts (et leurs combinaisons).
 
 Points precedemment ouverts, verifies et resolus depuis :
 - Renommer la piste "claire" en "Commerce"/brune : fait (code, assets et
