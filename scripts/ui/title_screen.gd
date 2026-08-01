@@ -16,6 +16,7 @@ extends Control
 @onready var join_ip_popup: PopupPanel = $JoinIpPopup
 @onready var join_ip_line_edit: LineEdit = $JoinIpPopup/Padding/VBoxContainer/JoinIpLineEdit
 @onready var join_ip_confirm_button: Button = $JoinIpPopup/Padding/VBoxContainer/ConfirmButton
+@onready var join_error_label: Label = $JoinIpPopup/Padding/VBoxContainer/JoinErrorLabel
 
 
 func _on_continue_pressed() -> void:
@@ -41,6 +42,8 @@ func _ready() -> void:
 	player_count_confirm_button.pressed.connect(_on_player_count_confirmed)
 	continue_button.pressed.connect(_on_continue_pressed)
 	join_ip_confirm_button.pressed.connect(_on_join_ip_confirmed)
+	Network.code_join_found.connect(_on_code_join_found)
+	Network.code_join_failed.connect(_on_code_join_failed)
 
 
 func _layout_ui() -> void:
@@ -95,13 +98,16 @@ func _on_join_pressed() -> void:
 
 
 func _on_join_ip_confirmed() -> void:
-	var ip := join_ip_line_edit.text.strip_edges()
-	if ip.is_empty():
+	var code := join_ip_line_edit.text.strip_edges()
+	if code.is_empty():
 		return
-	var err := Network.join_game(ip)
-	if err != OK:
-		push_error("Impossible de rejoindre %s : %s" % [ip, err])
-		return
+	join_error_label.visible = false
+	join_ip_confirm_button.disabled = true
+	Network.find_game_by_code(code)
+
+
+func _on_code_join_found() -> void:
+	join_ip_confirm_button.disabled = false
 	join_ip_popup.hide()
 	SaveManager.delete()
 	GameFlow.reset_players()
@@ -111,11 +117,18 @@ func _on_join_ip_confirmed() -> void:
 	GameFlow.go_to_lobby()
 
 
+func _on_code_join_failed() -> void:
+	join_ip_confirm_button.disabled = false
+	join_error_label.visible = true
+
+
 func _on_local_pressed() -> void:
 	_popup_player_count_centered()
 
 
 func _popup_join_ip_centered() -> void:
+	join_error_label.visible = false
+	join_ip_confirm_button.disabled = false
 	var padding: MarginContainer = $JoinIpPopup/Padding
 	var min_size: Vector2 = padding.get_combined_minimum_size()
 	min_size.x = max(min_size.x, 320)

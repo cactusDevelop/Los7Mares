@@ -92,13 +92,19 @@ theme_override_constants/separation = 16
 
 [node name="Label" type="Label" parent="JoinIpPopup/Padding/VBoxContainer"]
 layout_mode = 2
-text = "ADRESSE IP DU SERVEUR"
+text = "CODE DE LA PARTIE"
 
 [node name="JoinIpLineEdit" type="LineEdit" parent="JoinIpPopup/Padding/VBoxContainer"]
 layout_mode = 2
-text = "127.0.0.1"
-placeholder_text = "ex: 192.168.1.42"
+placeholder_text = "ex: AB3D"
+max_length = 4
 
 [node name="ConfirmButton" type="Button" parent="JoinIpPopup/Padding/VBoxContainer"]
 layout_mode = 2
 text = "REJOINDRE"
+
+[node name="JoinErrorLabel" type="Label" parent="JoinIpPopup/Padding/VBoxContainer"]
+layout_mode = 2
+visible = false
+text = "Aucune partie trouvée avec ce code sur le réseau."
+autowrap_mode = 2

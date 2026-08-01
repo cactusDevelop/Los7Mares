@@ -1,8 +1,12 @@
 extends Control
 
 @onready var status_label: Label = $StatusLabel
+@onready var code_label: Label = $CodeLabel
 @onready var players_list_box: VBoxContainer = $PlayersListBox
 @onready var start_button: Button = $StartButton
+@onready var host_role_box: VBoxContainer = $HostRoleBox
+@onready var play_as_host_button: Button = $HostRoleBox/PlayAsHostButton
+@onready var dedicated_server_button: Button = $HostRoleBox/DedicatedServerButton
 @onready var player_setup_popup: Control = $PlayerSetupPopup
 
 ## Devient vrai après que Network.request_join() a été envoyé pour CETTE
@@ -11,6 +15,9 @@ var _has_registered: bool = false
 ## Devient vrai dès que la popup a été ouverte une première fois (empêche de
 ## la rouvrir/réinitialiser à chaque signal de statut réseau reçu).
 var _setup_opened: bool = false
+## Vrai si l'hôte a choisi "Serveur dédié" : il ne joue pas, on n'ouvre
+## jamais la popup nom/couleur pour lui.
+var _dedicated_server_chosen: bool = false
 
 
 func _ready() -> void:
@@ -18,6 +25,14 @@ func _ready() -> void:
 	start_button.visible = multiplayer.is_server()
 	start_button.disabled = true
 	start_button.pressed.connect(_on_start_pressed)
+
+	code_label.visible = multiplayer.is_server()
+	if multiplayer.is_server():
+		code_label.text = tr("Code de la partie : %s") % Network.room_code
+
+	host_role_box.visible = false
+	play_as_host_button.pressed.connect(_on_play_as_host_pressed)
+	dedicated_server_button.pressed.connect(_on_dedicated_server_pressed)
 
 	player_setup_popup.player_confirmed.connect(_on_local_player_confirmed)
 
@@ -31,16 +46,33 @@ func _ready() -> void:
 
 
 func _try_open_local_setup() -> void:
-	if _has_registered or _setup_opened:
+	if _has_registered or _setup_opened or _dedicated_server_chosen:
 		return
 	if GameFlow.game_mode == "join":
 		var mp_peer: MultiplayerPeer = multiplayer.multiplayer_peer
 		if mp_peer == null or mp_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 			status_label.text = tr("Connexion à l'hôte...")
 			return
+		status_label.text = ""
+		_setup_opened = true
+		player_setup_popup.open_for_new_player()
+		return
+	# GameFlow.game_mode == "host" : contrairement à un client, l'hôte n'a
+	# pas forcément vocation à jouer lui-même (cf. Raspberry Pi en serveur
+	# dédié) — on lui laisse d'abord choisir son rôle.
 	status_label.text = ""
+	host_role_box.visible = true
+
+
+func _on_play_as_host_pressed() -> void:
+	host_role_box.visible = false
 	_setup_opened = true
 	player_setup_popup.open_for_new_player()
+
+
+func _on_dedicated_server_pressed() -> void:
+	host_role_box.visible = false
+	_dedicated_server_chosen = true
 
 
 func _on_network_status_changed() -> void:
