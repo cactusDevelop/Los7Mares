@@ -47,6 +47,13 @@ func start(board: Board, emit_finished: bool = true) -> void:
 	var flip_duration: float = Settings.anim_duration(FLIP_DURATION)
 	var flips_remaining := [0]
 
+	# Règle 5.4 (mise en place) : à la toute 1ère révélation de la partie
+	# (round_number == 1, cf board._start_round), si la carte tirée a une
+	# icône trésor en récompense, on la remélange dans son paquet et on en
+	# tire une autre, jusqu'à n'obtenir que des cartes sans trésor. Ne
+	# s'applique JAMAIS aux révélations suivantes (maintenance, règle 7.2).
+	var is_setup_reveal: bool = GameFlow.round_number == 1
+
 	for pile in piles:
 		if not pile.pile_clicked.is_connected(_on_card_pile_clicked):
 			pile.pile_clicked.connect(_on_card_pile_clicked)
@@ -55,6 +62,12 @@ func start(board: Board, emit_finished: bool = true) -> void:
 		if _revealed_cards.has(pile):
 			continue
 		var card: GameCard = SeaDecks.draw_card(pile.sea_key)
+		if is_setup_reveal:
+			var safety: int = SeaDecks.cards_remaining(pile.sea_key) + 1
+			while card != null and card.has_treasure_reward() and safety > 0:
+				SeaDecks.return_card_and_reshuffle(card)
+				card = SeaDecks.draw_card(pile.sea_key)
+				safety -= 1
 		if card == null:
 			continue
 		_revealed_cards[pile] = card

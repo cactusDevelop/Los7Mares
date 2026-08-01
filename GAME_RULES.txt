@@ -154,12 +154,12 @@ Points de gloire :
 9. Perroquets   : 2 pts pour son propre perroquet + 1 pt par perroquet
    d'un autre joueur possede.
 10. Pistes de cartes (Exploration / Combat / Commerce), classement separe
-    par piste selon le nombre de cartes :
-    - 1ere place = autant de points que de joueurs dans la partie
-    - 2e place   = (nombre de joueurs - 2), minimum 0
-    - 3e place   = (nombre de joueurs - 4), minimum 0
-    Le rang d'un joueur = nombre de joueurs STRICTEMENT mieux classes que
-    lui (pas sa position dans l'ordre de jeu). En cas d'egalite a une
+	par piste selon le nombre de cartes :
+	- 1ere place = autant de points que de joueurs dans la partie
+	- 2e place   = (nombre de joueurs - 2), minimum 0
+	- 3e place   = (nombre de joueurs - 4), minimum 0
+	Le rang d'un joueur = nombre de joueurs STRICTEMENT mieux classes que
+	lui (pas sa position dans l'ordre de jeu). En cas d'egalite a une
     place, TOUS les joueurs egaux recoivent les points de cette place, et
     le(s) suivant(s) recoivent les points de la place directement
     inferieure (ex: si N joueurs sont 1ers ex-aequo, le(s) suivant(s)
@@ -216,10 +216,10 @@ depensant 1 rhum pour faire les deux) :
   jeton amelioration. Voiles = bois + toile ; Armes = bois + acier. Une
   seule amelioration a la fois.
   Cout (niveau vise -> bois / toile ou acier) :
-    Niveau 2 -> 1 bois / 1
-    Niveau 3 -> 1 bois / 2
-    Niveau 4 -> 1 bois / 3
-    Niveau 5 (max) -> 1 bois / 4
+	Niveau 2 -> 1 bois / 1
+	Niveau 3 -> 1 bois / 2
+	Niveau 4 -> 1 bois / 3
+	Niveau 5 (max) -> 1 bois / 4
 - Reparer : +1 planche gratuite, puis +1 planche par bois depense
   (ex: 2 bois depenses -> 3 planches au total). Toile et/ou metal peuvent
   remplacer le bois pour cette reparation.
@@ -248,25 +248,25 @@ NAVIGUER EN MER :
   Gerer ou Eviter (rencontre dangereuse inevitable -> DOIT etre geree).
   - Rencontre amicale : Eviter = defausser la carte, revenir a l'action.
   - Rencontre dangereuse : Eviter = defausser 1 fortune + la carte,
-    revenir a l'action.
+	revenir a l'action.
   - Dans les 2 cas : possibilite de Gerer la rencontre (voir ci-dessous).
 
 GERER UNE RENCONTRE :
 - Bateau pirate (dangereuse, planche rouge) :
   1. Phase jet de des : jet du pirate indique sur la carte (boulets +
-     abordages). Faces "inconnues" (case noire, point d'interrogation) ->
+	 abordages). Faces "inconnues" (case noire, point d'interrogation) ->
      un autre joueur (en principe celui a gauche) lance autant de des
      combat que de faces inconnues, ajoutees au jet du pirate. Puis le
-     joueur lance ses propres des combat = son niveau d'armes.
+	 joueur lance ses propres des combat = son niveau d'armes.
   2. Phase des canons : les 2 "bateaux" perdent des planches = nb de
-     boulets adverses (voir "Perdre X planches"). Pour le pirate, comparer
-     directement nb de boulets du joueur vs nb de planches du pirate (>=
-     -> pirate a 0 planche). Si pirate a 0 planche et joueur en a encore
-     -> victoire -> Reussir une activite. Si le joueur chavire -> Echouer
-     une activite. Sinon -> Phase d'abordage.
+	 boulets adverses (voir "Perdre X planches"). Pour le pirate, comparer
+	 directement nb de boulets du joueur vs nb de planches du pirate (>=
+	 -> pirate a 0 planche). Si pirate a 0 planche et joueur en a encore
+	 -> victoire -> Reussir une activite. Si le joueur chavire -> Echouer
+	 une activite. Sinon -> Phase d'abordage.
   3. Phase abordage : si joueur a strictement plus d'abordages que le
-     pirate -> victoire -> Reussir une activite. Sinon -> defaite : le
-     pirate vole 1 ressource par abordage en exces qu'il a par rapport au
+	 pirate -> victoire -> Reussir une activite. Sinon -> defaite : le
+	 pirate vole 1 ressource par abordage en exces qu'il a par rapport au
      joueur (voir "Perdre X ressources"), puis -> Echouer une activite.
 - Menace meteo (dangereuse, bleu+gris) : lancer des exploration = niveau
   de voile pour >= etoiles requises (+1 de si 1 nourriture depensee, max
@@ -424,7 +424,7 @@ ATTAQUER UN JOUEUR : choisir un adversaire dans la meme mer.
   combinee sur une carte :
   - "Vous ne pouvez plus effectuer d'action ce tour-ci." (fin de tour).
   - "Vous ne pouvez plus effectuer les actions indiquees sur la carte ce
-    tour-ci." (fin de l'action en cours uniquement, pas du tour ; le
+	tour-ci." (fin de l'action en cours uniquement, pas du tour ; le
     joueur garde son 2e pion/action). [SIMPLIFICATION] Comme les icones
     d'actions precises ne sont pas modelisees dans les donnees de carte,
     l'implementation actuelle interrompt l'action principale en cours
@@ -432,49 +432,27 @@ ATTAQUER UN JOUEUR : choisir un adversaire dans la meme mer.
     actions precisement indiquees sur l'icone.
   - "Perdez X ressources".
   - "Perdez X planches" (et variante combinee "Perdez X planches et Y
-    ressources").
+	ressources").
   - "Perdez 1 planche par ressource possedee".
   - "Perdez 1 planche par niveau d'armes".
   - "Perdez 1 planche et 1 amelioration de voile".
   - "Perdez 4 nourriture(s), puis autant de planches que de nourriture
-    que vous ne pouvez pas defausser" (perd jusqu'a 4 nourriture ; chaque
-    unite manquante coute 1 planche).
+	que vous ne pouvez pas defausser" (perd jusqu'a 4 nourriture ; chaque
+	unite manquante coute 1 planche).
   [A FAIRE] Aucune carte de card_catalog.json n'utilise encore les formes
   au-dela de "Perdez X planches [et Y ressources]" et "Vous ne pouvez plus
   effectuer d'action" : il reste a saisir, carte par carte depuis le PDF
   source, les textes negative_effect exacts (et leurs combinaisons).
 
-- Jetons bonus mer (livret, page "Utiliser un jeton bonus") : les 7 effets
-  uniques sont desormais implementes (auparavant seuls l'attribution/
-  rafraichissement et le decompte de score existaient, sans aucun effet de
-  jeu reel). Helpers generiques : _has_active_bonus_token() /
-  _offer_bonus_token() (scripts/board/action_resolution_phase.gd).
-  - Mer de Glace : +1 point de mouvement, propose en debut de
-    _run_deplacement (Naviguer ET Caboter).
-  - Mer Sauvage : fixation gratuite d'un de d'exploration a 2 etoiles,
-    dans _offer_fortune_dice_fixing_for (avant la boucle payante).
-  - Mer d'Azuro : alternative gratuite a la depense de 1 rhum, dans
-    _offer_rhum_extra_die_for.
-  - Mer Maudite : alternative gratuite a la depense de 1 fortune (fixation
-    a la face bon marche uniquement), dans _offer_fortune_dice_fixing_for.
-  - Mer de Feu : +1 de de combat gratuit, via _offer_feu_extra_die_for,
-    cable sur tous les jets de combat (pirate, PvP attaquant/defenseur,
-    port malfame, bateau marchand, combat generique "armes" - ile
-    hostile/geant des mers/etc.). Ne s'applique jamais a l'exploration.
-  - Mer d'Abondance : +1 ressource deja recue apres un Commerce VIA CARTE
-    uniquement, via _grant_commerce_rewards() (factorisee, reutilisee par
-    les 3 fonctions de port + le chemin generique commerce). N'est jamais
-    propose lors d'un Commerce avec un joueur (_run_free_trade, fonction
-    separee qui n'appelle pas _grant_commerce_rewards).
-  - Mer de Jade : +2 planches gratuites, via _offer_jade_bonus_planks(),
-    appelee apres Reparer et Rabibocher son bateau (les 2 actions dont le
-    texte des regles dit explicitement "recuperez ... planche(s)").
-    [SIMPLIFICATION] Ne s'applique pas aux gains passifs de planches
-    (rafistolage en debut de tour, bonus de cachette en fin de tour,
-    recompenses de cartes) : seuls les 2 gains volontaires dedies a la
-    reparation de coque proposent ce jeton.
-
 Points precedemment ouverts, verifies et resolus depuis :
+- Filtre "carte tresor" a la mise en place (regle 5.4) : desormais gere.
+  A la toute 1ere revelation de chaque mer (round_number == 1 uniquement,
+  jamais lors des revelations de maintenance en cours de partie), si la
+  carte tiree contient une icone tresor en recompense (GameCard.
+  has_treasure_reward()), elle est remelangee dans son propre paquet
+  (SeaDecks.return_card_and_reshuffle) et une nouvelle carte est tiree, en
+  boucle jusqu'a obtenir une carte sans tresor (scripts/board/
+  card_draw_phase.gd, start()).
 - Renommer la piste "claire" en "Commerce"/brune : fait (code, assets et
   ce document).
 - Afficher la tuile mer correspondante pour chaque joueur au setup : gere

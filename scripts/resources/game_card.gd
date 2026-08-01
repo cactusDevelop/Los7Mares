@@ -56,3 +56,17 @@ func get_random_background() -> Texture2D:
 
 func get_planche_texture() -> Texture2D:
 	return activity_board.texture if activity_board else null
+
+
+## Vrai si au moins une récompense (toute activité confondue) de cette
+## carte contient l'icône trésor (livret, mise en place étape 4 : "Si une
+## ou plusieurs cartes révélées ont une icône trésor, remplacez ces cartes
+## jusqu'à ce que vous n'obteniez que des cartes sans trésor").
+func has_treasure_reward() -> bool:
+	for activity in activities.values():
+		for reward in activity.get("reward", []):
+			if reward.get("icon", "") == "tresor":
+				return true
+			if reward.get("icons", []).has("tresor"):
+				return true
+	return false

@@ -51,6 +51,17 @@ func discard_card(card: GameCard) -> void:
 		_discards[card.sea_key].append(card)
 
 
+## Remet une carte dans SA pioche (pas la défausse) et remélange aussitôt
+## (livret, mise en place étape 4 : carte trésor révélée au tout début de
+## partie -> "remplacez cette carte", donc on la renvoie se refondre dans
+## le paquet plutôt que de la mettre de côté, pour ne pas la perdre pour
+## le reste de la partie).
+func return_card_and_reshuffle(card: GameCard) -> void:
+	if card and _decks.has(card.sea_key):
+		_decks[card.sea_key].append(card)
+		_decks[card.sea_key].shuffle()
+
+
 func cards_remaining(sea_key: String) -> int:
 	return _decks.get(sea_key, []).size()
 
