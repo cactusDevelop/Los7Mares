@@ -8,11 +8,11 @@ extends Node
 ## leurs variantes principale/réduite (règles 9/11/12). "Gérer une
 ## rencontre" (règle 9) est résolue depuis _run_deplacement dès qu'une carte
 ## rencontre est révélée : Menace météo / Géant des mers / Créature des mers
-## / Bateau marchand / Flotte marchande ont leurs mécaniques dédiées
-## (cf _handle_rencontre et suivants). Bateau pirate / Capitaine pirate
-## (phases canons/abordage) ne sont PAS ENCORE gérés : il manque la donnée
-## de répartition boulets/abordages/faces inconnues par carte, absente de
-## card_catalog.json - cf TODO sur _handle_rencontre.
+## / Bateau marchand / Flotte marchande / Bateau pirate / Capitaine pirate
+## ont toutes leurs mécaniques dédiées (cf _handle_rencontre et suivants,
+## notamment _run_rencontre_pirate pour les phases canons/abordage, dont la
+## donnée pirate_planks/known_faces/unknown_dice est fournie par carte dans
+## card_catalog.json).
 ##
 ## Tous les choix (ordre des actions, faire/décliner, ressources,
 ## déplacement...) se font via la narration_box : le paragraphe explique la
@@ -84,9 +84,9 @@ const N_RENCONTRE_FLOTTE := "Une flotte marchande bat pavillon amical à l'horiz
 ## Sous-type de rencontre déduit du titre de la carte (règle 9 "Gérer une
 ## rencontre") : détermine la mécanique de résolution à appliquer. "pirate"
 ## regroupe Bateau pirate ET Capitaine pirate (même mécanique de phases
-## canons/abordage, cf GAME_RULES.txt) — PAS ENCORE IMPLÉMENTÉ : il manque
-## la répartition boulets/abordages/faces inconnues par variante de carte,
-## absente de card_catalog.json (cf note en tête de _handle_rencontre).
+## canons/abordage, cf GAME_RULES.txt, implémentée dans
+## _run_rencontre_pirate) : la répartition boulets/abordages/faces
+## inconnues est fournie par variante de carte dans card_catalog.json.
 const RENCONTRE_KIND: Dictionary = {
 	"Bateau pirate": "pirate",
 	"Capitaine pirate": "pirate",
