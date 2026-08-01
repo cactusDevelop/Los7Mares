@@ -119,6 +119,14 @@ const ICON_TO_RESOURCE: Dictionary = {
 	"bois": "wood", "acier": "steel", "bouffe": "food", "toile": "wool", "rhum": "rum",
 }
 
+## Libellés d'affichage des 7 mers (règle "Jetons bonus" / narration), pas
+## encore centralisés ailleurs dans le projet.
+const SEA_LABELS: Dictionary = {
+	"glace": "Mer de Glace", "maudite": "Mer Maudite", "sauvage": "Mer Sauvage",
+	"azur": "Mer d'Azuro", "feu": "Mer de Feu", "jade": "Mer de Jade",
+	"abondance": "Mer d'Abondance",
+}
+
 ## Émis dès que la destination du déplacement est connue, que ce soit via un
 ## clic sur une mer (_on_sea_tile_clicked) ou via un bouton de la narration
 ## box ("draw"/"stop") : permet d'attendre les deux sources à la fois dans
@@ -403,12 +411,14 @@ func _run_attaquer_joueur(target: Dictionary) -> void:
 	# Phase jet de dés.
 	var attacker_count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
 	attacker_count = await _offer_rhum_extra_die_for(_player, attacker_count)
+	attacker_count = await _offer_feu_extra_die_for(_player, attacker_count)
 	var attacker_results: Array[String] = await _offer_fortune_dice_fixing_for(_player, attacker_count, false)
 	var attacker_canons: int = attacker_results.count("canon")
 	var attacker_abordages: int = attacker_results.count("abordage")
 
 	var defender_count: int = min(max(target.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
 	defender_count = await _offer_rhum_extra_die_for(target, defender_count)
+	defender_count = await _offer_feu_extra_die_for(target, defender_count)
 	var defender_results: Array[String] = await _offer_fortune_dice_fixing_for(target, defender_count, false)
 	var defender_canons: int = defender_results.count("canon")
 	var defender_abordages: int = defender_results.count("abordage")
@@ -739,6 +749,7 @@ func _run_rabibochage() -> String:
 	_board.narration_box.say_with_player(tr("Tour de %s : rabibocle son bateau (+1 planche gratuite)."), _player)
 	await _board.narration_box.wait_for_continue()
 	GameFlow.players_changed.emit()
+	await _offer_jade_bonus_planks()
 	return ""
 
 
@@ -808,6 +819,8 @@ func _do_reparer() -> void:
 		_player["hull_planks"] = min(_player["hull_planks"] + 1, GameFlow.HULL_PLANKS_START)
 		GameFlow.players_changed.emit()
 
+	await _offer_jade_bonus_planks()
+
 
 ## Déplace le bateau du joueur en dépensant jusqu'à sail_level points de
 ## déplacement. Chaque point permet : hideout -> une des 2 mers adjacentes,
@@ -834,6 +847,12 @@ func _run_deplacement() -> String:
 	# Fort -> Naviguer en mer (points = niveau de voile).
 	# Faible -> Caboter en mer (1 seul point, quel que soit le niveau de voile).
 	var points: int = _player.get("sail_level", 1) if _is_strong else 1
+
+	# Jeton Mer de Glace (livret) : "Lors de votre navigation, obtenez 1
+	# point de mouvement supplémentaire." S'applique à Naviguer ET Caboter.
+	if await _offer_bonus_token(_player, "glace", tr("Tour de %s : utiliser le jeton Mer de Glace (+1 point de mouvement) ?")):
+		points += 1
+
 	var can_cancel := true
 
 	while points > 0:
@@ -1083,6 +1102,7 @@ func _run_rencontre_creature(card: GameCard) -> bool:
 
 	var count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
 	count = await _offer_rhum_extra_die(count)
+	count = await _offer_feu_extra_die_for(_player, count)
 	var results: Array[String] = await _offer_fortune_dice_fixing(count, false)
 	var combat_ok: bool = _meets_combat_requirement(results, combat.get("cost", []))
 
@@ -1136,6 +1156,7 @@ func _run_rencontre_pirate(card: GameCard) -> bool:
 
 	var count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
 	count = await _offer_rhum_extra_die(count)
+	count = await _offer_feu_extra_die_for(_player, count)
 	var player_results: Array[String] = await _offer_fortune_dice_fixing(count, false)
 	var player_canons: int = player_results.count("canon")
 	var player_abordages: int = player_results.count("abordage")
@@ -1382,9 +1403,7 @@ func _run_port_ordinaire(card: GameCard, activity: Dictionary) -> String:
 		return "cancel"
 
 	await _pay_port_cost_interactive(cost)
-	for reward in activity.get("reward", []):
-		await _grant_reward_entry(reward)
-	await _check_overload()
+	await _grant_commerce_rewards(activity.get("reward", []))
 	await _finalize_success(card, "commerce")
 	return ""
 
@@ -1409,9 +1428,7 @@ func _run_port_perilleux(card: GameCard, activity: Dictionary) -> String:
 	var needed: int = _needed_stars(activity)
 
 	if stars >= needed:
-		for reward in activity.get("reward", []):
-			await _grant_reward_entry(reward)
-		await _check_overload()
+		await _grant_commerce_rewards(activity.get("reward", []))
 		await _finalize_success(card, "commerce")
 		return ""
 
@@ -1441,6 +1458,7 @@ func _run_port_malfame(card: GameCard, activity: Dictionary) -> String:
 
 	var count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
 	count = await _offer_rhum_extra_die(count)
+	count = await _offer_feu_extra_die_for(_player, count)
 	var results: Array[String] = await _offer_fortune_dice_fixing(count, false)
 
 	var successes := 0
@@ -1462,9 +1480,7 @@ func _run_port_malfame(card: GameCard, activity: Dictionary) -> String:
 	var reward: Array = activity.get("reward", [])
 	if missing > 0:
 		reward = _reduced_reward(reward, missing)
-	for entry in reward:
-		await _grant_reward_entry(entry)
-	await _check_overload()
+	await _grant_commerce_rewards(reward)
 	await _finalize_success(card, "commerce")
 	return ""
 
@@ -1684,6 +1700,7 @@ func _roll_for_activity(activity: Dictionary, dice_rule: String) -> bool:
 		"armes":
 			var count: int = min(max(_player.get("arms_level", 1), 1), MAX_DICE_PER_ROLL)
 			count = await _offer_rhum_extra_die(count)
+			count = await _offer_feu_extra_die_for(_player, count)
 			var results: Array[String] = await _offer_fortune_dice_fixing(count, false)
 			return _meets_combat_requirement(results, activity.get("cost", []))
 		_:
@@ -1701,21 +1718,35 @@ func _offer_rhum_extra_die(count: int) -> int:
 
 
 func _offer_rhum_extra_die_for(actor: Dictionary, count: int) -> int:
-	if count >= MAX_DICE_PER_ROLL or actor["resources"].get("rum", 0) < 1:
+	if count >= MAX_DICE_PER_ROLL:
+		return count
+	var has_rhum: bool = actor["resources"].get("rum", 0) >= 1
+	# Jeton Mer d'Azuro (livret) : "Lorsque vous dépensez du rhum, utilisez
+	# ce jeton au lieu de dépenser 1 rhum." Alternative gratuite au rhum
+	# pour ce même bonus de +1 dé.
+	var has_azur_token: bool = _has_active_bonus_token(actor, "azur")
+	if not has_rhum and not has_azur_token:
 		return count
 	_board.narration_box.say_with_player(
-		tr("Tour de %s : dépenser 1 rhum pour motiver l'équipage (+1 dé) avant de lancer ?"), actor
+		tr("Tour de %s : motiver l'équipage pour +1 dé avant de lancer ?"), actor
 	)
-	_board.narration_box.set_options([
-		{"id": "rhum", "label": tr("Dépenser 1 rhum (+1 dé)")},
-		{"id": "skip", "label": tr("Ne pas dépenser de rhum")},
-	])
+	var options: Array = []
+	if has_rhum:
+		options.append({"id": "rhum", "label": tr("Dépenser 1 rhum (+1 dé)")})
+	if has_azur_token:
+		options.append({"id": "azur", "label": tr("Utiliser le jeton Mer d'Azuro (+1 dé gratuit)")})
+	options.append({"id": "skip", "label": tr("Ne rien dépenser")})
+	_board.narration_box.set_options(options)
 	var choice: String = await _board.narration_box.option_selected
-	if choice != "rhum":
-		return count
-	actor["resources"]["rum"] -= 1
-	GameFlow.players_changed.emit()
-	return count + 1
+	if choice == "rhum":
+		actor["resources"]["rum"] -= 1
+		GameFlow.players_changed.emit()
+		return count + 1
+	if choice == "azur":
+		actor["bonus_tokens"]["azur"]["active"] = false
+		GameFlow.players_changed.emit()
+		return count + 1
+	return count
 
 
 ## FORTUNE - "Fixer ses dés" (règle 10, mécanique transversale) : avant de
@@ -1736,11 +1767,24 @@ func _offer_fortune_dice_fixing_for(actor: Dictionary, count: int, is_white: boo
 	var costly_label: String = tr("2 étoiles") if is_white else tr("Abordage")
 
 	var fixed: Array[String] = []
+
+	# Jeton Mer Sauvage (livret) : "Avant votre jet d'exploration, fixez la
+	# face d'un de vos dés à 2 étoiles." Gratuit, exploration uniquement.
+	if is_white and count > fixed.size():
+		if await _offer_bonus_token(actor, "sauvage", tr("Tour de %s : utiliser le jeton Mer Sauvage (fixer gratuitement un dé à 2 étoiles) ?")):
+			fixed.append("double")
+
 	while fixed.size() < count:
 		var fortune: int = actor["special_resources"].get("fortune", 0)
+		# Jeton Mer Maudite (livret) : "Lorsque vous dépensez de la fortune,
+		# utilisez ce jeton au lieu de dépenser 1 fortune." Remplace donc
+		# uniquement le coût "1 fortune" (fixation à la face bon marché).
+		var has_maudite_token: bool = _has_active_bonus_token(actor, "maudite")
 		var options: Array = []
 		if fortune >= 1:
 			options.append({"id": "cheap", "label": tr("Fixer un dé à %s (1 fortune)") % cheap_label})
+		if has_maudite_token:
+			options.append({"id": "maudite", "label": tr("Fixer un dé à %s (jeton Mer Maudite, gratuit)") % cheap_label})
 		if fortune >= 2:
 			options.append({"id": "costly", "label": tr("Fixer un dé à %s (2 fortunes)") % costly_label})
 		if options.is_empty():
@@ -1757,6 +1801,9 @@ func _offer_fortune_dice_fixing_for(actor: Dictionary, count: int, is_white: boo
 			break
 		if choice == "cheap":
 			actor["special_resources"]["fortune"] -= 1
+			fixed.append(cheap_face)
+		elif choice == "maudite":
+			actor["bonus_tokens"]["maudite"]["active"] = false
 			fixed.append(cheap_face)
 		else:
 			actor["special_resources"]["fortune"] -= 2
@@ -1794,10 +1841,49 @@ func _throw_dice(count: int, is_white: bool) -> Array[String]:
 ## Réussir une activité (règle 10) : récompenses, rangement en piste, puis
 ## gemme/jeton bonus selon le nombre de cartes déjà obtenues dans cette mer.
 func _grant_activity_success(card: GameCard, activity_key: String, activity: Dictionary) -> void:
-	for reward in activity.get("reward", []):
-		await _grant_reward_entry(reward)
-	await _check_overload()
+	if activity_key == "commerce":
+		await _grant_commerce_rewards(activity.get("reward", []))
+	else:
+		for reward in activity.get("reward", []):
+			await _grant_reward_entry(reward)
+		await _check_overload()
 	await _finalize_success(card, activity_key)
+
+
+## Distribue une liste de récompenses de Commerce (règle 9/10 : port
+## ordinaire/périlleux/malfamé, île amicale, rencontres marchandes — tout
+## chemin qui termine par _finalize_success(card, "commerce")), puis
+## propose le jeton Mer d'Abondance (livret) : "Après du commerce
+## (uniquement via une carte), recevez une ressource du même type que
+## l'une des ressources reçues." Centralisé ici pour n'être JAMAIS proposé
+## lors d'un Commerce avec un joueur (_run_free_trade, qui n'appelle pas
+## cette fonction).
+func _grant_commerce_rewards(reward_list: Array) -> void:
+	var resource_icons: Array[String] = []
+	for reward in reward_list:
+		var icon: String = await _grant_reward_entry(reward)
+		if ICON_TO_RESOURCE.has(icon) and not resource_icons.has(icon):
+			resource_icons.append(icon)
+	await _check_overload()
+	if not resource_icons.is_empty() and _has_active_bonus_token(_player, "abondance"):
+		await _offer_abondance_bonus(resource_icons)
+
+
+## Jeton Mer d'Abondance : propose de choisir, parmi resource_icons (types
+## déjà reçus par ce Commerce), lequel recevoir en +1 gratuit.
+func _offer_abondance_bonus(resource_icons: Array[String]) -> void:
+	if not await _offer_bonus_token(_player, "abondance", tr("Tour de %s : utiliser le jeton Mer d'Abondance (+1 ressource déjà reçue) ?")):
+		return
+	var icon: String = resource_icons[0]
+	if resource_icons.size() > 1:
+		var options: Array = []
+		for ic in resource_icons:
+			options.append({"id": ic, "label": _icon_label(ic)})
+		_board.narration_box.say_with_player(tr("Tour de %s : quelle ressource obtenir en plus ?"), _player)
+		_board.narration_box.set_options(options)
+		icon = await _board.narration_box.option_selected
+	_add_icon_amount(icon, 1)
+	await _check_overload()
 
 
 ## Partie commune à toute activité réussie une fois les récompenses déjà
@@ -1853,7 +1939,7 @@ func _grant_activity_failure(card: GameCard) -> void:
 		await _apply_negative_effect(card.negative_effect)
 
 
-func _grant_reward_entry(reward: Dictionary) -> void:
+func _grant_reward_entry(reward: Dictionary) -> String:
 	var amount: int = reward.get("amount", 0)
 	var icon: String
 	if reward.has("icons"):
@@ -1866,6 +1952,7 @@ func _grant_reward_entry(reward: Dictionary) -> void:
 	else:
 		icon = reward.get("icon", "")
 	_add_icon_amount(icon, amount)
+	return icon
 
 
 func _icon_label(icon: String) -> String:
@@ -2032,6 +2119,63 @@ func _lose_resources_for(actor: Dictionary, n: int, loot_recipient: Dictionary =
 ## du catalogue est donc découpé en fragments (séparés par ".") et chaque
 ## fragment reconnu est appliqué à son tour, dans l'ordre. On s'arrête tôt
 ## uniquement si le tour ou l'action en cours se termine (chavirage, etc.).
+## Jetons bonus mer (livret, page "Utiliser un jeton bonus") : chaque jeton
+## a un effet unique, utilisable une seule fois puis retourné face cachée
+## (active = false) jusqu'à ce qu'une nouvelle carte de cette mer le
+## "regagne" (règle 10, GameFlow.register_sea_progress -> "token_refresh").
+## player["bonus_tokens"][sea_key] n'existe QUE si le jeton a déjà été
+## effectivement obtenu (2e carte de la mer) : {"active": bool}.
+func _has_active_bonus_token(actor: Dictionary, sea_key: String) -> bool:
+	var tokens: Dictionary = actor.get("bonus_tokens", {})
+	return tokens.has(sea_key) and tokens[sea_key].get("active", false)
+
+
+## Propose au joueur d'utiliser (consommer) son jeton bonus de sea_key.
+## Ne propose rien (renvoie false) si le jeton n'existe pas ou est déjà
+## face cachée. Si utilisé, le retourne face cachée et renvoie true.
+func _offer_bonus_token(actor: Dictionary, sea_key: String, prompt: String) -> bool:
+	if not _has_active_bonus_token(actor, sea_key):
+		return false
+	_board.narration_box.say_with_player(prompt, actor)
+	_board.narration_box.set_options([
+		{"id": "yes", "label": tr("Utiliser le jeton %s") % SEA_LABELS.get(sea_key, sea_key)},
+		{"id": "no", "label": tr("Ne pas l'utiliser")},
+	])
+	var choice: String = await _board.narration_box.option_selected
+	if choice != "yes":
+		return false
+	actor["bonus_tokens"][sea_key]["active"] = false
+	GameFlow.players_changed.emit()
+	return true
+
+
+## Jeton Mer de Feu (livret) : "Avant votre jet de combat, recevez un dé
+## combat additionnel à lancer." Distinct du rhum (payant) : gratuit, une
+## seule fois par jeton. Ne s'applique qu'aux dés de COMBAT (jamais
+## exploration), d'où une fonction séparée de _offer_rhum_extra_die_for.
+func _offer_feu_extra_die_for(actor: Dictionary, count: int) -> int:
+	if count >= MAX_DICE_PER_ROLL or not _has_active_bonus_token(actor, "feu"):
+		return count
+	var used: bool = await _offer_bonus_token(
+		actor, "feu", tr("Tour de %s : utiliser le jeton Mer de Feu (+1 dé de combat gratuit) avant le jet ?")
+	)
+	return count + 1 if used else count
+
+
+## Jeton Mer de Jade (livret) : "Lorsque vous récupérez des planches,
+## récupérez 2 planches supplémentaires gratuitement." À appeler après
+## chaque gain de planches volontaire (Réparer / Rabibocher son bateau).
+func _offer_jade_bonus_planks() -> void:
+	if _player["hull_planks"] >= GameFlow.HULL_PLANKS_START:
+		return
+	var used: bool = await _offer_bonus_token(
+		_player, "jade", tr("Tour de %s : utiliser le jeton Mer de Jade (+2 planches gratuites) ?")
+	)
+	if used:
+		_player["hull_planks"] = min(_player["hull_planks"] + 2, GameFlow.HULL_PLANKS_START)
+		GameFlow.players_changed.emit()
+
+
 func _apply_negative_effect(text: String) -> void:
 	for raw_fragment in text.split(".", false):
 		var fragment: String = raw_fragment.strip_edges()

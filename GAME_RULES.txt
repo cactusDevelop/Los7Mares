@@ -444,6 +444,36 @@ ATTAQUER UN JOUEUR : choisir un adversaire dans la meme mer.
   effectuer d'action" : il reste a saisir, carte par carte depuis le PDF
   source, les textes negative_effect exacts (et leurs combinaisons).
 
+- Jetons bonus mer (livret, page "Utiliser un jeton bonus") : les 7 effets
+  uniques sont desormais implementes (auparavant seuls l'attribution/
+  rafraichissement et le decompte de score existaient, sans aucun effet de
+  jeu reel). Helpers generiques : _has_active_bonus_token() /
+  _offer_bonus_token() (scripts/board/action_resolution_phase.gd).
+  - Mer de Glace : +1 point de mouvement, propose en debut de
+    _run_deplacement (Naviguer ET Caboter).
+  - Mer Sauvage : fixation gratuite d'un de d'exploration a 2 etoiles,
+    dans _offer_fortune_dice_fixing_for (avant la boucle payante).
+  - Mer d'Azuro : alternative gratuite a la depense de 1 rhum, dans
+    _offer_rhum_extra_die_for.
+  - Mer Maudite : alternative gratuite a la depense de 1 fortune (fixation
+    a la face bon marche uniquement), dans _offer_fortune_dice_fixing_for.
+  - Mer de Feu : +1 de de combat gratuit, via _offer_feu_extra_die_for,
+    cable sur tous les jets de combat (pirate, PvP attaquant/defenseur,
+    port malfame, bateau marchand, combat generique "armes" - ile
+    hostile/geant des mers/etc.). Ne s'applique jamais a l'exploration.
+  - Mer d'Abondance : +1 ressource deja recue apres un Commerce VIA CARTE
+    uniquement, via _grant_commerce_rewards() (factorisee, reutilisee par
+    les 3 fonctions de port + le chemin generique commerce). N'est jamais
+    propose lors d'un Commerce avec un joueur (_run_free_trade, fonction
+    separee qui n'appelle pas _grant_commerce_rewards).
+  - Mer de Jade : +2 planches gratuites, via _offer_jade_bonus_planks(),
+    appelee apres Reparer et Rabibocher son bateau (les 2 actions dont le
+    texte des regles dit explicitement "recuperez ... planche(s)").
+    [SIMPLIFICATION] Ne s'applique pas aux gains passifs de planches
+    (rafistolage en debut de tour, bonus de cachette en fin de tour,
+    recompenses de cartes) : seuls les 2 gains volontaires dedies a la
+    reparation de coque proposent ce jeton.
+
 Points precedemment ouverts, verifies et resolus depuis :
 - Renommer la piste "claire" en "Commerce"/brune : fait (code, assets et
   ce document).
