@@ -13,6 +13,10 @@ extends Control
 @onready var player_count_confirm_button: Button = $PlayerCountPopup/Padding/VBoxContainer/ConfirmButton
 @onready var continue_button: Button = $CenterButtons/ContinueButton
 
+@onready var join_ip_popup: PopupPanel = $JoinIpPopup
+@onready var join_ip_line_edit: LineEdit = $JoinIpPopup/Padding/VBoxContainer/JoinIpLineEdit
+@onready var join_ip_confirm_button: Button = $JoinIpPopup/Padding/VBoxContainer/ConfirmButton
+
 
 func _on_continue_pressed() -> void:
 	MusicManager.fade_to_random_game_music()
@@ -21,6 +25,7 @@ func _on_continue_pressed() -> void:
 
 func _ready() -> void:
 	_style_popup_background(player_count_popup)
+	_style_popup_background(join_ip_popup)
 
 	continue_button.visible = SaveManager.has_save()
 
@@ -35,6 +40,7 @@ func _ready() -> void:
 	debug_button.pressed.connect(_on_debug_pressed)
 	player_count_confirm_button.pressed.connect(_on_player_count_confirmed)
 	continue_button.pressed.connect(_on_continue_pressed)
+	join_ip_confirm_button.pressed.connect(_on_join_ip_confirmed)
 
 
 func _layout_ui() -> void:
@@ -72,6 +78,10 @@ func _style_popup_background(popup: PopupPanel) -> void:
 
 
 func _on_host_pressed() -> void:
+	var err := Network.host_game()
+	if err != OK:
+		push_error("Impossible d'héberger la partie : %s" % err)
+		return
 	SaveManager.delete()
 	GameFlow.reset_players()
 	GameFlow.is_debug_mode = false
@@ -82,6 +92,18 @@ func _on_host_pressed() -> void:
 
 
 func _on_join_pressed() -> void:
+	_popup_join_ip_centered()
+
+
+func _on_join_ip_confirmed() -> void:
+	var ip := join_ip_line_edit.text.strip_edges()
+	if ip.is_empty():
+		return
+	var err := Network.join_game(ip)
+	if err != OK:
+		push_error("Impossible de rejoindre %s : %s" % [ip, err])
+		return
+	join_ip_popup.hide()
 	SaveManager.delete()
 	GameFlow.reset_players()
 	GameFlow.is_debug_mode = false
@@ -93,6 +115,14 @@ func _on_join_pressed() -> void:
 
 func _on_local_pressed() -> void:
 	_popup_player_count_centered()
+
+
+func _popup_join_ip_centered() -> void:
+	var padding: MarginContainer = $JoinIpPopup/Padding
+	var min_size: Vector2 = padding.get_combined_minimum_size()
+	min_size.x = max(min_size.x, 320)
+	join_ip_popup.size = min_size
+	join_ip_popup.popup_centered()
 
 
 ## Le bouton Debug ne demande plus rien : 5 joueurs générés directement.

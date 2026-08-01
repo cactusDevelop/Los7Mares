@@ -73,3 +73,32 @@ value = 4.0
 [node name="ConfirmButton" type="Button" parent="PlayerCountPopup/Padding/VBoxContainer" unique_id=1367342983]
 layout_mode = 2
 text = "VALIDER"
+
+[node name="JoinIpPopup" type="PopupPanel" parent="."]
+
+[node name="Padding" type="MarginContainer" parent="JoinIpPopup"]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 412.0
+offset_bottom = 157.0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="JoinIpPopup/Padding"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="JoinIpPopup/Padding/VBoxContainer"]
+layout_mode = 2
+text = "ADRESSE IP DU SERVEUR"
+
+[node name="JoinIpLineEdit" type="LineEdit" parent="JoinIpPopup/Padding/VBoxContainer"]
+layout_mode = 2
+text = "127.0.0.1"
+placeholder_text = "ex: 192.168.1.42"
+
+[node name="ConfirmButton" type="Button" parent="JoinIpPopup/Padding/VBoxContainer"]
+layout_mode = 2
+text = "REJOINDRE"
