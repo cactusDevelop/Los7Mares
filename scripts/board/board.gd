@@ -183,6 +183,8 @@ func _ready() -> void:
 		})
 
 	_slot_order = _sea_tiles.duplicate()
+	if GameFlow.game_mode == "host" or GameFlow.game_mode == "join":
+		seed(GameFlow.board_seed)
 	_slot_order.shuffle()
 	for i in range(_slot_order.size()):
 		var tile = _slot_order[i]
@@ -242,23 +244,30 @@ func _ready() -> void:
 	_refresh_gem_piles()
 
 	dealing_phase.finished.connect(func():
+		if _is_remote_client(): return
 		first_player_dice_phase.start(self)
 	)
 	first_player_dice_phase.finished.connect(func():
+		if _is_remote_client(): return
 		_autosave("hideout")
 		hideout_phase.start(self)
 	)
 	hideout_phase.finished.connect(func():
+		if _is_remote_client(): return
 		_start_round()
 		_autosave("cards")
 		await pion_selection_panel.play_turn_announcement(GameFlow.round_number)
 		card_draw_phase.start(self)
 	)
 	card_draw_phase.finished.connect(func():
+		if _is_remote_client(): return
 		_autosave("pions")
 		pion_placement_phase.start(self)
 	)
-	pion_placement_phase.finished.connect(_on_round_finished)
+	pion_placement_phase.finished.connect(func():
+		if _is_remote_client(): return
+		_on_round_finished()
+	)
 
 	if GameFlow.is_continuing:
 		_restore_from_save()
@@ -367,6 +376,13 @@ func _refresh_player_boards() -> void:
 
 func _on_dice_results_button_pressed() -> void:
 	dice_results_popup.open_popup()
+
+
+## Vrai uniquement pour un client réseau (mode "join") : cette instance
+## n'exécute jamais la logique de partie elle-même, elle se contente
+## d'afficher l'état diffusé par l'hôte (cf network_manager._sync_game_state).
+func _is_remote_client() -> bool:
+	return GameFlow.game_mode == "join"
 
 
 ## Id du joueur affiché en bas/en grand. En mode local (et debug), c'est le

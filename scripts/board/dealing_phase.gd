@@ -27,6 +27,14 @@ var _board: Board
 var _dealt_count: int = 0
 
 
+func _ready() -> void:
+	# DealingPhase est un enfant direct de Board dans board.tscn : ceci
+	# garantit que _board est valide même côté client réseau, qui reçoit
+	# _begin_deal par RPC sans jamais appeler start() (cf board.gd,
+	# _is_remote_client, qui ne pilote jamais les phases lui-même).
+	_board = get_parent() as Board
+
+
 func start(board: Board) -> void:
 	_board = board
 	_board.deck_area.deck_clicked.connect(_on_deck_clicked)
@@ -48,6 +56,18 @@ func _on_deck_hover_exited() -> void:
 func _on_deck_clicked() -> void:
 	if _board._has_started:
 		return
+	if GameFlow.game_mode == "host":
+		# call_local : l'hôte se déclenche aussi lui-même via le même chemin
+		# que les clients, pour ne jouer l'animation qu'une seule fois de
+		# façon identique partout (cf _slot_order/board_seed synchronisés
+		# dans board._ready()).
+		_begin_deal.rpc()
+	else:
+		_begin_deal()
+
+
+@rpc("authority", "call_local", "reliable")
+func _begin_deal() -> void:
 	_board._has_started = true
 	_board.narration_box.hide_box()
 	_board.deck_area.get_node("HoverPrompt").hide_prompt()

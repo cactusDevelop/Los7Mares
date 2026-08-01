@@ -49,6 +49,8 @@ func _ready() -> void:
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	GameFlow.players_changed.connect(_mark_game_state_dirty)
+	GameFlow.current_player_changed.connect(func(_id): _mark_game_state_dirty())
 
 func host_game(port: int = DEFAULT_PORT) -> Error:
 	peer = ENetMultiplayerPeer.new()
@@ -77,6 +79,7 @@ func close_connection() -> void:
 		peer.close()
 	multiplayer.multiplayer_peer = null
 	is_online = false
+	_game_started = false
 	connected_peers.clear()
 	_stop_discovery_responder()
 	_stop_discovery_client()
@@ -99,6 +102,41 @@ func _on_connection_failed() -> void:
 func _on_server_disconnected() -> void:
 	is_online = false
 	server_disconnected_signal.emit()
+
+
+## Vrai une fois la partie lancée (lobby terminé) : avant ça, la diffusion
+## passe uniquement par _sync_lobby_state (cf request_join), pas par ce
+## canal générique, pour éviter d'envoyer 2 RPC redondants à chaque ajout de
+## joueur dans le lobby.
+var _game_started: bool = false
+var _state_broadcast_pending: bool = false
+
+## Rebranché à chaque changement de GameFlow.players ou .current_player_id :
+## regroupe les appels de la même frame (players_changed peut être émis
+## plusieurs fois d'affilée) en un seul paquet réseau via call_deferred.
+func _mark_game_state_dirty() -> void:
+	if not is_online or not multiplayer.is_server() or not _game_started:
+		return
+	if _state_broadcast_pending:
+		return
+	_state_broadcast_pending = true
+	call_deferred("_broadcast_game_state")
+
+
+func _broadcast_game_state() -> void:
+	_state_broadcast_pending = false
+	_sync_game_state.rpc(GameFlow.players, GameFlow.current_player_id, GameFlow.round_number)
+
+
+## call_remote (pas call_local) : l'hôte a déjà l'état à jour localement,
+## se le renvoyer à lui-même ré-émettrait players_changed et redéclencherait
+## _mark_game_state_dirty en boucle.
+@rpc("authority", "call_remote", "reliable")
+func _sync_game_state(players_data: Array, current_player_id: int, round_number: int) -> void:
+	GameFlow.set_players_from_network(players_data)
+	GameFlow.current_player_id = current_player_id
+	GameFlow.current_player_changed.emit(current_player_id)
+	GameFlow.round_number = round_number
 
 
 func _generate_room_code() -> String:
@@ -239,9 +277,11 @@ func _sync_lobby_state(players_data: Array, peer_map: Dictionary) -> void:
 ## Appelé uniquement depuis lobby.gd quand l'hôte clique "Lancer la partie".
 func request_start_game() -> void:
 	if multiplayer.is_server():
-		_start_game.rpc()
+		_start_game.rpc(randi())
 
 
 @rpc("authority", "call_local", "reliable")
-func _start_game() -> void:
+func _start_game(board_seed: int) -> void:
+	GameFlow.board_seed = board_seed
+	_game_started = true
 	GameFlow.go_to_board()

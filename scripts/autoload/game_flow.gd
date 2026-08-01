@@ -94,6 +94,12 @@ var is_continuing: bool = false
 var _pending_board_data: Dictionary = {}
 var round_number: int = 0
 
+## Graine RNG partagée pour le mélange des tuiles mer (board._ready), fixée
+## par l'hôte au lancement de la partie (cf network_manager._start_game) pour
+## que host et clients obtiennent le même ordre sans avoir à le transmettre.
+## Ignorée en mode local/debug (chaque partie a un ordre aléatoire normal).
+var board_seed: int = 0
+
 ## Id du joueur ayant remporté le combat final (règle 8, "Égalité au score
 ## final -> Combat final"), ou -1 si la partie ne s'est pas terminée sur
 ## une égalité (pas de combat final nécessaire).
