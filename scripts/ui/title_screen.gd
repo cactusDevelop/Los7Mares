@@ -85,10 +85,9 @@ func _on_host_pressed() -> void:
 	SaveManager.delete()
 	GameFlow.reset_players()
 	GameFlow.is_debug_mode = false
-	GameFlow.pending_setup_mode = "host"
-	GameFlow.pending_setup_target_count = 1
+	GameFlow.game_mode = "host"
 	MusicManager.fade_to_random_game_music()
-	GameFlow.go_to_board()
+	GameFlow.go_to_lobby()
 
 
 func _on_join_pressed() -> void:
@@ -107,10 +106,9 @@ func _on_join_ip_confirmed() -> void:
 	SaveManager.delete()
 	GameFlow.reset_players()
 	GameFlow.is_debug_mode = false
-	GameFlow.pending_setup_mode = "join"
-	GameFlow.pending_setup_target_count = 1
+	GameFlow.game_mode = "join"
 	MusicManager.fade_to_random_game_music()
-	GameFlow.go_to_board()
+	GameFlow.go_to_lobby()
 
 
 func _on_local_pressed() -> void:

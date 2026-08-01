@@ -273,6 +273,19 @@ func _ready() -> void:
 			spot.visible = false
 		_start_round()
 		pion_placement_phase.start(self)
+	elif GameFlow.game_mode == "host":
+		# Les joueurs ont déjà été enregistrés via le Lobby (network_manager.gd
+		# / lobby.gd) avant d'arriver ici. Seul l'hôte fait réellement tourner
+		# la partie (étape suivante : diffuser l'état aux clients).
+		deck_area.input_pickable = true
+		dealing_phase.start(self)
+	elif GameFlow.game_mode == "join":
+		# Client : la logique tourne côté hôte. En attendant la synchro
+		# complète du plateau (étape suivante), on affiche juste un message ;
+		# les plateaux joueurs sont déjà visibles (players_changed rempli
+		# depuis le Lobby).
+		deck_area.input_pickable = false
+		narration_box.say(tr("En attente de l'hôte..."))
 	elif GameFlow.pending_setup_mode != "":
 		GameFlow.game_mode = GameFlow.pending_setup_mode
 		deck_area.input_pickable = false
@@ -360,13 +373,16 @@ func _on_dice_results_button_pressed() -> void:
 ## joueur dont c'est le tour (GameFlow.current_player_id, mis à jour par
 ## pion_placement_phase/hideout_phase/first_player_dice_phase), avec repli
 ## sur le 1er joueur puis le premier de la liste tant qu'aucun tour n'a
-## encore commencé. En mode héberger/rejoindre, c'est toujours le joueur du
-## PC : comme il n'existe pas encore de vrai réseau, il n'y a de toute façon
-## qu'un seul joueur réel dans ce mode pour l'instant, donc players[0].
+## encore commencé. En mode héberger/rejoindre, c'est le joueur assigné à
+## CETTE instance réseau (Network.peer_player_map, rempli par le Lobby), pas
+## forcément players[0].
 func _get_display_current_player_id() -> int:
 	if GameFlow.players.is_empty():
 		return -1
 	if GameFlow.game_mode == "host" or GameFlow.game_mode == "join":
+		var my_player_id: int = Network.peer_player_map.get(multiplayer.get_unique_id(), -1)
+		if my_player_id != -1:
+			return my_player_id
 		return GameFlow.players[0]["id"]
 	if GameFlow.current_player_id != -1:
 		return GameFlow.current_player_id

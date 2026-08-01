@@ -137,3 +137,9 @@ func _on_confirm_pressed() -> void:
 func _show_error(message: String) -> void:
 	error_label.text = message
 	error_label.visible = true
+
+
+## Utilisé par lobby.gd pour afficher un rejet venant de l'hôte (nom/couleur
+## déjà pris par un autre joueur entre-temps).
+func show_error(message: String) -> void:
+	_show_error(message)

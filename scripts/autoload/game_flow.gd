@@ -68,6 +68,7 @@ enum PionRank { OFFICER = 0, CAPTAIN = 1 }
 
 const TITLE_SCENE_PATH := "res://scenes/ui/title_screen.tscn"
 const BOARD_SCENE_PATH := "res://scenes/board/board.tscn"
+const LOBBY_SCENE_PATH := "res://scenes/ui/lobby.tscn"
 
 var pending_setup_mode: String = ""
 var pending_setup_target_count: int = 1
@@ -306,6 +307,21 @@ func go_to_title() -> void:
 
 func go_to_board() -> void:
 	call_deferred("_deferred_change_scene", BOARD_SCENE_PATH)
+
+
+func go_to_lobby() -> void:
+	call_deferred("_deferred_change_scene", LOBBY_SCENE_PATH)
+
+
+## Remplace players par l'état reçu de l'hôte (mode réseau, cf
+## network_manager._sync_lobby_state). Contrairement à add_player, ne touche
+## pas à _next_player_id : seul l'hôte ajoute des joueurs, les clients ne
+## font qu'afficher l'état reçu.
+func set_players_from_network(data: Array) -> void:
+	players.clear()
+	for p in data:
+		players.append(p)
+	players_changed.emit()
 
 
 ## Diffère change_scene_to_file (cf go_to_title/go_to_board) : évite de

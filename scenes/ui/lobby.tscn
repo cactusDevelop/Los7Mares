@@ -1,0 +1,40 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/lobby.gd" id="1_lobby"]
+[ext_resource type="PackedScene" uid="uid://bg437po33iydc" path="res://scenes/ui/player_setup_popup.tscn" id="2_setup"]
+
+[node name="Lobby" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_lobby")
+
+[node name="StatusLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 40.0
+offset_right = 600.0
+offset_bottom = 70.0
+text = ""
+
+[node name="PlayersListBox" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 90.0
+offset_right = 400.0
+offset_bottom = 400.0
+theme_override_constants/separation = 8
+
+[node name="StartButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 420.0
+offset_right = 260.0
+offset_bottom = 460.0
+text = "LANCER LA PARTIE"
+
+[node name="PlayerSetupPopup" parent="." instance=ExtResource("2_setup")]
+layout_mode = 1
