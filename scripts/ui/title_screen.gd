@@ -45,6 +45,9 @@ func _ready() -> void:
 	Network.code_join_found.connect(_on_code_join_found)
 	Network.code_join_failed.connect(_on_code_join_failed)
 
+	if OS.get_cmdline_user_args().has("--dedicated-server"):
+		call_deferred("_on_host_pressed")
+
 
 func _layout_ui() -> void:
 	var viewport_size := get_viewport_rect().size
@@ -98,12 +101,19 @@ func _on_join_pressed() -> void:
 
 
 func _on_join_ip_confirmed() -> void:
-	var code := join_ip_line_edit.text.strip_edges()
-	if code.is_empty():
+	var input := join_ip_line_edit.text.strip_edges()
+	if input.is_empty():
 		return
 	join_error_label.visible = false
 	join_ip_confirm_button.disabled = true
-	Network.find_game_by_code(code)
+	if input.is_valid_ip_address():
+		var err := Network.join_game(input, Network.DEFAULT_PORT)
+		if err != OK:
+			_on_code_join_failed()
+			return
+		_on_code_join_found()
+		return
+	Network.find_game_by_code(input)
 
 
 func _on_code_join_found() -> void:
