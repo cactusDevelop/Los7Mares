@@ -107,7 +107,7 @@ func _on_join_ip_confirmed() -> void:
 	join_error_label.visible = false
 	join_ip_confirm_button.disabled = true
 	if input.is_valid_ip_address():
-		var err := Network.join_game(input, Network.DEFAULT_PORT)
+		var err: Error = Network.join_game(input, Network.DEFAULT_PORT)
 		if err != OK:
 			_on_code_join_failed()
 			return
