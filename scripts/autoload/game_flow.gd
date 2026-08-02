@@ -324,8 +324,15 @@ func go_to_lobby() -> void:
 ## pas à _next_player_id : seul l'hôte ajoute des joueurs, les clients ne
 ## font qu'afficher l'état reçu.
 func set_players_from_network(data: Array) -> void:
+	# copie profonde impérative : en call_local (l'hôte se synchronisant
+	# lui-même), "data" est la MÊME référence mémoire que "players" (pas de
+	# sérialisation réseau réelle en local) — players.clear() sans copie
+	# viderait aussi "data" avant la boucle de réinjection ci-dessous.
+	# Bug confirmé par test réel (2 process headless host+client) : sans ce
+	# fix, la liste de l'hôte redevenait vide après CHAQUE synchro.
+	var copy: Array = data.duplicate(true)
 	players.clear()
-	for p in data:
+	for p in copy:
 		players.append(p)
 	players_changed.emit()
 

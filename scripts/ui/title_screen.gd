@@ -81,7 +81,7 @@ func _style_popup_background(popup: PopupPanel) -> void:
 
 
 func _on_host_pressed() -> void:
-	var err := Network.host_game()
+	var err: Error = Network.host_game()
 	if err != OK:
 		push_error("Impossible d'héberger la partie : %s" % err)
 		return
