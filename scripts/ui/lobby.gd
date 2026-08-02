@@ -2,8 +2,9 @@ extends Control
 
 @onready var status_label: Label = $StatusLabel
 @onready var code_label: Label = $CodeLabel
-@onready var players_list_box: VBoxContainer = $PlayersListBox
+@onready var players_list_box: VBoxContainer = $PlayersPanel/PlayersPanelMargin/PlayersPanelContent/PlayersListBox
 @onready var start_button: Button = $StartButton
+@onready var quit_button: Button = $QuitButton
 @onready var host_role_box: VBoxContainer = $HostRoleBox
 @onready var play_as_host_button: Button = $HostRoleBox/PlayAsHostButton
 @onready var dedicated_server_button: Button = $HostRoleBox/DedicatedServerButton
@@ -25,6 +26,8 @@ func _ready() -> void:
 	start_button.visible = multiplayer.is_server()
 	start_button.disabled = true
 	start_button.pressed.connect(_on_start_pressed)
+
+	quit_button.pressed.connect(_on_quit_pressed)
 
 	code_label.visible = multiplayer.is_server()
 	if multiplayer.is_server():
@@ -92,6 +95,7 @@ func _on_join_rejected(reason: String) -> void:
 
 
 func _refresh_list() -> void:
+	print("[Lobby] _refresh_list, %d joueur(s)" % GameFlow.players.size())
 	for child in players_list_box.get_children():
 		child.queue_free()
 	for p in GameFlow.players:
@@ -104,3 +108,10 @@ func _refresh_list() -> void:
 
 func _on_start_pressed() -> void:
 	Network.request_start_game()
+
+
+func _on_quit_pressed() -> void:
+	Network.close_connection()
+	GameFlow.reset_players()
+	GameFlow.game_mode = "local"
+	GameFlow.go_to_title()

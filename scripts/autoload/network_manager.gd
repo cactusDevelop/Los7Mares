@@ -251,6 +251,7 @@ func _register_player_rpc(player_name: String, color: String) -> void:
 ## et rediffuse l'état complet à tout le monde (y compris soi-même, via
 ## call_local sur _sync_lobby_state).
 func _register_player(peer_id: int, player_name: String, color: String) -> void:
+	print("[Network] _register_player peer_id=%d name=%s color=%s" % [peer_id, player_name, color])
 	if GameFlow.is_name_taken(player_name):
 		_reject_join.rpc_id(peer_id, "Ce nom est déjà pris.")
 		return
@@ -259,6 +260,7 @@ func _register_player(peer_id: int, player_name: String, color: String) -> void:
 		return
 	var player: Dictionary = GameFlow.add_player(player_name, color)
 	peer_player_map[peer_id] = player["id"]
+	print("[Network] joueur ajouté id=%s, total joueurs=%d, diffusion à tous les pairs" % [player["id"], GameFlow.players.size()])
 	_sync_lobby_state.rpc(GameFlow.players, peer_player_map)
 
 
@@ -269,6 +271,7 @@ func _reject_join(reason: String) -> void:
 
 @rpc("authority", "call_local", "reliable")
 func _sync_lobby_state(players_data: Array, peer_map: Dictionary) -> void:
+	print("[Network] _sync_lobby_state reçu, %d joueur(s), moi=%d" % [players_data.size(), multiplayer.get_unique_id()])
 	GameFlow.set_players_from_network(players_data)
 	peer_player_map = peer_map
 	lobby_synced.emit()
