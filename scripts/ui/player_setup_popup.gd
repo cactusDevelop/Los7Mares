@@ -15,6 +15,7 @@ const SELECTED_BORDER := Color(1.0, 1.0, 1.0)
 @onready var title_label: Label = $Padding/Content/TitleLabel
 
 var _selected_color: String = ""
+var _require_color: bool = true
 var _color_buttons: Dictionary = {}
 var _color_group := ButtonGroup.new()
 
@@ -42,9 +43,11 @@ func _ready() -> void:
 	error_label.visible = false
 
 
-func open_for_new_player(player_number: int = 0, total_players: int = 0) -> void:
+func open_for_new_player(player_number: int = 0, total_players: int = 0, require_color: bool = true) -> void:
 	name_input.text = ""
 	_selected_color = ""
+	_require_color = require_color
+	color_row.visible = require_color
 	for color_name in _color_buttons:
 		var btn: Button = _color_buttons[color_name]
 		btn.button_pressed = false
@@ -52,7 +55,9 @@ func open_for_new_player(player_number: int = 0, total_players: int = 0) -> void
 		_apply_button_style(btn, color_name, false)
 	error_label.visible = false
 
-	if total_players > 0:
+	if not require_color:
+		title_label.text = tr("CHOISIS LE NOM DE TON EQUIPAGE")
+	elif total_players > 0:
 		title_label.text = tr("JOUEUR %d / %d — CHOISIS UN NOM ET UNE COULEUR") % [player_number, total_players]
 	else:
 		title_label.text = tr("CHOISIS LE NOM DE TON EQUIPAGE ET LA COULEUR DE TA VOILE")
@@ -123,6 +128,10 @@ func _on_confirm_pressed() -> void:
 		return
 	if GameFlow.is_name_taken(player_name):
 		_show_error(tr("Ce nom est déjà pris."))
+		return
+	if not _require_color:
+		error_label.visible = false
+		player_confirmed.emit(player_name, "")
 		return
 	if _selected_color.is_empty():
 		_show_error(tr("Choisis une couleur."))

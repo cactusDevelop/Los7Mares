@@ -34,6 +34,12 @@ var connected_peers: Dictionary = {}
 ## chaque instance de savoir "quel joueur suis-je" (cf board._get_display_current_player_id).
 var peer_player_map: Dictionary = {}
 
+## Nom affiché pour l'hôte dans la liste du Lobby (avec la couronne), même
+## quand il choisit "Serveur dédié" et n'est donc PAS dans GameFlow.players.
+## Si l'hôte joue, ce champ reste vide : on affiche alors son nom de JOUEUR
+## (avec la couronne à côté) via peer_player_map, cf lobby.gd._refresh_list.
+var host_name: String = ""
+
 ## Douille de réponse aux demandes de découverte, active tant qu'on héberge.
 var _discovery_server_peer: PacketPeerUDP
 var _discovery_enet_port: int = DEFAULT_PORT
@@ -255,13 +261,43 @@ func _register_player(peer_id: int, player_name: String, color: String) -> void:
 	if GameFlow.is_name_taken(player_name):
 		_reject_join.rpc_id(peer_id, "Ce nom est déjà pris.")
 		return
-	if GameFlow.is_color_taken(color):
+	var actual_color := color
+	if actual_color.is_empty():
+		actual_color = _next_available_color()
+		if actual_color.is_empty():
+			_reject_join.rpc_id(peer_id, "Plus de couleur disponible.")
+			return
+	elif GameFlow.is_color_taken(actual_color):
 		_reject_join.rpc_id(peer_id, "Cette couleur est déjà prise.")
 		return
-	var player: Dictionary = GameFlow.add_player(player_name, color)
+	var player: Dictionary = GameFlow.add_player(player_name, actual_color)
 	peer_player_map[peer_id] = player["id"]
 	print("[Network] joueur ajouté id=%s, total joueurs=%d, diffusion à tous les pairs" % [player["id"], GameFlow.players.size()])
 	_sync_lobby_state.rpc(GameFlow.players, peer_player_map)
+
+
+## Couleur assignée automatiquement (client sans choix de couleur, cf
+## player_setup_popup require_color=false) : la 1ère non encore prise dans
+## l'ordre fixe GameFlow.COLORS, pour un résultat prévisible/reproductible.
+func _next_available_color() -> String:
+	for color_name in GameFlow.COLORS:
+		if not GameFlow.is_color_taken(color_name):
+			return color_name
+	return ""
+
+
+## Appelé par lobby.gd quand l'hôte choisit "Serveur dédié" : il fournit un
+## nom pour apparaître dans la liste (avec la couronne) sans devenir un
+## joueur (pas de couleur, pas d'entrée dans GameFlow.players).
+func set_host_name(display_name: String) -> void:
+	if multiplayer.is_server():
+		_broadcast_host_name.rpc(display_name)
+
+
+@rpc("authority", "call_local", "reliable")
+func _broadcast_host_name(display_name: String) -> void:
+	host_name = display_name
+	lobby_synced.emit()
 
 
 @rpc("authority", "call_remote", "reliable")

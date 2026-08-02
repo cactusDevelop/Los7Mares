@@ -19,6 +19,10 @@ var _setup_opened: bool = false
 ## Vrai si l'hôte a choisi "Serveur dédié" : il ne joue pas, on n'ouvre
 ## jamais la popup nom/couleur pour lui.
 var _dedicated_server_chosen: bool = false
+## Vrai pendant que la popup est ouverte spécifiquement pour le nom du
+## serveur dédié (pas un vrai joueur) : distingue le confirm des deux cas
+## dans _on_local_player_confirmed.
+var _registering_dedicated_name: bool = false
 
 
 func _ready() -> void:
@@ -58,7 +62,7 @@ func _try_open_local_setup() -> void:
 			return
 		status_label.text = ""
 		_setup_opened = true
-		player_setup_popup.open_for_new_player()
+		player_setup_popup.open_for_new_player(0, 0, false)
 		return
 	# GameFlow.game_mode == "host" : contrairement à un client, l'hôte n'a
 	# pas forcément vocation à jouer lui-même (cf. Raspberry Pi en serveur
@@ -75,7 +79,10 @@ func _on_play_as_host_pressed() -> void:
 
 func _on_dedicated_server_pressed() -> void:
 	host_role_box.visible = false
+	_setup_opened = true
 	_dedicated_server_chosen = true
+	_registering_dedicated_name = true
+	player_setup_popup.open_for_new_player(0, 0, false)
 
 
 func _on_network_status_changed() -> void:
@@ -83,8 +90,12 @@ func _on_network_status_changed() -> void:
 
 
 func _on_local_player_confirmed(player_name: String, color: String) -> void:
-	_has_registered = true
 	player_setup_popup.visible = false
+	if _registering_dedicated_name:
+		Network.set_host_name(player_name)
+		_refresh_list()
+		return
+	_has_registered = true
 	Network.request_join(player_name, color)
 
 
@@ -98,12 +109,36 @@ func _refresh_list() -> void:
 	print("[Lobby] _refresh_list, %d joueur(s)" % GameFlow.players.size())
 	for child in players_list_box.get_children():
 		child.queue_free()
+
+	# id du JOUEUR qui correspond au pair hôte (peer_id 1), s'il joue lui-même.
+	var host_player_id: int = Network.peer_player_map.get(1, -1)
+
 	for p in GameFlow.players:
-		var lbl := Label.new()
-		lbl.text = "%s — %s" % [p["name"], p["color"]]
-		players_list_box.add_child(lbl)
+		players_list_box.add_child(_build_player_row("%s — %s" % [p["name"], p["color"]], p["id"] == host_player_id))
+
+	# Hôte en "Serveur dédié" (pas dans GameFlow.players, mais a un nom
+	# d'affichage) : ligne séparée avec la couronne, sans couleur.
+	if host_player_id == -1 and not Network.host_name.is_empty():
+		players_list_box.add_child(_build_player_row(Network.host_name, true))
+
 	if multiplayer.is_server():
 		start_button.disabled = GameFlow.players.is_empty()
+
+
+## Construit une ligne "[couronne si is_host] Nom — Couleur".
+func _build_player_row(display_text: String, is_host: bool) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	if is_host:
+		var icon := TextureRect.new()
+		icon.texture = load("res://assets/art/ui/crown.svg")
+		icon.custom_minimum_size = Vector2(18, 18)
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		row.add_child(icon)
+	var lbl := Label.new()
+	lbl.text = display_text
+	row.add_child(lbl)
+	return row
 
 
 func _on_start_pressed() -> void:
