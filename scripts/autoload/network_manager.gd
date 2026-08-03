@@ -58,6 +58,17 @@ func _ready() -> void:
 	GameFlow.players_changed.connect(_mark_game_state_dirty)
 	GameFlow.current_player_changed.connect(func(_id): _mark_game_state_dirty())
 
+## Vrai si cette instance doit démarrer automatiquement en Serveur dédié,
+## sans passer par les boutons du menu :
+## - export "Exporter comme serveur dédié" (tag de fonctionnalité
+##   "dedicated_server", ajouté automatiquement par Godot à l'export), utilisé
+##   pour le binaire ARM32 du Raspberry Pi ;
+## - ou argument --dedicated-server (pratique pour tester depuis l'éditeur ou
+##   un export classique, sans devoir créer un export dédié).
+func is_dedicated_server_launch() -> bool:
+	return OS.has_feature("dedicated_server") or OS.get_cmdline_user_args().has("--dedicated-server")
+
+
 func host_game(port: int = DEFAULT_PORT) -> Error:
 	peer = ENetMultiplayerPeer.new()
 	var err := peer.create_server(port, MAX_PLAYERS)

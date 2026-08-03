@@ -45,7 +45,7 @@ func _ready() -> void:
 	Network.code_join_found.connect(_on_code_join_found)
 	Network.code_join_failed.connect(_on_code_join_failed)
 
-	if OS.get_cmdline_user_args().has("--dedicated-server"):
+	if Network.is_dedicated_server_launch():
 		call_deferred("_on_host_pressed")
 
 

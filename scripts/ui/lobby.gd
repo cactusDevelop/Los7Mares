@@ -49,7 +49,7 @@ func _ready() -> void:
 	Network.lobby_synced.connect(_refresh_list)
 
 	_refresh_list()
-	if OS.get_cmdline_user_args().has("--dedicated-server"):
+	if Network.is_dedicated_server_launch():
 		host_role_box.visible = false
 		_setup_opened = true
 		_dedicated_server_chosen = true
