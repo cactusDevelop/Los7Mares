@@ -47,6 +47,13 @@ func _ready() -> void:
 
 	if Network.is_dedicated_server_launch():
 		call_deferred("_on_host_pressed")
+		return
+
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--join="):
+			join_ip_line_edit.text = arg.substr("--join=".length())
+			call_deferred("_on_join_ip_confirmed")
+			break
 
 
 func _layout_ui() -> void:
