@@ -141,12 +141,17 @@ func set_options(options: Array) -> void:
 ## Vrai si CET écran doit afficher/activer les boutons/le clic d'avancement
 ## en cours : toujours vrai en partie locale/hotseat (une seule machine),
 ## sinon seulement pour le joueur dont c'est réellement le tour de décider
-## (cf _active_player_id, posé par say_with_player).
+## (cf _active_player_id, posé par say_with_player). Si _active_player_id
+## vaut -1 (aucun say_with_player() n'a encore été appelé, ex: message
+## générique juste après la distribution des tuiles mer, avant le tout
+## premier say_with_player de la partie), le message ne concerne aucun
+## joueur en particulier : n'importe quel joueur peut alors cliquer pour
+## avancer, sans quoi PERSONNE (y compris l'hôte) ne le pourrait jamais.
 func _is_local_player_active() -> bool:
 	if GameFlow.game_mode != "host" and GameFlow.game_mode != "join":
 		return true
 	var my_player_id: int = Network.peer_player_map.get(multiplayer.get_unique_id(), -1)
-	return my_player_id != -1 and my_player_id == _active_player_id
+	return my_player_id != -1 and (_active_player_id == -1 or my_player_id == _active_player_id)
 
 
 func _on_button_pressed(id: String) -> void:
@@ -240,7 +245,8 @@ func _request_advance_rpc() -> void:
 	if not multiplayer.is_server():
 		return
 	var sender_id := multiplayer.get_remote_sender_id()
-	if Network.peer_player_map.get(sender_id, -1) != _active_player_id:
+	var sender_player_id: int = Network.peer_player_map.get(sender_id, -1)
+	if sender_player_id == -1 or (_active_player_id != -1 and sender_player_id != _active_player_id):
 		return
 	if not _awaiting_advance:
 		return
