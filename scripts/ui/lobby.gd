@@ -115,12 +115,6 @@ func _build_player_row(display_text: String, is_host: bool) -> HBoxContainer:
 		# Ne doit jamais dépasser la taille du texte du pseudo de plus de 6px.
 		var text_size: float = ThemeDB.fallback_font_size
 		icon.custom_minimum_size = Vector2(text_size + 6.0, text_size + 6.0)
-		# EXPAND_IGNORE_SIZE : sans ça, la taille minimale du TextureRect est
-		# celle du texture importé (crown.svg fait 1280x815px), qui écrase
-		# purement et simplement custom_minimum_size -> icône bien plus
-		# grande que le texte du pseudo. Avec ce mode, custom_minimum_size
-		# fait foi et stretch_mode se charge de mettre le SVG à l'échelle.
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		row.add_child(icon)
 	var lbl := Label.new()
