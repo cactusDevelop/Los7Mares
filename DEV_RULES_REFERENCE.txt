@@ -1,10 +1,21 @@
-LOS 7 MARES - REGLES (MODE AVANCE) - REFERENCE POUR L'IMPLEMENTATION GODOT
+LOS 7 MARES - REFERENCE DEV : REGLES (MODE AVANCE) + NARRATION A IMPLEMENTER
 ============================================================================
-Ce fichier resume les regles du jeu de plateau "Los 7 Mares" telles que
-fournies par l'auteur, pour servir de reference lors du developpement/debug
-du projet Godot. Il ne decrit PAS l'etat actuel du code, seulement les
-regles a implementer. Les points marques [A FAIRE / A CLARIFIER] sont des
-zones encore floues ou incompletes dans les notes d'origine.
+Document interne pour l'equipe de developpement (PAS un livret de regles
+pour les joueurs). Il condense les regles officielles du jeu de plateau
+"Los 7 Mares" et sert de reference lors du developpement/debug du projet
+Godot. Il ne decrit PAS l'etat actuel du code, seulement les regles a
+implementer. Les points marques [A FAIRE / A CLARIFIER] sont des zones
+encore floues ou incompletes dans les notes d'origine.
+
+Chaque section de regle est suivie de deux blocs a l'intention des devs :
+- "Scripts :" pointe vers le(s) fichier(s)/fonction(s) du projet qui
+  implementent (ou doivent implementer) cette regle.
+- "Narrations a implementer :" liste les phrases de narration OFFICIELLES
+  (issues du livret "Regles mode avance Los 7 Mares", entre guillemets,
+  reprises telles quelles) qui doivent apparaitre dans la NarrationBox
+  (scripts/board/narration_box.gd, via say()/say_with_player()) au moment
+  concerne. Si un texte different est actuellement utilise dans le code,
+  il doit etre aligne sur la phrase officielle listee ici.
 
 ------------------------------------------------------------
 1. APERCU GENERAL
@@ -125,6 +136,29 @@ Force d'un emplacement (determine si l'action est principale ou reduite) :
 5. Si le joueur a gauche a encore un pion a jouer -> son tour commence.
    Sinon -> Fin de la manche.
 
+Scripts : scripts/board/pion_placement_phase.gd (etapes 1-2 : placement du
+pion, cf _begin_player_pion_turn / _repair_capsized_boat / _apply_pion_placement) ;
+scripts/board/action_resolution_phase.gd (etape 3 : execution des actions,
+cf start()/_resolve_action ; etape 4a : _grant_hideout_reward() ; etape 4b :
+_grant_barren_turn_compensation()).
+
+Narrations a implementer :
+- Rafistoler son bateau (si chavire) : "Contre toute attente, votre
+  equipage maintient le bateau a flot !"
+- Choisir ses actions principales : "Vous commandez votre equipage. A vos
+  ordres, Capitaine !"
+- Placement en emplacement FORT : "Vous gardez votre sang-froid et
+  motivez votre equipage !"
+- Placement en emplacement FAIBLE : "Vous n'arrivez pas a motiver votre
+  equipage..."
+- Effectuer ses actions : "Place a l'action ! Votre equipage suit vos
+  ordres."
+- Fin de tour, bateau dans sa cachette (+1 planche, +1 nourriture, +1
+  bois) : "Enfin a la maison ! Reparons cette coque et collectons des
+  ressources !"
+- Fin de tour, aucune carte recuperee ni bateau ameliore (+1 fortune) :
+  "Pas de chance cette fois-ci, mais le vent va bientot tourner !"
+
 ------------------------------------------------------------
 7. FIN DE MANCHE / PHASE DE MAINTENANCE
 ------------------------------------------------------------
@@ -138,6 +172,21 @@ S'il reste >= 1 fortune sur le plateau action -> Phase de maintenance :
 5. Nouvelle manche.
 
 S'il n'y a plus de fortune -> Fin de la partie (voir section 8).
+
+Scripts : scripts/board/board.gd (_on_round_finished(), _all_fortune_taken(),
+_start_round(), _take_fortune_token_for()) ; scripts/board/card_draw_phase.gd
+(discard_revealed_card_for_sea() = etape 1, redraw_card_for_sea() = etape 2) ;
+scripts/board/pion_placement_phase.gd (recuperation des pions = etape 3) ;
+scripts/autoload/game_flow.gd (advance_first_player() = etape 4, marqueur
+doré).
+
+Narrations a implementer :
+- Defausser les rencontres restantes (etape 1) : "Les rencontres restantes
+  disparaissent."
+- Reveler une nouvelle carte dans chaque mer qui n'en a pas (etape 2) :
+  "De nouvelles rumeurs parcourent Les 7 Mers..."
+- Recuperer ses pions action (etape 3) : "Votre equipage attend vos
+  ordres."
 
 ------------------------------------------------------------
 8. FIN DE PARTIE ET SCORE
@@ -172,6 +221,15 @@ Egalite au score final -> Combat final :
 - Si aucun vainqueur, on repete le combat (coque conservee) jusqu'a
   obtenir un vainqueur.
 
+Scripts : scripts/autoload/game_flow.gd (compute_final_score_breakdown(),
+compute_final_score_total(), apply_final_scores(), _card_track_points(),
+_rank_points()) ; scripts/board/board.gd (_end_game(), _tied_leader_ids(),
+_ranking_with_final_battle_winner()) ; scripts/board/final_battle_phase.gd
+(combat final en cas d'egalite).
+Narrations a implementer : aucune phrase de narration officielle n'est
+donnee pour le decompte des points ni le combat final dans le livret
+source ; ne pas en inventer, garder un texte factuel/neutre dans l'UI.
+
 ------------------------------------------------------------
 9. ACTIONS PRINCIPALES
 ------------------------------------------------------------
@@ -193,6 +251,22 @@ DEBARQUER SUR UNE ILE (necessite d'etre dans une mer avec une carte ile) :
   >= succes requis.
 -> Reussite ou echec (voir section 10).
 
+Scripts : scripts/board/action_resolution_phase.gd (_run_ile(),
+_run_ile_collect(), _activity_narration(), _resolve_activity(),
+_roll_exploration_stars(), _meets_combat_requirement()).
+
+Narrations a implementer :
+- Debut de l'action (toutes cartes ile) : "Terre en vue, Capitaine ! Par
+  les etoiles, c'est une ile !"
+- Ile sauvage / activite Exploration : "Vous explorez les recoins
+  sauvages de l'ile." Et, au moment de proposer un de additionnel contre
+  1 nourriture : "Votre equipage n'a pas l'air tres motive au premier
+  abord. Mais avec le ventre plein, ils sont partant pour explorer les
+  moindres recoins de l'ile !"
+- Ile amicale / activite Commerce : "Vous commercez avec la tribu
+  amicale."
+- Ile hostile / activite Combat : "Vous combattez la tribu hostile."
+
 ACCEDER A UN PORT (necessite mer avec carte port + ressources suffisantes) :
 - Port ordinaire (Commerce, planche brune) : payer les ressources
   demandees (a gauche de la fleche). 1 rhum peut remplacer n'importe
@@ -207,6 +281,23 @@ ACCEDER A UN PORT (necessite mer avec carte port + ressources suffisantes) :
   combat que le niveau d'armes pour >= succes requis. Reussite -> suivre
   Commerce normalement. Echec -> suivre Commerce mais recevoir moins de
   ressources = nombre de succes manquants.
+
+Scripts : scripts/board/action_resolution_phase.gd (_run_port(),
+_run_port_ordinaire(), _run_port_perilleux(), _run_port_malfame(),
+_run_port_work(), _pay_port_cost_interactive(), _reduced_reward()).
+
+Narrations a implementer :
+- Debut de l'action (toutes cartes port) : "Port en vue, Capitaine !
+  Voyons ce qu'il a en reserve !"
+- Port ordinaire / Commerce : "Vous echangez des ressources avec les
+  marchands." Et, si le joueur substitue par du rhum : "Les marchands
+  sont toujours heureux de recevoir une caisse de rhum... Le fait qu'ils
+  la boivent ou la revendent reste cependant toujours un mystere !"
+- Port perilleux / Matelotage+Commerce : "Vous manoeuvrez votre bateau,
+  essayant d'atteindre le port indemne." En cas d'echec (planches
+  perdues) : "Capitaine ! Nous avons percute quelque chose !"
+- Port malfame / Combat+Commerce : "Vous luttez contre des brigands,
+  tentant de proteger vos marchandises."
 
 RENOVER SON BATEAU (necessite ressources suffisantes OU bateau
 endommage) : choisir Ameliorer OU Reparer (pas les deux, sauf en
@@ -223,6 +314,11 @@ depensant 1 rhum pour faire les deux) :
 - Reparer : +1 planche gratuite, puis +1 planche par bois depense
   (ex: 2 bois depenses -> 3 planches au total). Toile et/ou metal peuvent
   remplacer le bois pour cette reparation.
+
+Scripts : scripts/board/action_resolution_phase.gd (_run_renovation(),
+_run_rabibochage(), _do_ameliorer(), _do_reparer(), _can_upgrade()).
+Narrations a implementer : aucune phrase de narration officielle n'est
+donnee pour cette action dans le livret source ; ne pas en inventer.
 
 NAVIGUER EN MER :
 - Points de mouvement de depart = niveau de voile. Chaque point sert a
@@ -250,6 +346,26 @@ NAVIGUER EN MER :
   - Rencontre dangereuse : Eviter = defausser 1 fortune + la carte,
 	revenir a l'action.
   - Dans les 2 cas : possibilite de Gerer la rencontre (voir ci-dessous).
+
+Scripts : scripts/board/action_resolution_phase.gd (_run_deplacement()
+= deplacement/exploration de la mer, _handle_rencontre() = choix
+Gerer/Eviter) ; scripts/board/card_draw_phase.gd / sea_decks.gd (pioche
+des cartes mer, scripts/board/sea_card_pile.gd pour l'affichage).
+
+Narrations a implementer :
+- Debut de l'action Naviguer en mer : "Tout le monde sur le pont,
+  larguez les amarres et levez l'ancre !"
+- Deplacer son bateau : "Vous partez a l'aventure !"
+- Explorer la mer actuelle : "Vous vous aventurez plus profondement dans
+  la mer."
+- Reveler une carte mer : "Vous decouvrez quelque chose !"
+- Rencontre amicale detectee : "Vous sentez une presence pacifique."
+  - Eviter l'ami : "Vous changez de direction pour eviter l'ami."
+- Rencontre dangereuse detectee : "Vous sentez une menace immediate"
+  - Eviter le danger (defausse 1 fortune) : "Vous jetez une fortune pour
+    apaiser les mers."
+- Choisir de gerer la rencontre (les 2 cas) : "Vous faites face a votre
+  destin."
 
 GERER UNE RENCONTRE :
 - Bateau pirate (dangereuse, planche rouge) :
@@ -283,6 +399,37 @@ GERER UNE RENCONTRE :
 - Flotte marchande (amicale, brun) : uniquement Commerce (les attaquer
   serait perdant) -> suivre etapes Commerce.
 
+Scripts : scripts/board/action_resolution_phase.gd (_run_rencontre_pirate(),
+_run_rencontre_creature() = meteo/geant/creature, _run_rencontre_marchand(),
+_resolve_rencontre_activity(), _roll_dice_for_other_player()).
+
+Narrations a implementer :
+- Bateau pirate :
+  - Phase jet de des : "A la vue de l'ennemi, les equipages se preparent
+    au combat."
+  - Phase des canons : "Une fois a portee de tir, les boulets de canon
+    transpercent les coques."
+    - Victoire immediate (pirate sans planche, joueur intact) : "Vous
+      gagnez le combat !"
+    - Defaite (bateau du joueur chavire) : "Vous perdez le combat."
+    - Combat qui continue : "Le combat continue..."
+  - Phase abordage : "Les bateaux s'eperonnent, projetant les equipages
+    dans une melee brutale."
+    - Victoire (plus d'abordages que le pirate) : "Vous gagnez le
+      combat !"
+    - Defaite (autant ou moins d'abordages) : "Vous perdez le combat."
+- Menace meteo : "Vous manoeuvrez votre bateau afin de surmonter la
+  meteo."
+- Geant des mers : "Vous vous battez bec et ongles pour repousser ce
+  monstre."
+- Creature des mers : "Vous manoeuvrez votre bateau et affrontez les
+  creatures des mers."
+- Bateau marchand : "Vous commercez avec les marchands." (choix Commerce)
+  ou "Vous attaquez les marchands et tentez de les voler." (choix
+  Attaquer)
+- Flotte marchande : "Vous commercez avec les marchands proteges. Les
+  attaquer entrainerait votre propre perte !"
+
 ------------------------------------------------------------
 10. MECANIQUES TRANSVERSALES
 ------------------------------------------------------------
@@ -301,6 +448,20 @@ REUSSIR UNE ACTIVITE :
      (le retourner face "effet") si on le possede deja.
 3. Fin de l'action -> passer a l'action suivante ou finir son tour.
 
+Scripts : scripts/board/action_resolution_phase.gd (_grant_activity_success(),
+_finalize_success(), _grant_commerce_rewards(), _grant_reward_entry(),
+_offer_abondance_bonus()).
+
+Narrations a implementer :
+- Reussite de l'activite (message general) : "On a reussi la compagnie !
+  A nous le butin !"
+- 1ere carte de la mer (gemme obtenue) : "Une gemme ! Un joli trophee, en
+  effet !"
+- 2e carte de la mer (jeton bonus obtenu) : "Capitaine ! Les locaux nous
+  offrent un cadeau."
+- 3e carte de la mer ou plus (jeton bonus rafraichi) : "Capitaine, nos
+  amis sont de retour !"
+
 ECHOUER UNE ACTIVITE :
 1. Recevoir 1 fortune en compensation.
 2. Si la carte a un effet negatif (planche grise) -> le subir. La carte
@@ -316,15 +477,44 @@ ECHOUER UNE ACTIVITE :
 4. Verifier l'etat : si bateau chavire -> fin de tour immediate. Sinon si
    mouvement restant -> reprendre la navigation. Sinon -> fin de l'action.
 
+Scripts : scripts/board/action_resolution_phase.gd
+(_grant_activity_failure(), _apply_negative_effect(),
+_apply_negative_effect_fragment()).
+
+Narrations a implementer :
+- Echec de l'activite (message general) : "La prochaine fois sera la
+  bonne !"
+- Recevoir la fortune de compensation : "Parfois, la chance n'est pas de
+  ton cote... Mais ne t'inquiete pas, l'ami ! Les fortunes peuvent faire
+  tourner le vent en ta faveur !"
+
 BATEAU SURCHARGE : si > 9 ressources sur le bateau, choisir 9 ressources a
 garder et jeter le surplus.
+
+Scripts : scripts/board/action_resolution_phase.gd (_check_overload(),
+_total_resources()).
+Narrations a implementer :
+- Declenchement de la surcharge : "Votre bateau est trop charge. Vous
+  devez l'alleger."
 
 PERDRE X PLANCHES : retirer X planches de la coque (hors plateau, zone
 "perdues temporairement"). Si 0 planche restante -> Bateau chavire.
 
+Scripts : scripts/board/action_resolution_phase.gd (_lose_planks(),
+_lose_planks_for()).
+Narrations a implementer :
+- Perte de planches : "Votre bateau est endommage."
+
 BATEAU CHAVIRE : positionner le bateau sur le cote (etat "chavire").
 Personne ne peut interagir avec un joueur chavire. Perdre la moitie des
 ressources (arrondi a l'inferieur) -> "Perdre X ressources".
+
+Scripts : scripts/board/action_resolution_phase.gd (_capsize(),
+_capsize_for()).
+Narrations a implementer :
+- Bateau chavire : "Votre bateau est en mauvais etat !"
+- Perte de la moitie des ressources qui suit : "Capitaine ! Nous prenons
+  l'eau rapidement... Nous devons alleger notre charge !"
 
 PERDRE X RESSOURCES : prendre toutes ses ressources en main, les etaler ;
 defausser X ressources en commencant par celles les plus eloignees du
@@ -332,15 +522,33 @@ joueur ; recuperer le reste. Si un adversaire fait chavirer un bateau en
 combat entre joueurs, les ressources perdues lui sont donnees au lieu
 d'etre defaussees.
 
+Scripts : scripts/board/action_resolution_phase.gd (_lose_resources(),
+_lose_resources_for()).
+Narrations a implementer :
+- Perte de ressources : "Vous perdez des ressources"
+
 RHUM (motivation d'equipage) : pendant un jet de des, depenser 1 rhum
 max par jet pour +1 de additionnel (limite : 1 rhum par jet ; ne
 s'applique pas au commerce).
+
+Scripts : scripts/board/action_resolution_phase.gd (_offer_rhum_extra_die(),
+_offer_rhum_extra_die_for()).
+Narrations a implementer :
+- Proposition de depenser du rhum : "Vous partagez du rhum avec votre
+  equipage. Leur moral est au beau fixe !"
 
 FORTUNE (fixer des des) : avant de lancer, depenser des fortunes pour
 fixer des faces au lieu de lancer : 1 fortune = 1 face etoile ou 1 face
 canon ; 2 fortunes = 1 face double-etoile ou 1 face abordage. On fixe des
 des deja possedes (pas d'achat de de supplementaire). Impossible de fixer
 apres le lancer. Les des non fixes restants sont lances normalement.
+
+Scripts : scripts/board/action_resolution_phase.gd
+(_offer_fortune_dice_fixing(), _offer_fortune_dice_fixing_for()).
+Narrations a implementer :
+- Proposition de fixer des des avec de la fortune : "Vous jetez des
+  fortunes par-dessus bord, priant les dieux des mers de vous aider a
+  surmonter l'epreuve a venir."
 
 JETONS BONUS : effet unique reutilisable apres l'avoir "regagne" (en
 recuperant une nouvelle carte de la mer correspondante). Une fois
@@ -358,11 +566,29 @@ utilise, retourner le jeton face cachee.
   correspondant directement sur le bateau (c'est un effet, pas une
   ressource stockable).
 
+Scripts : scripts/board/action_resolution_phase.gd
+(_has_active_bonus_token(), _offer_bonus_token(), _offer_feu_extra_die_for(),
+_offer_jade_bonus_planks()) ; scripts/board/sea_token_pile.gd (affichage/etat
+face "effet" vs face cachee du jeton).
+Narrations a implementer : le livret ne fournit pas de phrase de narration
+dediee a l'utilisation d'un jeton bonus ; se contenter d'indiquer l'effet
+applique (texte factuel), sans inventer de narration.
+
 ------------------------------------------------------------
 11. ACTIONS PAR DEFAUT (si principale/reduite impossible ou refusee)
 ------------------------------------------------------------
 - Pecher en mer   : +1 nourriture.
 - Attendre sa fortune : +1 fortune.
+
+Scripts : scripts/board/action_resolution_phase.gd (_resolve_action(),
+cas "peche"/"attente" ; _unavailable_reason()).
+
+Narrations a implementer :
+- Pecher en mer : "L'ennui gagne le bateau et tout le monde commence a
+  pecher. Vous luttez avec votre ligne mais decrochez une bonne prise."
+- Attendre sa fortune : "Vous flanez sur le pont quand une vague se brise
+  sur le bateau. Une lueur attire votre attention alors que l'eau se
+  retire : une fortune !"
 
 ------------------------------------------------------------
 12. ACTIONS REDUITES (emplacement faible du plateau action)
@@ -377,6 +603,20 @@ utilise, retourner le jeton face cachee.
 - Travailler au port (necessite mer avec port) : recevoir 1 ressource au
   choix parmi celles a droite de la fleche d'echange. Pas de tresor ; la
   carte reste en place.
+
+Scripts : scripts/board/action_resolution_phase.gd (_run_deplacement()
+avec is_strong=false = Caboter, _run_rabibochage(), _run_ile_collect(),
+_run_port_work()).
+
+Narrations a implementer :
+- Caboter en mer : "Malgre vos efforts, vous ne faites que peu de
+  progres..."
+- Rabibocher son bateau : "Vous vous contentez d'un simple
+  rafistolage..."
+- Collecter sur une ile : "Une fouille hative de l'ile ne permet
+  d'obtenir que quelques provisions..."
+- Travailler au port : "Quelques heures de travail ne rapportent qu'une
+  maigre recompense."
 
 ------------------------------------------------------------
 13. ACTIONS OPTIONNELLES (1 max par tour, avant/apres une action
@@ -413,6 +653,24 @@ ATTAQUER UN JOUEUR : choisir un adversaire dans la meme mer.
   Le sien propre reste cote "libre".
   Si le bateau de l'attaquant/attaque chavire pendant ce combat -> fin de
   tour immediate pour lui.
+
+Scripts : scripts/board/action_resolution_phase.gd (_offer_optional_action(),
+_choose_target_player(), _run_commerce_avec_joueur(), _run_free_trade(),
+_transfer_one_item(), _run_attaquer_joueur(), _offer_pvp_theft()).
+
+Narrations a implementer :
+- Commercer avec un joueur, cible accepte : "Vous faites des echanges
+  avec l'autre Capitaine."
+- Commercer avec un joueur, cible refuse : "L'autre Capitaine n'est pas
+  interesse."
+- Attaquer un joueur, tentative d'evasion reussie : "Votre adversaire
+  reussit a s'echapper, evitant ainsi le combat."
+- Attaquer un joueur, evasion ratee (le combat commence) : "Vous
+  rattrapez votre adversaire. Preparez-vous au combat !"
+Note : le livret ne donne pas de phrase de narration dediee au resultat
+du combat entre joueurs au-dela des constats factuels deja repris dans la
+regle ci-dessus ("Un Capitaine est victorieux !" / "Personne ne gagne.") ;
+garder ces formulations telles quelles, sans en ajouter d'autres.
 
 ------------------------------------------------------------
 14. POINTS OUVERTS / A CLARIFIER (releves dans les notes d'origine)
@@ -467,15 +725,18 @@ Points precedemment ouverts, verifies et resolus depuis :
 ------------------------------------------------------------
 15. RENVOIS VERS LA DOCUMENTATION D'ORIGINE
 ------------------------------------------------------------
-Ce fichier reste une reference condensee pour l'implementation. Le
+Ce fichier reste une reference condensee pour l'implementation. Les
+phrases de narration officielles necessaires au code sont deja reprises
+telles quelles dans chaque section ci-dessus ("Narrations a
+implementer"), avec le(s) script(s) Godot concerne(s) ("Scripts :"). Le
 document source complet ("Regles mode avance Los 7 Mares", fourni par
-l'auteur en PDF) contient en plus, pour memoire :
-- Les textes d'ambiance de chaque mer (non necessaires au code).
-- Le detail narratif complet de chaque etape (repris ici sous forme de
-  notes "Narration" dans le catalogue de cartes et les box de narration du
-  jeu, scripts/board/narration_box.gd et action_resolution_phase.gd).
+l'auteur en PDF) contient en plus, pour memoire uniquement :
+- Les textes d'ambiance/description de chaque mer (non necessaires au
+  code, purement thematiques).
 Toute divergence constatee entre ce fichier et le PDF source doit etre
-tranchee en faveur du PDF (source de verite), puis reportee ici.
+tranchee en faveur du PDF (source de verite), puis reportee ici. Toute
+narration effectivement affichee dans narration_box.gd qui ne
+correspondrait pas au texte officiel liste ici doit etre corrigee.
 
 ============================================================================
 Fin du document. A mettre a jour si les regles evoluent.

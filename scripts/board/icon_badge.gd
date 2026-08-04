@@ -11,7 +11,7 @@ extends HBoxContainer
 
 
 ## icon_keys : une ou deux clés IconArt (ex: ["bois"] ou ["acier","toile"]).
-## En attendant les icônes définitives (cf GAME_RULES.txt section 14), le
+## En attendant les icônes définitives (cf DEV_RULES_REFERENCE.txt section 14), le
 ## nom textuel de la ressource s'affiche à la place de l'image manquante.
 func set_data(icon_keys: Array, amount: int) -> void:
 	amount_label.text = "x%d" % amount

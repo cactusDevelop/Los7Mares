@@ -2,7 +2,7 @@ extends Node3D
 
 ## Orchestre un lancer de N dés physiques (tous du même type, via roll()) ou
 ## d'un mélange de types de dés (via roll_mixed(), ex: 1 dé noir de combat +
-## 1 dé blanc d'exploration, cf GAME_RULES.txt section 5 étape 7) et renvoie
+## 1 dé blanc d'exploration, cf DEV_RULES_REFERENCE.txt section 5 étape 7) et renvoie
 ## les résultats une fois que tous les dés sont immobiles.
 ##
 ## Réseau : la simulation physique (RigidBody3D) n'est PAS déterministe d'une

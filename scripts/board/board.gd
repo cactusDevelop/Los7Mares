@@ -796,7 +796,7 @@ func _on_round_finished() -> void:
 ## NOTE (corrigé) : la fin de partie se base sur l'épuisement des 7
 ## fortunes du plateau action (règle 1/4), PAS sur les jetons bonus des
 ## mers (_all_sea_tokens_taken, mécanique différente et sans lien avec la
-## fin de partie - cf GAME_RULES.txt section 10 "JETONS BONUS").
+## fin de partie - cf DEV_RULES_REFERENCE.txt section 10 "JETONS BONUS").
 func _all_fortune_taken() -> bool:
 	for spot in fortune_spots_container.get_children():
 		if not spot.is_taken:

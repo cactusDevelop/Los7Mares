@@ -84,7 +84,7 @@ const N_RENCONTRE_FLOTTE := "Une flotte marchande bat pavillon amical à l'horiz
 ## Sous-type de rencontre déduit du titre de la carte (règle 9 "Gérer une
 ## rencontre") : détermine la mécanique de résolution à appliquer. "pirate"
 ## regroupe Bateau pirate ET Capitaine pirate (même mécanique de phases
-## canons/abordage, cf GAME_RULES.txt, implémentée dans
+## canons/abordage, cf DEV_RULES_REFERENCE.txt, implémentée dans
 ## _run_rencontre_pirate) : la répartition boulets/abordages/faces
 ## inconnues est fournie par variante de carte dans card_catalog.json.
 const RENCONTRE_KIND: Dictionary = {
@@ -1968,7 +1968,7 @@ func _progress_message(progress: String) -> String:
 
 ## Échouer une activité (règle 10) : 1 fortune de compensation, puis l'effet
 ## négatif de la carte s'il y en a un (planche grise, non encore détaillée
-## icône par icône - cf GAME_RULES.txt section 14 - donc parsée depuis le
+## icône par icône - cf DEV_RULES_REFERENCE.txt section 14 - donc parsée depuis le
 ## texte negative_effect du catalogue).
 func _grant_activity_failure(card: GameCard) -> void:
 	_player["special_resources"]["fortune"] += 1
@@ -2231,7 +2231,7 @@ func _apply_negative_effect(text: String) -> void:
 
 
 ## Reconnaît et applique une seule clause d'effet négatif. Formes couvertes
-## (livret "Subir l'effet négatif") : cf. GAME_RULES.txt section 14.
+## (livret "Subir l'effet négatif") : cf. DEV_RULES_REFERENCE.txt section 14.
 ## IMPORTANT : les formes spécifiques ("par ressource", "par niveau
 ## d'armes", etc.) sont vérifiées AVANT les regex génériques de "Perdez X
 ## planches"/"Perdez X ressources", qui matcheraient sinon par erreur (ex :

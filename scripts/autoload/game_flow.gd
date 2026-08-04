@@ -157,7 +157,7 @@ func add_player(player_name: String, color: String) -> Dictionary:
 		# mer est collectée. Jetons bonus : sea_key -> {"active": bool}, créé
 		# à la 2e carte de la mer, "active" repasse à true à chaque carte
 		# suivante de cette mer ("rafraîchi") et à false après utilisation
-		# (cf GAME_RULES.txt section 10 "JETONS BONUS").
+		# (cf DEV_RULES_REFERENCE.txt section 10 "JETONS BONUS").
 		"gems": {},
 		"bonus_tokens": {},
 		"hull_planks": HULL_PLANKS_START,

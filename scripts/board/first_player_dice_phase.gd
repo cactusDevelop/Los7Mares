@@ -1,6 +1,6 @@
 extends Node
 
-## Phase de mise en place (GAME_RULES.txt, règle 5, étape 7) : chaque joueur
+## Phase de mise en place (DEV_RULES_REFERENCE.txt, règle 5, étape 7) : chaque joueur
 ## lance simultanément 1 dé de combat (noir) + 1 dé d'exploration (blanc).
 ## Le jet le plus fort désigne le 1er joueur (marqueur doré). Comparaison :
 ## les dés noirs priment (canon > abordage > rien), puis les dés blancs

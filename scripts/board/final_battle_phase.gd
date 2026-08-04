@@ -1,6 +1,6 @@
 extends Node
 
-## Combat final en cas d'égalité au score (GAME_RULES.txt, règle 8,
+## Combat final en cas d'égalité au score (DEV_RULES_REFERENCE.txt, règle 8,
 ## "Égalité au score final -> Combat final") :
 ## - Chaque joueur à égalité ajuste son bateau à 7 planches et 5 canons
 ##   (niveau d'armes 5), gratuitement et uniquement pour ce combat (aucun
