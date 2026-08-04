@@ -183,9 +183,9 @@ func _roll_for_player(player_id: int) -> void:
 
 func _throw_and_await() -> Array[String]:
 	var scenes: Array[PackedScene] = [BLACK_DIE_SCENE, WHITE_DIE_SCENE]
-	_dice_roll.roll_mixed(scenes)
-	var results: Array[String] = await _dice_roll.roll_finished
-	return results
+	# Réseau : seul l'hôte fait réellement tourner la simulation physique,
+	# le résultat est ensuite le même pour tout le monde (cf Board.roll_dice_synced).
+	return await _board.roll_dice_synced(_dice_roll, scenes)
 
 
 ## Renvoie l'id du/des joueur(s) au meilleur jet parmi player_ids (plusieurs

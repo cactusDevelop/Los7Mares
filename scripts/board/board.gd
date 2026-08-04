@@ -1,6 +1,12 @@
 extends Node2D
 class_name Board
 
+## Diffusé quand l'hôte a fini de faire tourner un lancer de dés physique
+## (cf roll_dice_synced) : permet à un client réseau d'obtenir exactement le
+## même résultat sans rejouer la simulation localement (RigidBody3D n'est
+## pas déterministe d'une machine à l'autre).
+signal dice_result_received(results: Array)
+
 const BOARD_THUMB_SIZE := Vector2(160, 107)
 ## Plateau du joueur actif (en bas de l'écran) : 2x plus grand que les autres.
 const CURRENT_BOARD_THUMB_SIZE := Vector2(320, 214)
@@ -195,7 +201,22 @@ func _ready() -> void:
 
 	_slot_order = _sea_tiles.duplicate()
 	if GameFlow.game_mode == "host" or GameFlow.game_mode == "join":
+		# Graine synchronisée par l'hôte (network_manager._start_game) :
+		# à partir d'ici, seed() rend déterministe non seulement ce
+		# shuffle, mais aussi TOUT random ultérieur tant que la séquence
+		# d'appels reste identique sur chaque pair (cf plus bas pour
+		# SeaDecks, ET les phases qui tournent maintenant en lockstep sur
+		# tous les écrans, cf board.gd plus haut / hideout_phase.gd /
+		# narration_box.gd). Les dés physiques 3D restent l'exception : ils
+		# ne consomment pas ce flux, cf Board.roll_dice_synced.
 		seed(GameFlow.board_seed)
+		# SeaDecks (autoload) construit et mélange ses pioches dans son
+		# propre _ready(), donc AVANT que board_seed soit connu (au
+		# lancement de l'appli) : sans ce re-mélange ici, chaque pair
+		# tirerait des cartes différentes pour une même mer. On le refait
+		# maintenant, juste après avoir posé la graine partagée, pour que
+		# ce mélange soit lui aussi identique sur tous les écrans.
+		SeaDecks._build_decks()
 	_slot_order.shuffle()
 	for i in range(_slot_order.size()):
 		var tile = _slot_order[i]
@@ -254,29 +275,35 @@ func _ready() -> void:
 	_refresh_player_boards()
 	_refresh_gem_piles()
 
+	# NOTE réseau : ces callbacks tournent maintenant sur TOUS les pairs
+	# (hôte + clients), pas seulement l'hôte (cf plus bas, branche "join").
+	# Chaque phase (dealing/first_player_dice/hideout/card_draw/pion_placement)
+	# s'exécute en lockstep identique sur chaque écran, l'hôte restant la
+	# seule autorité de validation pour les entrées des clients (RPC
+	# "any_peer" -> hôte -> rediffusion "authority"/call_local), cf
+	# hideout_phase.gd, narration_box.gd, pion_placement_phase.gd et
+	# action_resolution_phase.gd.
 	dealing_phase.finished.connect(func():
-		if _is_remote_client(): return
 		first_player_dice_phase.start(self)
 	)
 	first_player_dice_phase.finished.connect(func():
-		if _is_remote_client(): return
-		_autosave("hideout")
+		if not _is_remote_client():
+			_autosave("hideout")
 		hideout_phase.start(self)
 	)
 	hideout_phase.finished.connect(func():
-		if _is_remote_client(): return
 		_start_round()
-		_autosave("cards")
+		if not _is_remote_client():
+			_autosave("cards")
 		await pion_selection_panel.play_turn_announcement(GameFlow.round_number)
 		card_draw_phase.start(self)
 	)
 	card_draw_phase.finished.connect(func():
-		if _is_remote_client(): return
-		_autosave("pions")
+		if not _is_remote_client():
+			_autosave("pions")
 		pion_placement_phase.start(self)
 	)
 	pion_placement_phase.finished.connect(func():
-		if _is_remote_client(): return
 		_on_round_finished()
 	)
 
@@ -295,17 +322,23 @@ func _ready() -> void:
 		pion_placement_phase.start(self)
 	elif GameFlow.game_mode == "host":
 		# Les joueurs ont déjà été enregistrés via le Lobby (network_manager.gd
-		# / lobby.gd) avant d'arriver ici. Seul l'hôte fait réellement tourner
-		# la partie (étape suivante : diffuser l'état aux clients).
+		# / lobby.gd) avant d'arriver ici. L'hôte est la seule autorité pour
+		# valider les entrées des clients, mais il exécute la même chaîne de
+		# phases que tout le monde (cf dealing_phase.finished etc. plus haut).
 		deck_area.input_pickable = true
 		dealing_phase.start(self)
 	elif GameFlow.game_mode == "join":
-		# Client : la logique tourne côté hôte. En attendant la synchro
-		# complète du plateau (étape suivante), on affiche juste un message ;
-		# les plateaux joueurs sont déjà visibles (players_changed rempli
-		# depuis le Lobby).
-		deck_area.input_pickable = false
-		narration_box.say(tr("En attente de l'hôte..."))
+		# Client : exécute la même chaîne de phases que l'hôte, en lockstep
+		# (cf dealing_phase.gd _begin_deal, hideout_phase.gd, narration_box.gd,
+		# pion_placement_phase.gd, action_resolution_phase.gd : chaque étape
+		# est rejouée à l'identique sur cet écran via RPC "authority"/
+		# call_local ; seules les entrées concernant CE joueur sont actives
+		# localement, le reste n'est que de l'affichage synchronisé). Le clic
+		# sur la pile de distribution n'est pas restreint à un joueur en
+		# particulier (dealing_phase._on_deck_clicked), donc on laisse le
+		# deck cliquable ici aussi.
+		deck_area.input_pickable = true
+		dealing_phase.start(self)
 	elif GameFlow.pending_setup_mode != "":
 		GameFlow.game_mode = GameFlow.pending_setup_mode
 		deck_area.input_pickable = false
@@ -394,6 +427,44 @@ func _on_dice_results_button_pressed() -> void:
 ## d'afficher l'état diffusé par l'hôte (cf network_manager._sync_game_state).
 func _is_remote_client() -> bool:
 	return GameFlow.game_mode == "join"
+
+
+## Lance des dés 3D physiques (dice_roll.roll_mixed) de façon synchronisée
+## en réseau et renvoie le résultat. Utilisé par action_resolution_phase,
+## first_player_dice_phase et final_battle_phase (partagé ici pour éviter de
+## dupliquer 3 fois la même logique réseau).
+##
+## Un lancer de dé physique (RigidBody3D + vitesse/rotation initiales
+## aléatoires) n'est PAS reproductible à l'identique d'une machine à l'autre,
+## même avec la même graine aléatoire (dépend du pas de simulation physique,
+## qui n'est pas garanti bit-à-bit identique). Donc : seul l'hôte (ou une
+## partie locale/hotseat) fait réellement tourner la simulation ; le
+## résultat est ensuite diffusé à tous les clients par RPC pour qu'ils
+## affichent tous exactement le même résultat (cf énoncé : "si un joueur
+## lance les dés, tous les joueurs doivent le voir aussi"). Les clients
+## n'animent pas la simulation physique localement (ça n'aurait pas de sens
+## sans le résultat final à l'avance) ; ils attendent juste la diffusion.
+func roll_dice_synced(dice_roll: Node3D, scenes: Array[PackedScene]) -> Array[String]:
+	if GameFlow.game_mode == "join":
+		var results: Array = await dice_result_received
+		var typed: Array[String] = []
+		for r in results:
+			typed.append(str(r))
+		return typed
+
+	dice_roll.roll_mixed(scenes)
+	var results: Array[String] = await dice_roll.roll_finished
+	if GameFlow.game_mode == "host":
+		_broadcast_dice_result.rpc(results)
+	return results
+
+
+## call_remote (pas call_local) : l'hôte a déjà "results" localement dans
+## roll_dice_synced, se le renvoyer à lui-même ne servirait à rien (même
+## principe que network_manager._sync_game_state).
+@rpc("authority", "call_remote", "reliable")
+func _broadcast_dice_result(results: Array) -> void:
+	dice_result_received.emit(results)
 
 
 ## Id du joueur affiché en bas/en grand. En mode local (et debug), c'est le

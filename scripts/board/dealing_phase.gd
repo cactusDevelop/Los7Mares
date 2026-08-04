@@ -62,8 +62,22 @@ func _on_deck_clicked() -> void:
 		# façon identique partout (cf _slot_order/board_seed synchronisés
 		# dans board._ready()).
 		_begin_deal.rpc()
+	elif GameFlow.game_mode == "join":
+		# Client réseau : ne déclenche jamais _begin_deal() en local (ça ne
+		# préviendrait ni l'hôte ni les autres clients) ; demande à l'hôte,
+		# qui revalide (_board._has_started) puis rediffuse à tout le monde.
+		_request_begin_deal_rpc.rpc_id(1)
 	else:
 		_begin_deal()
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_begin_deal_rpc() -> void:
+	if not multiplayer.is_server():
+		return
+	if _board._has_started:
+		return
+	_begin_deal.rpc()
 
 
 @rpc("authority", "call_local", "reliable")

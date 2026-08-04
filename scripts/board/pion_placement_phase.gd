@@ -73,6 +73,16 @@ func start(board: Board) -> void:
 	_begin_player_pion_turn()
 
 
+## Vrai si CET écran doit pouvoir sélectionner/poser un pion pour le tour en
+## cours : toujours vrai en partie locale/hotseat, sinon seulement pour
+## l'écran du joueur dont c'est réellement le tour.
+func _can_local_player_act() -> bool:
+	if GameFlow.game_mode != "host" and GameFlow.game_mode != "join":
+		return true
+	var my_player_id: int = Network.peer_player_map.get(multiplayer.get_unique_id(), -1)
+	return my_player_id == _current_player()["id"]
+
+
 ## Affiche le panneau de sélection de pièce + recadre la caméra sur la zone
 ## de sélection uniquement quand un tour va effectivement suivre (si la
 ## phase se termine à la place, on reste sur la vue par défaut : cf le
@@ -85,25 +95,38 @@ func _begin_player_pion_turn() -> void:
 			_end_pion_placement_phase()
 			return
 
-	_board.pion_selection_panel.show_for_placement_phase()
-	_shift_camera_for_selection(true)
-
 	var player: Dictionary = _current_player()
 	GameFlow.set_current_player(player["id"])
 	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
 	_selected_rank = -1
+	var can_act := _can_local_player_act()
+
+	# Le panneau de sélection de pièce + le recadrage caméra ne concernent
+	# QUE l'écran du joueur actif : les autres gardent la vue normale du
+	# plateau (ils ne font qu'observer ce tour), cf énoncé "chaque joueur a
+	# le contrôle sur les actions qui le concernent".
+	if can_act:
+		_board.pion_selection_panel.show_for_placement_phase()
+	else:
+		_board.pion_selection_panel.hide_panel()
+	_shift_camera_for_selection(can_act)
+
+	for spot in _board.action_spots_container.get_children():
+		spot.set_hover_enabled(can_act)
 
 	if player.get("hull_planks", GameFlow.HULL_PLANKS_START) <= 0:
 		await _repair_capsized_boat(player)
 
 	if _current_round == 0:
 		_board.narration_box.say_with_player(tr("Tour de %s : choisis le pion à jouer (capitaine ou officier)."), player)
-		_board.pion_selection_panel.setup_for_player(color, -1)
+		if can_act:
+			_board.pion_selection_panel.setup_for_player(color, -1)
 	else:
 		var placed_rank: int = _placed_rank_by_player[_current_player_index]
 		var forced_rank: int = GameFlow.PionRank.OFFICER if placed_rank == GameFlow.PionRank.CAPTAIN else GameFlow.PionRank.CAPTAIN
 		_board.narration_box.say_with_player(tr("Tour de %s : place ta dernière pièce."), player)
-		_board.pion_selection_panel.setup_for_player(color, forced_rank)
+		if can_act:
+			_board.pion_selection_panel.setup_for_player(color, forced_rank)
 
 
 ## Rafistoler son bateau (règle 6, étape 1) : "ssi chaviré" (0 planche), en
@@ -183,25 +206,72 @@ func _find_hovered_spot() -> Node2D:
 
 
 func _on_action_spot_clicked(spot: Node2D) -> void:
-	if _selected_rank == -1 or _resolving_action:
+	if _selected_rank == -1 or _resolving_action or not _can_local_player_act():
 		return
 
 	var player: Dictionary = _current_player()
 
 	if spot.has_player_pion(player["color"]):
+		# Simple retour visuel local (pas de mutation d'état) : pas besoin
+		# de passer par le réseau, seul l'écran du joueur actif peut de
+		# toute façon arriver jusqu'ici (cf _can_local_player_act ci-dessus).
 		_board.narration_box.say(tr("Tu ne peux pas poser tes deux pions sur la même case."))
 		return
+
+	var spot_index: int = spot.get_index()
+	if GameFlow.game_mode == "host":
+		_try_place_pion(spot_index, _selected_rank)
+	elif GameFlow.game_mode == "join":
+		_request_place_pion_rpc.rpc_id(1, spot_index, _selected_rank)
+	else:
+		_apply_pion_placement(spot_index, _selected_rank)
+
+
+## Côté client (any_peer) : demande à l'hôte de valider la pose de pion.
+@rpc("any_peer", "call_remote", "reliable")
+func _request_place_pion_rpc(spot_index: int, rank: int) -> void:
+	if not multiplayer.is_server():
+		return
+	var sender_id := multiplayer.get_remote_sender_id()
+	if Network.peer_player_map.get(sender_id, -1) != _current_player()["id"]:
+		return  # pas son tour (ou latence/désynchro) : on ignore silencieusement
+	_try_place_pion(spot_index, rank)
+
+
+## Hôte uniquement : revalide (case encore libre pour ce joueur) puis
+## rediffuse la pose réelle à tout le monde.
+func _try_place_pion(spot_index: int, rank: int) -> void:
+	var spots := _board.action_spots_container.get_children()
+	if spot_index < 0 or spot_index >= spots.size():
+		return
+	var spot: Node2D = spots[spot_index]
+	var player: Dictionary = _current_player()
+	if spot.has_player_pion(player["color"]):
+		return
+	_apply_pion_placement.rpc(spot_index, rank)
+
+
+## Rejoué à l'identique sur chaque écran (call_local) : c'est le vrai corps
+## de la pose de pion + résolution d'action qui suit (règle 6), inchangé par
+## rapport à avant, seul le déclenchement est désormais réseau.
+@rpc("authority", "call_local", "reliable")
+func _apply_pion_placement(spot_index: int, rank: int) -> void:
+	var spots := _board.action_spots_container.get_children()
+	if spot_index < 0 or spot_index >= spots.size():
+		return
+	var spot: Node2D = spots[spot_index]
+	var player: Dictionary = _current_player()
 
 	# Snapshot AVANT la pose : la force (fort/faible) dépend de ce qui est
 	# déjà présent sur la case au moment où ce pion y atterrit (règle 4).
 	var existing_pions: Array = spot.get_pions_snapshot()
-	var is_strong: bool = GameFlow.compute_placement_strength(existing_pions, _selected_rank)
+	var is_strong: bool = GameFlow.compute_placement_strength(existing_pions, rank)
 
-	var pion_scene: PackedScene = CAPTAIN_SCENE if _selected_rank == GameFlow.PionRank.CAPTAIN else OFFICER_SCENE
+	var pion_scene: PackedScene = CAPTAIN_SCENE if rank == GameFlow.PionRank.CAPTAIN else OFFICER_SCENE
 	var pion: Node2D = pion_scene.instantiate()
 	pion.modulate = GameFlow.COLOR_VALUES[player["color"]]
 	pion.scale = Vector2.ONE * UiTheme.PION_SCALE
-	spot.add_pion(pion, player["color"], _selected_rank)
+	spot.add_pion(pion, player["color"], rank)
 
 	# Narration (règles mode avancé, règle 6) : emplacement fort = sang-froid,
 	# emplacement faible = équipage démotivé.
@@ -212,9 +282,10 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 	_board.narration_box.hide_box()
 
 	if _current_round == 0:
-		_placed_rank_by_player[_current_player_index] = _selected_rank
+		_placed_rank_by_player[_current_player_index] = rank
 	_selected_rank = -1
-	_board._autosave("pions")
+	if not _board._is_remote_client():
+		_board._autosave("pions")
 
 	# On quitte la vue "sélection de pièce" (zoom + panneau) dès que la pièce
 	# est posée : la résolution d'action (ex. cliquer sur une mer pour le
@@ -223,7 +294,6 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 	_board.pion_selection_panel.hide_panel()
 	_shift_camera_for_selection(false)
 
-	var spot_index: int = spot.get_index()
 	_resolving_action = true
 	await _board.action_resolution_phase.start(_board, player, spot_index, is_strong)
 	_resolving_action = false

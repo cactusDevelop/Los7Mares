@@ -892,14 +892,14 @@ func _run_deplacement() -> String:
 			if tile == null:
 				continue
 			tiles.append(tile)
-			tile.set_hover_enabled(true)
+			tile.set_hover_enabled(_can_local_player_act())
 			tile.spot_clicked.connect(_on_sea_tile_clicked)
 
 		var hideout_spot: Node2D = null
 		if can_return_home:
 			hideout_spot = _board.hideout_spots_container.get_children()[hideout_index]
 			hideout_spot.set_hover_label("")
-			hideout_spot.set_hover_enabled(true)
+			hideout_spot.set_hover_enabled(_can_local_player_act())
 			hideout_spot.spot_clicked.connect(_on_hideout_spot_clicked)
 
 		_board.narration_box.option_selected.connect(_on_panel_choice)
@@ -1223,16 +1223,59 @@ func _roll_dice_for_other_player(count: int) -> Array[String]:
 
 
 func _on_sea_tile_clicked(tile: Node2D) -> void:
-	_board.narration_box.set_options([])
-	_choice_made.emit("move:" + tile.sea_key)
+	_dispatch_choice("move:" + tile.sea_key)
 
 
 func _on_hideout_spot_clicked(_spot: Node2D) -> void:
-	_board.narration_box.set_options([])
-	_choice_made.emit("hideout")
+	_dispatch_choice("hideout")
 
 
 func _on_panel_choice(id: String) -> void:
+	# Passe déjà par narration_box.option_selected, lui-même déjà
+	# gated/synchronisé par narration_box.gd (RPC "authority"/"any_peer") :
+	# rien de plus à faire ici, contrairement à _on_sea_tile_clicked et
+	# _on_hideout_spot_clicked ci-dessus qui cliquent directement sur le
+	# plateau (en dehors de la narration_box) et doivent donc avoir leur
+	# propre synchronisation, cf _dispatch_choice.
+	_choice_made.emit(id)
+
+
+## Vrai si CET écran doit pouvoir cliquer sur une mer/la cachette pour le
+## déplacement du tour en cours (_player) : toujours vrai en partie
+## locale/hotseat, sinon seulement pour l'écran du joueur concerné.
+func _can_local_player_act() -> bool:
+	if GameFlow.game_mode != "host" and GameFlow.game_mode != "join":
+		return true
+	var my_player_id: int = Network.peer_player_map.get(multiplayer.get_unique_id(), -1)
+	return my_player_id == _player.get("id", -1)
+
+
+## Clic direct sur le plateau (mer/cachette, hors narration_box) : diffusé à
+## tout le monde via le même schéma que narration_box.gd, pour que
+## _choice_made s'émette de façon identique sur chaque écran (lockstep).
+func _dispatch_choice(id: String) -> void:
+	if GameFlow.game_mode != "host" and GameFlow.game_mode != "join":
+		_board.narration_box.set_options([])
+		_choice_made.emit(id)
+	elif GameFlow.game_mode == "host":
+		_broadcast_choice.rpc(id)
+	else:
+		_request_choice_rpc.rpc_id(1, id)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_choice_rpc(id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var sender_id := multiplayer.get_remote_sender_id()
+	if Network.peer_player_map.get(sender_id, -1) != _player.get("id", -1):
+		return
+	_broadcast_choice.rpc(id)
+
+
+@rpc("authority", "call_local", "reliable")
+func _broadcast_choice(id: String) -> void:
+	_board.narration_box.set_options([])
 	_choice_made.emit(id)
 
 
@@ -1831,8 +1874,9 @@ func _throw_dice(count: int, is_white: bool) -> Array[String]:
 	viewport_container.visible = true
 	_board.narration_box.say_with_player(tr("Tour de %s : lancer des dés..."), _player)
 	_board.narration_box.set_options([])
-	dice_roll.roll_mixed(scenes)
-	var results: Array[String] = await dice_roll.roll_finished
+	# Réseau : seul l'hôte fait réellement tourner la simulation physique,
+	# le résultat est ensuite le même pour tout le monde (cf Board.roll_dice_synced).
+	var results: Array[String] = await _board.roll_dice_synced(dice_roll, scenes)
 	await _board.get_tree().create_timer(DICE_PAUSE).timeout
 	viewport_container.visible = false
 	return results

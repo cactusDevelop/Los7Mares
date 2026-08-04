@@ -31,6 +31,18 @@ var _reveal_tween: Tween
 var _panel_style: StyleBoxFlat
 var _current_option_ids: Array = []
 
+## Id (GameFlow.players) du joueur à qui s'adresse le choix affiché
+## actuellement, posé par say_with_player. En réseau, seul l'écran de CE
+## joueur affiche réellement les boutons de set_options() et peut cliquer
+## "Continuer" (wait_for_click/wait_for_continue) : tout le monde voit le
+## même texte, mais un seul joueur agit à la fois, cf énoncé "chaque joueur
+## a le contrôle sur les actions qui le concernent". N'est jamais remis à
+## -1 par say()/hide_box() (même logique que le contour couleur, qui reste
+## lui aussi jusqu'au prochain say_with_player), pour rester correct sur les
+## messages "de lecture" intercalés (ex: "action impossible") qui ne
+## changent pas de joueur concerné.
+var _active_player_id: int = -1
+
 
 func _ready() -> void:
 	# Onglet fixe de la sidebar gauche : toujours visible, ne se repositionne
@@ -86,6 +98,7 @@ func say(text: String) -> void:
 ## extra_args : arguments supplémentaires insérés après le nom du joueur
 ## (ex: format = "Tour de %s : il reste %d points.", extra_args = [points]).
 func say_with_player(format: String, player: Dictionary, extra_args: Array = []) -> void:
+	_active_player_id = player.get("id", -1)
 	var player_color: Color = GameFlow.COLOR_VALUES[player["color"]]
 	var colored_name := "[color=#%s]%s[/color]" % [player_color.to_html(false), player["name"]]
 	var args: Array = [colored_name] + extra_args
@@ -106,21 +119,68 @@ func clear_outline() -> void:
 ## Affiche une liste de boutons de choix sous le texte de narration.
 ## options: Array[{"id": String, "label": String}]. Liste vide = pas de bouton.
 func set_options(options: Array) -> void:
+	# _current_option_ids reste rempli pour TOUT le monde (utilisé par
+	# has_options()/skip(), et par l'hôte pour valider les choix reçus des
+	# clients, cf _request_option_rpc) : seul l'AFFICHAGE des boutons est
+	# restreint au joueur concerné juste en dessous.
 	_current_option_ids = options.map(func(o): return o["id"])
 	for child in buttons_box.get_children():
 		buttons_box.remove_child(child)
 		child.queue_free()
-	for option in options:
-		var btn := Button.new()
-		btn.text = option["label"]
-		btn.custom_minimum_size = Vector2(LABEL_WIDTH, BUTTON_HEIGHT)
-		btn.add_theme_font_size_override("font_size", BUTTON_FONT_SIZE)
-		btn.pressed.connect(_on_button_pressed.bind(option["id"]))
-		buttons_box.add_child(btn)
+	if _is_local_player_active():
+		for option in options:
+			var btn := Button.new()
+			btn.text = option["label"]
+			btn.custom_minimum_size = Vector2(LABEL_WIDTH, BUTTON_HEIGHT)
+			btn.add_theme_font_size_override("font_size", BUTTON_FONT_SIZE)
+			btn.pressed.connect(_on_button_pressed.bind(option["id"]))
+			buttons_box.add_child(btn)
 	call_deferred("_layout")
 
 
+## Vrai si CET écran doit afficher/activer les boutons/le clic d'avancement
+## en cours : toujours vrai en partie locale/hotseat (une seule machine),
+## sinon seulement pour le joueur dont c'est réellement le tour de décider
+## (cf _active_player_id, posé par say_with_player).
+func _is_local_player_active() -> bool:
+	if GameFlow.game_mode != "host" and GameFlow.game_mode != "join":
+		return true
+	var my_player_id: int = Network.peer_player_map.get(multiplayer.get_unique_id(), -1)
+	return my_player_id != -1 and my_player_id == _active_player_id
+
+
 func _on_button_pressed(id: String) -> void:
+	# En partie locale/hotseat, aucun réseau : émission directe, comme avant.
+	if GameFlow.game_mode != "host" and GameFlow.game_mode != "join":
+		option_selected.emit(id)
+		return
+	if GameFlow.game_mode == "host":
+		# call_local : l'hôte se redonne le résultat à lui-même par le même
+		# chemin que les clients, pour que option_selected s'émette de façon
+		# identique partout (même principe que hideout_phase._claim_spot_rpc).
+		_broadcast_option_selected.rpc(id)
+	else:
+		_request_option_rpc.rpc_id(1, id)
+
+
+## Côté client (any_peer) : demande à l'hôte de valider ce choix.
+@rpc("any_peer", "call_remote", "reliable")
+func _request_option_rpc(id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var sender_id := multiplayer.get_remote_sender_id()
+	var sender_player_id: int = Network.peer_player_map.get(sender_id, -1)
+	if sender_player_id != _active_player_id:
+		return  # pas son tour de décider (ou latence/désynchro) : on ignore
+	if not _current_option_ids.has(id):
+		return  # option inconnue/périmée
+	_broadcast_option_selected.rpc(id)
+
+
+## Hôte uniquement : rediffuse le choix validé à tout le monde, qui débloque
+## alors chacun leur await option_selected local de façon identique.
+@rpc("authority", "call_local", "reliable")
+func _broadcast_option_selected(id: String) -> void:
 	option_selected.emit(id)
 
 
@@ -163,6 +223,32 @@ func wait_for_continue() -> void:
 ## par _on_box_gui_input (clic sur cette boîte) : ne fait rien si aucun
 ## wait_for_click() n'est en attente.
 func request_advance() -> void:
+	if not _awaiting_advance:
+		return
+	if not _is_local_player_active():
+		return  # ce clic ne concerne pas le joueur de cet écran, on l'ignore
+	if GameFlow.game_mode != "host" and GameFlow.game_mode != "join":
+		advance_requested.emit()
+	elif GameFlow.game_mode == "host":
+		_broadcast_advance.rpc()
+	else:
+		_request_advance_rpc.rpc_id(1)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_advance_rpc() -> void:
+	if not multiplayer.is_server():
+		return
+	var sender_id := multiplayer.get_remote_sender_id()
+	if Network.peer_player_map.get(sender_id, -1) != _active_player_id:
+		return
+	if not _awaiting_advance:
+		return
+	_broadcast_advance.rpc()
+
+
+@rpc("authority", "call_local", "reliable")
+func _broadcast_advance() -> void:
 	if _awaiting_advance:
 		advance_requested.emit()
 

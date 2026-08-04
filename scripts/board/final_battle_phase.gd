@@ -136,8 +136,9 @@ func _roll_for_player(player_id: int) -> Dictionary:
 	var scenes: Array[PackedScene] = []
 	for i in range(FINAL_BATTLE_DICE):
 		scenes.append(BLACK_DIE_SCENE)
-	dice_roll.roll_mixed(scenes)
-	var results: Array[String] = await dice_roll.roll_finished
+	# Réseau : seul l'hôte fait réellement tourner la simulation physique,
+	# le résultat est ensuite le même pour tout le monde (cf Board.roll_dice_synced).
+	var results: Array[String] = await _board.roll_dice_synced(dice_roll, scenes)
 	await _board.get_tree().create_timer(DICE_PAUSE).timeout
 	viewport_container.visible = false
 
