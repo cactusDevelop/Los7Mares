@@ -146,7 +146,6 @@ func _on_local_pressed() -> void:
 func _popup_join_ip_centered() -> void:
 	join_error_label.visible = false
 	join_ip_confirm_button.disabled = false
-	join_ip_line_edit.text = ""
 	var padding: MarginContainer = $JoinIpPopup/Padding
 	var min_size: Vector2 = padding.get_combined_minimum_size()
 	min_size.x = max(min_size.x, 320)

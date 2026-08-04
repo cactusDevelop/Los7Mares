@@ -1,8 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/lobby.gd" id="1_lobby"]
 [ext_resource type="PackedScene" uid="uid://bg437po33iydc" path="res://scenes/ui/player_setup_popup.tscn" id="2_setup"]
-[ext_resource type="SystemFont" path="res://assets/theme/code_label_font.tres" id="3_code_font"]
 
 [node name="Lobby" type="Control"]
 layout_mode = 3
@@ -26,9 +25,8 @@ layout_mode = 0
 offset_left = 40.0
 offset_top = 70.0
 offset_right = 600.0
-offset_bottom = 110.0
-theme_override_fonts/font = ExtResource("3_code_font")
-theme_override_font_sizes/font_size = 32
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 24
 text = ""
 
 [node name="QuitButton" type="Button" parent="."]
@@ -73,5 +71,22 @@ offset_top = 420.0
 offset_right = 260.0
 offset_bottom = 460.0
 text = "LANCER LA PARTIE"
+
+[node name="HostRoleBox" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 480.0
+offset_right = 340.0
+offset_bottom = 560.0
+theme_override_constants/separation = 12
+visible = false
+
+[node name="PlayAsHostButton" type="Button" parent="HostRoleBox"]
+layout_mode = 2
+text = "REJOINDRE EN TANT QUE JOUEUR"
+
+[node name="DedicatedServerButton" type="Button" parent="HostRoleBox"]
+layout_mode = 2
+text = "SERVEUR DEDIE (JE NE JOUE PAS)"
 
 [node name="PlayerSetupPopup" parent="." instance=ExtResource("2_setup")]
