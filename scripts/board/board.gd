@@ -3,9 +3,10 @@ class_name Board
 
 ## Diffusé quand l'hôte a fini de faire tourner un lancer de dés physique
 ## (cf roll_dice_synced) : permet à un client réseau d'obtenir exactement le
-## même résultat sans rejouer la simulation localement (RigidBody3D n'est
-## pas déterministe d'une machine à l'autre).
-signal dice_result_received(results: Array)
+## même résultat ET la même animation (frames), sans rejouer la simulation
+## physique localement (RigidBody3D n'est pas déterministe d'une machine à
+## l'autre) - cf dice_roll_3d.gd, play_recorded().
+signal dice_result_received(results: Array, frames: Array)
 
 const BOARD_THUMB_SIZE := Vector2(160, 107)
 ## Plateau du joueur actif (en bas de l'écran) : 2x plus grand que les autres.
@@ -439,32 +440,36 @@ func _is_remote_client() -> bool:
 ## même avec la même graine aléatoire (dépend du pas de simulation physique,
 ## qui n'est pas garanti bit-à-bit identique). Donc : seul l'hôte (ou une
 ## partie locale/hotseat) fait réellement tourner la simulation ; le
-## résultat est ensuite diffusé à tous les clients par RPC pour qu'ils
-## affichent tous exactement le même résultat (cf énoncé : "si un joueur
-## lance les dés, tous les joueurs doivent le voir aussi"). Les clients
-## n'animent pas la simulation physique localement (ça n'aurait pas de sens
-## sans le résultat final à l'avance) ; ils attendent juste la diffusion.
+## résultat ET la trajectoire exacte de chaque dé (cf dice_roll_3d.gd,
+## get_last_recorded_frames) sont ensuite diffusés à tous les clients par RPC,
+## qui rejouent cette même trajectoire à l'identique (play_recorded) au lieu
+## de re-simuler quoi que ce soit localement - donc affichent tous
+## exactement la même animation (cf énoncé : "si un joueur lance les dés,
+## tous les joueurs doivent le voir aussi").
 func roll_dice_synced(dice_roll: Node3D, scenes: Array[PackedScene]) -> Array[String]:
 	if GameFlow.game_mode == "join":
-		var results: Array = await dice_result_received
-		var typed: Array[String] = []
-		for r in results:
-			typed.append(str(r))
-		return typed
+		var payload: Array = await dice_result_received
+		var raw_results: Array = payload[0]
+		var frames: Array = payload[1]
+		var results: Array[String] = []
+		for r in raw_results:
+			results.append(str(r))
+		await dice_roll.play_recorded(scenes, frames, results)
+		return results
 
 	dice_roll.roll_mixed(scenes)
 	var results: Array[String] = await dice_roll.roll_finished
 	if GameFlow.game_mode == "host":
-		_broadcast_dice_result.rpc(results)
+		_broadcast_dice_result.rpc(results, dice_roll.get_last_recorded_frames())
 	return results
 
 
-## call_remote (pas call_local) : l'hôte a déjà "results" localement dans
-## roll_dice_synced, se le renvoyer à lui-même ne servirait à rien (même
-## principe que network_manager._sync_game_state).
+## call_remote (pas call_local) : l'hôte a déjà "results"/les frames
+## localement dans roll_dice_synced, se les renvoyer à lui-même ne servirait
+## à rien (même principe que network_manager._sync_game_state).
 @rpc("authority", "call_remote", "reliable")
-func _broadcast_dice_result(results: Array) -> void:
-	dice_result_received.emit(results)
+func _broadcast_dice_result(results: Array, frames: Array) -> void:
+	dice_result_received.emit(results, frames)
 
 
 ## Id du joueur affiché en bas/en grand. En mode local (et debug), c'est le
