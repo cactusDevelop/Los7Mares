@@ -134,7 +134,18 @@ func _ready() -> void:
 	dice_results_button.position = Vector2(20, 20)
 	dice_results_button.pressed.connect(_on_dice_results_button_pressed)
 	get_viewport().size_changed.connect(_layout_player_boards)
-	GameFlow.current_player_changed.connect(func(_id): _layout_player_boards())
+	# En mode multijoueur (host/join), le plateau affiché en bas est TOUJOURS
+	# celui du joueur local (cf _get_display_current_player_id) : il ne
+	# dépend jamais du tour en cours, donc inutile (et visuellement gênant :
+	# ça recrée tous les mini-plateaux avec ré-animation glisse/peek) de tout
+	# relayouter à chaque changement de joueur actif. On ne relayoute sur
+	# current_player_changed qu'en partie locale (passage du plateau au
+	# joueur suivant sur le même écran).
+	GameFlow.current_player_changed.connect(func(_id):
+		if GameFlow.game_mode == "host" or GameFlow.game_mode == "join":
+			return
+		_layout_player_boards()
+	)
 
 	_camera_base_position = camera.position
 	_camera_base_zoom = camera.zoom

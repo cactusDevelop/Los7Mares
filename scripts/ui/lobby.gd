@@ -5,9 +5,6 @@ extends Control
 @onready var players_list_box: VBoxContainer = $PlayersPanel/PlayersPanelMargin/PlayersPanelContent/PlayersListBox
 @onready var start_button: Button = $StartButton
 @onready var quit_button: Button = $QuitButton
-@onready var host_role_box: VBoxContainer = $HostRoleBox
-@onready var play_as_host_button: Button = $HostRoleBox/PlayAsHostButton
-@onready var dedicated_server_button: Button = $HostRoleBox/DedicatedServerButton
 @onready var player_setup_popup: Control = $PlayerSetupPopup
 
 ## Devient vrai après que Network.request_join() a été envoyé pour CETTE
@@ -16,13 +13,10 @@ var _has_registered: bool = false
 ## Devient vrai dès que la popup a été ouverte une première fois (empêche de
 ## la rouvrir/réinitialiser à chaque signal de statut réseau reçu).
 var _setup_opened: bool = false
-## Vrai si l'hôte a choisi "Serveur dédié" : il ne joue pas, on n'ouvre
-## jamais la popup nom/couleur pour lui.
+## Vrai si le serveur est un "Serveur dédié" (lancement Raspberry Pi en
+## ligne de commande) : il ne joue pas, on n'ouvre jamais la popup
+## nom/couleur pour lui.
 var _dedicated_server_chosen: bool = false
-## Vrai pendant que la popup est ouverte spécifiquement pour le nom du
-## serveur dédié (pas un vrai joueur) : distingue le confirm des deux cas
-## dans _on_local_player_confirmed.
-var _registering_dedicated_name: bool = false
 
 
 func _ready() -> void:
@@ -37,10 +31,6 @@ func _ready() -> void:
 	if multiplayer.is_server():
 		code_label.text = tr("Code de la partie : %s") % Network.room_code
 
-	host_role_box.visible = false
-	play_as_host_button.pressed.connect(_on_play_as_host_pressed)
-	dedicated_server_button.pressed.connect(_on_dedicated_server_pressed)
-
 	player_setup_popup.player_confirmed.connect(_on_local_player_confirmed)
 
 	GameFlow.players_changed.connect(_refresh_list)
@@ -50,7 +40,6 @@ func _ready() -> void:
 
 	_refresh_list()
 	if Network.is_dedicated_server_launch():
-		host_role_box.visible = false
 		_setup_opened = true
 		_dedicated_server_chosen = true
 		Network.set_host_name("Serveur (Raspberry Pi)")
@@ -68,27 +57,16 @@ func _try_open_local_setup() -> void:
 			return
 		status_label.text = ""
 		_setup_opened = true
-		player_setup_popup.open_for_new_player(0, 0, false)
+		player_setup_popup.open_for_new_player()
 		return
-	# GameFlow.game_mode == "host" : contrairement à un client, l'hôte n'a
-	# pas forcément vocation à jouer lui-même (cf. Raspberry Pi en serveur
-	# dédié) — on lui laisse d'abord choisir son rôle.
+	# GameFlow.game_mode == "host" : l'hôte joue automatiquement (le choix
+	# manuel "Rejoindre en tant que joueur" a été supprimé). Le mode
+	# "serveur dédié" (Raspberry Pi qui ne joue pas) reste géré uniquement
+	# via Network.is_dedicated_server_launch() (lancement en ligne de
+	# commande), voir plus haut dans _ready().
 	status_label.text = ""
-	host_role_box.visible = true
-
-
-func _on_play_as_host_pressed() -> void:
-	host_role_box.visible = false
 	_setup_opened = true
 	player_setup_popup.open_for_new_player()
-
-
-func _on_dedicated_server_pressed() -> void:
-	host_role_box.visible = false
-	_setup_opened = true
-	_dedicated_server_chosen = true
-	_registering_dedicated_name = true
-	player_setup_popup.open_for_new_player(0, 0, false)
 
 
 func _on_network_status_changed() -> void:
@@ -97,10 +75,6 @@ func _on_network_status_changed() -> void:
 
 func _on_local_player_confirmed(player_name: String, color: String) -> void:
 	player_setup_popup.visible = false
-	if _registering_dedicated_name:
-		Network.set_host_name(player_name)
-		_refresh_list()
-		return
 	_has_registered = true
 	Network.request_join(player_name, color)
 
@@ -138,7 +112,9 @@ func _build_player_row(display_text: String, is_host: bool) -> HBoxContainer:
 	if is_host:
 		var icon := TextureRect.new()
 		icon.texture = load("res://assets/art/ui/crown.svg")
-		icon.custom_minimum_size = Vector2(18, 18)
+		# Ne doit jamais dépasser la taille du texte du pseudo de plus de 6px.
+		var text_size: float = ThemeDB.fallback_font_size
+		icon.custom_minimum_size = Vector2(text_size + 6.0, text_size + 6.0)
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		row.add_child(icon)
 	var lbl := Label.new()
