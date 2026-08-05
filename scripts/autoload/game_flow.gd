@@ -566,6 +566,14 @@ func continue_game() -> void:
 	var data := SaveManager.read()
 	if data.is_empty():
 		return
+	# Filet de sécurité pour d'anciennes sauvegardes (avant le correctif
+	# ci-dessus dans autosave()) qui contiendraient encore une partie en
+	# ligne : impossible à reprendre sans MultiplayerPeer actif, donc on
+	# supprime la sauvegarde plutôt que de planter au premier RPC.
+	var saved_mode: String = data.get("game_mode", "local")
+	if saved_mode == "host" or saved_mode == "join":
+		SaveManager.delete()
+		return
 	reset_players()
 	for p in data.get("players", []):
 		players.append(p)
@@ -585,7 +593,14 @@ func take_pending_board_data() -> Dictionary:
 	return d
 
 
+## Ne sauvegarde JAMAIS une partie en ligne (game_mode "host"/"join") : la
+## reprendre plus tard depuis "Continuer" au title screen n'a aucun
+## MultiplayerPeer actif (pas d'hôte/pair reconnecté), ce qui fait planter
+## le jeu au premier appel RPC (ex: hideout_phase._request_claim_spot_rpc).
+## Seules les parties locales/solo/debug sont sauvegardées.
 func autosave(board_data: Dictionary) -> void:
+	if game_mode == "host" or game_mode == "join":
+		return
 	SaveManager.write({
 		"players": players, "next_player_id": _next_player_id,
 		"is_debug_mode": is_debug_mode, "game_mode": game_mode, "board": board_data,

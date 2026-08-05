@@ -446,6 +446,18 @@ func _is_remote_client() -> bool:
 ## de re-simuler quoi que ce soit localement - donc affichent tous
 ## exactement la même animation (cf énoncé : "si un joueur lance les dés,
 ## tous les joueurs doivent le voir aussi").
+##
+## Synchronisation de la diffusion (corrige la désynchro observée : l'hôte
+## voyait le lancer immédiatement, en LIVE pendant que la simu physique
+## tournait, et les autres joueurs ne voyaient leur propre animation
+## commencer qu'une fois celle de l'hôte terminée, donc en décalé) : côté
+## hôte, la simulation physique réelle tourne masquée (dice_roll.visible =
+## false), sans être montrée. Une fois les dés immobiles, le résultat et
+## l'enregistrement de trajectoire sont diffusés à tous les clients, et
+## L'HÔTE REJOUE ENSUITE LUI AUSSI play_recorded() comme les clients : tout
+## le monde (hôte compris) commence donc à voir l'animation au même moment
+## (aux quelques ms de latence réseau près), au lieu que l'hôte la voie en
+## avance.
 func roll_dice_synced(dice_roll: Node3D, scenes: Array[PackedScene]) -> Array[String]:
 	if GameFlow.game_mode == "join":
 		var payload: Array = await dice_result_received
@@ -454,13 +466,25 @@ func roll_dice_synced(dice_roll: Node3D, scenes: Array[PackedScene]) -> Array[St
 		var results: Array[String] = []
 		for r in raw_results:
 			results.append(str(r))
+		dice_roll.visible = true
 		await dice_roll.play_recorded(scenes, frames, results)
 		return results
 
+	if GameFlow.game_mode == "host":
+		dice_roll.visible = false
+		dice_roll.roll_mixed(scenes)
+		var results: Array[String] = await dice_roll.roll_finished
+		var frames: Array = dice_roll.get_last_recorded_frames()
+		_broadcast_dice_result.rpc(results, frames)
+		dice_roll.visible = true
+		await dice_roll.play_recorded(scenes, frames, results)
+		return results
+
+	# Partie locale/hotseat/debug (pas de réseau) : comportement d'origine,
+	# animation live, personne d'autre à synchroniser.
+	dice_roll.visible = true
 	dice_roll.roll_mixed(scenes)
 	var results: Array[String] = await dice_roll.roll_finished
-	if GameFlow.game_mode == "host":
-		_broadcast_dice_result.rpc(results, dice_roll.get_last_recorded_frames())
 	return results
 
 

@@ -240,6 +240,13 @@ func _on_action_spot_clicked(spot: Node2D) -> void:
 func _request_place_pion_rpc(spot_index: int, rank: int) -> void:
 	if not multiplayer.is_server():
 		return
+	# Cf hideout_phase._request_claim_spot_rpc : l'hôte peut recevoir cette
+	# requête avant (ou après) avoir lui-même atteint localement cette phase
+	# / ce tour (les écrans avancent chacun à leur rythme via des clics
+	# locaux non synchronisés), auquel cas _turn_order serait vide ou
+	# _current_player_index hors bornes. On ignore plutôt que de planter.
+	if _turn_order.is_empty() or _current_player_index >= _turn_order.size():
+		return
 	var sender_id := multiplayer.get_remote_sender_id()
 	if Network.peer_player_map.get(sender_id, -1) != _current_player()["id"]:
 		return  # pas son tour (ou latence/désynchro) : on ignore silencieusement

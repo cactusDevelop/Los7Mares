@@ -104,6 +104,17 @@ func _on_hideout_spot_clicked(spot: Node2D) -> void:
 func _request_claim_spot_rpc(spot_index: int) -> void:
 	if not multiplayer.is_server():
 		return
+	# _hideout_turn_order n'est peuplé qu'une fois _begin_phase() exécuté
+	# localement côté hôte, ce qui dépend de l'avancée de l'hôte dans ses
+	# propres écrans de narration (clic sur "commence la partie !", etc.) :
+	# comme chaque écran avance à son propre rythme (clics locaux non
+	# synchronisés), un client peut envoyer cette requête avant que l'hôte
+	# n'ait lui-même atteint la phase cachette (tableau encore vide), ou
+	# après qu'elle soit déjà terminée (index désormais hors bornes) - dans
+	# les deux cas on ignore silencieusement plutôt que de planter ; le
+	# joueur pourra recliquer une fois l'hôte à niveau.
+	if _hideout_turn_order.is_empty() or _hideout_turn_index >= _hideout_turn_order.size():
+		return
 	var sender_id := multiplayer.get_remote_sender_id()
 	var expected_player_id: int = GameFlow.players[_hideout_turn_order[_hideout_turn_index]]["id"]
 	if Network.peer_player_map.get(sender_id, -1) != expected_player_id:

@@ -94,8 +94,7 @@ func start(board: Board) -> void:
 	_board.debug_skip_button.visible = false
 	_board.debug_skip_button.pressed.connect(_board._on_debug_skip_button_pressed)
 
-	var winner_name := _player_name(winner_id)
-	_board.narration_box.say(tr("%s commence la partie !") % winner_name)
+	_board.narration_box.say_with_player(tr("%s commence la partie !"), _find_player(winner_id))
 	await _board.narration_box.wait_for_click()
 
 	_viewport_container.visible = false
