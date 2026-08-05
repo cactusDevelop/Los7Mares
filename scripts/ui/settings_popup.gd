@@ -4,6 +4,7 @@ const LOCALE_LABELS := {"fr": "Français", "en": "English", "es": "Español"}
 
 @onready var padding: MarginContainer = $Padding
 @onready var volume_slider: HSlider = $Padding/Content/VolumeRow/VolumeSlider
+@onready var ocean_slider: HSlider = $Padding/Content/OceanRow/OceanSlider
 @onready var language_option: OptionButton = $Padding/Content/LanguageRow/LanguageOptionButton
 @onready var animations_check: CheckButton = $Padding/Content/AnimationsRow/AnimationsCheckButton
 
@@ -19,6 +20,9 @@ func _ready() -> void:
 
 	volume_slider.value = Settings.get_volume()
 	volume_slider.value_changed.connect(_on_volume_changed)
+
+	ocean_slider.value = Settings.get_ocean_volume()
+	ocean_slider.value_changed.connect(_on_ocean_volume_changed)
 
 	language_option.clear()
 	for locale in Settings.AVAILABLE_LOCALES:
@@ -49,3 +53,7 @@ func popup_centered_auto() -> void:
 
 func _on_volume_changed(value: float) -> void:
 	Settings.set_volume(value)
+
+
+func _on_ocean_volume_changed(value: float) -> void:
+	Settings.set_ocean_volume(value)

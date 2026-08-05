@@ -1,0 +1,279 @@
+diff --git a/default_bus_layout.tres b/default_bus_layout.tres
+new file mode 100644
+index 0000000..53ae1b6
+--- /dev/null
++++ b/default_bus_layout.tres
+@@ -0,0 +1,15 @@
++[gd_resource type="AudioBusLayout" format=3]
++
++[resource]
++bus/0/name = &"Master"
++bus/0/solo = false
++bus/0/mute = false
++bus/0/bypass_fx = false
++bus/0/volume_db = 0.0
++bus/0/send = &""
++bus/1/name = &"Ocean"
++bus/1/solo = false
++bus/1/mute = false
++bus/1/bypass_fx = false
++bus/1/volume_db = 0.0
++bus/1/send = &"Master"
+diff --git a/project.godot b/project.godot
+index 05c6fc1..d58cd39 100644
+--- a/project.godot
++++ b/project.godot
+@@ -28,6 +28,10 @@ GlobalUi="*uid://caqros2v31q2x"
+ SaveManager="*uid://cmss0rshbfgho"
+ Network="*uid://dj5bf1cu8d85c"
+ 
++[audio]
++
++buses/default_bus_layout="res://default_bus_layout.tres"
++
+ [display]
+ 
+ window/stretch/mode="canvas_items"
+diff --git a/scenes/board/board.tscn b/scenes/board/board.tscn
+index 637ad2e..8a520c0 100644
+--- a/scenes/board/board.tscn
++++ b/scenes/board/board.tscn
+@@ -32,8 +32,13 @@
+ [ext_resource type="Script" uid="uid://crp8o7l2w4rxs" path="res://scripts/board/action_resolution_phase.gd" id="29_x4jil"]
+ [ext_resource type="Script" uid="uid://1w2klspackwn" path="res://scripts/board/first_player_dice_phase.gd" id="30_fpdice"]
+ [ext_resource type="Script" uid="uid://duwxxqc0d88bd" path="res://scripts/board/final_battle_phase.gd" id="31_fnlbtl"]
++[ext_resource type="Shader" path="res://shaders/ocean_waves_background.gdshader" id="32_wavesh"]
++[ext_resource type="AudioStream" path="res://assets/audio/Ocean waves.mp3" id="33_oceanmp3"]
+ 
+ [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_debugskip"]
++
++[sub_resource type="ShaderMaterial" id="ShaderMaterial_oceanwaves"]
++shader = ExtResource("32_wavesh")
+ bg_color = Color(1, 1, 1, 1)
+ corner_radius_top_left = 8
+ corner_radius_top_right = 8
+@@ -43,6 +48,21 @@ corner_radius_bottom_left = 8
+ [node name="Board" type="Node2D" unique_id=1813206220]
+ script = ExtResource("1_jnyf0")
+ 
++[node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=910442017]
++layer = -10
++
++[node name="WavesBackground" type="ColorRect" parent="BackgroundLayer" unique_id=910442018]
++material = SubResource("ShaderMaterial_oceanwaves")
++anchors_preset = 15
++anchor_right = 1.0
++anchor_bottom = 1.0
++grow_horizontal = 2
++grow_vertical = 2
++
++[node name="OceanAmbiance" type="AudioStreamPlayer" parent="." unique_id=910442019]
++stream = ExtResource("33_oceanmp3")
++bus = &"Ocean"
++
+ [node name="CenterPiece" type="Sprite2D" parent="." unique_id=1635265673]
+ position = Vector2(4, -44)
+ scale = Vector2(1.01, 1.01)
+diff --git a/scenes/ui/global_ui.tscn b/scenes/ui/global_ui.tscn
+index c33ea2b..5d3ce54 100644
+--- a/scenes/ui/global_ui.tscn
++++ b/scenes/ui/global_ui.tscn
+@@ -53,6 +53,21 @@ max_value = 1.0
+ step = 0.01
+ value = 1.0
+ 
++[node name="OceanRow" type="HBoxContainer" parent="SettingsPopup/Padding/Content" unique_id=1385519318]
++layout_mode = 2
++theme_override_constants/separation = 12
++
++[node name="Label" type="Label" parent="SettingsPopup/Padding/Content/OceanRow" unique_id=54870256]
++layout_mode = 2
++text = "Océan"
++
++[node name="OceanSlider" type="HSlider" parent="SettingsPopup/Padding/Content/OceanRow" unique_id=164605622]
++custom_minimum_size = Vector2(200, 0)
++layout_mode = 2
++max_value = 1.0
++step = 0.01
++value = 0.6
++
+ [node name="LanguageRow" type="HBoxContainer" parent="SettingsPopup/Padding/Content" unique_id=1385519317]
+ layout_mode = 2
+ 
+diff --git a/scripts/autoload/settings.gd b/scripts/autoload/settings.gd
+index 06ea3aa..64b3807 100644
+--- a/scripts/autoload/settings.gd
++++ b/scripts/autoload/settings.gd
+@@ -5,6 +5,7 @@ const SETTINGS_FILE_PATH := "user://settings.cfg"
+ const DEFAULT_LOCALE := "fr"
+ const AVAILABLE_LOCALES: Array[String] = ["fr", "en", "es"]
+ const DEFAULT_VOLUME := 1.0
++const DEFAULT_OCEAN_VOLUME := 0.6
+ const DEFAULT_ANIMATIONS_ENABLED := true
+ 
+ var animations_enabled: bool = DEFAULT_ANIMATIONS_ENABLED
+@@ -13,6 +14,7 @@ var animations_enabled: bool = DEFAULT_ANIMATIONS_ENABLED
+ func _ready() -> void:
+ 	_load_locale()
+ 	_load_volume()
++	_load_ocean_volume()
+ 	_load_animations_enabled()
+ 
+ 
+@@ -60,6 +62,33 @@ func _apply_volume(volume: float) -> void:
+ 	AudioServer.set_bus_volume_db(bus_index, linear_to_db(volume))
+ 
+ 
++func _load_ocean_volume() -> void:
++	var config := ConfigFile.new()
++	var err := config.load(SETTINGS_FILE_PATH)
++	var volume: float = DEFAULT_OCEAN_VOLUME
++	if err == OK:
++		volume = config.get_value("settings", "ocean_volume", DEFAULT_OCEAN_VOLUME)
++	_apply_ocean_volume(volume)
++
++
++func set_ocean_volume(volume: float) -> void:
++	_apply_ocean_volume(volume)
++	var config := ConfigFile.new()
++	config.load(SETTINGS_FILE_PATH)
++	config.set_value("settings", "ocean_volume", volume)
++	config.save(SETTINGS_FILE_PATH)
++
++
++func get_ocean_volume() -> float:
++	var bus_index := AudioServer.get_bus_index("Ocean")
++	return db_to_linear(AudioServer.get_bus_volume_db(bus_index))
++
++
++func _apply_ocean_volume(volume: float) -> void:
++	var bus_index := AudioServer.get_bus_index("Ocean")
++	AudioServer.set_bus_volume_db(bus_index, linear_to_db(volume))
++
++
+ func _load_animations_enabled() -> void:
+ 	var config := ConfigFile.new()
+ 	var err := config.load(SETTINGS_FILE_PATH)
+diff --git a/scripts/board/board.gd b/scripts/board/board.gd
+index f716dbf..6dec014 100644
+--- a/scripts/board/board.gd
++++ b/scripts/board/board.gd
+@@ -95,6 +95,7 @@ const SEA_KEY_BY_NODE_NAME := {
+ @onready var return_to_menu_confirm: ConfirmationDialog = $UI/ReturnToMenuConfirm
+ @onready var debug_skip_button: Button = $UI/DebugSkipButton
+ @onready var debug_draw_cards_button: Button = $UI/DebugDrawCardsButton
++@onready var ocean_ambiance_player: AudioStreamPlayer = $OceanAmbiance
+ 
+ var _sea_tiles: Array = []
+ var _slot_order: Array = []
+@@ -173,6 +174,11 @@ func _ready() -> void:
+ 	debug_draw_cards_button.visible = true
+ 	debug_draw_cards_button.pressed.connect(_on_debug_draw_cards_button_pressed)
+ 
++	# Bruit de fond "vagues" en boucle (piste importée sans loop) : on
++	# relance manuellement à chaque fin de lecture.
++	ocean_ambiance_player.finished.connect(ocean_ambiance_player.play)
++	ocean_ambiance_player.play()
++
+ 	for child in seas_container.get_children():
+ 		if child.is_in_group("sea_tile"):
+ 			_sea_tiles.append(child)
+diff --git a/scripts/ui/settings_popup.gd b/scripts/ui/settings_popup.gd
+index a4bc25a..5508ede 100644
+--- a/scripts/ui/settings_popup.gd
++++ b/scripts/ui/settings_popup.gd
+@@ -4,6 +4,7 @@ const LOCALE_LABELS := {"fr": "Français", "en": "English", "es": "Español"}
+ 
+ @onready var padding: MarginContainer = $Padding
+ @onready var volume_slider: HSlider = $Padding/Content/VolumeRow/VolumeSlider
++@onready var ocean_slider: HSlider = $Padding/Content/OceanRow/OceanSlider
+ @onready var language_option: OptionButton = $Padding/Content/LanguageRow/LanguageOptionButton
+ @onready var animations_check: CheckButton = $Padding/Content/AnimationsRow/AnimationsCheckButton
+ 
+@@ -20,6 +21,9 @@ func _ready() -> void:
+ 	volume_slider.value = Settings.get_volume()
+ 	volume_slider.value_changed.connect(_on_volume_changed)
+ 
++	ocean_slider.value = Settings.get_ocean_volume()
++	ocean_slider.value_changed.connect(_on_ocean_volume_changed)
++
+ 	language_option.clear()
+ 	for locale in Settings.AVAILABLE_LOCALES:
+ 		language_option.add_item(LOCALE_LABELS.get(locale, locale))
+@@ -49,3 +53,7 @@ func popup_centered_auto() -> void:
+ 
+ func _on_volume_changed(value: float) -> void:
+ 	Settings.set_volume(value)
++
++
++func _on_ocean_volume_changed(value: float) -> void:
++	Settings.set_ocean_volume(value)
+diff --git a/shaders/ocean_waves_background.gdshader b/shaders/ocean_waves_background.gdshader
+new file mode 100644
+index 0000000..92e6dd2
+--- /dev/null
++++ b/shaders/ocean_waves_background.gdshader
+@@ -0,0 +1,63 @@
++shader_type canvas_item;
++
++// Fond animé pour l'écran de jeu (board.tscn) : de nombreuses sinusoïdes
++// remplies (zone sous la courbe colorée, pas juste un trait) empilées du
++// haut vers le bas de l'écran et mélangées entre elles par transparence,
++// pour un effet de vagues superposées. Chaque courbe a sa propre
++// fréquence, sa propre vitesse (alternée gauche/droite) et sa propre
++// teinte.
++
++uniform vec4 background_color : source_color = vec4(0.01, 0.03, 0.10, 1.0);
++uniform float speed : hint_range(0.0, 2.0) = 0.35;
++uniform float amplitude : hint_range(0.0, 0.3) = 0.06;
++uniform float base_hue : hint_range(0.0, 1.0) = 0.55;
++uniform float layer_alpha : hint_range(0.0, 1.0) = 0.35;
++
++const int WAVE_COUNT = 14;
++
++vec3 hsv2rgb(vec3 c) {
++	vec4 k = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
++	vec3 p = abs(fract(c.xxx + k.xyz) * 6.0 - k.www);
++	return c.z * mix(k.xxx, clamp(p - k.xxx, 0.0, 1.0), c.y);
++}
++
++void fragment() {
++	vec3 col = background_color.rgb;
++	float t = TIME * speed;
++
++	for (int i = 0; i < WAVE_COUNT; i++) {
++		float fi = float(i);
++		// Progression 0 (haut de l'écran) -> 1 (bas de l'écran).
++		float fn = fi / float(WAVE_COUNT - 1);
++
++		// Sens de défilement alterné : lignes paires vers la droite,
++		// impaires vers la gauche.
++		float dir = mod(fi, 2.0) < 0.5 ? 1.0 : -1.0;
++		// Fréquence et vitesse de phase différentes par courbe.
++		float freq = 2.5 + fi * 1.15;
++		float phase_speed = (0.6 + fi * 0.17) * dir;
++		// Courbes réparties du haut vers le bas, avec un chevauchement
++		// volontaire (amplitude) pour que les couches se superposent.
++		float base_y = 0.05 + fn * 0.9;
++		float amp = amplitude * (0.5 + 0.5 * sin(fi * 1.3 + 1.0));
++
++		float wave_y = base_y + sin(UV.x * freq * TAU + t * phase_speed + fi * 2.3) * amp;
++
++		// Remplit toute la zone SOUS la sinusoïde (pas juste un trait).
++		float fill = smoothstep(wave_y - 0.004, wave_y + 0.004, UV.y);
++
++		// Teinte qui varie légèrement d'une couche à l'autre, et qui se
++		// fonce/sature vers le bas de l'écran.
++		float hue = mod(base_hue + fn * 0.12 - 0.06, 1.0);
++		float sat = 0.55 + 0.25 * sin(fi * 0.9);
++		float val = 0.35 + 0.5 * fn;
++		vec3 layer_color = hsv2rgb(vec3(hue, sat, val));
++
++		// Mélange par transparence : les couches successives se
++		// superposent au lieu de simplement s'écraser les unes sur les
++		// autres.
++		col = mix(col, layer_color, fill * layer_alpha);
++	}
++
++	COLOR = vec4(col, 1.0);
++}

@@ -95,6 +95,7 @@ const SEA_KEY_BY_NODE_NAME := {
 @onready var return_to_menu_confirm: ConfirmationDialog = $UI/ReturnToMenuConfirm
 @onready var debug_skip_button: Button = $UI/DebugSkipButton
 @onready var debug_draw_cards_button: Button = $UI/DebugDrawCardsButton
+@onready var ocean_ambiance_player: AudioStreamPlayer = $OceanAmbiance
 
 var _sea_tiles: Array = []
 var _slot_order: Array = []
@@ -172,6 +173,11 @@ func _ready() -> void:
 	# c'est un simple outil de prévisualisation caméra, utile même hors debug.
 	debug_draw_cards_button.visible = true
 	debug_draw_cards_button.pressed.connect(_on_debug_draw_cards_button_pressed)
+
+	# Bruit de fond "vagues" en boucle (piste importée sans loop) : on
+	# relance manuellement à chaque fin de lecture.
+	ocean_ambiance_player.finished.connect(ocean_ambiance_player.play)
+	ocean_ambiance_player.play()
 
 	for child in seas_container.get_children():
 		if child.is_in_group("sea_tile"):

@@ -28,6 +28,10 @@ GlobalUi="*uid://caqros2v31q2x"
 SaveManager="*uid://cmss0rshbfgho"
 Network="*uid://dj5bf1cu8d85c"
 
+[audio]
+
+buses/default_bus_layout="res://default_bus_layout.tres"
+
 [display]
 
 window/stretch/mode="canvas_items"

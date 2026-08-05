@@ -32,8 +32,13 @@
 [ext_resource type="Script" uid="uid://crp8o7l2w4rxs" path="res://scripts/board/action_resolution_phase.gd" id="29_x4jil"]
 [ext_resource type="Script" uid="uid://1w2klspackwn" path="res://scripts/board/first_player_dice_phase.gd" id="30_fpdice"]
 [ext_resource type="Script" uid="uid://duwxxqc0d88bd" path="res://scripts/board/final_battle_phase.gd" id="31_fnlbtl"]
+[ext_resource type="Shader" path="res://shaders/ocean_waves_background.gdshader" id="32_wavesh"]
+[ext_resource type="AudioStream" path="res://assets/audio/Ocean waves.mp3" id="33_oceanmp3"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_debugskip"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oceanwaves"]
+shader = ExtResource("32_wavesh")
 bg_color = Color(1, 1, 1, 1)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
@@ -42,6 +47,21 @@ corner_radius_bottom_left = 8
 
 [node name="Board" type="Node2D" unique_id=1813206220]
 script = ExtResource("1_jnyf0")
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=910442017]
+layer = -10
+
+[node name="WavesBackground" type="ColorRect" parent="BackgroundLayer" unique_id=910442018]
+material = SubResource("ShaderMaterial_oceanwaves")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OceanAmbiance" type="AudioStreamPlayer" parent="." unique_id=910442019]
+stream = ExtResource("33_oceanmp3")
+bus = &"Ocean"
 
 [node name="CenterPiece" type="Sprite2D" parent="." unique_id=1635265673]
 position = Vector2(4, -44)
