@@ -7,6 +7,12 @@ signal lobby_synced
 signal join_rejected(reason: String)
 signal code_join_found
 signal code_join_failed
+## Émis côté client une fois l'aperçu des joueurs déjà inscrits reçu de
+## l'hôte (cf request_lobby_preview), AVANT que ce client se soit lui-même
+## inscrit : permet à player_setup_popup de griser les couleurs déjà prises
+## par les autres, comme en partie locale/debug (GameFlow.players y est déjà
+## rempli à ce moment-là, cf lobby.gd).
+signal lobby_preview_received
 
 const DEFAULT_PORT := 7373
 const MAX_PLAYERS := 5
@@ -245,6 +251,37 @@ func _handle_discovery_response(text: String, sender_ip: String) -> void:
 		connection_failed_signal.emit()
 		return
 	code_join_found.emit()
+
+
+## Appelé par lobby.gd côté client, juste après connexion, AVANT d'ouvrir la
+## popup nom/couleur : demande à l'hôte la liste actuelle des joueurs déjà
+## inscrits (mêmes données que _sync_lobby_state, mais sans inscrire qui que
+## ce soit) pour que la popup puisse griser les couleurs déjà prises, comme
+## en partie locale/debug (cf player_setup_popup.open_for_new_player).
+func request_lobby_preview() -> void:
+	if not multiplayer.is_server():
+		_request_lobby_preview_rpc.rpc_id(1)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_lobby_preview_rpc() -> void:
+	if not multiplayer.is_server():
+		return
+	var sender_id := multiplayer.get_remote_sender_id()
+	_send_lobby_preview_rpc.rpc_id(sender_id, GameFlow.players)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _send_lobby_preview_rpc(players_data: Array) -> void:
+	# GameFlow.set_players_from_network fait exactement ce qu'il faut ici :
+	# remplir GameFlow.players avec les joueurs déjà inscrits par les autres
+	# (pour is_color_taken/is_name_taken), sans toucher peer_player_map tant
+	# que CE client ne s'est pas lui-même inscrit. _sync_lobby_state (appelé
+	# juste après request_join) écrasera ensuite cette liste avec l'état
+	# complet post-inscription, donc aucun risque de rester sur des données
+	# périmées si un autre joueur rejoint entre-temps.
+	GameFlow.set_players_from_network(players_data)
+	lobby_preview_received.emit()
 
 
 ## Appelé localement par lobby.gd une fois que le joueur de CETTE instance a

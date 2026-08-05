@@ -17,6 +17,11 @@ var _setup_opened: bool = false
 ## ligne de commande) : il ne joue pas, on n'ouvre jamais la popup
 ## nom/couleur pour lui.
 var _dedicated_server_chosen: bool = false
+## Cf request_lobby_preview/_on_lobby_preview_received : en mode "join",
+## popup nom/couleur retardée jusqu'à réception de la liste des joueurs déjà
+## inscrits (pour griser leurs couleurs), pas seulement jusqu'à connexion.
+var _preview_requested: bool = false
+var _preview_received: bool = false
 
 
 func _ready() -> void:
@@ -37,6 +42,7 @@ func _ready() -> void:
 	Network.join_rejected.connect(_on_join_rejected)
 	Network.player_list_changed.connect(_on_network_status_changed)
 	Network.lobby_synced.connect(_refresh_list)
+	Network.lobby_preview_received.connect(_on_lobby_preview_received)
 
 	_refresh_list()
 	if Network.is_dedicated_server_launch():
@@ -54,6 +60,19 @@ func _try_open_local_setup() -> void:
 		var mp_peer: MultiplayerPeer = multiplayer.multiplayer_peer
 		if mp_peer == null or mp_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 			status_label.text = tr("Connexion à l'hôte...")
+			return
+		# On attend la liste des joueurs déjà inscrits (avec leur couleur)
+		# avant d'ouvrir la popup, sans quoi GameFlow.players serait encore
+		# vide côté client à cet instant (elle n'est normalement remplie
+		# qu'APRÈS l'inscription, cf _sync_lobby_state) et aucune couleur ne
+		# serait grisée, contrairement aux autres modes (règle demandée :
+		# mêmes couleurs grisées qu'en partie locale/debug).
+		if not _preview_requested:
+			_preview_requested = true
+			status_label.text = tr("Connexion à l'hôte...")
+			Network.request_lobby_preview()
+			return
+		if not _preview_received:
 			return
 		status_label.text = ""
 		_setup_opened = true
@@ -73,6 +92,18 @@ func _on_network_status_changed() -> void:
 	_try_open_local_setup()
 
 
+func _on_lobby_preview_received() -> void:
+	_preview_received = true
+	if _setup_opened and player_setup_popup.visible:
+		# Rafraîchissement après rejet (cf _on_join_rejected) : la popup est
+		# déjà ouverte, on met juste à jour le grisé sans toucher au nom déjà
+		# tapé ni à la sélection de couleur en cours (sauf si celle-ci vient
+		# justement d'être prise entre-temps, cf refresh_colors()).
+		player_setup_popup.refresh_colors()
+		return
+	_try_open_local_setup()
+
+
 func _on_local_player_confirmed(player_name: String, color: String) -> void:
 	player_setup_popup.visible = false
 	_has_registered = true
@@ -83,6 +114,11 @@ func _on_join_rejected(reason: String) -> void:
 	_has_registered = false
 	player_setup_popup.visible = true
 	player_setup_popup.show_error(reason)
+	# L'état grisé affiché peut être périmé (un autre joueur a pu prendre une
+	# couleur/un nom entre l'ouverture de la popup et ce rejet) : on redemande
+	# un aperçu à jour de l'hôte, cf _on_lobby_preview_received ci-dessous.
+	_preview_received = false
+	Network.request_lobby_preview()
 
 
 func _refresh_list() -> void:

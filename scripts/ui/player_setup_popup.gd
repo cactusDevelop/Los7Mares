@@ -48,11 +48,7 @@ func open_for_new_player(player_number: int = 0, total_players: int = 0, require
 	_selected_color = ""
 	_require_color = require_color
 	color_row.visible = require_color
-	for color_name in _color_buttons:
-		var btn: Button = _color_buttons[color_name]
-		btn.button_pressed = false
-		btn.disabled = GameFlow.is_color_taken(color_name)
-		_apply_button_style(btn, color_name, false)
+	refresh_colors()
 	error_label.visible = false
 
 	if not require_color:
@@ -65,6 +61,23 @@ func open_for_new_player(player_number: int = 0, total_players: int = 0, require
 	_layout_popup()
 	visible = true
 	name_input.grab_focus()
+
+
+## Grise les couleurs déjà prises (GameFlow.is_color_taken) sans rien
+## réinitialiser d'autre (nom déjà tapé, popup déjà ouverte) : utilisé à
+## l'ouverture (open_for_new_player) ET en réseau après un rejet de l'hôte
+## (nom/couleur pris entre-temps par un autre joueur, cf lobby.gd
+## _on_join_rejected), pour que le grisé reflète l'état le plus à jour sans
+## faire retaper le nom au joueur.
+func refresh_colors() -> void:
+	for color_name in _color_buttons:
+		var btn: Button = _color_buttons[color_name]
+		var still_selected: bool = btn.button_pressed and not GameFlow.is_color_taken(color_name)
+		btn.button_pressed = still_selected
+		btn.disabled = GameFlow.is_color_taken(color_name)
+		_apply_button_style(btn, color_name, still_selected)
+	if _selected_color != "" and GameFlow.is_color_taken(_selected_color):
+		_selected_color = ""
 
 
 func _layout_popup() -> void:

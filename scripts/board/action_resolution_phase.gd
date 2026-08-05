@@ -309,6 +309,7 @@ func _run_commerce_avec_joueur(target: Dictionary) -> bool:
 	])
 	var answer: String = await _board.narration_box.option_selected
 	if answer == "refuse":
+		_board.narration_box.set_options([])
 		_board.narration_box.say(tr("L'échange est refusé."))
 		await _board.narration_box.wait_for_click()
 		return false
@@ -399,6 +400,7 @@ func _run_attaquer_joueur(target: Dictionary) -> void:
 		{"id": "fight", "label": str(target.get("name", "")) + tr(" fait face")},
 	])
 	var reaction: String = await _board.narration_box.option_selected
+	_board.narration_box.set_options([])
 
 	if reaction == "flee":
 		var sail: int = max(target.get("sail_level", 1), 1)
@@ -1033,6 +1035,13 @@ func _handle_rencontre(card: GameCard) -> bool:
 	_board.narration_box.set_options(options)
 	var choice: String = await _board.narration_box.option_selected
 
+	# Le choix (gérer/éviter) est maintenant connu : on efface tout de suite
+	# les boutons "Gérer la rencontre"/"Éviter", sans quoi ils resteraient
+	# affichés pendant les phrases de narration purement "de lecture" qui
+	# suivent (wait_for_click, pas de nouveau choix) - un bouton ne doit
+	# jamais survivre à plus d'un texte de narration s'il est seul en cause.
+	_board.narration_box.set_options([])
+
 	if choice == "eviter":
 		if dangerous:
 			_player["special_resources"]["fortune"] -= 1
@@ -1126,6 +1135,7 @@ func _run_rencontre_marchand(card: GameCard) -> bool:
 		{"id": "combat", "label": tr("Attaquer (dés de combat)")},
 	])
 	var choice: String = await _board.narration_box.option_selected
+	_board.narration_box.set_options([])
 	if choice == "commerce":
 		_board.narration_box.say_for_actor(
 			tr(N_RENCONTRE_MARCHAND_COMMERCE), tr("%s commerce avec les marchands."), _player
