@@ -158,7 +158,9 @@ func _roll_for_player(player_id: int) -> void:
 
 	_viewport_container.visible = true
 	GameFlow.set_current_player(player_id)
-	_board.narration_box.say_with_player(tr("Tour de %s : clique sur \"Lancer les dés\"."), _find_player(player_id))
+	_board.narration_box.say_for_actor(
+		tr("Clique sur \"Lancer les dés\"."), tr("%s lance les dés."), _find_player(player_id)
+	)
 	_board.narration_box.set_options([{"id": "roll", "label": tr("Lancer les dés")}])
 	await _board.narration_box.option_selected
 	_board.narration_box.set_options([])

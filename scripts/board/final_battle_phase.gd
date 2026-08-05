@@ -130,7 +130,9 @@ func _roll_for_player(player_id: int) -> Dictionary:
 	var dice_roll: Node3D = _board.get_node("UI/SubViewportContainer/SubViewport/DiceRoll3D")
 
 	viewport_container.visible = true
-	_board.narration_box.say_with_player(tr("Tour de %s : lance ses 5 dés de combat..."), player)
+	_board.narration_box.say_for_actor(
+		tr("Lance tes 5 dés de combat..."), tr("%s lance ses 5 dés de combat..."), player
+	)
 	_board.narration_box.set_options([])
 
 	var scenes: Array[PackedScene] = []

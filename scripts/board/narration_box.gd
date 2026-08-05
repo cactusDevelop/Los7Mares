@@ -106,6 +106,30 @@ func say_with_player(format: String, player: Dictionary, extra_args: Array = [])
 	set_outline_color(player_color)
 
 
+## Comme say_with_player, mais affiche un texte DIFFÉRENT selon que ce client
+## est celui du joueur concerné ou non (cf énoncé : le joueur actif doit voir
+## une phrase à la 2e personne, ex. "Lance les dés", tandis que les autres
+## voient une phrase à la 3e personne nommant le joueur, ex. "Thomas lance
+## les dés"). mine_format s'adresse au joueur actif (pas de nom à insérer,
+## % avec extra_args uniquement si besoin) ; others_format reçoit le nom
+## coloré du joueur en 1er argument, puis extra_args (comme say_with_player).
+## En hotseat/solo (_is_local_player_active() toujours vrai), tout le monde
+## partage le même écran : mine_format est donc systématiquement affiché.
+func say_for_actor(mine_format: String, others_format: String, player: Dictionary, extra_args: Array = []) -> void:
+	_active_player_id = player.get("id", -1)
+	var player_color: Color = GameFlow.COLOR_VALUES[player["color"]]
+	set_outline_color(player_color)
+	if _is_local_player_active():
+		if extra_args.is_empty():
+			_start_reveal(mine_format)
+		else:
+			_start_reveal(mine_format % extra_args)
+	else:
+		var colored_name := "[color=#%s]%s[/color]" % [player_color.to_html(false), player["name"]]
+		var args: Array = [colored_name] + extra_args
+		_start_reveal(others_format % args)
+
+
 ## Couleur du contour de la boîte (couleur du joueur dont c'est le tour).
 func set_outline_color(color: Color) -> void:
 	_panel_style.border_color = color

@@ -71,15 +71,25 @@ const N_OVERLOAD := "Votre bateau est trop chargé. Vous devez l'alléger."
 const N_CAPSIZE := "Votre bateau est en mauvais état !"
 const N_CAPSIZE_LOSE := "Capitaine ! Nous prenons l'eau rapidement... Nous devons alléger notre charge !"
 
-const N_RENCONTRE_AMICALE := "Une voile à l'horizon... Elle ne semble pas hostile, Capitaine."
-const N_RENCONTRE_DANGEREUSE := "Alerte, Capitaine ! Quelque chose approche, et ça n'annonce rien de bon !"
-const N_RENCONTRE_EVITEE := "Vous manœuvrez habilement pour laisser cette rencontre derrière vous."
-const N_RENCONTRE_PIRATE := "Un drapeau noir ! Préparez-vous à l'abordage, Capitaine !"
-const N_RENCONTRE_METEO := "Le ciel s'assombrit, la mer se soulève : la tempête est sur nous !"
-const N_RENCONTRE_GEANT := "Une ombre colossale surgit des profondeurs !"
-const N_RENCONTRE_CREATURE := "Des tentacules jaillissent des flots autour du bateau !"
-const N_RENCONTRE_MARCHAND := "Un navire marchand isolé croise votre route."
-const N_RENCONTRE_FLOTTE := "Une flotte marchande bat pavillon amical à l'horizon."
+## [A CORRIGER / DEV_RULES_REFERENCE.txt §9] Les 6 textes ci-dessous étaient
+## des textes d'ambiance inventés, différents des phrases officielles du
+## livret. Alignés ici sur le texte officiel : detection = amicale/dangereuse
+## uniquement (génériques, tous types confondus) ; les textes spécifiques par
+## type de rencontre (pirate/météo/géant/créature/flotte/marchand) sont ceux
+## du livret pour l'étape "Gérer la rencontre", affichés juste après le choix
+## "Gérer" (cf match kind: plus bas), pas à la détection.
+const N_RENCONTRE_AMICALE := "Vous sentez une présence pacifique."
+const N_RENCONTRE_DANGEREUSE := "Vous sentez une menace immédiate."
+const N_RENCONTRE_EVITEE_AMI := "Vous changez de direction pour éviter l'ami."
+const N_RENCONTRE_EVITEE_DANGER := "Vous jetez une fortune pour apaiser les mers."
+const N_FACE_DESTIN := "Vous faites face à votre destin."
+const N_RENCONTRE_PIRATE := "À la vue de l'ennemi, les équipages se préparent au combat."
+const N_RENCONTRE_METEO := "Vous manœuvrez votre bateau afin de surmonter la météo."
+const N_RENCONTRE_GEANT := "Vous vous battez bec et ongles pour repousser ce monstre."
+const N_RENCONTRE_CREATURE := "Vous manœuvrez votre bateau et affrontez les créatures des mers."
+const N_RENCONTRE_FLOTTE := "Vous commercez avec les marchands protégés. Les attaquer entraînerait votre propre perte !"
+const N_RENCONTRE_MARCHAND_COMMERCE := "Vous commercez avec les marchands."
+const N_RENCONTRE_MARCHAND_ATTAQUE := "Vous attaquez les marchands et tentez de les voler."
 
 ## Sous-type de rencontre déduit du titre de la carte (règle 9 "Gérer une
 ## rencontre") : détermine la mécanique de résolution à appliquer. "pirate"
@@ -535,7 +545,11 @@ func _label_for(action: String) -> String:
 
 
 func _choose_order(a: String, b: String) -> String:
-	_board.narration_box.say_with_player(tr(N_CHOOSE_ORDER + "\n\nTour de %s : choisis quelle action faire en premier."), _player)
+	_board.narration_box.say_for_actor(
+		tr(N_CHOOSE_ORDER) + tr("\n\nChoisis quelle action faire en premier."),
+		tr("%s commande son équipage.") + tr("\n\nChoisit quelle action faire en premier."),
+		_player
+	)
 	_board.narration_box.set_options([
 		{"id": a, "label": _label_for(a)},
 		{"id": b, "label": _label_for(b)},
@@ -557,9 +571,11 @@ func _resolve_action(action: String, allow_back: bool) -> String:
 	while true:
 		var is_implemented: bool = action in IMPLEMENTED_ACTIONS and _can_do_action(action)
 		var action_text: String = _label_for(action) if is_implemented else _label_for(action) + _unavailable_reason(action)
-		var prefix: String = tr(N_ACT) + "\n\n" if allow_back else ""
-		_board.narration_box.say_with_player(
-			prefix + tr("Tour de %s : action ") + action_text + ".", _player
+		var prefix_mine: String = tr(N_ACT) + "\n\n" if allow_back else ""
+		_board.narration_box.say_for_actor(
+			prefix_mine + tr("Action : ") + action_text + ".",
+			tr("%s effectue l'action : ") + action_text + ".",
+			_player
 		)
 
 		var options: Array = []
@@ -832,7 +848,9 @@ func _do_reparer() -> void:
 ## au choix.
 func _run_deplacement() -> String:
 	if _is_strong:
-		_board.narration_box.say(tr(N_NAVIGUER))
+		_board.narration_box.say_for_actor(
+			tr(N_NAVIGUER), tr("%s largue les amarres et lève l'ancre !"), _player
+		)
 		await _board.narration_box.wait_for_click()
 
 	# Cas spécial (règle 9) : une rencontre est déjà présente sur la mer du
@@ -956,8 +974,11 @@ func _grant_hideout_reward() -> void:
 	_player["resources"]["food"] += 1
 	_player["resources"]["wood"] += 1
 
-	_board.narration_box.say_with_player(
-		tr(N_HIDEOUT_RETURN + "\n\nTour de %s : de retour à la cachette, +1 planche, +1 nourriture, +1 bois."), _player
+	_board.narration_box.say_for_actor(
+		tr(N_HIDEOUT_RETURN) + tr("\n\nDe retour à la cachette : +1 planche, +1 nourriture, +1 bois."),
+		tr("%s rentre enfin à la maison : coque réparée, ressources collectées !") +
+		tr("\n\nDe retour à la cachette : +1 planche, +1 nourriture, +1 bois."),
+		_player
 	)
 	GameFlow.players_changed.emit()
 
@@ -992,10 +1013,12 @@ func _handle_rencontre(card: GameCard) -> bool:
 		return false
 
 	var dangerous: bool = RENCONTRE_DANGEROUS.get(kind, true)
-	_board.narration_box.say_with_player(
-		(tr(N_RENCONTRE_DANGEREUSE) if dangerous else tr(N_RENCONTRE_AMICALE)) +
-		tr("\n\nTour de %s : rencontre — ") + tr(card.title) +
-		(tr(" (dangereuse).") if dangerous else tr(" (amicale).")),
+	var detection_suffix: String = tr(" (dangereuse).") if dangerous else tr(" (amicale).")
+	var detection_mine: String = tr(N_RENCONTRE_DANGEREUSE) if dangerous else tr(N_RENCONTRE_AMICALE)
+	var detection_others: String = tr("%s sent une menace immédiate.") if dangerous else tr("%s sent une présence pacifique.")
+	_board.narration_box.say_for_actor(
+		detection_mine + tr("\n\nRencontre — ") + tr(card.title) + detection_suffix,
+		detection_others + (tr("\n\nRencontre — ") + tr(card.title) + detection_suffix).replace("%", "%%"),
 		_player
 	)
 	await _board.narration_box.wait_for_click()
@@ -1014,35 +1037,55 @@ func _handle_rencontre(card: GameCard) -> bool:
 		if dangerous:
 			_player["special_resources"]["fortune"] -= 1
 			GameFlow.players_changed.emit()
-		_board.narration_box.say_with_player(tr(N_RENCONTRE_EVITEE + "\n\nTour de %s : rencontre évitée, carte défaussée."), _player)
+		var evitee_mine: String = tr(N_RENCONTRE_EVITEE_DANGER) if dangerous else tr(N_RENCONTRE_EVITEE_AMI)
+		var evitee_others: String = (tr("%s jette une fortune pour apaiser les mers.") if dangerous
+			else tr("%s change de direction pour éviter l'ami."))
+		_board.narration_box.say_for_actor(
+			evitee_mine + tr("\n\nRencontre évitée, carte défaussée."),
+			evitee_others + tr("\n\nRencontre évitée, carte défaussée."),
+			_player
+		)
 		await _board.narration_box.wait_for_continue()
 		_board.card_draw_phase.discard_revealed_card_for_sea(card.sea_key)
 		return false
 
+	_board.narration_box.say_for_actor(tr(N_FACE_DESTIN), tr("%s fait face à son destin."), _player)
+	await _board.narration_box.wait_for_click()
+
 	match kind:
 		"pirate":
-			_board.narration_box.say(tr(N_RENCONTRE_PIRATE))
+			_board.narration_box.say_for_actor(
+				tr(N_RENCONTRE_PIRATE), tr("%s se prépare au combat."), _player
+			)
 			await _board.narration_box.wait_for_click()
 			return await _run_rencontre_pirate(card)
 		"meteo":
-			_board.narration_box.say(tr(N_RENCONTRE_METEO))
+			_board.narration_box.say_for_actor(
+				tr(N_RENCONTRE_METEO), tr("%s manœuvre son bateau afin de surmonter la météo."), _player
+			)
 			await _board.narration_box.wait_for_click()
 			return await _resolve_rencontre_activity(card, "exploration")
 		"geant":
-			_board.narration_box.say(tr(N_RENCONTRE_GEANT))
+			_board.narration_box.say_for_actor(
+				tr(N_RENCONTRE_GEANT), tr("%s se bat bec et ongles pour repousser ce monstre."), _player
+			)
 			await _board.narration_box.wait_for_click()
 			return await _resolve_rencontre_activity(card, "combat")
 		"creature":
-			_board.narration_box.say(tr(N_RENCONTRE_CREATURE))
+			_board.narration_box.say_for_actor(
+				tr(N_RENCONTRE_CREATURE), tr("%s manœuvre son bateau et affronte les créatures des mers."), _player
+			)
 			await _board.narration_box.wait_for_click()
 			return await _run_rencontre_creature(card)
 		"flotte":
-			_board.narration_box.say(tr(N_RENCONTRE_FLOTTE))
+			_board.narration_box.say_for_actor(
+				tr(N_RENCONTRE_FLOTTE),
+				tr("%s commerce avec les marchands protégés. Les attaquer entraînerait sa propre perte !"),
+				_player
+			)
 			await _board.narration_box.wait_for_click()
 			return await _resolve_rencontre_activity(card, "commerce")
 		"marchand":
-			_board.narration_box.say(tr(N_RENCONTRE_MARCHAND))
-			await _board.narration_box.wait_for_click()
 			return await _run_rencontre_marchand(card)
 		_:
 			return false
@@ -1083,6 +1126,15 @@ func _run_rencontre_marchand(card: GameCard) -> bool:
 		{"id": "combat", "label": tr("Attaquer (dés de combat)")},
 	])
 	var choice: String = await _board.narration_box.option_selected
+	if choice == "commerce":
+		_board.narration_box.say_for_actor(
+			tr(N_RENCONTRE_MARCHAND_COMMERCE), tr("%s commerce avec les marchands."), _player
+		)
+	else:
+		_board.narration_box.say_for_actor(
+			tr(N_RENCONTRE_MARCHAND_ATTAQUE), tr("%s attaque les marchands et tente de les voler."), _player
+		)
+	await _board.narration_box.wait_for_click()
 	return await _resolve_rencontre_activity(card, choice)
 
 
@@ -1300,15 +1352,19 @@ func _run_ile() -> String:
 		await _run_decline()
 		return ""
 
-	_board.narration_box.say(tr(N_ILE))
+	_board.narration_box.say_for_actor(
+		tr(N_ILE), tr("%s aperçoit la terre : par les étoiles, c'est une île !"), _player
+	)
 	await _board.narration_box.wait_for_click()
 
 	var choices: Array = card.activities.keys()
 	var activity_key: String = ""
 	if choices.size() <= 1:
 		activity_key = choices[0] if not choices.is_empty() else "exploration"
-		_board.narration_box.say_with_player(
-			tr(_activity_narration(activity_key) + "\n\nTour de %s : ") + tr(card.title) + tr(" — ") + _activity_label(activity_key) + tr(". Confirmer ?"), _player
+		_board.narration_box.say_for_actor(
+			tr(_activity_narration(activity_key)) + tr("\n\n") + tr(card.title) + tr(" — ") + _activity_label(activity_key) + tr(". Confirmer ?"),
+			tr(_activity_narration_others(activity_key)) + tr("\n\n") + tr(card.title) + tr(" — ") + _activity_label(activity_key) + tr(". Confirmer ?"),
+			_player
 		)
 		_board.narration_box.set_options([
 			{"id": "confirm", "label": tr("Confirmer")},
@@ -1377,6 +1433,16 @@ func _activity_narration(key: String) -> String:
 		_: return ""
 
 
+## Variante 3e personne (autres joueurs) des textes ci-dessus, cf
+## narration_box.say_for_actor.
+func _activity_narration_others(key: String) -> String:
+	match key:
+		"exploration": return "%s explore les recoins sauvages de l'île."
+		"combat": return "%s combat la tribu hostile."
+		"commerce": return "%s commerce avec la tribu amicale."
+		_: return "%s"
+
+
 func _activity_label(key: String) -> String:
 	match key:
 		"exploration": return tr("Explorer (dés d'exploration)")
@@ -1405,7 +1471,9 @@ func _run_port() -> String:
 		await _run_decline()
 		return ""
 
-	_board.narration_box.say(tr(N_PORT))
+	_board.narration_box.say_for_actor(
+		tr(N_PORT), tr("%s aperçoit un port : voyons ce qu'il a en réserve !"), _player
+	)
 	await _board.narration_box.wait_for_click()
 
 	var activity: Dictionary = card.activities.get("commerce", {})
@@ -1436,7 +1504,11 @@ func _run_port_ordinaire(card: GameCard, activity: Dictionary) -> String:
 		await _run_decline()
 		return ""
 
-	_board.narration_box.say_with_player(tr(N_PORT_ORDINAIRE + "\n\nTour de %s : accéder au port, confirmer le paiement ?"), _player)
+	_board.narration_box.say_for_actor(
+		tr(N_PORT_ORDINAIRE) + tr("\n\nAccéder au port, confirmer le paiement ?"),
+		tr("%s échange des ressources avec les marchands.") + tr("\n\nAccéder au port, confirmer le paiement ?"),
+		_player
+	)
 	_board.narration_box.set_options([
 		{"id": "confirm", "label": tr("Payer et continuer")},
 		{"id": "back", "label": tr("↩ Retour")},
@@ -1457,7 +1529,11 @@ func _run_port_ordinaire(card: GameCard, activity: Dictionary) -> String:
 ## compensation ni carte défaussée (pas la même mécanique qu'échouer une
 ## activité classique).
 func _run_port_perilleux(card: GameCard, activity: Dictionary) -> String:
-	_board.narration_box.say_with_player(tr(N_PORT_PERILLEUX + "\n\nTour de %s : port périlleux, lancer les dés d'exploration ?"), _player)
+	_board.narration_box.say_for_actor(
+		tr(N_PORT_PERILLEUX) + tr("\n\nPort périlleux, lancer les dés d'exploration ?"),
+		tr("%s manœuvre son bateau, essayant d'atteindre le port indemne.") + tr("\n\nPort périlleux, lancer les dés d'exploration ?"),
+		_player
+	)
 	_board.narration_box.set_options([
 		{"id": "confirm", "label": tr("Lancer les dés")},
 		{"id": "back", "label": tr("↩ Retour")},
@@ -1476,8 +1552,9 @@ func _run_port_perilleux(card: GameCard, activity: Dictionary) -> String:
 		return ""
 
 	var missing: int = needed - stars
-	_board.narration_box.say_with_player(
-		tr(N_PORT_PERILLEUX_FAIL + "\n\nTour de %s : étoiles insuffisantes (%d/%d) au port périlleux, perd %d planche(s)."),
+	_board.narration_box.say_for_actor(
+		tr(N_PORT_PERILLEUX_FAIL) + tr("\n\nÉtoiles insuffisantes (%d/%d) au port périlleux, perd %d planche(s)."),
+		tr("Capitaine ! %s a percuté quelque chose !") + tr("\n\nÉtoiles insuffisantes (%d/%d) au port périlleux, perd %d planche(s)."),
 		_player, [stars, needed, missing]
 	)
 	await _board.narration_box.wait_for_continue()
@@ -1490,7 +1567,11 @@ func _run_port_perilleux(card: GameCard, activity: Dictionary) -> String:
 ## Échec -> Commerce quand même, mais récompense réduite du nombre de
 ## succès manquants (règle 9).
 func _run_port_malfame(card: GameCard, activity: Dictionary) -> String:
-	_board.narration_box.say_with_player(tr(N_PORT_MALFAME + "\n\nTour de %s : port malfamé, lancer les dés de combat ?"), _player)
+	_board.narration_box.say_for_actor(
+		tr(N_PORT_MALFAME) + tr("\n\nPort malfamé, lancer les dés de combat ?"),
+		tr("%s lutte contre des brigands, tentant de protéger ses marchandises.") + tr("\n\nPort malfamé, lancer les dés de combat ?"),
+		_player
+	)
 	_board.narration_box.set_options([
 		{"id": "confirm", "label": tr("Lancer les dés")},
 		{"id": "back", "label": tr("↩ Retour")},
@@ -1940,8 +2021,9 @@ func _finalize_success(card: GameCard, activity_key: String) -> void:
 	GameFlow.add_card_to_track(_player, activity_key, card)
 	var progress: String = GameFlow.register_sea_progress(_player, card.sea_key)
 
-	_board.narration_box.say_with_player(
-		tr(N_SUCCESS + "\n\nTour de %s : activité réussie ! Carte rangée en piste ") + GameFlow.CARD_TRACK_LABELS.get(activity_key, activity_key) + ".",
+	_board.narration_box.say_for_actor(
+		tr(N_SUCCESS) + tr("\n\nActivité réussie ! Carte rangée en piste ") + GameFlow.CARD_TRACK_LABELS.get(activity_key, activity_key) + ".",
+		tr("%s a réussi la compagnie et récupère le butin !") + tr("\n\nActivité réussie ! Carte rangée en piste ") + GameFlow.CARD_TRACK_LABELS.get(activity_key, activity_key) + ".",
 		_player
 	)
 	await _board.narration_box.wait_for_continue()
@@ -1954,16 +2036,25 @@ func _finalize_success(card: GameCard, activity_key: String) -> void:
 				gem_pile.take_gem(player_index)
 
 	if progress != "none":
-		_board.narration_box.say_with_player(_progress_message(progress), _player)
+		_board.narration_box.say_for_actor(_progress_message(progress), _progress_message_others(progress), _player)
 		await _board.narration_box.wait_for_continue()
 
 
 func _progress_message(progress: String) -> String:
 	match progress:
-		"gem": return tr(N_GEM + "\n\nTour de %s : 1ère carte de cette mer — récupère la gemme correspondante !")
-		"token_new": return tr(N_TOKEN_NEW + "\n\nTour de %s : 2e carte de cette mer — récupère le jeton bonus (s'il en reste) !")
-		"token_refresh": return tr(N_TOKEN_REFRESH + "\n\nTour de %s : jeton bonus de cette mer rafraîchi (face effet).")
+		"gem": return tr(N_GEM + "\n\n1ère carte de cette mer — récupère la gemme correspondante !")
+		"token_new": return tr(N_TOKEN_NEW + "\n\n2e carte de cette mer — récupère le jeton bonus (s'il en reste) !")
+		"token_refresh": return tr(N_TOKEN_REFRESH + "\n\nJeton bonus de cette mer rafraîchi (face effet).")
 		_: return ""
+
+
+## Variante 3e personne (autres joueurs) de _progress_message.
+func _progress_message_others(progress: String) -> String:
+	match progress:
+		"gem": return tr("%s récupère une gemme, un joli trophée !") + tr("\n\n1ère carte de cette mer — récupère la gemme correspondante !")
+		"token_new": return tr("Les locaux offrent un cadeau à %s.") + tr("\n\n2e carte de cette mer — récupère le jeton bonus (s'il en reste) !")
+		"token_refresh": return tr("Les amis de %s sont de retour !") + tr("\n\nJeton bonus de cette mer rafraîchi (face effet).")
+		_: return "%s"
 
 
 ## Échouer une activité (règle 10) : 1 fortune de compensation, puis l'effet
@@ -1974,8 +2065,10 @@ func _grant_activity_failure(card: GameCard) -> void:
 	_player["special_resources"]["fortune"] += 1
 	GameFlow.players_changed.emit()
 
-	_board.narration_box.say_with_player(
-		tr(N_FAILURE + "\n\nTour de %s : activité échouée. Reçoit 1 fortune en compensation."), _player
+	_board.narration_box.say_for_actor(
+		tr(N_FAILURE) + tr("\n\nActivité échouée. Reçoit 1 fortune en compensation."),
+		tr("La prochaine fois sera la bonne pour %s !") + tr("\n\nActivité échouée. Reçoit 1 fortune en compensation."),
+		_player
 	)
 	await _board.narration_box.wait_for_continue()
 
@@ -2073,8 +2166,10 @@ func _check_overload() -> void:
 				options.append({"id": r, "label": tr("Défausser 1 ") + GameFlow.RESOURCE_LABELS[r]})
 		if options.is_empty():
 			break
-		_board.narration_box.say_with_player(
-			tr(N_OVERLOAD + "\n\nTour de %s : bateau surchargé (%d/9), défausse une ressource."), _player, [_total_resources()]
+		_board.narration_box.say_for_actor(
+			tr(N_OVERLOAD) + tr("\n\nBateau surchargé (%d/9), défausse une ressource."),
+			tr("Le bateau de %s est trop chargé, il doit l'alléger.") + tr("\n\nBateau surchargé (%d/9), défausse une ressource."),
+			_player, [_total_resources()]
 		)
 		_board.narration_box.set_options(options)
 		var choice: String = await _board.narration_box.option_selected
@@ -2118,10 +2213,16 @@ func _capsize() -> void:
 ## d'être simplement défaussées (règle 13, "le gagnant vole les ressources
 ## défaussées par le perdant").
 func _capsize_for(actor: Dictionary, loot_recipient: Dictionary = {}) -> void:
-	_board.narration_box.say_with_player(tr(N_CAPSIZE + "\n\nTour de %s : le bateau chavire !"), actor)
+	_board.narration_box.say_for_actor(
+		tr(N_CAPSIZE) + tr("\n\nLe bateau chavire !"),
+		tr("Le bateau de %s est en mauvais état !") + tr("\n\nLe bateau chavire !"),
+		actor
+	)
 	await _board.narration_box.wait_for_continue()
 
-	_board.narration_box.say(tr(N_CAPSIZE_LOSE))
+	_board.narration_box.say_for_actor(
+		tr(N_CAPSIZE_LOSE), tr("Le bateau de %s prend l'eau rapidement... il doit alléger sa charge !"), actor
+	)
 	await _board.narration_box.wait_for_click()
 
 	var total := 0

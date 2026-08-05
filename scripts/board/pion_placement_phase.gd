@@ -118,13 +118,19 @@ func _begin_player_pion_turn() -> void:
 		await _repair_capsized_boat(player)
 
 	if _current_round == 0:
-		_board.narration_box.say_with_player(tr("Tour de %s : choisis le pion à jouer (capitaine ou officier)."), player)
+		_board.narration_box.say_for_actor(
+			tr("Choisis le pion à jouer (capitaine ou officier)."),
+			tr("%s choisit le pion à jouer (capitaine ou officier)."),
+			player
+		)
 		if can_act:
 			_board.pion_selection_panel.setup_for_player(color, -1)
 	else:
 		var placed_rank: int = _placed_rank_by_player[_current_player_index]
 		var forced_rank: int = GameFlow.PionRank.OFFICER if placed_rank == GameFlow.PionRank.CAPTAIN else GameFlow.PionRank.CAPTAIN
-		_board.narration_box.say_with_player(tr("Tour de %s : place ta dernière pièce."), player)
+		_board.narration_box.say_for_actor(
+			tr("Place ta dernière pièce."), tr("%s place sa dernière pièce."), player
+		)
 		if can_act:
 			_board.pion_selection_panel.setup_for_player(color, forced_rank)
 
@@ -135,9 +141,11 @@ func _begin_player_pion_turn() -> void:
 func _repair_capsized_boat(player: Dictionary) -> void:
 	player["hull_planks"] = 3
 	GameFlow.players_changed.emit()
-	_board.narration_box.say_with_player(
+	_board.narration_box.say_for_actor(
 		tr("Contre toute attente, votre équipage maintient le bateau à flot !") +
-		tr("\n\nTour de %s : le bateau chaviré est redressé, +3 planches."),
+		tr("\n\nLe bateau chaviré est redressé, +3 planches."),
+		tr("Contre toute attente, l'équipage de %s maintient le bateau à flot !") +
+		tr("\n\nLe bateau chaviré est redressé, +3 planches."),
 		player
 	)
 	await _board.narration_box.wait_for_continue()
@@ -275,9 +283,11 @@ func _apply_pion_placement(spot_index: int, rank: int) -> void:
 
 	# Narration (règles mode avancé, règle 6) : emplacement fort = sang-froid,
 	# emplacement faible = équipage démotivé.
-	var placement_narration: String = tr("%s garde son sang-froid et motive son équipage !") if is_strong \
+	var placement_mine: String = tr("Vous gardez votre sang-froid et motivez votre équipage !") if is_strong \
+		else tr("Vous n'arrivez pas à motiver votre équipage...")
+	var placement_others: String = tr("%s garde son sang-froid et motive son équipage !") if is_strong \
 		else tr("%s n'arrive pas à motiver son équipage...")
-	_board.narration_box.say_with_player(placement_narration, player)
+	_board.narration_box.say_for_actor(placement_mine, placement_others, player)
 	await _board.narration_box.wait_for_click()
 	_board.narration_box.hide_box()
 

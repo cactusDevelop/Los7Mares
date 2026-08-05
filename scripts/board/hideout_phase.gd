@@ -69,7 +69,9 @@ func _begin_hideout_turn() -> void:
 	var player: Dictionary = GameFlow.players[player_index]
 	GameFlow.set_current_player(player["id"])
 	var color: Color = GameFlow.COLOR_VALUES[player["color"]]
-	_board.narration_box.say_with_player(tr("Tour de %s : choisis l'emplacement de ta cachette."), player)
+	_board.narration_box.say_for_actor(
+		tr("Choisis l'emplacement de ta cachette."), tr("%s choisit l'emplacement de sa cachette."), player
+	)
 
 	# En réseau, seul l'écran du joueur dont c'est le tour doit pouvoir
 	# survoler/cliquer les emplacements ; les autres (y compris l'hôte s'il
