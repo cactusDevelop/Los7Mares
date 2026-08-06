@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Los 7 Mares"
+config/version="1.0.1"
 run/main_scene="uid://buak45c3014j0"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="uid://dp4s6lil2a811"
@@ -28,10 +29,6 @@ GlobalUi="*uid://caqros2v31q2x"
 SaveManager="*uid://cmss0rshbfgho"
 Network="*uid://dj5bf1cu8d85c"
 UpdateChecker="*res://scripts/autoload/update_checker.gd"
-
-[audio]
-
-buses/default_bus_layout="res://default_bus_layout.tres"
 
 [display]
 
