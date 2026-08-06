@@ -18,10 +18,10 @@ extends Control
 @onready var join_ip_confirm_button: Button = $JoinIpPopup/Padding/VBoxContainer/ConfirmButton
 @onready var join_error_label: Label = $JoinIpPopup/Padding/VBoxContainer/JoinErrorLabel
 
-@onready var update_panel: PanelContainer = $UpdatePanel
-@onready var update_label: Label = $UpdatePanel/Margin/HBoxContainer/UpdateLabel
-@onready var update_download_button: Button = $UpdatePanel/Margin/HBoxContainer/UpdateDownloadButton
-@onready var update_dismiss_button: Button = $UpdatePanel/Margin/HBoxContainer/UpdateDismissButton
+@onready var update_blocker: ColorRect = $UpdateBlocker
+@onready var update_label: Label = $UpdateBlocker/UpdatePanel/Margin/VBoxContainer/UpdateLabel
+@onready var update_progress_bar: ProgressBar = $UpdateBlocker/UpdatePanel/Margin/VBoxContainer/UpdateProgressBar
+@onready var update_download_button: Button = $UpdateBlocker/UpdatePanel/Margin/VBoxContainer/UpdateDownloadButton
 
 
 func _on_continue_pressed() -> void:
@@ -55,8 +55,9 @@ func _ready() -> void:
 		return
 
 	update_download_button.pressed.connect(_on_update_download_pressed)
-	update_dismiss_button.pressed.connect(_on_update_dismiss_pressed)
 	UpdateChecker.update_available.connect(_on_update_available)
+	UpdateChecker.download_progress.connect(_on_update_download_progress)
+	UpdateChecker.download_failed.connect(_on_update_download_failed)
 	UpdateChecker.check_for_update()
 
 	for arg in OS.get_cmdline_user_args():
@@ -183,16 +184,33 @@ func _popup_player_count_centered() -> void:
 
 
 func _on_update_available(latest_version: String) -> void:
-	update_label.text = "Une nouvelle version (%s) est disponible !" % latest_version
-	update_panel.visible = true
+	# Popup FORCÉE (aucun moyen de la fermer/ignorer) : UpdateBlocker bloque
+	# tous les clics derrière lui, et il n'y a volontairement pas de bouton
+	# "ignorer" ni de touche Echap gérée pour ce PopupPanel.
+	update_label.text = "Une nouvelle version (%s) est disponible. Vous devez l'installer pour continuer à jouer." % latest_version
+	update_blocker.visible = true
+	# Empêche toute interaction avec le reste de l'écran titre pendant que
+	# la popup est affichée (au cas où un futur node ignorerait mouse_filter).
+	center_buttons.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _on_update_download_pressed() -> void:
-	OS.shell_open(UpdateChecker.RELEASES_PAGE_URL)
+	update_download_button.disabled = true
+	update_download_button.text = "TÉLÉCHARGEMENT..."
+	update_progress_bar.visible = true
+	update_progress_bar.value = 0.0
+	update_label.text = "Téléchargement de la mise à jour en cours, merci de patienter..."
+	UpdateChecker.begin_update()
 
 
-func _on_update_dismiss_pressed() -> void:
-	update_panel.visible = false
+func _on_update_download_progress(fraction: float) -> void:
+	update_progress_bar.value = fraction
+
+
+func _on_update_download_failed(reason: String) -> void:
+	update_label.text = "Échec de la mise à jour : %s\nVous pouvez réessayer, ou la télécharger manuellement sur GitHub." % reason
+	update_download_button.disabled = false
+	update_download_button.text = "RÉESSAYER"
 
 
 func _on_player_count_confirmed() -> void:

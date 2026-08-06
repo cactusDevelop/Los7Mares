@@ -109,39 +109,59 @@ visible = false
 text = "Aucune partie trouvée avec ce code sur le réseau."
 autowrap_mode = 2
 
-[node name="UpdatePanel" type="PanelContainer" parent="."]
+[node name="UpdateBlocker" type="ColorRect" parent="."]
 visible = false
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -260.0
-offset_top = 20.0
-offset_right = 260.0
-offset_bottom = 84.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.75)
 
-[node name="Margin" type="MarginContainer" parent="UpdatePanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 10
+[node name="UpdatePanel" type="PanelContainer" parent="UpdateBlocker"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -90.0
+offset_right = 220.0
+offset_bottom = 90.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UpdatePanel/Margin"]
+[node name="Margin" type="MarginContainer" parent="UpdateBlocker/UpdatePanel"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
 
-[node name="UpdateLabel" type="Label" parent="UpdatePanel/Margin/HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UpdateBlocker/UpdatePanel/Margin"]
 layout_mode = 2
-size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="UpdateTitleLabel" type="Label" parent="UpdateBlocker/UpdatePanel/Margin/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Mise à jour requise"
+
+[node name="UpdateLabel" type="Label" parent="UpdateBlocker/UpdatePanel/Margin/VBoxContainer"]
+layout_mode = 2
 autowrap_mode = 2
-text = "Une nouvelle version est disponible."
+text = "Une nouvelle version est disponible. Vous devez l'installer pour continuer à jouer."
 
-[node name="UpdateDownloadButton" type="Button" parent="UpdatePanel/Margin/HBoxContainer"]
+[node name="UpdateProgressBar" type="ProgressBar" parent="UpdateBlocker/UpdatePanel/Margin/VBoxContainer"]
+visible = false
 layout_mode = 2
-text = "TELECHARGER"
+min_value = 0.0
+max_value = 1.0
+step = 0.01
 
-[node name="UpdateDismissButton" type="Button" parent="UpdatePanel/Margin/HBoxContainer"]
+[node name="UpdateDownloadButton" type="Button" parent="UpdateBlocker/UpdatePanel/Margin/VBoxContainer"]
 layout_mode = 2
-text = "IGNORER"
+text = "METTRE A JOUR"
