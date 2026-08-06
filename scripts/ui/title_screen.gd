@@ -18,6 +18,11 @@ extends Control
 @onready var join_ip_confirm_button: Button = $JoinIpPopup/Padding/VBoxContainer/ConfirmButton
 @onready var join_error_label: Label = $JoinIpPopup/Padding/VBoxContainer/JoinErrorLabel
 
+@onready var update_panel: PanelContainer = $UpdatePanel
+@onready var update_label: Label = $UpdatePanel/Margin/HBoxContainer/UpdateLabel
+@onready var update_download_button: Button = $UpdatePanel/Margin/HBoxContainer/UpdateDownloadButton
+@onready var update_dismiss_button: Button = $UpdatePanel/Margin/HBoxContainer/UpdateDismissButton
+
 
 func _on_continue_pressed() -> void:
 	MusicManager.fade_to_random_game_music()
@@ -48,6 +53,11 @@ func _ready() -> void:
 	if Network.is_dedicated_server_launch():
 		call_deferred("_on_host_pressed")
 		return
+
+	update_download_button.pressed.connect(_on_update_download_pressed)
+	update_dismiss_button.pressed.connect(_on_update_dismiss_pressed)
+	UpdateChecker.update_available.connect(_on_update_available)
+	UpdateChecker.check_for_update()
 
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--join="):
@@ -170,6 +180,19 @@ func _popup_player_count_centered() -> void:
 	min_size.x = max(min_size.x, 320)
 	player_count_popup.size = min_size
 	player_count_popup.popup_centered()
+
+
+func _on_update_available(latest_version: String) -> void:
+	update_label.text = "Une nouvelle version (%s) est disponible !" % latest_version
+	update_panel.visible = true
+
+
+func _on_update_download_pressed() -> void:
+	OS.shell_open(UpdateChecker.RELEASES_PAGE_URL)
+
+
+func _on_update_dismiss_pressed() -> void:
+	update_panel.visible = false
 
 
 func _on_player_count_confirmed() -> void:

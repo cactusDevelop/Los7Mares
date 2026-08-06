@@ -27,6 +27,7 @@ UiTheme="*uid://b2mqpqckepofg"
 GlobalUi="*uid://caqros2v31q2x"
 SaveManager="*uid://cmss0rshbfgho"
 Network="*uid://dj5bf1cu8d85c"
+UpdateChecker="*res://scripts/autoload/update_checker.gd"
 
 [audio]
 
