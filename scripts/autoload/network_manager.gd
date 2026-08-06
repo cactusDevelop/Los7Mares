@@ -13,6 +13,16 @@ signal code_join_failed
 ## par les autres, comme en partie locale/debug (GameFlow.players y est déjà
 ## rempli à ce moment-là, cf lobby.gd).
 signal lobby_preview_received
+## Émis côté client quand l'hôte refuse un changement de couleur demandé
+## depuis le menu d'attente (couleur prise entre-temps par un autre joueur),
+## cf request_change_color / lobby.gd.
+signal color_change_rejected(reason: String)
+## Émis (RPC autorité, call_local) quand un joueur se déconnecte APRÈS le
+## lancement de la partie (cf _handle_peer_left) : contrairement au lobby,
+## on ne le retire pas de GameFlow.players (son plateau doit rester
+## affichable), on prévient juste tout le monde pour afficher une bannière
+## d'attente (cf board.gd).
+signal player_disconnected_ingame(player_id: int)
 
 const DEFAULT_PORT := 7373
 const MAX_PLAYERS := 5
@@ -114,6 +124,39 @@ func _on_peer_connected(id: int) -> void:
 func _on_peer_disconnected(id: int) -> void:
 	connected_peers.erase(id)
 	player_list_changed.emit()
+	# Autorité uniquement : les clients reçoivent aussi ce signal (relayé par
+	# le serveur) à titre informatif, mais ne doivent pas modifier
+	# GameFlow.players eux-mêmes (source de vérité = l'hôte, cf _register_player).
+	if multiplayer.is_server():
+		_handle_peer_left(id)
+
+
+## Autorité uniquement. Un pair vient de se déconnecter (a quitté le lobby,
+## ou perdu la connexion en cours de partie) :
+## - AVANT le lancement (_game_started == false) : "énorme bug" corrigé ici -
+##   le joueur associé restait fantôme dans GameFlow.players (visible dans le
+##   lobby, et toujours présent si l'hôte lançait la partie). On le retire
+##   entièrement et on rediffuse l'état complet, comme pour une inscription
+##   (cf _register_player), pour que la liste du lobby ET le grisé de la
+##   popup nom/couleur des autres joueurs se libèrent immédiatement.
+## - APRÈS le lancement : on garde son joueur (son plateau, ses ressources...
+##   doivent rester affichables) et on prévient tout le monde via
+##   player_disconnected_ingame (cf board.gd, bannière "En attente d'un joueur").
+func _handle_peer_left(peer_id: int) -> void:
+	var player_id: int = peer_player_map.get(peer_id, -1)
+	if player_id == -1:
+		return
+	if not _game_started:
+		GameFlow.remove_player_by_id(player_id)
+		peer_player_map.erase(peer_id)
+		_sync_lobby_state.rpc(GameFlow.players, peer_player_map)
+	else:
+		_notify_player_disconnected_ingame.rpc(player_id)
+
+
+@rpc("authority", "call_local", "reliable")
+func _notify_player_disconnected_ingame(player_id: int) -> void:
+	player_disconnected_ingame.emit(player_id)
 
 func _on_connected_to_server() -> void:
 	player_list_changed.emit()
@@ -359,6 +402,49 @@ func _sync_lobby_state(players_data: Array, peer_map: Dictionary) -> void:
 	GameFlow.set_players_from_network(players_data)
 	peer_player_map = peer_map
 	lobby_synced.emit()
+
+
+## Appelé par lobby.gd quand un joueur DÉJÀ inscrit change de couleur depuis
+## le menu d'attente (pas au moment de son inscription initiale, cf
+## request_join ci-dessus). Même flux autorité/RPC : l'hôte applique
+## directement, les clients passent par un RPC vers l'hôte.
+func request_change_color(color: String) -> void:
+	if multiplayer.is_server():
+		_change_color(1, color)
+	else:
+		_change_color_rpc.rpc_id(1, color)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _change_color_rpc(color: String) -> void:
+	if not multiplayer.is_server():
+		return
+	_change_color(multiplayer.get_remote_sender_id(), color)
+
+
+## Autorité uniquement (hôte). Rejette si la couleur est déjà prise par un
+## AUTRE joueur ; ne fait rien si c'est déjà la couleur actuelle du joueur.
+## En cas de succès, rediffuse l'état complet à tout le monde comme
+## _register_player, pour que la liste du lobby ET la popup nom/couleur des
+## joueurs en train de rejoindre restent synchronisées (cf lobby.gd
+## _refresh_list, qui rafraîchit aussi player_setup_popup si elle est ouverte).
+func _change_color(peer_id: int, color: String) -> void:
+	var player_id: int = peer_player_map.get(peer_id, -1)
+	if player_id == -1:
+		return
+	var player: Dictionary = GameFlow.get_player_by_id(player_id)
+	if player.is_empty() or player["color"] == color:
+		return
+	if GameFlow.is_color_taken(color):
+		_reject_color_change.rpc_id(peer_id, "Cette couleur est déjà prise.")
+		return
+	GameFlow.set_player_color(player_id, color)
+	_sync_lobby_state.rpc(GameFlow.players, peer_player_map)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _reject_color_change(reason: String) -> void:
+	color_change_rejected.emit(reason)
 
 
 ## Appelé uniquement depuis lobby.gd quand l'hôte clique "Lancer la partie".

@@ -246,6 +246,22 @@ func get_player_index(player: Dictionary) -> int:
 	return -1
 
 
+## Retire un joueur de la partie : utilisé UNIQUEMENT pour une déconnexion
+## pendant le lobby, avant le lancement de la partie (cf
+## network_manager._handle_peer_left), pour ne pas laisser de "joueur
+## fantôme" dans la liste d'attente ni bloquer le lancement de l'hôte.
+## NE DOIT PAS être appelé une fois la partie commencée : les autres systèmes
+## (plateaux, tour par tour, plateau action...) supposent que players ne
+## rétrécit jamais en cours de partie (cf player_disconnected_ingame côté
+## réseau, qui garde le joueur et prévient juste les autres à la place).
+func remove_player_by_id(player_id: int) -> void:
+	for i in range(players.size()):
+		if players[i]["id"] == player_id:
+			players.remove_at(i)
+			players_changed.emit()
+			return
+
+
 func is_name_taken(player_name: String) -> bool:
 	var normalized := player_name.strip_edges().to_lower()
 	for p in players:
@@ -259,6 +275,29 @@ func is_color_taken(color: String) -> bool:
 		if p["color"] == color:
 			return true
 	return false
+
+
+## Renvoie le Dictionary du joueur d'id donné, ou {} si introuvable. Utilisé
+## par network_manager.gd (_change_color) pour retrouver le joueur associé à
+## un peer réseau avant de modifier sa couleur.
+func get_player_by_id(player_id: int) -> Dictionary:
+	for p in players:
+		if p["id"] == player_id:
+			return p
+	return {}
+
+
+## Change la couleur d'un joueur déjà inscrit (choix interactif depuis le
+## menu d'attente host/join, cf lobby.gd _on_lobby_color_pressed), sans
+## toucher au reste de ses données. Appelant responsable de vérifier au
+## préalable que la couleur cible n'est pas déjà prise (cf
+## network_manager._change_color).
+func set_player_color(player_id: int, color: String) -> void:
+	var player := get_player_by_id(player_id)
+	if player.is_empty():
+		return
+	player["color"] = color
+	players_changed.emit()
 
 
 func generate_debug_players(count: int) -> void:

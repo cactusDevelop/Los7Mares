@@ -1,0 +1,532 @@
+diff --git a/scenes/board/board.tscn b/scenes/board/board.tscn
+index 8086a30..a3b3efe 100644
+--- a/scenes/board/board.tscn
++++ b/scenes/board/board.tscn
+@@ -221,6 +221,21 @@ ok_button_text = "Ok..."
+ dialog_text = "Retourner au menu ? Votre progression est sauvegardée."
+ cancel_button_text = "Non, ça ira"
+ 
++[node name="WaitingForPlayerBanner" type="PanelContainer" parent="UI"]
++visible = false
++mouse_filter = 2
++layout_mode = 0
++offset_left = 480.0
++offset_top = 20.0
++offset_right = 800.0
++offset_bottom = 64.0
++
++[node name="WaitingForPlayerLabel" type="Label" parent="UI/WaitingForPlayerBanner"]
++layout_mode = 2
++mouse_filter = 2
++horizontal_alignment = 1
++text = "En attente d'un joueur"
++
+ [node name="DebugSkipButton" type="Button" parent="UI" unique_id=1105041818]
+ visible = false
+ custom_minimum_size = Vector2(110, 44)
+diff --git a/scenes/ui/lobby.tscn b/scenes/ui/lobby.tscn
+index 73263f6..5ef7a93 100644
+--- a/scenes/ui/lobby.tscn
++++ b/scenes/ui/lobby.tscn
+@@ -13,6 +13,15 @@ grow_horizontal = 2
+ grow_vertical = 2
+ script = ExtResource("1_lobby")
+ 
++[node name="Background" type="TextureRect" parent="."]
++layout_mode = 0
++anchor_right = 1.0
++anchor_bottom = 1.0
++grow_horizontal = 2
++grow_vertical = 2
++expand_mode = 1
++stretch_mode = 7
++
+ [node name="StatusLabel" type="Label" parent="."]
+ layout_mode = 0
+ offset_left = 40.0
+@@ -66,6 +75,33 @@ text = "JOUEURS CONNECTÉS"
+ layout_mode = 2
+ theme_override_constants/separation = 6
+ 
++[node name="ColorPickerPanel" type="PanelContainer" parent="."]
++layout_mode = 0
++offset_left = 420.0
++offset_top = 120.0
++offset_right = 700.0
++offset_bottom = 210.0
++
++[node name="ColorPickerMargin" type="MarginContainer" parent="ColorPickerPanel"]
++layout_mode = 2
++theme_override_constants/margin_left = 16
++theme_override_constants/margin_top = 16
++theme_override_constants/margin_right = 16
++theme_override_constants/margin_bottom = 16
++
++[node name="ColorPickerContent" type="VBoxContainer" parent="ColorPickerPanel/ColorPickerMargin"]
++layout_mode = 2
++theme_override_constants/separation = 8
++
++[node name="ColorPickerTitle" type="Label" parent="ColorPickerPanel/ColorPickerMargin/ColorPickerContent"]
++layout_mode = 2
++theme_override_font_sizes/font_size = 18
++text = "MA COULEUR"
++
++[node name="ColorSwatchesBox" type="HBoxContainer" parent="ColorPickerPanel/ColorPickerMargin/ColorPickerContent"]
++layout_mode = 2
++theme_override_constants/separation = 4
++
+ [node name="StartButton" type="Button" parent="."]
+ layout_mode = 0
+ offset_left = 40.0
+diff --git a/scripts/autoload/game_flow.gd b/scripts/autoload/game_flow.gd
+index de6575e..73e3246 100644
+--- a/scripts/autoload/game_flow.gd
++++ b/scripts/autoload/game_flow.gd
+@@ -246,6 +246,22 @@ func get_player_index(player: Dictionary) -> int:
+ 	return -1
+ 
+ 
++## Retire un joueur de la partie : utilisé UNIQUEMENT pour une déconnexion
++## pendant le lobby, avant le lancement de la partie (cf
++## network_manager._handle_peer_left), pour ne pas laisser de "joueur
++## fantôme" dans la liste d'attente ni bloquer le lancement de l'hôte.
++## NE DOIT PAS être appelé une fois la partie commencée : les autres systèmes
++## (plateaux, tour par tour, plateau action...) supposent que players ne
++## rétrécit jamais en cours de partie (cf player_disconnected_ingame côté
++## réseau, qui garde le joueur et prévient juste les autres à la place).
++func remove_player_by_id(player_id: int) -> void:
++	for i in range(players.size()):
++		if players[i]["id"] == player_id:
++			players.remove_at(i)
++			players_changed.emit()
++			return
++
++
+ func is_name_taken(player_name: String) -> bool:
+ 	var normalized := player_name.strip_edges().to_lower()
+ 	for p in players:
+@@ -261,6 +277,29 @@ func is_color_taken(color: String) -> bool:
+ 	return false
+ 
+ 
++## Renvoie le Dictionary du joueur d'id donné, ou {} si introuvable. Utilisé
++## par network_manager.gd (_change_color) pour retrouver le joueur associé à
++## un peer réseau avant de modifier sa couleur.
++func get_player_by_id(player_id: int) -> Dictionary:
++	for p in players:
++		if p["id"] == player_id:
++			return p
++	return {}
++
++
++## Change la couleur d'un joueur déjà inscrit (choix interactif depuis le
++## menu d'attente host/join, cf lobby.gd _on_lobby_color_pressed), sans
++## toucher au reste de ses données. Appelant responsable de vérifier au
++## préalable que la couleur cible n'est pas déjà prise (cf
++## network_manager._change_color).
++func set_player_color(player_id: int, color: String) -> void:
++	var player := get_player_by_id(player_id)
++	if player.is_empty():
++		return
++	player["color"] = color
++	players_changed.emit()
++
++
+ func generate_debug_players(count: int) -> void:
+ 	reset_players()
+ 	var shuffled_names := RANDOM_NAMES.duplicate()
+diff --git a/scripts/autoload/network_manager.gd b/scripts/autoload/network_manager.gd
+index aebd261..dd6724c 100644
+--- a/scripts/autoload/network_manager.gd
++++ b/scripts/autoload/network_manager.gd
+@@ -13,6 +13,16 @@ signal code_join_failed
+ ## par les autres, comme en partie locale/debug (GameFlow.players y est déjà
+ ## rempli à ce moment-là, cf lobby.gd).
+ signal lobby_preview_received
++## Émis côté client quand l'hôte refuse un changement de couleur demandé
++## depuis le menu d'attente (couleur prise entre-temps par un autre joueur),
++## cf request_change_color / lobby.gd.
++signal color_change_rejected(reason: String)
++## Émis (RPC autorité, call_local) quand un joueur se déconnecte APRÈS le
++## lancement de la partie (cf _handle_peer_left) : contrairement au lobby,
++## on ne le retire pas de GameFlow.players (son plateau doit rester
++## affichable), on prévient juste tout le monde pour afficher une bannière
++## d'attente (cf board.gd).
++signal player_disconnected_ingame(player_id: int)
+ 
+ const DEFAULT_PORT := 7373
+ const MAX_PLAYERS := 5
+@@ -114,6 +124,39 @@ func _on_peer_connected(id: int) -> void:
+ func _on_peer_disconnected(id: int) -> void:
+ 	connected_peers.erase(id)
+ 	player_list_changed.emit()
++	# Autorité uniquement : les clients reçoivent aussi ce signal (relayé par
++	# le serveur) à titre informatif, mais ne doivent pas modifier
++	# GameFlow.players eux-mêmes (source de vérité = l'hôte, cf _register_player).
++	if multiplayer.is_server():
++		_handle_peer_left(id)
++
++
++## Autorité uniquement. Un pair vient de se déconnecter (a quitté le lobby,
++## ou perdu la connexion en cours de partie) :
++## - AVANT le lancement (_game_started == false) : "énorme bug" corrigé ici -
++##   le joueur associé restait fantôme dans GameFlow.players (visible dans le
++##   lobby, et toujours présent si l'hôte lançait la partie). On le retire
++##   entièrement et on rediffuse l'état complet, comme pour une inscription
++##   (cf _register_player), pour que la liste du lobby ET le grisé de la
++##   popup nom/couleur des autres joueurs se libèrent immédiatement.
++## - APRÈS le lancement : on garde son joueur (son plateau, ses ressources...
++##   doivent rester affichables) et on prévient tout le monde via
++##   player_disconnected_ingame (cf board.gd, bannière "En attente d'un joueur").
++func _handle_peer_left(peer_id: int) -> void:
++	var player_id: int = peer_player_map.get(peer_id, -1)
++	if player_id == -1:
++		return
++	if not _game_started:
++		GameFlow.remove_player_by_id(player_id)
++		peer_player_map.erase(peer_id)
++		_sync_lobby_state.rpc(GameFlow.players, peer_player_map)
++	else:
++		_notify_player_disconnected_ingame.rpc(player_id)
++
++
++@rpc("authority", "call_local", "reliable")
++func _notify_player_disconnected_ingame(player_id: int) -> void:
++	player_disconnected_ingame.emit(player_id)
+ 
+ func _on_connected_to_server() -> void:
+ 	player_list_changed.emit()
+@@ -361,6 +404,49 @@ func _sync_lobby_state(players_data: Array, peer_map: Dictionary) -> void:
+ 	lobby_synced.emit()
+ 
+ 
++## Appelé par lobby.gd quand un joueur DÉJÀ inscrit change de couleur depuis
++## le menu d'attente (pas au moment de son inscription initiale, cf
++## request_join ci-dessus). Même flux autorité/RPC : l'hôte applique
++## directement, les clients passent par un RPC vers l'hôte.
++func request_change_color(color: String) -> void:
++	if multiplayer.is_server():
++		_change_color(1, color)
++	else:
++		_change_color_rpc.rpc_id(1, color)
++
++
++@rpc("any_peer", "call_remote", "reliable")
++func _change_color_rpc(color: String) -> void:
++	if not multiplayer.is_server():
++		return
++	_change_color(multiplayer.get_remote_sender_id(), color)
++
++
++## Autorité uniquement (hôte). Rejette si la couleur est déjà prise par un
++## AUTRE joueur ; ne fait rien si c'est déjà la couleur actuelle du joueur.
++## En cas de succès, rediffuse l'état complet à tout le monde comme
++## _register_player, pour que la liste du lobby ET la popup nom/couleur des
++## joueurs en train de rejoindre restent synchronisées (cf lobby.gd
++## _refresh_list, qui rafraîchit aussi player_setup_popup si elle est ouverte).
++func _change_color(peer_id: int, color: String) -> void:
++	var player_id: int = peer_player_map.get(peer_id, -1)
++	if player_id == -1:
++		return
++	var player: Dictionary = GameFlow.get_player_by_id(player_id)
++	if player.is_empty() or player["color"] == color:
++		return
++	if GameFlow.is_color_taken(color):
++		_reject_color_change.rpc_id(peer_id, "Cette couleur est déjà prise.")
++		return
++	GameFlow.set_player_color(player_id, color)
++	_sync_lobby_state.rpc(GameFlow.players, peer_player_map)
++
++
++@rpc("authority", "call_remote", "reliable")
++func _reject_color_change(reason: String) -> void:
++	color_change_rejected.emit(reason)
++
++
+ ## Appelé uniquement depuis lobby.gd quand l'hôte clique "Lancer la partie".
+ func request_start_game() -> void:
+ 	if multiplayer.is_server():
+diff --git a/scripts/board/board.gd b/scripts/board/board.gd
+index 6dec014..ff8b446 100644
+--- a/scripts/board/board.gd
++++ b/scripts/board/board.gd
+@@ -93,6 +93,7 @@ const SEA_KEY_BY_NODE_NAME := {
+ @onready var card_draw_phase: Node = $CardDrawPhase
+ @onready var return_to_menu_button: Button = $UI/ReturnToMenuButton
+ @onready var return_to_menu_confirm: ConfirmationDialog = $UI/ReturnToMenuConfirm
++@onready var waiting_for_player_banner: Control = $UI/WaitingForPlayerBanner
+ @onready var debug_skip_button: Button = $UI/DebugSkipButton
+ @onready var debug_draw_cards_button: Button = $UI/DebugDrawCardsButton
+ @onready var ocean_ambiance_player: AudioStreamPlayer = $OceanAmbiance
+@@ -166,6 +167,13 @@ func _ready() -> void:
+ 	return_to_menu_button.pressed.connect(func(): return_to_menu_confirm.popup_centered())
+ 	return_to_menu_confirm.confirmed.connect(func(): GameFlow.go_to_title())
+ 
++	# Partie réseau (host/join) uniquement : un joueur qui quitte EN COURS de
++	# partie garde son plateau (cf network_manager._handle_peer_left), mais
++	# on prévient les autres via une bannière non bloquante (mouse_filter
++	# IGNORE, cf board.tscn) qui n'empêche jamais de cliquer sur
++	# ReturnToMenuButton par-dessus/à côté.
++	Network.player_disconnected_ingame.connect(_on_player_disconnected_ingame)
++
+ 	debug_skip_button.visible = false
+ 	debug_skip_button.pressed.connect(_on_debug_skip_button_pressed)
+ 
+@@ -361,6 +369,15 @@ func _ready() -> void:
+ ##   d'action en cours), simule le choix le plus rapide (decline/stop) ;
+ ## - sinon, une pose de pièce est en attente : la pose automatiquement sur
+ ##   la première case libre.
++## Cf Network.player_disconnected_ingame : affiche la bannière "En attente
++## d'un joueur" pour tout le monde (y compris l'hôte, call_local) et ne la
++## cache plus jamais ensuite (pas de reconnexion gérée pour l'instant) :
++## reste un simple avertissement non bloquant, cf WaitingForPlayerBanner
++## (mouse_filter IGNORE) dans board.tscn.
++func _on_player_disconnected_ingame(_player_id: int) -> void:
++	waiting_for_player_banner.visible = true
++
++
+ func _on_debug_skip_button_pressed() -> void:
+ 	if _auto_skip_active:
+ 		return
+diff --git a/scripts/ui/lobby.gd b/scripts/ui/lobby.gd
+index 776de47..a75ab1b 100644
+--- a/scripts/ui/lobby.gd
++++ b/scripts/ui/lobby.gd
+@@ -1,11 +1,28 @@
+ extends Control
+ 
++## Mêmes couleurs que player_setup_popup.gd (dupliquées ici car ce script
++## n'a pas de class_name à référencer depuis lobby.gd) : style des pastilles
++## de couleur interactives du panneau ColorPickerPanel (choix de couleur du
++## joueur local, à côté de la liste d'attente).
++const SWATCH_TAKEN_COLOR := Color(0.45, 0.45, 0.45)
++const SWATCH_SELECTED_BORDER := Color(1.0, 1.0, 1.0)
++
+ @onready var status_label: Label = $StatusLabel
+ @onready var code_label: Label = $CodeLabel
+ @onready var players_list_box: VBoxContainer = $PlayersPanel/PlayersPanelMargin/PlayersPanelContent/PlayersListBox
+ @onready var start_button: Button = $StartButton
+ @onready var quit_button: Button = $QuitButton
+ @onready var player_setup_popup: Control = $PlayerSetupPopup
++@onready var background: TextureRect = $Background
++@onready var color_picker_panel: PanelContainer = $ColorPickerPanel
++@onready var color_swatches_box: HBoxContainer = $ColorPickerPanel/ColorPickerMargin/ColorPickerContent/ColorSwatchesBox
++
++## Dossier contenant les images de fond du lobby : une est choisie au hasard
++## à chaque ouverture (cf _apply_random_background). Fichiers attendus :
++## .png/.jpg/.jpeg/.webp ; tout autre fichier (ou le dossier absent/vide)
++## est simplement ignoré, sans erreur bloquante.
++const BACKGROUND_DIR := "res://assets/art/ui/bgi"
++const BACKGROUND_EXTENSIONS := ["png", "jpg", "jpeg", "webp"]
+ 
+ ## Devient vrai après que Network.request_join() a été envoyé pour CETTE
+ ## instance (empêche de rouvrir la popup tant qu'on attend une réponse).
+@@ -30,6 +47,8 @@ func _ready() -> void:
+ 	start_button.disabled = true
+ 	start_button.pressed.connect(_on_start_pressed)
+ 
++	_apply_random_background()
++
+ 	quit_button.pressed.connect(_on_quit_pressed)
+ 
+ 	code_label.visible = multiplayer.is_server()
+@@ -43,6 +62,7 @@ func _ready() -> void:
+ 	Network.player_list_changed.connect(_on_network_status_changed)
+ 	Network.lobby_synced.connect(_refresh_list)
+ 	Network.lobby_preview_received.connect(_on_lobby_preview_received)
++	Network.color_change_rejected.connect(_on_color_change_rejected)
+ 
+ 	_refresh_list()
+ 	if Network.is_dedicated_server_launch():
+@@ -53,6 +73,36 @@ func _ready() -> void:
+ 	_try_open_local_setup()
+ 
+ 
++## Choisit une image au hasard dans BACKGROUND_DIR et la met en fond plein
++## écran (recadrée, pas déformée : STRETCH_KEEP_ASPECT_COVERED). Silencieux
++## si le dossier est absent/vide (pas d'image = pas de fond, écran uni).
++func _apply_random_background() -> void:
++	var path := _pick_random_background_path()
++	if path.is_empty():
++		return
++	var tex: Texture2D = load(path)
++	if tex == null:
++		return
++	background.texture = tex
++
++
++func _pick_random_background_path() -> String:
++	var dir := DirAccess.open(BACKGROUND_DIR)
++	if dir == null:
++		return ""
++	var candidates: Array[String] = []
++	dir.list_dir_begin()
++	var file_name := dir.get_next()
++	while file_name != "":
++		if not dir.current_is_dir() and BACKGROUND_EXTENSIONS.has(file_name.get_extension().to_lower()):
++			candidates.append(BACKGROUND_DIR + "/" + file_name)
++		file_name = dir.get_next()
++	dir.list_dir_end()
++	if candidates.is_empty():
++		return ""
++	return candidates[randi() % candidates.size()]
++
++
+ func _try_open_local_setup() -> void:
+ 	if _has_registered or _setup_opened or _dedicated_server_chosen:
+ 		return
+@@ -128,43 +178,137 @@ func _refresh_list() -> void:
+ 
+ 	# id du JOUEUR qui correspond au pair hôte (peer_id 1), s'il joue lui-même.
+ 	var host_player_id: int = Network.peer_player_map.get(1, -1)
++	# id du JOUEUR qui correspond à CETTE instance (le "moi" local, hôte ou
++	# client) : sert à afficher SES pastilles de couleur dans le panneau
++	# dédié ColorPickerPanel ci-dessous (cf _refresh_color_picker).
++	var local_player_id: int = Network.peer_player_map.get(multiplayer.get_unique_id(), -1)
+ 
+ 	for p in GameFlow.players:
+-		players_list_box.add_child(_build_player_row("%s — %s" % [p["name"], p["color"]], p["id"] == host_player_id))
++		players_list_box.add_child(_build_player_row(p, p["id"] == host_player_id))
+ 
+ 	# Hôte en "Serveur dédié" (pas dans GameFlow.players, mais a un nom
+ 	# d'affichage) : ligne séparée avec la couronne, sans couleur.
+ 	if host_player_id == -1 and not Network.host_name.is_empty():
+-		players_list_box.add_child(_build_player_row(Network.host_name, true))
++		players_list_box.add_child(_build_name_only_row(Network.host_name, true))
+ 
+ 	if multiplayer.is_server():
+ 		start_button.disabled = GameFlow.players.is_empty()
+ 
++	_refresh_color_picker(local_player_id)
++
++	# Un joueur a pu changer/perdre sa couleur pendant que la popup nom/
++	# couleur d'un NOUVEAU joueur est ouverte (cf
++	# player_setup_popup.open_for_new_player) : on la rafraîchit pour que son
++	# grisé reste synchronisé avec la liste ci-dessus, sans rien réinitialiser
++	# d'autre (nom déjà tapé, etc.).
++	if player_setup_popup.visible:
++		player_setup_popup.refresh_colors()
++
++
++## Remplit le panneau dédié ColorPickerPanel (à côté de la liste des
++## joueurs) avec les pastilles de couleur du joueur LOCAL uniquement : ce
++## panneau reste cette instance de client/hôte tant qu'elle n'est pas
++## inscrite (local_player_id == -1, ex: popup nom/couleur pas encore
++## confirmée, ou hôte "Serveur dédié" qui ne joue pas).
++func _refresh_color_picker(local_player_id: int) -> void:
++	for child in color_swatches_box.get_children():
++		child.queue_free()
++	var local_player: Dictionary = GameFlow.get_player_by_id(local_player_id)
++	color_picker_panel.visible = not local_player.is_empty()
++	if local_player.is_empty():
++		return
++	for color_name in GameFlow.COLORS:
++		color_swatches_box.add_child(_build_color_swatch_button(local_player, color_name))
++
+ 
+-## Construit une ligne "[couronne si is_host] Nom — Couleur".
+-func _build_player_row(display_text: String, is_host: bool) -> HBoxContainer:
++## Construit la ligne "[couronne si is_host] Nom — Couleur" d'un joueur déjà
++## inscrit.
++func _build_player_row(p: Dictionary, is_host: bool) -> HBoxContainer:
+ 	var row := HBoxContainer.new()
+ 	row.add_theme_constant_override("separation", 6)
+ 	if is_host:
+-		var icon := TextureRect.new()
+-		icon.texture = load("res://assets/art/ui/crown.svg")
+-		# Ne doit jamais dépasser la taille du texte du pseudo de plus de 6px.
+-		var text_size: float = ThemeDB.fallback_font_size
+-		icon.custom_minimum_size = Vector2(text_size + 6.0, text_size + 6.0)
+-		# EXPAND_IGNORE_SIZE : sans ça, la taille minimale du TextureRect est
+-		# celle du texture importé (crown.svg fait 1280x815px), qui écrase
+-		# purement et simplement custom_minimum_size -> icône bien plus
+-		# grande que le texte du pseudo. Avec ce mode, custom_minimum_size
+-		# fait foi et stretch_mode se charge de mettre le SVG à l'échelle.
+-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+-		row.add_child(icon)
++		row.add_child(_build_crown_icon())
++	var lbl := Label.new()
++	lbl.text = "%s — %s" % [p["name"], p["color"]]
++	row.add_child(lbl)
++	return row
++
++
++## Ligne "[couronne si is_host] Nom" sans couleur, pour l'hôte en "Serveur
++## dédié" (cf _refresh_list) qui n'est pas un joueur de GameFlow.players.
++func _build_name_only_row(display_text: String, is_host: bool) -> HBoxContainer:
++	var row := HBoxContainer.new()
++	row.add_theme_constant_override("separation", 6)
++	if is_host:
++		row.add_child(_build_crown_icon())
+ 	var lbl := Label.new()
+ 	lbl.text = display_text
+ 	row.add_child(lbl)
+ 	return row
+ 
+ 
++func _build_crown_icon() -> TextureRect:
++	var icon := TextureRect.new()
++	icon.texture = load("res://assets/art/ui/crown.svg")
++	# Ne doit jamais dépasser la taille du texte du pseudo de plus de 6px.
++	var text_size: float = ThemeDB.fallback_font_size
++	icon.custom_minimum_size = Vector2(text_size + 6.0, text_size + 6.0)
++	# EXPAND_IGNORE_SIZE : sans ça, la taille minimale du TextureRect est
++	# celle du texture importé (crown.svg fait 1280x815px), qui écrase
++	# purement et simplement custom_minimum_size -> icône bien plus
++	# grande que le texte du pseudo. Avec ce mode, custom_minimum_size
++	# fait foi et stretch_mode se charge de mettre le SVG à l'échelle.
++	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
++	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
++	return icon
++
++
++## Une pastille cliquable du panneau ColorPickerPanel : grisée/désactivée si
++## prise par un AUTRE joueur (GameFlow.is_color_taken), bordure blanche sur
++## la couleur actuelle du joueur local. Cf _on_lobby_color_pressed pour
++## l'envoi réseau du changement.
++func _build_color_swatch_button(p: Dictionary, color_name: String) -> Button:
++	var btn := Button.new()
++	btn.custom_minimum_size = Vector2(28, 28)
++	btn.text = ""
++	btn.focus_mode = Control.FOCUS_NONE
++	var is_current: bool = color_name == p["color"]
++	var taken_by_other: bool = GameFlow.is_color_taken(color_name) and not is_current
++	btn.disabled = taken_by_other
++	var base_color: Color = SWATCH_TAKEN_COLOR if taken_by_other else GameFlow.COLOR_VALUES[color_name]
++	var style := StyleBoxFlat.new()
++	style.bg_color = base_color
++	style.corner_radius_top_left = 6
++	style.corner_radius_top_right = 6
++	style.corner_radius_bottom_left = 6
++	style.corner_radius_bottom_right = 6
++	if is_current:
++		style.border_width_left = 3
++		style.border_width_top = 3
++		style.border_width_right = 3
++		style.border_width_bottom = 3
++		style.border_color = SWATCH_SELECTED_BORDER
++	btn.add_theme_stylebox_override("normal", style)
++	btn.add_theme_stylebox_override("hover", style)
++	btn.add_theme_stylebox_override("pressed", style)
++	btn.add_theme_stylebox_override("disabled", style)
++	btn.pressed.connect(_on_lobby_color_pressed.bind(color_name))
++	return btn
++
++
++## Envoie la demande de changement de couleur à l'hôte (directement si l'on
++## EST l'hôte, sinon par RPC, cf Network.request_change_color). Aucune mise
++## à jour locale immédiate : on attend la rediffusion _sync_lobby_state pour
++## que la liste et la popup nom/couleur restent la SEULE source de vérité,
++## cohérente entre tous les joueurs (cf _refresh_list).
++func _on_lobby_color_pressed(color_name: String) -> void:
++	Network.request_change_color(color_name)
++
++
++func _on_color_change_rejected(reason: String) -> void:
++	status_label.text = reason
++
++
+ func _on_start_pressed() -> void:
+ 	Network.request_start_game()
+ 
