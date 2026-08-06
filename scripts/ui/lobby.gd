@@ -76,6 +76,10 @@ func _ready() -> void:
 ## Choisit une image au hasard dans BACKGROUND_DIR et la met en fond plein
 ## écran (recadrée, pas déformée : STRETCH_KEEP_ASPECT_COVERED). Silencieux
 ## si le dossier est absent/vide (pas d'image = pas de fond, écran uni).
+## IMPORTANT : stretch_mode est fixé ICI via la constante symbolique
+## TextureRect.STRETCH_KEEP_ASPECT_COVERED plutôt que codé en dur dans
+## lobby.tscn (une valeur d'enum écrite à la main s'est révélée fausse et
+## empêchait tout affichage, sans erreur visible).
 func _apply_random_background() -> void:
 	var path := _pick_random_background_path()
 	if path.is_empty():
@@ -84,6 +88,8 @@ func _apply_random_background() -> void:
 	if tex == null:
 		return
 	background.texture = tex
+	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 
 
 func _pick_random_background_path() -> String:
@@ -126,6 +132,15 @@ func _try_open_local_setup() -> void:
 			return
 		status_label.text = ""
 		_setup_opened = true
+		if Network.is_rejoining:
+			# "CONTINUER (EN LIGNE)" depuis le menu titre : on retente avec
+			# la même identité sans repasser par la popup nom/couleur. Si
+			# l'hôte ne reconnaît personne sous ce nom/couleur (partie déjà
+			# terminée, ou déjà repris par quelqu'un d'autre), _on_join_rejected
+			# rouvrira la popup normalement avec l'erreur "Partie déjà en cours."
+			Network.is_rejoining = false
+			_on_local_player_confirmed(Network.last_player_name, Network.last_player_color)
+			return
 		player_setup_popup.open_for_new_player()
 		return
 	# GameFlow.game_mode == "host" : l'hôte joue automatiquement (le choix

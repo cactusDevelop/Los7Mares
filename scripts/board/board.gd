@@ -165,7 +165,7 @@ func _ready() -> void:
 	sea_gems_container.z_index = 3
 	
 	return_to_menu_button.pressed.connect(func(): return_to_menu_confirm.popup_centered())
-	return_to_menu_confirm.confirmed.connect(func(): GameFlow.go_to_title())
+	return_to_menu_confirm.confirmed.connect(_on_return_to_menu_confirmed)
 
 	# Partie réseau (host/join) uniquement : un joueur qui quitte EN COURS de
 	# partie garde son plateau (cf network_manager._handle_peer_left), mais
@@ -173,6 +173,7 @@ func _ready() -> void:
 	# IGNORE, cf board.tscn) qui n'empêche jamais de cliquer sur
 	# ReturnToMenuButton par-dessus/à côté.
 	Network.player_disconnected_ingame.connect(_on_player_disconnected_ingame)
+	Network.player_reconnected_ingame.connect(_on_player_reconnected_ingame)
 
 	debug_skip_button.visible = false
 	debug_skip_button.pressed.connect(_on_debug_skip_button_pressed)
@@ -369,13 +370,36 @@ func _ready() -> void:
 ##   d'action en cours), simule le choix le plus rapide (decline/stop) ;
 ## - sinon, une pose de pièce est en attente : la pose automatiquement sur
 ##   la première case libre.
+## Le "gros bug" des erreurs RPC ("Node not found: Board/DealingPhase"...)
+## venait d'ici : cette fonction changeait juste de scène SANS jamais fermer
+## la connexion réseau. Le pair restait donc connecté (mais sans plus aucun
+## nœud Board vivant pour recevoir les RPC), et l'hôte continuait de lui
+## diffuser l'état du jeu en pure perte -> erreurs en boucle côté client, ET
+## aucune déconnexion n'était jamais détectée côté hôte (donc jamais de
+## bannière "En attente d'un joueur", cf _on_player_disconnected_ingame).
+## Cf Network.close_connection : coupe proprement le pair ENet, ce qui
+## déclenche peer_disconnected côté hôte (cf network_manager._handle_peer_left).
+func _on_return_to_menu_confirmed() -> void:
+	if Network.is_online:
+		Network.close_connection()
+	GameFlow.go_to_title()
+
+
 ## Cf Network.player_disconnected_ingame : affiche la bannière "En attente
-## d'un joueur" pour tout le monde (y compris l'hôte, call_local) et ne la
-## cache plus jamais ensuite (pas de reconnexion gérée pour l'instant) :
-## reste un simple avertissement non bloquant, cf WaitingForPlayerBanner
-## (mouse_filter IGNORE) dans board.tscn.
+## d'un joueur" et met la partie en pause pour tout le monde (y compris
+## l'hôte, call_local). Le retour au menu doit rester possible malgré la
+## pause : return_to_menu_button et return_to_menu_confirm sont en
+## process_mode ALWAYS (cf board.tscn), donc jamais gelés par
+## get_tree().paused. Se lève automatiquement si le joueur revient (cf
+## _on_player_reconnected_ingame) via "CONTINUER (EN LIGNE)" au menu titre.
 func _on_player_disconnected_ingame(_player_id: int) -> void:
 	waiting_for_player_banner.visible = true
+	get_tree().paused = true
+
+
+func _on_player_reconnected_ingame(_player_id: int) -> void:
+	waiting_for_player_banner.visible = false
+	get_tree().paused = false
 
 
 func _on_debug_skip_button_pressed() -> void:

@@ -23,6 +23,10 @@ signal color_change_rejected(reason: String)
 ## affichable), on prévient juste tout le monde pour afficher une bannière
 ## d'attente (cf board.gd).
 signal player_disconnected_ingame(player_id: int)
+## Émis (RPC autorité, call_local) quand un joueur précédemment déconnecté
+## en pleine partie vient de se reconnecter (cf _reconnect_player) : cf
+## board.gd pour la levée de bannière/pause associée.
+signal player_reconnected_ingame(player_id: int)
 
 const DEFAULT_PORT := 7373
 const MAX_PLAYERS := 5
@@ -55,6 +59,21 @@ var peer_player_map: Dictionary = {}
 ## Si l'hôte joue, ce champ reste vide : on affiche alors son nom de JOUEUR
 ## (avec la couronne à côté) via peer_player_map, cf lobby.gd._refresh_list.
 var host_name: String = ""
+
+## IP/port/pseudo/couleur de la dernière inscription réussie dans une partie
+## en ligne (rempli par request_join, cf plus bas) : permet au bouton
+## "CONTINUER (EN LIGNE)" du menu titre de retenter une connexion au même
+## hôte avec la même identité après un retour au menu en pleine partie (cf
+## rejoin_last_online_game, close_connection qui ne les efface volontairement
+## PAS pour que ce bouton reste disponible ensuite).
+var last_join_ip: String = ""
+var last_join_port: int = -1
+var last_player_name: String = ""
+var last_player_color: String = ""
+## Vrai entre l'appel à rejoin_last_online_game() et l'inscription qui suit
+## dans lobby.gd : indique qu'il faut renvoyer last_player_name/color
+## directement (pas de popup nom/couleur), cf _try_open_local_setup.
+var is_rejoining: bool = false
 
 ## Douille de réponse aux demandes de découverte, active tant qu'on héberge.
 var _discovery_server_peer: PacketPeerUDP
@@ -105,6 +124,8 @@ func join_game(ip: String, port: int = DEFAULT_PORT) -> Error:
 		return err
 	multiplayer.multiplayer_peer = peer
 	is_online = true
+	last_join_ip = ip
+	last_join_port = port
 	return OK
 
 func close_connection() -> void:
@@ -151,6 +172,12 @@ func _handle_peer_left(peer_id: int) -> void:
 		peer_player_map.erase(peer_id)
 		_sync_lobby_state.rpc(GameFlow.players, peer_player_map)
 	else:
+		# IMPORTANT : on retire aussi l'entrée ici (contrairement à la
+		# branche lobby ci-dessus qui retire le JOUEUR ET l'entrée) pour
+		# que _find_reconnectable_player le considère comme "orphelin" et
+		# accepte sa reconnexion (cf _register_player) ; GameFlow.players,
+		# lui, garde bien le joueur (son plateau doit rester affichable).
+		peer_player_map.erase(peer_id)
 		_notify_player_disconnected_ingame.rpc(player_id)
 
 
@@ -331,10 +358,34 @@ func _send_lobby_preview_rpc(players_data: Array) -> void:
 ## choisi son nom/couleur. Côté hôte, enregistre directement ; côté client,
 ## passe par un RPC vers l'hôte (toujours peer id 1 en ENet).
 func request_join(player_name: String, color: String) -> void:
+	last_player_name = player_name
+	last_player_color = color
 	if multiplayer.is_server():
 		_register_player(1, player_name, color)
 	else:
 		_register_player_rpc.rpc_id(1, player_name, color)
+
+
+## Rejoue la dernière connexion réussie (même hôte, même pseudo/couleur) :
+## utilisé par le bouton "CONTINUER (EN LIGNE)" du menu titre après un
+## retour au menu en pleine partie. lobby.gd s'inscrit ensuite normalement
+## via request_join() avec last_player_name/last_player_color (cf
+## _try_open_local_setup) : si l'hôte reconnaît un joueur du même nom/
+## couleur actuellement déconnecté dans une partie en cours, il nous
+## reconnecte directement dedans (cf _register_player) ; sinon on retombe
+## sur le lobby normal comme une inscription neuve.
+func has_resumable_online_session() -> bool:
+	return not last_join_ip.is_empty() and last_join_port != -1 and not last_player_name.is_empty()
+
+
+func rejoin_last_online_game() -> Error:
+	if not has_resumable_online_session():
+		return ERR_UNCONFIGURED
+	var err := join_game(last_join_ip, last_join_port)
+	if err != OK:
+		return err
+	is_rejoining = true
+	return OK
 
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -349,6 +400,19 @@ func _register_player_rpc(player_name: String, color: String) -> void:
 ## call_local sur _sync_lobby_state).
 func _register_player(peer_id: int, player_name: String, color: String) -> void:
 	print("[Network] _register_player peer_id=%d name=%s color=%s" % [peer_id, player_name, color])
+	if _game_started:
+		# La partie est déjà lancée : seul un joueur qui en faisait DÉJÀ
+		# partie (même nom + même couleur) ET actuellement déconnecté (pas
+		# dans peer_player_map) peut revenir, cf _reconnect_player. Un
+		# nouveau venu (ou un nom/couleur qui ne correspond à personne)
+		# est refusé avec le même mécanisme que join_rejected (popup nom/
+		# couleur du lobby, cf lobby.gd._on_join_rejected).
+		var existing := _find_reconnectable_player(player_name, color)
+		if existing.is_empty():
+			_reject_join.rpc_id(peer_id, "Partie déjà en cours.")
+			return
+		_reconnect_player(peer_id, existing["id"])
+		return
 	if GameFlow.is_name_taken(player_name):
 		_reject_join.rpc_id(peer_id, "Ce nom est déjà pris.")
 		return
@@ -365,6 +429,46 @@ func _register_player(peer_id: int, player_name: String, color: String) -> void:
 	peer_player_map[peer_id] = player["id"]
 	print("[Network] joueur ajouté id=%s, total joueurs=%d, diffusion à tous les pairs" % [player["id"], GameFlow.players.size()])
 	_sync_lobby_state.rpc(GameFlow.players, peer_player_map)
+
+
+## Un joueur de GameFlow.players (déjà présent depuis avant le lancement de
+## la partie) dont le peer courant est absent de peer_player_map : il s'est
+## déconnecté en cours de partie (cf _handle_peer_left) et peut donc
+## reprendre sa place. Ne matche que sur nom+couleur EXACTS : un joueur qui
+## change de pseudo/couleur pour "Continuer (en ligne)" ne récupère pas la
+## place d'un autre par erreur.
+func _find_reconnectable_player(player_name: String, color: String) -> Dictionary:
+	var reconnected_ids: Array = peer_player_map.values()
+	for p in GameFlow.players:
+		if p["name"] == player_name and p["color"] == color and not reconnected_ids.has(p["id"]):
+			return p
+	return {}
+
+
+## Autorité uniquement. Réassocie ce peer au joueur existant (au lieu d'en
+## créer un nouveau), lui envoie tout ce qu'il faut pour rejoindre le
+## plateau directement (cf GameFlow.apply_reconnect_snapshot, même
+## mécanisme que "Continuer" en solo), puis prévient tout le monde pour
+## lever la bannière "En attente d'un joueur" et dépauser la partie (cf
+## board.gd).
+func _reconnect_player(peer_id: int, player_id: int) -> void:
+	peer_player_map[peer_id] = player_id
+	_send_reconnect_data.rpc_id(
+		peer_id, GameFlow.players, GameFlow.current_player_id,
+		GameFlow.round_number, GameFlow.board_seed, GameFlow.last_board_snapshot,
+	)
+	_notify_player_reconnected_ingame.rpc(player_id)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _send_reconnect_data(players_data: Array, current_player_id: int, round_number: int, board_seed: int, board_snapshot: Dictionary) -> void:
+	_game_started = true
+	GameFlow.apply_reconnect_snapshot(players_data, current_player_id, round_number, board_seed, board_snapshot)
+
+
+@rpc("authority", "call_local", "reliable")
+func _notify_player_reconnected_ingame(player_id: int) -> void:
+	player_reconnected_ingame.emit(player_id)
 
 
 ## Couleur assignée automatiquement (client sans choix de couleur, cf

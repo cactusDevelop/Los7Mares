@@ -12,6 +12,12 @@ extends Control
 @onready var player_count_spinbox: SpinBox = $PlayerCountPopup/Padding/VBoxContainer/PlayerCountSpinBox
 @onready var player_count_confirm_button: Button = $PlayerCountPopup/Padding/VBoxContainer/ConfirmButton
 @onready var continue_button: Button = $CenterButtons/ContinueButton
+## Cf Network.has_resumable_online_session : ne réapparaît que si CETTE
+## instance a déjà rejoint une partie en ligne pendant la session en cours
+## et l'a quittée (Board/ReturnToMenuButton) sans que la connexion ait été
+## fermée pour une autre raison (hôte parti, etc., cf close_connection
+## appelé aussi dans ce cas).
+@onready var continue_online_button: Button = $CenterButtons/ContinueOnlineButton
 
 @onready var join_ip_popup: PopupPanel = $JoinIpPopup
 @onready var join_ip_line_edit: LineEdit = $JoinIpPopup/Padding/VBoxContainer/JoinIpLineEdit
@@ -29,11 +35,28 @@ func _on_continue_pressed() -> void:
 	GameFlow.continue_game()
 
 
+## Retente la connexion à la dernière partie en ligne quittée en cours de
+## jeu (cf Network.rejoin_last_online_game). L'inscription proprement dite
+## (avec le même pseudo/couleur, sans repasser par la popup) se fait ensuite
+## dans lobby.gd une fois la connexion établie (cf Network.is_rejoining).
+func _on_continue_online_pressed() -> void:
+	var err: Error = Network.rejoin_last_online_game()
+	if err != OK:
+		_popup_join_ip_centered()
+		join_error_label.text = tr("Impossible de se reconnecter à l'hôte.")
+		join_error_label.visible = true
+		return
+	GameFlow.is_debug_mode = false
+	MusicManager.fade_to_random_game_music()
+	GameFlow.go_to_lobby()
+
+
 func _ready() -> void:
 	_style_popup_background(player_count_popup)
 	_style_popup_background(join_ip_popup)
 
 	continue_button.visible = SaveManager.has_save()
+	continue_online_button.visible = Network.has_resumable_online_session()
 
 	_layout_ui()
 	get_viewport().size_changed.connect(_layout_ui)
@@ -46,6 +69,7 @@ func _ready() -> void:
 	debug_button.pressed.connect(_on_debug_pressed)
 	player_count_confirm_button.pressed.connect(_on_player_count_confirmed)
 	continue_button.pressed.connect(_on_continue_pressed)
+	continue_online_button.pressed.connect(_on_continue_online_pressed)
 	join_ip_confirm_button.pressed.connect(_on_join_ip_confirmed)
 	Network.code_join_found.connect(_on_code_join_found)
 	Network.code_join_failed.connect(_on_code_join_failed)
@@ -81,7 +105,7 @@ func _layout_ui() -> void:
 		background.position = Vector2.ZERO
 		background.size = Vector2(viewport_size.x, tex_size.y * scale_factor)
 
-	for btn in [continue_button, host_button, join_button, local_button, debug_button]:
+	for btn in [continue_button, continue_online_button, host_button, join_button, local_button, debug_button]:
 		btn.custom_minimum_size = UiTheme.TITLE_BUTTON_SIZE
 		btn.add_theme_font_size_override("font_size", UiTheme.TITLE_BUTTON_FONT_SIZE)
 	center_buttons.size = center_buttons.get_combined_minimum_size()

@@ -94,6 +94,14 @@ var is_continuing: bool = false
 var _pending_board_data: Dictionary = {}
 var round_number: int = 0
 
+## Dernier instantané du plateau (cf board._serialize_state), maintenu à
+## jour en mémoire par autosave() MÊME en partie en ligne (contrairement au
+## fichier de sauvegarde, jamais écrit pour host/join, cf autosave()
+## ci-dessous). Sert uniquement à reconnecter un joueur qui a quitté en
+## pleine partie (cf network_manager._reconnect_player), sans rien
+## persister sur disque.
+var last_board_snapshot: Dictionary = {}
+
 ## Graine RNG partagée pour le mélange des tuiles mer (board._ready), fixée
 ## par l'hôte au lancement de la partie (cf network_manager._start_game) pour
 ## que host et clients obtiennent le même ordre sans avoir à le transmettre.
@@ -638,9 +646,28 @@ func take_pending_board_data() -> Dictionary:
 ## le jeu au premier appel RPC (ex: hideout_phase._request_claim_spot_rpc).
 ## Seules les parties locales/solo/debug sont sauvegardées.
 func autosave(board_data: Dictionary) -> void:
+	last_board_snapshot = board_data
 	if game_mode == "host" or game_mode == "join":
 		return
 	SaveManager.write({
 		"players": players, "next_player_id": _next_player_id,
 		"is_debug_mode": is_debug_mode, "game_mode": game_mode, "board": board_data,
 	})
+
+
+## Repositionne tout l'état nécessaire pour qu'un client réseau reprenne la
+## partie exactement là où en est le dernier instantané connu de l'hôte
+## (cf network_manager._reconnect_player / last_board_snapshot ci-dessus),
+## selon le MÊME mécanisme que "Continuer" en solo (continue_game()) : seule
+## la provenance des données change (réseau au lieu d'un fichier). Peut
+## rester légèrement en retard sur l'action en cours exacte (l'instantané
+## n'est pris qu'à certains points de contrôle : fin distribution/planque/
+## pioche, cf board._autosave), mais reste cohérent et jouable.
+func apply_reconnect_snapshot(players_data: Array, new_current_player_id: int, new_round_number: int, new_board_seed: int, board_snapshot: Dictionary) -> void:
+	set_players_from_network(players_data)
+	current_player_id = new_current_player_id
+	round_number = new_round_number
+	board_seed = new_board_seed
+	_pending_board_data = board_snapshot
+	is_continuing = true
+	go_to_board()

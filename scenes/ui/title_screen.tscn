@@ -28,6 +28,10 @@ offset_transform_enabled = true
 layout_mode = 2
 text = "Continuer"
 
+[node name="ContinueOnlineButton" type="Button" parent="CenterButtons"]
+layout_mode = 2
+text = "CONTINUER (EN LIGNE)"
+
 [node name="DebugButton" type="Button" parent="CenterButtons" unique_id=1554320652]
 layout_mode = 2
 text = "DEBUG"
