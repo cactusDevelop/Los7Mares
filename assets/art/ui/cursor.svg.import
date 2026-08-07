@@ -2,21 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dp4s6lil2a811"
-path.s3tc="res://.godot/imported/7-logo.png-c3804920d9bf1baea0bb0e129e05057a.s3tc.ctex"
+uid="uid://ksrbmm1wxpw3"
+path="res://.godot/imported/cursor.svg-e003a163eab0221d66965c2f1443e5b0.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/ui/7-logo.png"
-dest_files=["res://.godot/imported/7-logo.png-c3804920d9bf1baea0bb0e129e05057a.s3tc.ctex"]
+source_file="res://assets/art/ui/cursor.svg"
+dest_files=["res://.godot/imported/cursor.svg-e003a163eab0221d66965c2f1443e5b0.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -24,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -39,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

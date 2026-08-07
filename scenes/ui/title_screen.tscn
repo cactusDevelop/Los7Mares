@@ -28,7 +28,7 @@ offset_transform_enabled = true
 layout_mode = 2
 text = "Continuer"
 
-[node name="ContinueOnlineButton" type="Button" parent="CenterButtons"]
+[node name="ContinueOnlineButton" type="Button" parent="CenterButtons" unique_id=1774449049]
 layout_mode = 2
 text = "CONTINUER (EN LIGNE)"
 
@@ -53,8 +53,8 @@ text = "HEBERGER"
 [node name="Padding" type="MarginContainer" parent="PlayerCountPopup" unique_id=2065299801]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 412.0
-offset_bottom = 157.0
+offset_right = 96.0
+offset_bottom = 96.0
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
@@ -78,42 +78,42 @@ value = 4.0
 layout_mode = 2
 text = "VALIDER"
 
-[node name="JoinIpPopup" type="PopupPanel" parent="."]
+[node name="JoinIpPopup" type="PopupPanel" parent="." unique_id=1348014378]
 
-[node name="Padding" type="MarginContainer" parent="JoinIpPopup"]
+[node name="Padding" type="MarginContainer" parent="JoinIpPopup" unique_id=120612798]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 412.0
-offset_bottom = 157.0
+offset_right = 96.0
+offset_bottom = 96.0
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
-[node name="VBoxContainer" type="VBoxContainer" parent="JoinIpPopup/Padding"]
+[node name="VBoxContainer" type="VBoxContainer" parent="JoinIpPopup/Padding" unique_id=1113694735]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Label" type="Label" parent="JoinIpPopup/Padding/VBoxContainer"]
+[node name="Label" type="Label" parent="JoinIpPopup/Padding/VBoxContainer" unique_id=1360076862]
 layout_mode = 2
 text = "CODE DE LA PARTIE"
 
-[node name="JoinIpLineEdit" type="LineEdit" parent="JoinIpPopup/Padding/VBoxContainer"]
+[node name="JoinIpLineEdit" type="LineEdit" parent="JoinIpPopup/Padding/VBoxContainer" unique_id=1793699145]
 layout_mode = 2
 placeholder_text = "ex: AB3D"
 max_length = 4
 
-[node name="ConfirmButton" type="Button" parent="JoinIpPopup/Padding/VBoxContainer"]
+[node name="ConfirmButton" type="Button" parent="JoinIpPopup/Padding/VBoxContainer" unique_id=1793231958]
 layout_mode = 2
 text = "REJOINDRE"
 
-[node name="JoinErrorLabel" type="Label" parent="JoinIpPopup/Padding/VBoxContainer"]
-layout_mode = 2
+[node name="JoinErrorLabel" type="Label" parent="JoinIpPopup/Padding/VBoxContainer" unique_id=850054738]
 visible = false
+layout_mode = 2
 text = "Aucune partie trouvée avec ce code sur le réseau."
 autowrap_mode = 2
 
-[node name="UpdateBlocker" type="ColorRect" parent="."]
+[node name="UpdateBlocker" type="ColorRect" parent="." unique_id=377647085]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -121,10 +121,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 color = Color(0, 0, 0, 0.75)
 
-[node name="UpdatePanel" type="PanelContainer" parent="UpdateBlocker"]
+[node name="UpdatePanel" type="PanelContainer" parent="UpdateBlocker" unique_id=626752670]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -138,34 +137,32 @@ offset_bottom = 90.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Margin" type="MarginContainer" parent="UpdateBlocker/UpdatePanel"]
+[node name="Margin" type="MarginContainer" parent="UpdateBlocker/UpdatePanel" unique_id=688960482]
 layout_mode = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UpdateBlocker/UpdatePanel/Margin"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UpdateBlocker/UpdatePanel/Margin" unique_id=356874584]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="UpdateTitleLabel" type="Label" parent="UpdateBlocker/UpdatePanel/Margin/VBoxContainer"]
+[node name="UpdateTitleLabel" type="Label" parent="UpdateBlocker/UpdatePanel/Margin/VBoxContainer" unique_id=614563954]
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Mise à jour requise"
 
-[node name="UpdateLabel" type="Label" parent="UpdateBlocker/UpdatePanel/Margin/VBoxContainer"]
+[node name="UpdateLabel" type="Label" parent="UpdateBlocker/UpdatePanel/Margin/VBoxContainer" unique_id=1552104753]
 layout_mode = 2
-autowrap_mode = 2
 text = "Une nouvelle version est disponible. Vous devez l'installer pour continuer à jouer."
+autowrap_mode = 2
 
-[node name="UpdateProgressBar" type="ProgressBar" parent="UpdateBlocker/UpdatePanel/Margin/VBoxContainer"]
+[node name="UpdateProgressBar" type="ProgressBar" parent="UpdateBlocker/UpdatePanel/Margin/VBoxContainer" unique_id=694218981]
 visible = false
 layout_mode = 2
-min_value = 0.0
 max_value = 1.0
-step = 0.01
 
-[node name="UpdateDownloadButton" type="Button" parent="UpdateBlocker/UpdatePanel/Margin/VBoxContainer"]
+[node name="UpdateDownloadButton" type="Button" parent="UpdateBlocker/UpdatePanel/Margin/VBoxContainer" unique_id=1215844625]
 layout_mode = 2
 text = "METTRE A JOUR"
