@@ -24,6 +24,15 @@ const SEA_TOKEN_PILE_SCENE := preload("res://scenes/board/sea_token_pile.tscn")
 const SEA_GEM_PILE_SCENE := preload("res://scenes/board/sea_gem_pile.tscn")
 const PLAYER_BOARD_ROW := preload("res://scenes/ui/player_board_row.tscn")
 
+## Fréquence d'envoi de la position de la souris locale aux autres joueurs
+## en ligne (cf _process/_report_cursor_pos). 20 Hz suffit pour un rendu
+## fluide à l'écran tout en restant négligeable en bande passante/CPU,
+## y compris pour un hôte dédié sur Raspberry Pi (cf network_manager.gd).
+const REMOTE_CURSOR_SEND_INTERVAL := 0.05
+
+var _remote_cursors: RemoteCursors
+var _cursor_send_accum: float = 0.0
+
 const SEA_KEY_BY_NODE_NAME := {
 	"SeaAbondance": "abondance",
 	"SeaAzur": "azur",
@@ -143,6 +152,8 @@ func _ready() -> void:
 	dice_results_button.position = Vector2(20, 20)
 	dice_results_button.pressed.connect(_on_dice_results_button_pressed)
 	get_viewport().size_changed.connect(_layout_player_boards)
+	_remote_cursors = RemoteCursors.new()
+	add_child(_remote_cursors)
 	# En mode multijoueur (host/join), le plateau affiché en bas est TOUJOURS
 	# celui du joueur local (cf _get_display_current_player_id) : il ne
 	# dépend jamais du tour en cours, donc inutile (et visuellement gênant :
@@ -380,6 +391,7 @@ func _ready() -> void:
 ## Cf Network.close_connection : coupe proprement le pair ENet, ce qui
 ## déclenche peer_disconnected côté hôte (cf network_manager._handle_peer_left).
 func _on_return_to_menu_confirmed() -> void:
+	_remote_cursors.clear_all()
 	if Network.is_online:
 		Network.close_connection()
 	GameFlow.go_to_title()
@@ -395,6 +407,9 @@ func _on_return_to_menu_confirmed() -> void:
 func _on_player_disconnected_ingame(_player_id: int) -> void:
 	waiting_for_player_banner.visible = true
 	get_tree().paused = true
+	for peer_id in Network.peer_player_map.keys():
+		if Network.peer_player_map[peer_id] == _player_id:
+			_remote_cursors._remove_cursor(peer_id)
 
 
 func _on_player_reconnected_ingame(_player_id: int) -> void:
@@ -541,6 +556,59 @@ func roll_dice_synced(dice_roll: Node3D, scenes: Array[PackedScene]) -> Array[St
 @rpc("authority", "call_remote", "reliable")
 func _broadcast_dice_result(results: Array, frames: Array) -> void:
 	dice_result_received.emit(results, frames)
+
+
+## Curseurs partagés (host/join uniquement) : envoie ~20 fois/seconde la
+## position souris locale (normalisée 0..1, indépendante de la résolution)
+## à l'hôte, qui la relaie à tout le monde sauf l'émetteur (cf
+## _report_cursor_pos / _relay_cursor_pos). N'a aucun effet en partie
+## locale/hotseat/debug (Network.is_online == false).
+func _process(delta: float) -> void:
+	if not Network.is_online:
+		return
+	_cursor_send_accum += delta
+	if _cursor_send_accum < REMOTE_CURSOR_SEND_INTERVAL:
+		return
+	_cursor_send_accum = 0.0
+	var vp_size := get_viewport().get_visible_rect().size
+	if vp_size.x <= 0.0 or vp_size.y <= 0.0:
+		return
+	var norm_pos: Vector2 = get_viewport().get_mouse_position() / vp_size
+	if multiplayer.is_server():
+		_report_cursor_pos(norm_pos)
+	else:
+		_report_cursor_pos.rpc_id(1, norm_pos)
+
+
+## Reçue uniquement côté hôte (autorité) : associe la position au peer_id
+## émetteur puis la redistribue à tout le monde. get_remote_sender_id()
+## renvoie 0 quand la fonction est appelée localement par l'hôte lui-même
+## (cf branche multiplayer.is_server() ci-dessus) : on le remappe alors sur
+## son propre id réseau (toujours 1 en ENet/Godot, cf network_manager.gd).
+@rpc("any_peer", "unreliable_ordered")
+func _report_cursor_pos(norm_pos: Vector2) -> void:
+	if not multiplayer.is_server():
+		return
+	var sender_id := multiplayer.get_remote_sender_id()
+	if sender_id == 0:
+		sender_id = multiplayer.get_unique_id()
+	_relay_cursor_pos.rpc(sender_id, norm_pos)
+
+
+## call_local pour que l'hôte affiche aussi les curseurs des autres joueurs
+## chez lui, pas seulement les clients entre eux. On ignore simplement le
+## paquet qui nous concerne nous-mêmes (peer_id == notre propre id).
+@rpc("authority", "call_local", "unreliable_ordered")
+func _relay_cursor_pos(peer_id: int, norm_pos: Vector2) -> void:
+	if peer_id == multiplayer.get_unique_id():
+		return
+	var player_id: int = Network.peer_player_map.get(peer_id, -1)
+	var color := Color.WHITE
+	if player_id != -1:
+		var player: Dictionary = GameFlow.get_player_by_id(player_id)
+		if player.has("color"):
+			color = GameFlow.COLOR_VALUES.get(player["color"], Color.WHITE)
+	_remote_cursors.update_cursor(peer_id, norm_pos, color)
 
 
 ## Id du joueur affiché en bas/en grand. En mode local (et debug), c'est le
