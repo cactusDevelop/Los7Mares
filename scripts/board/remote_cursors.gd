@@ -110,7 +110,7 @@ func _get_colored_texture(color: Color) -> Texture2D:
 	var key := color.to_html(false)
 	if _colored_texture_cache.has(key):
 		return _colored_texture_cache[key]
-	var img := _base_image.duplicate()
+	var img: Image = _base_image.duplicate()
 	for y in range(img.get_height()):
 		for x in range(img.get_width()):
 			var px := img.get_pixel(x, y)
