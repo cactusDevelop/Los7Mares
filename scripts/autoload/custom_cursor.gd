@@ -7,12 +7,15 @@ extends Node
 ## de conversion, contrairement à l'ancien .cur.
 
 const CURSOR_PATH := "res://assets/art/ui/cursor.svg"
-## Point exact du visuel qui correspond à la position réelle du clic
-## (en pixels, depuis le coin haut-gauche de l'image). A ajuster dans
-## l'inspecteur... il n'y a pas d'inspecteur ici (autoload sans scène) :
-## modifier la valeur directement si la pointe du curseur ne correspond
-## pas visuellement au point de clic une fois le PNG en place.
-const CURSOR_HOTSPOT := Vector2(4, 2)
+## Point exact du visuel qui correspond à la position réelle du clic (en
+## pixels, mesuré par l'utilisateur sur le SVG à sa taille d'import
+## d'origine, AVANT le redimensionnement ci-dessous — CURSOR_SCALE est
+## appliqué aux deux pour rester cohérent).
+const CURSOR_HOTSPOT := Vector2(20, 25)
+## Le SVG importé fait 2x la taille voulue à l'écran : on le redimensionne
+## nous-mêmes au chargement (Input.set_custom_mouse_cursor n'a pas de
+## paramètre d'échelle, il affiche la texture à sa résolution native).
+const CURSOR_SCALE := 0.5
 
 
 func _ready() -> void:
@@ -27,4 +30,13 @@ func _apply_cursor() -> void:
 	if tex == null:
 		push_warning("CustomCursor: '%s' n'a pas pu être chargé comme Texture2D — curseur système conservé." % CURSOR_PATH)
 		return
-	Input.set_custom_mouse_cursor(tex, Input.CURSOR_ARROW, CURSOR_HOTSPOT)
+	var img: Image = tex.get_image()
+	if img == null:
+		push_warning("CustomCursor: image source introuvable pour '%s' — curseur système conservé." % CURSOR_PATH)
+		return
+	if img.is_compressed():
+		img.decompress()
+	var target_size := (Vector2(img.get_size()) * CURSOR_SCALE).round()
+	img.resize(int(target_size.x), int(target_size.y), Image.INTERPOLATE_LANCZOS)
+	var scaled_tex := ImageTexture.create_from_image(img)
+	Input.set_custom_mouse_cursor(scaled_tex, Input.CURSOR_ARROW, CURSOR_HOTSPOT * CURSOR_SCALE)
